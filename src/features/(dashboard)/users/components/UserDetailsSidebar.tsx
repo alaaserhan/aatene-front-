@@ -504,7 +504,7 @@ export function UserDetailsSidebar({
               <Button
                 type="submit"
                 disabled={updateUserMutation.isPending}
-                className="px-6 bg-blue-6 text-blue-4 cursor-pointer rounded-xs"
+                variant="outline"
               >
                 {updateUserMutation.isPending && (
                   <Loader2 className="w-4 h-4 animate-spin ml-2" />

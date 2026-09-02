@@ -76,12 +76,11 @@ export default function PasswordTab() {
                         <label className="text-sm font-medium text-[#4B5563] text-right">
                             كلمة المرور
                         </label>
-                        <div className="relative flex flex-col items-center gap-1">
+                        <div className="relative flex flex-col gap-1">
                             <input
                                 type={showPassword ? "text" : "password"}
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                placeholder="******"
                                 className={cn(
                                     "w-full px-6 py-3.5 border rounded-full focus:outline-none focus:border-gray-400 text-right bg-[#FFFFFF] transition-colors",
                                     errors.password ? "border-red-500" : "border-gray-200"
@@ -92,7 +91,7 @@ export default function PasswordTab() {
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                             >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                             </button>
                             {errors.password && <p className="text-red-500 text-xs px-4">{errors.password}</p>}
                         </div>
@@ -108,7 +107,6 @@ export default function PasswordTab() {
                                 type={showConfirmPassword ? "text" : "password"}
                                 value={formData.password_confirmation}
                                 onChange={(e) => setFormData({ ...formData, password_confirmation: e.target.value })}
-                                placeholder="******"
                                 className={cn(
                                     "w-full px-6 py-3.5 border rounded-full focus:outline-none focus:border-gray-400 text-right bg-[#FFFFFF] transition-colors",
                                     errors.password_confirmation ? "border-red-500" : "border-gray-200"
@@ -119,7 +117,7 @@ export default function PasswordTab() {
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                             >
-                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                             </button>
                             {errors.password_confirmation && <p className="text-red-500 text-xs px-4">{errors.password_confirmation}</p>}
                         </div>
@@ -130,7 +128,7 @@ export default function PasswordTab() {
                             type="submit"
                             disabled={isUpdating}
                             className={cn(
-                                "bg-[#3D5E83] text-white px-16 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer hover:bg-[#324d6d]",
+                                "bg-c2-primary hover:bg-c2-navy-600 text-white px-16 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer",
                                 isUpdating && "opacity-60 cursor-not-allowed"
                             )}
                         >

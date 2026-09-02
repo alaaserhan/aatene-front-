@@ -7,8 +7,6 @@ import { Input } from "@/src/components/ui/input";
 import { useGetAdminMissedQuestions, useReviewAdminMissedQuestion, useDeleteAdminMissedQuestion } from "../hooks";
 import { AdminMissedQuestion } from "../api";
 import { Pagination } from "@/src/components/ui/Pagination";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 import { formatDateTime } from "@/src/lib/date-helper";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/dialog";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
@@ -166,6 +164,10 @@ export function UnansweredQuestionsPage() {
     const exportToPDF = async () => {
         setIsExporting(true);
         try {
+            const [{ jsPDF }, { default: html2canvas }] = await Promise.all([
+                import("jspdf"),
+                import("html2canvas"),
+            ]);
             const pdf = new jsPDF("p", "mm", "a4");
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const rowsPerPage = 25;
@@ -536,7 +538,7 @@ export function UnansweredQuestionsPage() {
                             <p className="font-semibold text-[17px] leading-relaxed text-[#1F2937]">{questionToAnswer?.question}</p>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold text-[#374151]">قاعدة المعرفة التي سيتم اضافة السؤال لها</label>
+                            <label className="text-sm font-semibold text-[#374151]">قاعدة المعرفة التي سيتم إضافة السؤال لها</label>
                             <div className="relative" ref={answerPlatformRef}>
                                 <button
                                     type="button"

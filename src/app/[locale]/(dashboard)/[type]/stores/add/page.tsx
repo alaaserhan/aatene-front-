@@ -1,5 +1,5 @@
+import { StoreTypeSelectPage } from "@/src/features/(dashboard)/stores/create/StoreTypeSelectPage";
 
-import { AddStoreStep1 } from "@/src/features/(dashboard)/stores/components/AddStoreStep1";
 export default function Page() {
-  return <AddStoreStep1  />;
+  return <StoreTypeSelectPage />;
 }

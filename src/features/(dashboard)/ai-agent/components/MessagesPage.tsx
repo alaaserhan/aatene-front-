@@ -109,7 +109,6 @@ export function MessagesPage() {
                                         params.delete("chatId");
                                         router.push(`${pathname}?${params.toString()}`);
                                     }}
-                                    dir="ltr"
                                     className="data-[state=checked]:bg-[#D97706]"
                                 />
                                 <Label

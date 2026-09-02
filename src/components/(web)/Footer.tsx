@@ -3,10 +3,12 @@
 import { Facebook, Twitter, Instagram, Youtube, Ghost, Music2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { fixMediaUrl, upgradeHttpToHttps } from "@/src/lib/utils";
+import { useIsAuthenticated, useUser } from "@/src/auth";
+import { useMounted } from "@/src/hooks/use-mounted";
 
 function AppBadgeLink({
   href,
@@ -54,7 +56,7 @@ function AppStoreButtons({
           fill={!isMobile}
           width={isMobile ? 120 : undefined}
           height={isMobile ? 40 : undefined}
-          className="h-12 w-full object-contain object-right opacity-80 transition-opacity group-hover:opacity-100"
+          className="h-12 w-full object-contain object-right transition-opacity group-hover:opacity-100"
         />
       </AppBadgeLink>
 
@@ -65,7 +67,7 @@ function AppStoreButtons({
           fill={!isMobile}
           width={isMobile ? 120 : undefined}
           height={isMobile ? 40 : undefined}
-          className="h-12 w-full object-contain object-right opacity-80 transition-opacity group-hover:opacity-100"
+          className="h-12 w-full object-contain object-right transition-opacity group-hover:opacity-100"
         />
       </AppBadgeLink>
     </div>
@@ -75,6 +77,11 @@ function AppStoreButtons({
 const Footer = () => {
   const lang = useLanguage();
   const { settings } = useSettingsStore();
+  const isAuthenticated = useIsAuthenticated();
+  const user = useUser();
+  const isMerchant = user?.user_type === "merchant";
+  const isAdmin = user?.user_type === "admin";
+  const mounted = useMounted();
   const localePath = (path: string) => `/${lang}${path === "/" ? "" : path}`;
   const googlePlayUrl = process.env.NEXT_PUBLIC_GOOGLE_PLAY_URL || localePath("/coming-soon");
   const appStoreUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || localePath("/coming-soon");
@@ -103,10 +110,14 @@ const Footer = () => {
     {
       title: "حسابي",
       links: [
-        { label: "تسجيل الدخول", href: localePath("/login") },
-        { label: "إنشاء حساب", href: localePath("/signup") },
+        ...(!mounted || !isAuthenticated ? [
+          { label: "تسجيل الدخول", href: localePath("/login") },
+          { label: "إنشاء حساب", href: localePath("/signup") },
+        ] : []),
         { label: "إعدادات", href: localePath("/settings") },
-        { label: "كن تاجرا", href: localePath("/admin/stores/add") },
+        ...(!mounted || (!isMerchant && !isAdmin) ? [
+          { label: "كن تاجرًا", href: localePath("/settings?tab=merchant") },
+        ] : []),
       ],
     },
     {
@@ -196,6 +207,8 @@ const Footer = () => {
                       <li key={i}>
                         <Link
                           href={link.href}
+                          scroll={true}
+                          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                           className="block py-1 text-sm text-[#8B96A5] transition-colors duration-200 hover:text-gray-700"
                         >
                           {link.label}

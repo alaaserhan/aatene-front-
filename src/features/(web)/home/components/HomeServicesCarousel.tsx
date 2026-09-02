@@ -41,10 +41,10 @@ export default function HomeServicesCarousel({
   return (
     <section className={cn("py-8 relative overflow-hidden", className)} dir="rtl">
       <MaxWidthWrapper className="relative z-20">
-        <div className="mb-8 flex items-start justify-between gap-3 sm:mb-10 sm:items-center">
+        <div className="mb-6 flex items-start justify-between gap-3 sm:items-center">
           <h2
             className={cn(
-              "min-w-0 flex-1 whitespace-normal break-words text-center text-xl leading-snug text-blue-4 font-medium sm:text-right sm:text-2xl md:text-3xl",
+              "heading-3",
               titleClassName
             )}
           >

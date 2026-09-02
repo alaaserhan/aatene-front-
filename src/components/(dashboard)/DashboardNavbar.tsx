@@ -20,7 +20,6 @@ import {
   Bot,
   ImageIcon,
   Wand2Icon,
-  PanelsRightBottom,
   Boxes,
   Newspaper,
   Heart,
@@ -36,11 +35,15 @@ import {
   TicketPercent,
   Trash2,
   Mail,
-  Truck,
+  ExternalLink,
+  MessageCircleMore,
+  Workflow,
+  Tags,
+  Hash,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
-import { useLogout } from "@/src/features/(web)/auth/hooks";
+import { useLogout } from "@/src/auth";
 import { NotificationDropdown } from "@/src/components/shared/NotificationDropdown";
 import {
   DropdownMenu,
@@ -55,30 +58,35 @@ import Cookies from "js-cookie";
 import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from "@/src/config/role-permissions";
-import { useGetStoreBalance } from "@/src/features/(dashboard)/coins/hooks";
+// import { useGetStoreBalance } from "@/src/features/(dashboard)/coins/hooks"; // ⚠️ معطّل مؤقتاً - نظام العملات الذهبية
 import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
 import { Badge } from "@/src/components/ui/badge";
+import { NavIconButton } from "../(web)/NavIconButton";
 
-const MerchantNavbarPoints = ({ storeId }: { storeId?: string | number | null }) => {
-  const { data, isLoading } = useGetStoreBalance(undefined, storeId || undefined);
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => { setMounted(true); }, []);
-  if (!mounted) return <div className="hidden md:block w-24 h-9 animate-pulse bg-gray-100 rounded-full mx-2"></div>;
-  return (
-    <Link href="/admin/coins/buy" className="hidden md:flex items-center gap-1.5 px-2 rounded-full transition-colors min-h-9 cursor-pointer">
-      <img src="/icons/dashboard/coins.svg" alt="coins" className="w-8 h-8 object-contain drop-shadow-sm" />
-      <span className="font-semibold pt-1 text-sm whitespace-nowrap">
-        {isLoading ? "..." : (data?.balance || 0)} نقطة
-      </span>
-    </Link>
-  );
-};
+// ⚠️ مكوّن رصيد العملات الذهبية - معطّل مؤقتاً
+// const MerchantNavbarPoints = ({ storeId }: { storeId?: string | number | null }) => {
+//   const { data, isLoading } = useGetStoreBalance(undefined, storeId || undefined);
+//   const [mounted, setMounted] = React.useState(false);
+//   React.useEffect(() => { setMounted(true); }, []);
+//   if (!mounted) return <div className="hidden md:block w-24 h-9 animate-pulse bg-gray-100 rounded-full mx-2"></div>;
+//   return (
+//     <Link href="/admin/coins/buy" className="hidden md:flex items-center gap-1.5 px-2 rounded-full transition-colors min-h-9 cursor-pointer">
+//       <img src="/icons/dashboard/coins.svg" alt="coins" className="w-8 h-8 object-contain drop-shadow-sm" />
+//       <span className="font-semibold pt-1 text-sm whitespace-nowrap">
+//         {isLoading ? "..." : (data?.balance || 0)} نقطة
+//       </span>
+//     </Link>
+//   );
+// };
+const MerchantNavbarPoints = ({ storeId }: { storeId?: string | number | null }) => null;
 interface NavItem {
   label: string;
   icon: LucideIcon | React.ReactNode;
   href: string;
   show: boolean;
   desc?: string;
+  /** Always render inside the "المزيد" dropdown, never in the main nav bar */
+  alwaysMore?: boolean;
 }
 
 interface IconProps {
@@ -129,10 +137,11 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const isActive = (path: string) => {
     const basePath = path.split("?")[0];
     const fullPath = `${navPrefix}${basePath}`;
-    const isStoreShippingPath = /^\/(?:admin|dashboard)\/stores\/[^/]+\/shipping(?:\/|$)/.test(pathname || "");
+    // Store sub-pages have their own nav entries, so "/stores" must not light up for them
+    const isStoreSubPagePath = /^\/(?:admin|dashboard)\/stores\/[^/]+\/(?:shipping|settings)(?:\/|$)/.test(pathname || "");
 
-    if (basePath === "/stores" && isStoreShippingPath) return false;
-    
+    if (basePath === "/stores" && isStoreSubPagePath) return false;
+
     if (basePath === "/users" && pathname?.startsWith(`${navPrefix}/permissions`)) return true;
 
     if (fullPath === navPrefix && pathname === fullPath) return true;
@@ -143,6 +152,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const [activeStoreId, setActiveStoreId] = useState<string | number | null>(null);
   const [storeType, setStoreType] = useState<string | null>(null);
   const [storeRole, setStoreRole] = useState<MerchantRole | null>(null);
+  const [storeSlug, setStoreSlug] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
 
@@ -152,6 +162,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     setActiveStoreId(Cookies.get("current_store_id") || null);
     setStoreType(Cookies.get("store_type") || null);
     setStoreRole((Cookies.get("store_role") as MerchantRole) || null);
+    setStoreSlug(Cookies.get("store_slug") || Cookies.get("current_store_id") || null);
 
     const handleStoreUpdate = () => {
       const newStoreId = Cookies.get("current_store_id") || null;
@@ -160,6 +171,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
       setActiveStoreId(newStoreId);
       setStoreType(newStoreType);
       setStoreRole(newStoreRole);
+      setStoreSlug(Cookies.get("store_slug") || newStoreId);
     };
 
 
@@ -200,39 +212,45 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: hasAdminPerm("/stores") || isMerchant },
     { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: isMerchant && (storeType === "products") && isAllowedByRole("/products") },
     {
-      label: "الشحن",
-      icon: Truck,
-      href: activeStoreId ? `/stores/${activeStoreId}/shipping` : "/stores",
-      show: isMerchant && storeType === "products" && !!activeStoreId && isAllowedByRole("/stores"),
-      desc: "إعداد طريقة الشحن وشركات التوصيل للمتجر الحالي",
+      label: "إعدادات المتجر",
+      icon: Settings,
+      href: activeStoreId ? `/stores/${activeStoreId}/settings` : "/stores",
+      show: isMerchant && !!activeStoreId && isAllowedByRole("/stores"),
+      desc: "أكمل بيانات متجرك: الاتصال، أوقات العمل، الشحن والكلمات المفتاحية",
+      alwaysMore: true,
     },
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: hasAdminPerm("/productProviders") },
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: activeStoreId ? `/serviceProviders/${activeStoreId}` : "/serviceProviders", show: isMerchant && (storeType === "services") && !!activeStoreId && isAllowedByRole("/serviceProviders") },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: hasAdminPerm("/serviceProviders"), desc: "إدارة ومتابعة مقدمي الخدمات" },
-    { label: "الاقسام", icon: PanelsRightBottom, href: activeStoreId ? `/sections?storeId=${activeStoreId}` : "/sections", show: hasAdminPerm("/sections") || (isMerchant && isAllowedByRole("/sections")), desc: "إدارة وتصنيف الاقسام" },
+    { label: "تخصصات المتجر", icon: Tags, href: "/store-specialties", show: hasAdminPerm("/store-specialties"), desc: "عرض ومتابعة تخصصات المتاجر", alwaysMore: true },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: hasAdminPerm("/cities"), desc: "اختر وجهات الشحن المتاحة" },
     { label: "الفئات", icon: Boxes, href: "/categories", show: hasAdminPerm("/categories"), desc: "إدارة وعرض الفئات" },
+    { label: "الكلمات المفتاحية", icon: Hash, href: "/keywords", show: hasAdminPerm("/keywords"), desc: "إدارة كلمات البحث للمنتجات والخدمات", alwaysMore: true },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: hasAdminPerm("/banners"), desc: "ادارة ومتابعة البنرات الإعلانية" },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: hasAdminPerm("/mosa3edy"), desc: "إدارة التشات بوت والإحصائيات" },
     { label: "القصص", icon: ImageIcon, href: "/stories", show: isMerchant && isAllowedByRole("/stories"), desc: "إضافة وإدارة القصص" },
     { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services", show: hasAdminPerm("/requested-services"), desc: "الطلبات الغير موجودة والمخصصة" },
     { label: "المدونات", icon: Newspaper, href: "/blogs", show: hasAdminPerm("/blogs"), desc: "إضافة وإدارة المدونات والمقالات" },
     { label: "المتابعات", icon: Users, href: "/following", show: isMerchant && isAllowedByRole("/following"), desc: "إدارة واحصائيات المتابعات" },
-    { label: "المفضله", icon: Heart, href: "/favorites", show: hasAdminPerm("/favorites"), desc: "ادارة ومتابعة المفضلة" },
+    { label: "المفضلة", icon: Heart, href: "/favorites", show: hasAdminPerm("/favorites"), desc: "ادارة ومتابعة المفضلة" },
     { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: hasAdminPerm("/content-management"), desc: "تحكم بالمحتوى الأساسي للموقع" },
     { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: hasAdminPerm("/abusive-words"), desc: "إدارة الكلمات والعبارات المسيئة" },
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: hasAdminPerm("/all-reports"), desc: "متابعة الشكاوى والبلاغات" },
-    { label: "رسائل التواصل", icon: Mail, href: "/contacts", show: isAdmin, desc: "رسائل المستخدمين من صفحة من نحن" },
+    { label: "رسائل التواصل", icon: Mail, href: "/contacts", show: hasAdminPerm("/contacts"), desc: "رسائل المستخدمين من صفحة من نحن" },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: hasAdminPerm("/notifications"), desc: "إدارة ومتابعة سجل الاشعارات" },
     { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant && (storeType === "products") && isAllowedByRole("/coupons"), desc: "إدارة ومتابعة الخصومات" },
+    { label: "المنتجات المرتبطة", icon: Workflow, href: "/related-products", show: isMerchant && (storeType === "products") && isAllowedByRole("/related-products"), desc: "إدارة ومتابعة المنتجات المرتبطة" },
 
     { label: "المحذوفات", icon: Trash2, href: "/trash", show: hasAdminPerm("/trash"), desc: "إدارة ومتابعة المحذوفات" },
-    { label: "دليل الاستخدام", icon: Video, href: "/user-guide", show: isAdmin, desc: "إضافة فيديوهات لمساعدة المستخدمين" },
+    { label: "دليل الاستخدام", icon: Video, href: "/user-guide", show: hasAdminPerm("/user-guide"), desc: "إضافة فيديوهات لمساعدة المستخدمين" },
   ];
 
   const visibleNavItems = allNavItems.filter((item) => item.show);
-  const mainNavItems = visibleNavItems.slice(0, 5);
-  const moreMenuItems = visibleNavItems.slice(5);
+  const barNavItems = visibleNavItems.filter((item) => !item.alwaysMore);
+  const mainNavItems = barNavItems.slice(0, 5);
+  const moreMenuItems = visibleNavItems.filter(
+    (item) => item.alwaysMore || !mainNavItems.includes(item)
+  );
 
   const renderIcon = (
     icon: LucideIcon | React.ReactNode,
@@ -409,27 +427,17 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               <img src="/icons/search.svg" className="w-5 h-5" alt="search" />
             </Button> */}
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-lg hover:bg-white/20 relative cursor-pointer"
-              aria-label="الرسائل"
-              asChild
-            >
-              <Link href={`/admin/chat`}>
-                <img src="/icons/dashboard/chat3.svg" className="w-5 h-5" alt="chat" />
-                {unreadCount > 0 && (
-                  <Badge
-                    className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 pt-[3px] text-[10px]"
-                    variant="destructive"
-                  >
-                    {unreadCount}
-                  </Badge>
-                )}
-              </Link>
-            </Button>
+            <Link href={`/admin/chat`} aria-label="الرسائل">
+              <NavIconButton
+                tabIndex={-1}
+                count={unreadCount}
+                className="text-c2-primary hover:text-c2-navy-900"
+              >
+                <MessageCircleMore className="size-5" />
+              </NavIconButton>
+            </Link>
 
-            <NotificationDropdown variant="dashboard" />
+            <NotificationDropdown triggerClassName="text-c2-primary hover:text-c2-navy-900" />
 
             <div className="">
               <DashboardUserMenu />
@@ -600,6 +608,22 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                       {/* Action Links */}
                       <div className="space-y-2">
 
+                        {isMerchant && storeSlug && (
+                          <Link
+                            href={`/${lang}/store/${storeSlug}`}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                                <ExternalLink size={16} className="text-blue-4" />
+                              </div>
+                              <span className="font-medium">الذهاب للمتجر</span>
+                            </div>
+                            <ChevronLeft size={16} className="text-gray-400" />
+                          </Link>
+                        )}
+
                         <Link
                           href={`/`}
                           onClick={() => setMobileMenuOpen(false)}
@@ -609,7 +633,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                             <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                               <Store size={16} className="text-blue-4" />
                             </div>
-                            <span className="font-medium">المنصه</span>
+                            <span className="font-medium">المنصة</span>
                           </div>
                           <ChevronLeft size={16} className="text-gray-400 " />
                         </Link>

@@ -5,6 +5,7 @@ import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { StoreInPageData } from "@/src/features/(web)/product/types";
 import { useSpecialMerchants } from "../hooks";
+import type { Merchant } from "../types";
 import HomeViewAllLink from "./HomeViewAllLink";
 import HomeCarouselNav from "./HomeCarouselNav";
 
@@ -13,8 +14,17 @@ interface HomeSpecialMerchantsProps {
 }
 
 export default function HomeSpecialMerchants({ merchants: initialMerchants }: HomeSpecialMerchantsProps) {
-  const { data: response } = useSpecialMerchants();
-  const merchants = initialMerchants || response?.data || [];
+  const { data: response } = useSpecialMerchants(
+    initialMerchants
+      ? {
+          status: true,
+          message: "",
+          // TODO: fix this strange type
+          data: initialMerchants as unknown as Merchant[],
+        }
+      : undefined,
+  );
+  const merchants = response?.data || [];
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: "left" | "right") => {
@@ -31,9 +41,9 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
   return (
     <section className="py-8 relative overflow-hidden" dir="rtl">
       <MaxWidthWrapper className="relative z-20">
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl md:text-3xl text-blue-4 font-medium relative inline-block">
-            متاجر مميزة
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="heading-3">
+            المتاجر الأعلى تقييمًا
           </h2>
           <HomeViewAllLink href="/search?type=stores" />
         </div>

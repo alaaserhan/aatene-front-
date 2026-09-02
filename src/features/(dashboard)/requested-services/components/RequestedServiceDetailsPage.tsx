@@ -16,7 +16,8 @@ import { useGetSingleRequestedService, useUpdateRequestedServiceStatus } from ".
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
 import { RejectRequestedServiceModal } from "./RejectRequestedServiceModal";
-import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal"; // ✅ استيراد مودال النجاح
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 
 interface RequestedServiceDetailsPageProps {
   id: number | string;
@@ -171,9 +172,9 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
             {/* Description */}
             <div className="mb-8">
               <h4 className="font-semibold  mb-3">تفاصيل الطلب</h4>
-              <div
+              <SafeHTML
+                html={service.content}
                 className="text-gray-2 leading-relaxed whitespace-pre-wrap text-sm"
-                dangerouslySetInnerHTML={{ __html: service.content }}
               />
             </div>
 

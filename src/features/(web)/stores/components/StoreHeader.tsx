@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { StoreProfile, WhoFavoritedUser } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
@@ -22,6 +22,8 @@ import {
     MoreHorizontal,
     Share2,
     Flag,
+    MapPin,
+    Phone,
 } from "lucide-react";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
@@ -29,11 +31,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import { useStoreWhoFavorited } from "../hooks";
+import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
-import { useAuthStore } from "@/src/stores/auth-store";
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 import { useLanguage } from "@/src/hooks/use-language";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -263,14 +266,21 @@ function WhoFavoritedSection({
     );
 }
 
+// 350000 -> "350K", 1200000 -> "1.2M" — keeps the counters on a single mobile row.
+function formatCompactCount(value: number) {
+    if (value >= 1_000_000) {
+        return `${(value / 1_000_000).toFixed(value % 1_000_000 === 0 ? 0 : 1)}M`;
+    }
+    if (value >= 1_000) {
+        return `${(value / 1_000).toFixed(value % 1_000 === 0 ? 0 : 1)}K`;
+    }
+    return String(value);
+}
+
 export default function StoreHeader({ store, followers, stories = [], isOwnStore = false }: StoreHeaderProps) {
     const router = useRouter();
-    const params = useParams();
-    const lang = params?.locale || params?.lang || "ar";
-    const { user } = useAuthStore();
     const queryClient = useQueryClient();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [isChatLoading, setIsChatLoading] = useState(false);
     const [showWhoFavorited, setShowWhoFavorited] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -311,11 +321,13 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     };
 
     const followersCount = Number(store.followers_count || 0);
+    const reviewCount = Number(store.review_count || 0);
+    const showPhone = Boolean(store.phone) && store.hide_phone !== "1";
 
     return (
         <>
             <div className="relative bg-white shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)] pb-4">
-                <div className="relative h-48 md:h-[250px] lg:h-[300px] w-full overflow-hidden group">
+                <div className="relative h-60 md:h-[250px] lg:h-[300px] w-full overflow-hidden group">
                     {covers.length > 0 ? (
                         currentCoverIsVideo ? (
                             <video
@@ -376,10 +388,19 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                     className="relative w-full max-w-[1400px] mx-auto px-5 sm:px-6 pb-4"
                     dir="rtl"
                 >
-                    <div className="-mt-14 sm:-mt-16 lg:-mt-20 z-10">
-                        <div className="flex flex-col gap-4 w-full lg:flex-row lg:items-end lg:justify-between lg:gap-6">
-                            {/* الشعار على الجانب (يمين) + التقييم والمتابعين تحته */}
-                            <div className="flex flex-col items-center gap-2 me-auto ms-0 lg:me-0 shrink-0 w-[100px] sm:w-[108px] lg:w-[150px]">
+                    {/* Half of the logo sits over the cover, so the pull-up is exactly
+                        half of the logo size at every breakpoint. These must stay in px
+                        like the logo itself: globals.css shrinks the root font-size to
+                        85% under 676px, so a rem-based margin would fall short there and
+                        drop the logo below the cover edge. */}
+                    <div className="-mt-[50px] sm:-mt-[54px] lg:-mt-[75px] z-10">
+                        {/* Mobile stacks logo / name / stats / actions centered under the
+                            cover. From lg it turns into a 2x2 grid: logo + name on the
+                            first row, rating & followers next to the actions on the second. */}
+                        <div className="grid grid-cols-1 justify-items-center gap-3 lg:grid-cols-[150px_minmax(0,1fr)] lg:items-end lg:gap-x-6 lg:gap-y-4">
+                            {/* الشعار — same px widths as the logo below, so the cell
+                                never clips it off-centre under the 85% root font-size */}
+                            <div className="shrink-0 w-[100px] sm:w-[108px] lg:w-[150px] lg:col-start-1 lg:row-start-1">
                                 <div
                                     className={cn("relative group", hasStories && "cursor-pointer")}
                                     onClick={() => hasStories && setAvatarStoryOpen(true)}
@@ -422,34 +443,60 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                         </button>
                                     )}
                                 </div>
+                            </div>
 
-                                <div className="flex flex-col items-center w-full">
-                                    <div className="flex items-center gap-0.5">
+                            {/* اسم المتجر والعنوان */}
+                            <div className="w-full text-center lg:col-start-2 lg:row-start-1 lg:self-end lg:text-right lg:pb-2">
+                                <h1 className="text-2xl font-bold text-c2-neutral-1000 leading-tight wrap-break-words">
+                                    {store.name}
+                                </h1>
+                                {store.address && (
+                                    <p className="flex items-center justify-center gap-1.5 text-c2-neutral-500 text-sm mt-1.5 lg:justify-start">
+                                        <MapPin
+                                            className="w-4 h-4 shrink-0 text-c2-neutral-1000"
+                                            strokeWidth={2}
+                                        />
+                                        <span>{store.address}</span>
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* التقييم والمتابعون: صف واحد على الموبايل، عمود أسفل الشعار على الشاشات الكبيرة */}
+                            <div className="flex w-full flex-row-reverse items-center justify-center gap-4 lg:w-auto lg:flex-col lg:gap-2 lg:col-start-1 lg:row-start-2">
+                                <div className="flex items-center gap-2 lg:flex-col lg:gap-0">
+                                    <div className="flex items-center gap-0.5 leading-none">
                                         {[...Array(5)].map((_, i) => (
                                             <Star
                                                 key={i}
                                                 className={cn(
-                                                    "w-4 h-4 lg:w-[18px] lg:h-[18px]",
+                                                    "w-4 h-4 lg:w-3.5 lg:h-3.5",
                                                     i < Math.round(Number(store.review_rate || 0))
-                                                        ? "fill-[#FACC15] text-[#FACC15]"
-                                                        : "fill-[#D4D4D8] text-[#D4D4D8]"
+                                                        ? "fill-c2-rating text-c2-rating"
+                                                        : "fill-c2-neutral-200 text-c2-neutral-200"
                                                 )}
                                             />
                                         ))}
                                     </div>
-                                    <span className="text-gray-500 text-xs font-medium mt-0.5">
-                                        ( {store.review_count || 0} مراجعة )
+                                    <span className="text-c2-neutral-560 text-[10px] font-normal leading-none lg:mt-3 lg:text-sm lg:font-medium">
+                                        ( {reviewCount.toLocaleString("en-US")}
+                                        <span className="hidden lg:inline">&nbsp;مراجعة</span> )
                                     </span>
                                 </div>
+
+                                <span
+                                    aria-hidden="true"
+                                    className="h-8 w-px bg-c2-neutral-200 lg:hidden"
+                                />
 
                                 <button
                                     type="button"
                                     onClick={() => setShowWhoFavorited((prev) => !prev)}
-                                    className="flex flex-col items-center gap-1.5 lg:flex-row lg:gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                                    className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
                                 >
-                                    <span className="flex space-x-2 rtl:space-x-reverse shrink-0">
-                                        {followers && followers.length > 0 ? (
-                                            followers.slice(0, 3).map((fItem, idx) => {
+                                    {/* Avatars only when the store actually has followers */}
+                                    {followers && followers.length > 0 && (
+                                        <span className="flex -space-x-2 rtl:space-x-reverse shrink-0">
+                                            {followers.slice(0, 3).map((fItem, idx) => {
                                                 const avatarUrl =
                                                     fItem.follower_type === "store"
                                                         ? fItem.follower.logo_url
@@ -457,7 +504,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                                 return (
                                                     <div
                                                         key={fItem.id || idx}
-                                                        className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-white overflow-hidden relative shadow-sm bg-gray-100 flex items-center justify-center"
+                                                        className="size-7 rounded-full border-2 border-white overflow-hidden relative shadow-sm bg-gray-100 flex items-center justify-center"
                                                     >
                                                         <UserIcon className="w-3.5 h-3.5 text-gray-400 absolute" />
                                                         {avatarUrl && (
@@ -473,33 +520,21 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                                         )}
                                                     </div>
                                                 );
-                                            })
-                                        ) : (
-                                            <span className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-white bg-gray-100 block" />
-                                        )}
-                                    </span>
-                                    <span className="text-gray-600 text-[11px] sm:text-xs lg:text-sm font-medium leading-tight">
+                                            })}
+                                        </span>
+                                    )}
+                                    <span className="text-c2-primary sm:text-xs text-sm font-medium leading-tight whitespace-nowrap">
                                         {followersCount > 0
-                                            ? `${followersCount} متابع`
+                                            ? `${formatCompactCount(followersCount)} متابع`
                                             : "لا يوجد متابعين"}
                                     </span>
                                 </button>
                             </div>
 
-                            {/* الاسم والأزرار — متناسقة مع تصميم Etnix (بدون وصف) */}
-                            <div className="w-full flex flex-col gap-3 lg:gap-4 lg:flex-1 lg:min-w-0 lg:pb-2">
-                                <div className="w-full text-right">
-                                    <h1 className="text-2xl font-bold text-[#1e3a5f] leading-tight break-words">
-                                        {store.name}
-                                    </h1>
-                                    {store.address && (
-                                        <p className="text-gray-400 text-sm mt-1.5">{store.address}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-3 w-full lg:flex-row lg:flex-wrap lg:items-center lg:gap-2">
-                                <button
+                            <div className="flex items-center gap-2 w-full lg:flex-wrap lg:items-end lg:col-start-2 lg:row-start-2">
+                                <Button
                                     type="button"
+                                    variant={store.am_i_following ? "outline" : "default"}
                                     disabled={isFollowing || isUnfollowing}
                                     onClick={() => {
                                         if (store.am_i_following) {
@@ -533,43 +568,48 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                         }
                                     }}
                                     className={cn(
-                                        "w-full h-12 px-5 rounded-full text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50",
-                                        "lg:w-auto lg:h-10 lg:px-6",
+                                        "flex-1 shrink! min-w-0 h-12 px-3! rounded-full text-[13px]",
+                                        "lg:flex-none lg:w-auto lg:h-10 lg:px-4! lg:text-sm",
                                         store.am_i_following
-                                            ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                                            : "bg-blue-4 text-white hover:bg-blue-3"
+                                            ? "text-gray-600 shadow-none"
+                                            : "bg-c2-navy-600 text-white hover:bg-blue-3 hover:opacity-100"
                                     )}
                                 >
-                                    <UserPlus className="w-5 h-5 shrink-0" strokeWidth={2} />
-                                    <span>
+                                    <UserPlus className="w-4 h-4 shrink-0 lg:w-5 lg:h-5" strokeWidth={2} />
+                                    <span className="whitespace-nowrap">
                                         {store.am_i_following ? "إلغاء المتابعة" : "تابع المتجر"}
                                     </span>
-                                </button>
+                                </Button>
 
-                                <button
-                                    type="button"
-                                    disabled={isChatLoading}
-                                    onClick={() => {
-                                        if (!user) {
-                                            router.push(`/${lang}/login`);
-                                            return;
-                                        }
-                                        setIsChatLoading(true);
-                                        router.push(`/${lang}/chat?type=store&id=${store.id}`);
-                                        setIsChatLoading(false);
-                                    }}
-                                    className="w-full h-12 px-5 rounded-full text-sm border border-blue-4 text-blue-4 font-medium flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors cursor-pointer disabled:opacity-50 lg:w-auto lg:h-10 lg:px-6"
-                                >
-                                    {isChatLoading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin shrink-0" />
-                                    ) : (
-                                        <MessageCircle className="w-5 h-5 shrink-0" strokeWidth={2} />
+                                <ChatNowButton
+                                    variant="ghost"
+                                    target={{ type: "store", id: store.id }}
+                                    label="الدردشة"
+                                    icon={
+                                        <MessageCircle
+                                            className="w-4 h-4 shrink-0 lg:w-5 lg:h-5"
+                                            strokeWidth={2}
+                                        />
+                                    }
+                                    className="flex-1 shrink! min-w-0 h-12 px-3! rounded-full text-[13px] border border-c2-primary text-c2-primary hover:bg-blue-50 hover:text-c2-primary lg:flex-none lg:w-auto lg:h-10 lg:px-6 lg:text-sm"
+                                />
+
+                                <div className="flex items-center gap-1.5 shrink-0 lg:gap-2">
+                                    {showPhone && (
+                                        <a
+                                            href={`tel:${store.phone}`}
+                                            aria-label="اتصال بالمتجر"
+                                            title={store.phone}
+                                            className="w-9 h-9 rounded-full border border-c2-neutral-200 flex items-center justify-center hover:bg-c2-neutral-50 transition-colors cursor-pointer shrink-0 lg:w-10 lg:h-10"
+                                        >
+                                            <Phone
+                                                className="w-4 h-4 text-c2-neutral-550 lg:w-5 lg:h-5"
+                                                strokeWidth={2}
+                                            />
+                                        </a>
                                     )}
-                                    <span>الدردشة</span>
-                                </button>
 
-                                <div className="flex items-center justify-center gap-2 w-full lg:w-auto lg:justify-start lg:shrink-0">
-                                    <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0">
+                                    <div className="w-9 h-9 rounded-full border border-c2-neutral-200 flex items-center justify-center hover:bg-c2-neutral-50 transition-colors cursor-pointer shrink-0 text-c2-neutral-550 lg:w-10 lg:h-10">
                                         <FavoriteButton
                                             id={store.id}
                                             type="store"
@@ -583,16 +623,17 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                                 });
                                             }}
                                             className="w-full h-full"
-                                            iconClassName="w-4 h-4"
+                                            iconClassName="w-4 h-4 lg:w-5 lg:h-5"
                                         />
                                     </div>
 
-                                    <div className="relative">
+                                    <div className="relative shrink-0">
                                         <button
                                             onClick={() => setShowMoreMenu((v) => !v)}
-                                            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer"
+                                            aria-label="خيارات إضافية"
+                                            className="w-9 h-9 rounded-full border border-c2-neutral-200 flex items-center justify-center hover:bg-c2-neutral-50 transition-colors cursor-pointer lg:w-10 lg:h-10"
                                         >
-                                            <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                                            <MoreHorizontal className="w-4 h-4 text-c2-neutral-500" />
                                         </button>
                                         {showMoreMenu && (
                                             <>
@@ -625,7 +666,6 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                             </>
                                         )}
                                     </div>
-                                </div>
                                 </div>
                             </div>
                         </div>

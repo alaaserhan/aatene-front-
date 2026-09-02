@@ -1,146 +1,134 @@
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import {
-    Banner,
-    StoryOwner,
-    Service
+  Banner,
+  CategoryWithProducts,
+  Merchant,
+  Service,
+  StoryOwner,
 } from "../types";
 
-import HomeBanners from "./HomeBanners";
-import HomeStories from "./HomeStories";
-import HomeSpecialServices from "./HomeSpecialServices";
-import {
-    BannerSkeleton,
-    StoriesSkeleton,
-    ServicesCarouselSkeleton,
-    ServicesGridSkeleton,
-    ProductsCarouselSkeleton,
-    MultiBannersSkeleton,
-    SingleBannerSkeleton,
-    HomeSectionSkeleton,
-} from "./HomeSkeletons";
-import dynamic from "next/dynamic";
 import LazySection from "@/src/components/shared/LazySection";
+import dynamic from "next/dynamic";
+import HomeBanners from "./HomeBanners";
+import HomeCategoriesWithProducts from "./HomeCategoriesWithProducts";
+import HomeMultiBanners from "./HomeMultiBanners";
+import HomeSingleBanner from "./HomeSingleBanner";
+import {
+  BannerSkeleton,
+  ProductsCarouselSkeleton,
+  ServicesCarouselSkeleton,
+  ServicesGridSkeleton,
+} from "./HomeSkeletons";
+import HomeSpecialMerchants from "./HomeSpecialMerchants";
+import HomeSpecialServices from "./HomeSpecialServices";
+import HomeStories from "./HomeStories";
 
-const HomeMultiBanners = dynamic(() => import("./HomeMultiBanners"));
-const HomeSpecialMerchants = dynamic(() => import("./HomeSpecialMerchants"));
 const HomeNewProducts = dynamic(() => import("./HomeNewProducts"));
-const HomeMostPopularServices = dynamic(() => import("./HomeMostPopularServices"));
+const HomeMostPopularServices = dynamic(
+  () => import("./HomeMostPopularServices"),
+);
 const HomeTodayOffers = dynamic(() => import("./HomeTodayOffers"));
 const HomeRequestedServices = dynamic(() => import("./HomeRequestedServices"));
-const HomeCustomizedProducts = dynamic(() => import("./HomeCustomizedProducts"));
-const HomeProductsYouMayLike = dynamic(() => import("./HomeProductsYouMayLike"));
-const HomeCategoriesWithProducts = dynamic(() => import("./HomeCategoriesWithProducts"));
+const HomeCustomizedProducts = dynamic(
+  () => import("./HomeCustomizedProducts"),
+);
+// const HomeProductsYouMayLike = dynamic(
+//   () => import("./HomeProductsYouMayLike"),
+// );
 const HomeWeeklyOffers = dynamic(() => import("./HomeWeeklyOffers"));
-const HomeLatestBlogs = dynamic(() => import("./HomeLatestBlogs"));
-const HomeSingleBanner = dynamic(() => import("./HomeSingleBanner"));
 
 interface HomePageProps {
-    isMobile?: boolean;
-    initialData?: {
-        banners?: Banner[];
-        stories?: StoryOwner[];
-        specialServices?: Service[];
-        secondBanners?: Banner[];
-        thirdBanner?: Banner | null;
-        fourthBanner?: Banner | null;
-        fifthBanner?: Banner | null;
-        sixthBanner?: Banner | null;
-    };
+  isMobile?: boolean;
+  initialData?: {
+    banners?: Banner[];
+    stories?: StoryOwner[];
+    specialServices?: Service[];
+    secondBanners?: Banner[];
+    thirdBanner?: Banner | null;
+    fourthBanner?: Banner | null;
+    fifthBanner?: Banner | null;
+    sixthBanner?: Banner | null;
+    specialMerchants?: Merchant[];
+    categoriesWithProducts?: CategoryWithProducts[];
+  };
 }
 
-export default function HomePage({ isMobile = false, initialData }: HomePageProps) {
-    const banners = initialData?.banners;
-    const stories = initialData?.stories;
-    const specialServices = initialData?.specialServices;
-    const secondBannersData = initialData?.secondBanners;
-    const thirdBannerData = initialData?.thirdBanner;
-    const fourthBannerData = initialData?.fourthBanner;
-    const fifthBannerData = initialData?.fifthBanner;
-    const sixthBannerData = initialData?.sixthBanner;
+export default function HomePage({
+  isMobile = false,
+  initialData,
+}: HomePageProps) {
+  const banners = initialData?.banners;
+  const stories = initialData?.stories;
+  const specialServices = initialData?.specialServices;
+  const secondBannersData = initialData?.secondBanners;
+  const thirdBannerData = initialData?.thirdBanner;
+  const fourthBannerData = initialData?.fourthBanner;
+  const fifthBannerData = initialData?.fifthBanner;
+  const sixthBannerData = initialData?.sixthBanner;
+  const specialMerchantsData = initialData?.specialMerchants;
+  const categoriesWithProductsData = initialData?.categoriesWithProducts;
 
-    return (
-        <div className="min-h-screen overflow-x-hidden">
-            <Suspense fallback={<BannerSkeleton />}>
-                <HomeBanners banners={banners} isMobile={isMobile} />
-            </Suspense>
+  return (
+    <div className="min-h-screen overflow-x-hidden">
+      {/* ── Above the fold: eagerly rendered, data pre-fetched on server ── */}
+      <Suspense fallback={<BannerSkeleton />}>
+        <HomeBanners banners={banners} isMobile={isMobile} />
+      </Suspense>
 
-            <Suspense fallback={<StoriesSkeleton />}>
-                <HomeStories initialOwners={stories} />
-            </Suspense>
+      <HomeStories initialOwners={stories} />
 
-            <Suspense fallback={<ServicesCarouselSkeleton showViewAll={false} />}>
-                <HomeSpecialServices services={specialServices} />
-            </Suspense>
+      <Suspense fallback={<ServicesCarouselSkeleton showViewAll={false} />}>
+        <HomeSpecialServices services={specialServices} />
+      </Suspense>
 
-            <LazySection fallback={<MultiBannersSkeleton />}>
-                {secondBannersData && secondBannersData.length > 0 ? (
-                    <HomeMultiBanners banners={secondBannersData} />
-                ) : null}
-            </LazySection>
+      <HomeMultiBanners banners={secondBannersData ?? []} />
 
-            <LazySection fallback={<HomeSectionSkeleton />}>
-                <HomeSpecialMerchants />
-            </LazySection>
+      {/* TODO: fix this type error */}
+      {/* @ts-expect-error - Merchant and StoreInPageData are structurally compatible at runtime */}
+      <HomeSpecialMerchants merchants={specialMerchantsData} />
 
-            <LazySection fallback={<HomeSectionSkeleton />}>
-                <HomeCategoriesWithProducts />
-            </LazySection>
+      <HomeCategoriesWithProducts categories={categoriesWithProductsData} />
 
-            <LazySection fallback={<ProductsCarouselSkeleton />}>
-                <HomeNewProducts />
-            </LazySection>
+      {/* ── Below the fold: lazy loaded with smooth fade-in ── */}
 
-            {thirdBannerData ? (
-                <LazySection fallback={<SingleBannerSkeleton />}>
-                    <HomeSingleBanner banner={thirdBannerData} />
-                </LazySection>
-            ) : null}
+      <LazySection fallback={<ProductsCarouselSkeleton />}>
+        <HomeNewProducts />
+      </LazySection>
 
-            <LazySection fallback={<ServicesCarouselSkeleton />}>
-                <HomeMostPopularServices />
-            </LazySection>
+      {/* All HomeSingleBanner instances (which already had server data) render eagerly */}
 
-            <LazySection fallback={<ProductsCarouselSkeleton />}>
-                <HomeTodayOffers />
-            </LazySection>
+      {thirdBannerData && <HomeSingleBanner banner={thirdBannerData} />}
 
-            <LazySection fallback={<ServicesGridSkeleton />}>
-                <HomeWeeklyOffers />
-            </LazySection>
+      <LazySection fallback={<ServicesCarouselSkeleton />}>
+        <HomeMostPopularServices />
+      </LazySection>
 
-            {fourthBannerData ? (
-                <LazySection fallback={<SingleBannerSkeleton />}>
-                    <HomeSingleBanner banner={fourthBannerData} />
-                </LazySection>
-            ) : null}
+      <LazySection fallback={<ServicesGridSkeleton />}>
+        <HomeWeeklyOffers />
+      </LazySection>
 
-            <LazySection fallback={<ProductsCarouselSkeleton />}>
-                <HomeCustomizedProducts />
-            </LazySection>
+      {fourthBannerData && <HomeSingleBanner banner={fourthBannerData} />}
 
-            {fifthBannerData ? (
-                <LazySection fallback={<SingleBannerSkeleton />}>
-                    <HomeSingleBanner banner={fifthBannerData} />
-                </LazySection>
-            ) : null}
+      <LazySection fallback={<ProductsCarouselSkeleton />}>
+        <HomeCustomizedProducts />
+      </LazySection>
 
-            <LazySection fallback={<ProductsCarouselSkeleton />}>
-                <HomeProductsYouMayLike />
-            </LazySection>
+      {fifthBannerData && <HomeSingleBanner banner={fifthBannerData} />}
 
-            {sixthBannerData ? (
-                <LazySection fallback={<SingleBannerSkeleton />}>
-                    <HomeSingleBanner banner={sixthBannerData} />
-                </LazySection>
-            ) : null}
+      <div className="my-4" />
+      {/* <LazySection fallback={<ProductsCarouselSkeleton />}>
+        <HomeProductsYouMayLike />
+      </LazySection> */}
 
-            <LazySection fallback={<ServicesGridSkeleton />}>
-                <HomeRequestedServices />
-            </LazySection>
+      <LazySection fallback={<ProductsCarouselSkeleton />}>
+        <HomeTodayOffers />
+      </LazySection>
 
-            {/* <LazySection fallback={<HomeSectionSkeleton />}>
-                <HomeLatestBlogs />
-            </LazySection> */}
-        </div>
-    );
+      {sixthBannerData && <HomeSingleBanner banner={sixthBannerData} />}
+
+      <LazySection fallback={<ServicesGridSkeleton />}>
+        <HomeRequestedServices />
+      </LazySection>
+    </div>
+  );
 }

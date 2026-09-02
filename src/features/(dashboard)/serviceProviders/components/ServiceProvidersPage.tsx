@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Search, Filter } from "lucide-react";
 import { useGetStores, useDeleteStore } from "../../stores/hooks";
 import { Store } from "../../stores/api";
@@ -35,9 +35,16 @@ const serviceStatusTabs: {
 
 function AllServicesSection() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // يسمح بفتح تبويب حالة محددة عبر ?status= (مثلاً بعد قبول/رفض خدمة قيد المراجعة)
+    const statusParam = searchParams.get("status") as ServiceStatus | null;
+    const initialStatus: ServiceStatus =
+        statusParam && serviceStatusTabs.some((tab) => tab.key === statusParam) ? statusParam : "approved";
+
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [activeStatus, setActiveStatus] = useState<ServiceStatus>("approved");
+    const [activeStatus, setActiveStatus] = useState<ServiceStatus>(initialStatus);
     const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
@@ -322,7 +329,7 @@ export function ServiceProvidersPage() {
                         <Link href="/admin/users/add">
                             <button className="flex items-center gap-2 bg-blue-3 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-4 transition-colors">
                                 <Plus className="w-4 h-4" />
-                                اضافة مقدم خدمة جديد
+                                إضافة مقدم خدمة جديد
                             </button>
                         </Link>
                     )}

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { cn } from "@/src/lib/utils";
 import { useGetPrivacyPolicy } from "@/src/features/(web)/pages/hooks";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { useParams } from "next/navigation";
 
 export default function PrivacyPage() {
@@ -20,6 +21,16 @@ export default function PrivacyPage() {
     useEffect(() => {
         setLang(locale === "he" ? "he" : "ar");
     }, [locale]);
+
+    // Lock body scroll while the mobile drawer is open
+    useEffect(() => {
+        if (!isSidebarOpen) return;
+        const previous = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = previous;
+        };
+    }, [isSidebarOpen]);
 
     const privacyList = data?.privacyPolicy || [];
 
@@ -50,19 +61,20 @@ export default function PrivacyPage() {
             <div className="sticky top-0 z-50 w-full">
                 {/* Header */}
                 <div className="gradient-blue w-full relative shadow-sm">
-                    <div className="container mx-auto flex items-center justify-between h-[80px]">
-                        <div className="flex items-center gap-3 text-white">
+                    <div className="container mx-auto flex items-center justify-between gap-3 h-18 md:h-20">
+                        <div className="flex min-w-0 items-center gap-2 sm:gap-3 text-white">
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="lg:hidden mr-2 p-2 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
+                                className="lg:hidden shrink-0 p-2 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
                                 aria-label="Open navigation menu"
+                                aria-expanded={isSidebarOpen}
                             >
                                 <Menu className="w-6 h-6" />
                             </button>
-                            <div className="w-10 h-10 rounded-full border-2 border-white/30 flex items-center justify-center bg-white/10">
+                            <div className="hidden sm:flex w-10 h-10 shrink-0 rounded-full border-2 border-white/30 items-center justify-center bg-white/10">
                                 <Lock className="w-5 h-5" />
                             </div>
-                            <h1 className="text-xl md:text-2xl font-medium tracking-wide">
+                            <h1 className="truncate text-lg sm:text-xl md:text-2xl font-medium tracking-wide">
                                 سياسة الخصوصية
                             </h1>
 
@@ -96,29 +108,31 @@ export default function PrivacyPage() {
                 </div>
 
                 {/* Mobile Search Bar & Language */}
-                <div className="md:hidden gradient-blue px-4 pb-4 flex gap-3">
-                    <div className="relative flex-1">
-                        <input
-                            type="text"
-                            placeholder="ابحث عن أي كلمة ...."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-10 pr-10 pl-4 rounded bg-white/90 focus:bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none text-sm border-none transition-colors"
-                        />
-                        <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
-                    </div>
-                    <div className="w-28 shrink-0 ">
-                        <ReusableDropdown
-                            options={[
-                                { value: "ar", label: "العربية" },
-                                { value: "he", label: "עברית" },
-                            ]}
-                            value={lang}
-                            onChange={(val) => setLang(val as "ar" | "he")}
-                            placeholder="اللغة"
-                            className="h-10 bg-white/20 border-white/30 "
-                            dropdownPosition="bottom"
-                        />
+                <div className="md:hidden gradient-blue shadow-sm py-4">
+                    <div className="container mx-auto flex gap-2">
+                        <div className="relative min-w-0 flex-1">
+                            <input
+                                type="text"
+                                placeholder="ابحث عن أي كلمة ...."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full h-10 pr-10 pl-4 rounded bg-white/90 focus:bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none text-sm border-none transition-colors"
+                            />
+                            <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                        </div>
+                        <div className="w-24 sm:w-28 shrink-0">
+                            <ReusableDropdown
+                                options={[
+                                    { value: "ar", label: "العربية" },
+                                    { value: "he", label: "עברית" },
+                                ]}
+                                value={lang}
+                                onChange={(val) => setLang(val as "ar" | "he")}
+                                placeholder="اللغة"
+                                className="h-10 bg-white/20 border-white/30 "
+                                dropdownPosition="bottom"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -155,27 +169,34 @@ export default function PrivacyPage() {
                         )}
 
                         {/* Sidebar Navigation - Drawer on Mobile, Sticky on Desktop */}
-                        <div className={cn(
-                            "fixed top-0 bottom-0 right-0 z-[70] w-[88vw] max-w-[320px] bg-white p-6 shadow-2xl transition-transform duration-300 ease-in-out",
-                            "lg:relative lg:top-auto lg:bottom-auto lg:right-auto lg:z-auto lg:p-0 lg:shadow-none lg:translate-x-0 lg:flex lg:w-[260px] lg:max-w-[280px]",
-                            isSidebarOpen ? "translate-x-0" : "translate-x-full"
-                        )}>
-                            <div className="flex h-full min-h-0 flex-col">
+                        <aside
+                            aria-label="أقسام سياسة الخصوصية"
+                            className={cn(
+                                "fixed inset-y-0 right-0 z-[70] flex w-[86vw] max-w-[320px] flex-col bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl transition-[transform,visibility] duration-300 ease-in-out",
+                                "lg:visible lg:sticky lg:inset-y-auto lg:top-24 lg:right-auto lg:z-auto lg:max-h-[calc(100vh-8rem)] lg:w-[260px] lg:max-w-[280px] lg:translate-x-0 lg:px-0 lg:pt-0 lg:pb-0 lg:shadow-none lg:pointer-events-auto",
+                                isSidebarOpen ? "translate-x-0" : "invisible translate-x-full pointer-events-none"
+                            )}
+                        >
+                            <div className="flex h-full min-h-0 w-full flex-col">
                                 {/* Mobile Header for Drawer */}
-                                <div className="flex items-center justify-between mb-6 lg:hidden">
+                                <div className="flex shrink-0 items-center justify-between border-b border-c2-neutral-200 pb-3 mb-3 lg:hidden">
                                     <h2 className="text-lg font-bold text-blue-4">الأقسام</h2>
-                                    <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-gray-500">
+                                    <button
+                                        onClick={() => setIsSidebarOpen(false)}
+                                        className="p-2 -me-2 text-c2-neutral-600 cursor-pointer"
+                                        aria-label="Close navigation menu"
+                                    >
                                         <X className="w-6 h-6" />
                                     </button>
                                 </div>
 
-                                <div className="flex min-h-0 flex-col overflow-y-auto">
+                                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
                                     {contentItems.map(({ item, index }) => (
                                         <button
                                             key={index}
                                             onClick={() => scrollToSection(index)}
                                             className={cn(
-                                                "w-full cursor-pointer flex  gap-2 py-[10px] px-[10px]  transition-all border-b border-[#e6e6e6]",
+                                                "w-full cursor-pointer flex gap-2 py-2.5 px-2.5 text-start transition-all border-b border-c2-neutral-200",
                                                 activeId === index
                                                     ? "text-blue-3"
                                                     : ""
@@ -185,7 +206,7 @@ export default function PrivacyPage() {
                                                 {index + 1}
                                             </span>
                                             <span className={cn(
-                                                "text-[15px] leading-[1.7] text-start",
+                                                "min-w-0 wrap-break-word text-[15px] leading-[1.7] text-start",
                                                 activeId === index
                                                     ? "font-medium"
                                                     : "font-normal"
@@ -196,24 +217,23 @@ export default function PrivacyPage() {
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </aside>
 
                         {/* Vertical Divider */}
                         <div className="hidden lg:block w-[2px] mx-6 lg:mx-10 bg-blue-4 self-stretch" />
 
                         {/* Main Content - Centered Column */}
-                        <div className="flex-1 max-w-4xl w-full">
-                            <div className="flex flex-col gap-4">
+                        <div className="min-w-0 flex-1 max-w-4xl w-full">
+                            <div className="flex flex-col gap-6 lg:gap-4">
                                 {contentItems.length > 0 ? (
                                     contentItems.map(({ item, index }) => (
-                                        <div key={index} id={`section-${index}`} className="scroll-mt-28">
-                                            <h2 className="text-[17px] text-blue-4 mb-2  font-medium">
+                                        <div key={index} id={`section-${index}`} className="min-w-0 scroll-mt-38 md:scroll-mt-28">
+                                            <h2 className="text-[17px] text-blue-4 mb-2 font-medium wrap-break-word">
                                                 {index + 1}. {item.title?.[lang]}
                                             </h2>
-                                            {/* Using dangerouslySetInnerHTML because the API response contains HTML tags like <div><br></div> */}
-                                            <div
-                                                className="text-[15px] leading-loose whitespace-pre-line"
-                                                dangerouslySetInnerHTML={{ __html: item.content?.[lang] || "" }}
+                                            <SafeHTML
+                                                html={item.content?.[lang]}
+                                                className="text-[15px] leading-loose whitespace-pre-line wrap-break-word [&_img]:h-auto [&_img]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto"
                                             />
                                         </div>
                                     ))

@@ -1,431 +1,368 @@
 "use client";
 
-import React, { useState, Suspense, useCallback } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { Suspense, useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Search, X } from "lucide-react";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
-import { Search, X } from "lucide-react";
+import { Button } from "@/src/components/ui/button";
+import {
+  DEFAULT_SEARCH_TYPE,
+  isSearchType,
+  type SearchType,
+} from "@/src/features/(web)/search/types";
 
-export type SearchType = "products" | "services" | "stores" | "users";
+export type SearchBarVariant = "navbar" | "mobile";
 
 interface SearchBarProps {
   defaultType?: SearchType;
-  variant?: "navbar" | "rounded" | "mobile";
+  variant?: SearchBarVariant;
   onSearch?: () => void;
 }
 
-const SEARCH_TYPES: { value: SearchType; label: string }[] = [
-  { value: "products", label: "منتجات" },
+/** Tab order and labels — deliberately not the declaration order in `SEARCH_TYPES`. */
+const SEARCH_TYPE_TABS: { value: SearchType; label: string }[] = [
   { value: "stores", label: "متاجر" },
+  { value: "products", label: "منتجات" },
   { value: "services", label: "خدمات" },
   { value: "users", label: "مستخدمين" },
 ];
 
-interface SearchBarInnerProps extends SearchBarProps {
-  urlQ: string;
-  urlType: SearchType;
-  searchParams: ReturnType<typeof useSearchParams>;
-  pathname: string;
-  locale: string;
-}
+/** Filters that only make sense within one search type — dropped when the tab changes. */
+const TYPE_SCOPED_PARAMS = [
+  "page",
+  "category_id",
+  "city_id",
+  "tags",
+  "variation_options",
+  "min_price",
+  "max_price",
+  "review_rate",
+];
 
-function SearchBarInner({
-  defaultType = "products",
-  variant = "navbar",
-  onSearch,
-  urlQ,
-  urlType,
-  searchParams,
-  pathname,
-  locale,
-}: SearchBarInnerProps) {
+/** Detail routes that imply an active search type even though we're off the search page. */
+const DETAIL_PATH_TYPES: { segment: string; type: SearchType }[] = [
+  { segment: "/store/", type: "stores" },
+  { segment: "/product/", type: "products" },
+  { segment: "/services/", type: "services" },
+  { segment: "/profile/", type: "users" },
+];
+
+/* -------------------------------------------------------------------------- */
+/* Controller                                                                  */
+/* -------------------------------------------------------------------------- */
+
+function useSearchController(defaultType: SearchType, onSearch?: () => void) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const locale = useLanguage();
 
-  const initialType = urlType && SEARCH_TYPES.some((t) => t.value === urlType)
-    ? urlType
-    : defaultType;
+  const urlQuery = searchParams.get("q") || "";
+  const urlTypeParam = searchParams.get("type");
+  const urlType = isSearchType(urlTypeParam) ? urlTypeParam : defaultType;
 
-  const [searchQuery, setSearchQuery] = useState(urlQ);
-  const [selectedType, setSelectedType] = useState<SearchType>(initialType);
+  const [query, setQuery] = useState(urlQuery);
+  const [selectedType, setSelectedType] = useState<SearchType>(urlType);
 
-  // --- Render-level sync: update local state when URL changes (Back/Forward, cross-page nav) ---
-  const [prevPathname, setPrevPathname] = useState(pathname);
-  const [prevUrlQ, setPrevUrlQ] = useState(urlQ);
-  const [prevUrlType, setPrevUrlType] = useState(urlType);
-
-  if (urlQ !== prevUrlQ || urlType !== prevUrlType || pathname !== prevPathname) {
-    setPrevUrlQ(urlQ);
-    setPrevUrlType(urlType);
-    setPrevPathname(pathname);
-    setSearchQuery(urlQ);
+  // The URL is the source of truth, but Back/Forward and cross-page navigation
+  // change it without remounting us — so re-derive local state during render
+  // instead of syncing in an effect (or remounting via a `key`).
+  const [synced, setSynced] = useState({ pathname, urlQuery, urlType });
+  if (
+    synced.pathname !== pathname ||
+    synced.urlQuery !== urlQuery ||
+    synced.urlType !== urlType
+  ) {
+    setSynced({ pathname, urlQuery, urlType });
+    setQuery(urlQuery);
     setSelectedType(urlType);
   }
-  // ---------------------------------------------------------------------------------------------
 
-  const handleSearch = () => {
+  // Covers both the locale-stripped `/search` and the `/${locale}/search` form
+  // that next-international may produce.
+  const isSearchPage = pathname.endsWith("/search");
+  const detailType =
+    DETAIL_PATH_TYPES.find(({ segment }) => pathname.includes(segment))?.type ?? null;
+
+  const submit = useCallback(() => {
     const params = new URLSearchParams();
-    const query = searchQuery.trim();
-
-    if (query) params.set("q", query);
+    const trimmed = query.trim();
+    if (trimmed) params.set("q", trimmed);
     params.set("type", selectedType);
 
-    const searchPath = `/${locale}/search`;
+    const target = `/${locale}/search`;
     const queryString = params.toString();
-    const targetUrl = `${searchPath}?${queryString}`;
 
-    // Don't push if we're already at the exact target URL
-    const currentQuery = searchParams.toString();
-    if (pathname === searchPath && currentQuery === queryString) {
+    // Already showing exactly this result set — don't push a duplicate entry
+    if (isSearchPage && searchParams.toString() === queryString) {
       onSearch?.();
       return;
     }
 
-    router.push(targetUrl, { scroll: false });
+    router.push(`${target}?${queryString}`, { scroll: false });
     onSearch?.();
-  };
+  }, [query, selectedType, locale, isSearchPage, searchParams, router, onSearch]);
 
-  const handleClear = () => {
-    setSearchQuery("");
-    const isAlreadyOnSearchPage =
-      pathname === "/search" ||
-      pathname === `/${locale}/search` ||
-      pathname.endsWith("/search");
+  const clear = useCallback(() => {
+    setQuery("");
 
-    if (isAlreadyOnSearchPage) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("q");
-      params.delete("page");
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    } else {
-      const params = new URLSearchParams();
-      params.set("type", selectedType);
-      router.push(`/${locale}/search?${params.toString()}`);
-    }
+    // Off the search page there are no results to update — just empty the field.
+    if (!isSearchPage) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("q");
+    params.delete("page");
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     onSearch?.();
-  };
+  }, [isSearchPage, searchParams, pathname, router, onSearch]);
 
   /**
-   * handleTypeChange — switches the active search category tab.
+   * Switches the active category tab.
    *
-   * Key design decisions:
-   * 1. No `isSwitchingType` / no button disabling.  The Next.js router processing
-   *    window (50–400 ms) was the direct cause of the perceived UI freeze: buttons
-   *    were disabled the moment the tab was clicked and only re-enabled once the
-   *    URL finally updated.  Removing that state makes tab switching feel instant.
-   * 2. `setSelectedType(type)` is called optimistically so the active-tab indicator
-   *    switches immediately — before the URL updates — giving zero-latency feedback.
-   * 3. When already on the search page we use `router.replace` (preserves history
-   *    clean) and build the URL from the current `pathname` directly (supports both
-   *    the locale-stripped `/search` and the explicit `/${locale}/search` path that
-   *    `next-international` may produce).
+   * `setSelectedType` runs optimistically so the active indicator moves on click
+   * rather than after the router settles (50–400 ms). An earlier version disabled
+   * the tabs during that window, which read as a UI freeze — hence no pending state.
+   *
+   * Picking a tab is itself a search, so `onSearch` fires here too — it closes the
+   * mobile drawer, which would otherwise stay over the results we just navigated to.
    */
-  const handleTypeChange = useCallback((type: SearchType) => {
-    const isAlreadyOnSearchPage =
-      pathname === "/search" ||
-      pathname === `/${locale}/search` ||
-      pathname.endsWith("/search");
+  const selectType = useCallback(
+    (type: SearchType) => {
+      if (isSearchPage && type === selectedType) {
+        onSearch?.();
+        return;
+      }
 
-    // Already on this tab — nothing to do
-    if (isAlreadyOnSearchPage && type === selectedType) return;
+      setSelectedType(type);
 
-    // Optimistic UI: switch active indicator instantly, no button disabled state
-    setSelectedType(type);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("type", type);
+      TYPE_SCOPED_PARAMS.forEach((key) => params.delete(key));
 
-    // Build the target URL, carry over the search query, drop type-specific filters
-    const p = new URLSearchParams(searchParams.toString());
-    p.set("type", type);
-    p.delete("page");
-    p.delete("category_id");
-    p.delete("city_id");
-    p.delete("tags");
-    p.delete("variation_options");
-    p.delete("min_price");
-    p.delete("max_price");
-    p.delete("review_rate");
+      const currentQuery = searchParams.get("q") || query.trim();
+      if (currentQuery) params.set("q", currentQuery);
+      else params.delete("q");
 
-    const currentQ = searchParams.get("q") || searchQuery.trim();
-    if (currentQ) p.set("q", currentQ);
-    else p.delete("q");
+      // On the search page use the live pathname, so we never re-introduce a
+      // locale prefix and trigger a next-international redirect loop.
+      if (isSearchPage) router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      else router.push(`/${locale}/search?${params.toString()}`);
 
-    if (isAlreadyOnSearchPage) {
-      // Use the live pathname so we never accidentally introduce a locale prefix
-      // that triggers a next-international redirect loop
-      router.replace(`${pathname}?${p.toString()}`, { scroll: false });
-    } else {
-      router.push(`/${locale}/search?${p.toString()}`);
-    }
-  }, [locale, router, selectedType, pathname, searchParams, searchQuery]);
+      onSearch?.();
+    },
+    [isSearchPage, selectedType, searchParams, query, pathname, router, locale, onSearch]
+  );
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleSearch();
+  return {
+    query,
+    setQuery,
+    selectedType,
+    submit,
+    clear,
+    selectType,
+    /** The tab to highlight: the live selection on the search page, otherwise the detail route's type. */
+    activeType: isSearchPage ? selectedType : detailType,
   };
+}
 
+type Controller = ReturnType<typeof useSearchController>;
 
-  // --- Render Variant: Mobile (For MobileNav) ---
-  if (variant === "mobile") {
-    return (
-      <div className="flex flex-col w-full" dir="rtl">
-        {/* Search Input */}
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            className="w-full border border-blue-4 h-10 rounded-md py-2 pr-12 pl-24 focus:outline-none text-right"
-            placeholder="بحث"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyPress}
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="absolute left-20 top-1/2 -translate-y-1/2 p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
-              aria-label="مسح البحث"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-          <button
-            className="absolute left-0 top-0 h-10 bg-blue-4 cursor-pointer text-white px-4 rounded-l-md hover:bg-[#206bc4] transition-colors"
-            aria-label="بحث"
-            onClick={handleSearch}
-          >
-            البحث
-          </button>
-          <div className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center pointer-events-none text-gray-400">
-            <Search className="w-5 h-5" />
-          </div>
-        </div>
+/* -------------------------------------------------------------------------- */
+/* Building blocks                                                             */
+/* -------------------------------------------------------------------------- */
 
-        {/* Type Tabs - Full Width Grid */}
-        <div className="grid grid-cols-4 gap-2 mt-4 w-full">
-          {SEARCH_TYPES.map((type) => (
-            <button
-              key={type.value}
-              type="button"
-              onClick={() => handleTypeChange(type.value)}
-              className={cn(
-                "py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
-                selectedType === type.value
-                  ? "bg-[#3D5E83] text-white border-[#3D5E83]"
-                  : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
-              )}
-            >
-              {type.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
+function SearchField({
+  controller,
+  className,
+  clearButtonClassName,
+}: {
+  controller: Controller;
+  className?: string;
+  clearButtonClassName?: string;
+}) {
+  const { query, setQuery, submit, clear } = controller;
 
-  // --- Render Variant: Rounded (For Search Results Page) ---
-  if (variant === "rounded") {
-    return (
-      <div className="w-full" dir="rtl">
-        {/* Mobile Layout: Stacked like standard search */}
-        <div className="sm:hidden flex flex-col gap-4 w-full">
-          {/* Input */}
-          <div className="relative w-full flex items-center">
-            <input
-              type="text"
-              className="w-full border border-blue-1 h-10 rounded-md py-2 pr-10 pl-24 focus:outline-none text-right"
-              placeholder="بحث"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyPress}
-            />
-            <div className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center pointer-events-none text-blue-4">
-              <Search className="w-5 h-5" />
-            </div>
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="absolute left-20 top-1/2 -translate-y-1/2 p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
-                aria-label="مسح البحث"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-            <button
-              className="absolute left-0 top-0 h-10 bg-[#3D5E83] cursor-pointer text-white px-4 rounded-l-md hover:bg-[#2D496A] transition-colors"
-              aria-label="بحث"
-              onClick={handleSearch}
-            >
-              بحث
-            </button>
-          </div>
-
-          {/* Tabs - Grid */}
-          <div className="grid grid-cols-4 gap-2 w-full">
-            {SEARCH_TYPES.map((type) => (
-              <button
-                key={type.value}
-                type="button"
-                onClick={() => handleTypeChange(type.value)}
-                className={cn(
-                  "py-2 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
-                  selectedType === type.value
-                    ? "bg-[#3D5E83] text-white border-[#3D5E83]"
-                    : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
-                )}
-              >
-                {type.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Desktop Layout: Pill Shape */}
-        <div className={cn(
-          "hidden sm:flex items-center w-full border border-blue-1 rounded-full overflow-hidden bg-white h-12 pl-1",
-        )}>
-
-          {/* Search Input Section */}
-          <div className="flex-1 flex items-center px-4 gap-2 relative">
-            <Search className="text-blue-4 w-5 h-5 ml-2 shrink-0" />
-            <input
-              type="text"
-              className="flex-1 h-full text-right focus:outline-none placeholder-gray-400 text-gray-700 bg-transparent pl-8"
-              placeholder="بحث"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyPress}
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="absolute left-2 p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
-                aria-label="مسح البحث"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          {/* Separator */}
-          <div className="h-6 w-[1.5px] bg-gray-200 mx-2" />
-
-          {/* Type Tabs */}
-          <div className="flex items-center gap-1 px-2">
-            {SEARCH_TYPES.map((type) => (
-              <button
-                key={type.value}
-                type="button"
-                onClick={() => handleTypeChange(type.value)}
-                className={cn(
-                  "px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap rounded-full shrink-0",
-                  selectedType === type.value
-                    ? "bg-gray-100 text-gray-900"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                )}
-              >
-                {type.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Search Button */}
-          <button
-            className="h-10 px-6 bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2D496A] transition-colors cursor-pointer rounded-full shrink-0"
-            aria-label="بحث"
-            onClick={handleSearch}
-          >
-            بحث
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // --- Render Variant: Navbar (Default) ---
   return (
-    <div className="flex items-center w-full border border-gray-200 rounded-md overflow-hidden bg-white" dir="rtl">
-      <div className="flex-1 relative flex items-center">
-        <input
-          type="text"
-          className="flex-1 h-10 pr-4 pl-10 text-sm text-right focus:outline-none placeholder-gray-400 bg-transparent"
-          placeholder="البحث"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={handleKeyPress}
-        />
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute left-3 p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
-            aria-label="مسح البحث"
-          >
-            <X className="w-4 h-4" />
-          </button>
+    <>
+      <input
+        type="text"
+        className={cn(
+          "h-10 bg-transparent text-right text-c2-neutral-800 placeholder-c2-navy-300 focus:outline-none",
+          className
         )}
-      </div>
-      <div className="h-6 w-px bg-gray-200" />
+        placeholder="البحث"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && submit()}
+      />
+      {query && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={clear}
+          className={cn(
+            "absolute rounded-full text-c2-navy-300 hover:bg-c2-neutral-300-a10 hover:text-c2-neutral-800",
+            clearButtonClassName
+          )}
+          aria-label="مسح البحث"
+        >
+          <X className="size-4" />
+        </Button>
+      )}
+    </>
+  );
+}
 
-      <div className="flex items-center gap-1 px-2">
-        {SEARCH_TYPES.map((type) => (
-          <button
-            key={type.value}
-            type="button"
-            onClick={() => handleTypeChange(type.value)}
-            className={cn(
-              "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
-              selectedType === type.value
-                ? "text-blue-3 font-medium"
-                : "text-gray-400 hover:text-gray-700"
-            )}
-          >
-            {type.label}
-          </button>
-        ))}
-      </div>
+/** `pill` = bordered blocks in a 4-up grid (mobile), `plain` = inline text tabs (navbar). */
+type TabAppearance = "pill" | "plain";
 
-      {/* Search Button (Left in RTL) */}
-      <button
-        className="h-10 px-6 bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2D496A] transition-colors cursor-pointer flex items-center justify-center gap-2"
-        aria-label="البحث"
-        onClick={handleSearch}
-      >
-        <span>البحث</span>
-      </button>
+const TAB_STYLES: Record<
+  TabAppearance,
+  { layout: string; base: string; active: string; inactive: string }
+> = {
+  plain: {
+    layout: "flex items-center gap-1",
+    base: "px-2 py-1.5 text-sm whitespace-nowrap",
+    active: "text-c2-primary font-bold",
+    inactive: "text-c2-neutral-600 hover:text-c2-neutral-800",
+  },
+  pill: {
+    layout: "grid w-full grid-cols-4 gap-2",
+    base: "w-full justify-center rounded-lg border py-2 text-xs md:text-sm",
+    active: "border-c2-navy-600 bg-c2-navy-600 text-white",
+    inactive: "border-c2-neutral-200 bg-white text-c2-neutral-600 hover:bg-c2-neutral-50",
+  },
+};
+
+
+function TypeTabs({
+  controller,
+  appearance,
+  className,
+}: {
+  controller: Controller;
+  appearance: TabAppearance;
+  className?: string;
+}) {
+  const styles = TAB_STYLES[appearance];
+
+  return (
+    <div className={cn(styles.layout, className)}>
+      {SEARCH_TYPE_TABS.map(({ value, label }) => (
+        <button
+          key={value}
+          type="button"
+          onClick={() => controller.selectType(value)}
+          className={cn(
+            "flex shrink-0 items-center transition-colors cursor-pointer",
+            styles.base,
+            controller.activeType === value ? styles.active : styles.inactive
+          )}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }
 
-function SearchBarWrapper(props: SearchBarProps) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const locale = useLanguage();
-
-  const q = searchParams.get("q") || "";
-  const urlType = searchParams.get("type") as SearchType;
-  const type = (urlType && SEARCH_TYPES.some((t) => t.value === urlType))
-    ? urlType
-    : (props.defaultType || "products");
-
+function SubmitButton({
+  onClick,
+  className,
+}: {
+  onClick: () => void;
+  className?: string;
+}) {
   return (
-    <SearchBarInner
-      // key={q} — only remount when the user submits a completely new text search.
-      // Tab changes do NOT remount: the render-level sync block handles state sync
-      // cheaply without destroying/recreating the component.
-      key={q}
-      urlQ={q}
-      urlType={type}
-      searchParams={searchParams}
-      pathname={pathname}
-      locale={locale}
-      {...props}
-    />
+    <Button
+      type="button"
+      onClick={onClick}
+      aria-label="البحث"
+      className={cn("rounded-none h-full border border-c2-navy-700 bg-c2-navy-700 px-6 text-white", className)}
+    >
+      البحث
+    </Button>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Variants                                                                    */
+/* -------------------------------------------------------------------------- */
+
+/** Inside the mobile drawer: full-width field with the tabs stacked underneath. */
+function MobileSearchBar({ controller }: { controller: Controller }) {
+  return (
+    <div className="flex w-full flex-col" dir="rtl">
+      <div className="relative flex items-center">
+        <div className="pointer-events-none absolute right-0 top-0 flex h-10 w-10 items-center justify-center text-c2-navy-300">
+          <Search className="h-5 w-5" aria-hidden />
+        </div>
+        <SearchField
+          controller={controller}
+          className="w-full rounded-md border border-c2-neutral-200 py-2 pr-12 pl-24"
+          clearButtonClassName="left-20 top-1/2 -translate-y-1/2"
+        />
+        <SubmitButton
+          onClick={controller.submit}
+          className="absolute left-0 top-0 rounded-l-md px-4"
+        />
+      </div>
+
+      <TypeTabs controller={controller} appearance="pill" className="mt-4" />
+    </div>
+  );
+}
+
+/** Desktop navbar: one flat bar — field, text tabs, submit. */
+function NavbarSearchBar({ controller }: { controller: Controller }) {
+  return (
+    <div
+      className="flex h-12 w-full items-center rounded-md border border-c2-neutral-200 bg-white"
+      dir="rtl"
+    >
+      <div className="relative flex h-full flex-1 items-center">
+        <SearchField
+          controller={controller}
+          className="h-full flex-1 pr-4 pl-10 text-sm"
+          clearButtonClassName="left-3"
+        />
+      </div>
+
+      <div className="h-9 w-px bg-c2-neutral-200" />
+
+      <TypeTabs controller={controller} appearance="plain" className="px-2" />
+
+      <SubmitButton onClick={controller.submit} className="h-12 rounded-e-sm" />
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Entry point                                                                 */
+/* -------------------------------------------------------------------------- */
+
+function SearchBarInner({
+  defaultType = DEFAULT_SEARCH_TYPE,
+  variant = "navbar",
+  onSearch,
+}: SearchBarProps) {
+  const controller = useSearchController(defaultType, onSearch);
+
+  return variant === "mobile" ? (
+    <MobileSearchBar controller={controller} />
+  ) : (
+    <NavbarSearchBar controller={controller} />
   );
 }
 
 export function SearchBar(props: SearchBarProps) {
   return (
-    <Suspense fallback={<div className="h-10 w-full animate-pulse bg-gray-50 rounded-md" />}>
-      <SearchBarWrapper {...props} />
+    // `useSearchParams` needs a Suspense boundary to avoid opting the whole route
+    // out of static rendering.
+    <Suspense fallback={<div className="h-12 w-full animate-pulse rounded-md bg-c2-neutral-50" />}>
+      <SearchBarInner {...props} />
     </Suspense>
   );
 }

@@ -1,8 +1,9 @@
 // src/components/ui/Breadcrumb.tsx
 "use client";
 
+import { cn } from "@/src/lib/utils";
 import Link from "next/link";
-import { Fragment } from "react";
+import { ChevronLeft } from "lucide-react";
 
 export interface BreadcrumbItem {
   label: string;
@@ -12,37 +13,68 @@ export interface BreadcrumbItem {
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
   className?: string;
+  /** Wraps the trail in the standard white card used on dashboard pages. */
+  withContainer?: boolean;
 }
 
-export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
+const ITEM_CLASS = "text-base text-c2-neutral-500";
+const CURRENT_CLASS = "text-base font-normal text-c2-neutral-700";
+
+export function Breadcrumb({
+  items,
+  className,
+  withContainer = false,
+}: BreadcrumbProps) {
+  if (items.length === 0) return null;
+
   return (
-    <nav className={`flex items-center gap-1 py-2  ${className}`} aria-label="Breadcrumb">
-      {items.map((item, index) => {
-        const isLast = index === items.length - 1;
+    <nav
+      aria-label="Breadcrumb"
+      className={cn(
+        "ps-4 lg:ps-8 mb-6",
+        withContainer && "p-4 lg:p-6 mt-8 mb-6 bg-white shadow rounded-2xl",
+        className,
+      )}
+    >
+      <ol className="flex flex-wrap items-center gap-1">
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
 
-        return (
-          <Fragment key={index}>
-            {item.href && !isLast ? (
-              <Link
-                href={item.href}
-                className="text-[#8E8E8E] text-sm hover:text-blue-3 transition-colors"
-              >
-                {item.label}
-              </Link>
-            ) : (
-              <span
-                className={isLast ? "text-gray-2 text-sm font-medium" : "text-[#8E8E8E] text-sm"}
-              >
-                {item.label}
-              </span>
-            )}
+          return (
+            <li
+              key={`${item.href ?? ""}-${item.label}`}
+              className="flex items-center gap-1"
+            >
+              {item.href && !isLast ? (
+                <Link
+                  href={item.href}
+                  className={cn(
+                    ITEM_CLASS,
+                    "hover:text-blue-3 transition-colors",
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <span
+                  className={isLast ? CURRENT_CLASS : ITEM_CLASS}
+                  aria-current={isLast ? "page" : undefined}
+                >
+                  {item.label}
+                </span>
+              )}
 
-            {!isLast && (
-              <span className="text-gray-2">/</span>
-            )}
-          </Fragment>
-        );
-      })}
+              {!isLast && (
+                /* Points along the reading direction: left in RTL, right in LTR. */
+                <ChevronLeft
+                  className="w-5 h-5 shrink-0 pb-0.5 text-c2-neutral-500 ltr:rotate-180"
+                  aria-hidden="true"
+                />
+              )}
+            </li>
+          );
+        })}
+      </ol>
     </nav>
   );
 }

@@ -103,7 +103,7 @@ export function NotificationsPage() {
                         className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-3 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm hover:bg-blue-4 transition-colors font-medium cursor-pointer shrink-0"
                     >
                         <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span>{isTemplates ? "اضافة قالب" : "اضافة تنبيه"}</span>
+                        <span>{isTemplates ? "إضافة قالب" : "إضافة تنبيه"}</span>
                     </button>
                 </div>
             </header>

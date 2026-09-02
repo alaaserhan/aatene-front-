@@ -30,7 +30,7 @@ export default function HomeWeeklyOffers({ data: initialData }: HomeWeeklyOffers
                     <div className="flex flex-col lg:flex-row">
                         {/* Right Side: Title & Timer (in RTL layout) */}
                         <div className="w-full lg:w-[300px] p-6 lg:p-8 flex flex-col items-center justify-center gap-6 text-center border-b lg:border-b-0 lg:border-l border-gray-100 shrink-0">
-                            <h2 className="text-2xl font-medium">الصفقات والعروض</h2>
+                            <h2 className="heading-3">الصفقات والعروض</h2>
 
                             <CountdownTimer targetDate={endDate} />
                         </div>

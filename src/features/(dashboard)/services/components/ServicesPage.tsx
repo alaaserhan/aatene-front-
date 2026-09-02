@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Plus, Search, HelpCircle, X } from "lucide-react";
+import { Plus, Search, CircleQuestionMark } from "lucide-react";
 import {
     useGetServices,
     useDeleteService,
@@ -14,6 +14,7 @@ import { useGetSections, useCreateSection } from "../../sections/hooks";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Service, ServiceStatus } from "../api";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
+import { StatusTabs } from "@/src/components/(dashboard)/StatusTabs";
 import { ServicesTable } from "../components/ServicesTable";
 import { ServiceEmptyState } from "../components/ServiceEmptyState";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
@@ -23,13 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { Button } from "@/src/components/ui/button";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { cn } from "@/src/lib/utils";
-import StepOne from "./guide/StepOne";
-import StepTwo from "./guide/StepTwo";
-import StepThree from "./guide/StepThree";
-import StepFour from "./guide/StepFour";
-import StepFive from "./guide/StepFive";
-import StepSix from "./guide/StepSix";
+import { ServiceGuide } from "./guide";
 
 export function ServicesPage({ storeId }: { storeId: number }) {
     const router = useRouter();
@@ -52,7 +47,6 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     const [activeStatus, setActiveStatus] = useState<ServiceStatus>((searchParams.get("status") as ServiceStatus) || "approved");
     const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
     const [showGuide, setShowGuide] = useState(false);
-    const [guideStep, setGuideStep] = useState(1);
     const createSection = useCreateSection();
 
     useEffect(() => {
@@ -222,27 +216,6 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         }
     };
 
-    const statusTabs: { key: ServiceStatus; label: string; activeClass: string; badgeClass: string }[] = [
-        {
-            key: "approved",
-            label: "تمت الموافقة عليه",
-            activeClass: "border-emerald-500 text-emerald-500",
-            badgeClass: "bg-emerald-500"
-        },
-        {
-            key: "pending",
-            label: "قيد المراجعة",
-            activeClass: "border-amber-400 text-amber-400",
-            badgeClass: "bg-amber-400"
-        },
-        {
-            key: "rejected",
-            label: "مرفوض",
-            activeClass: "border-red-500 text-red-500",
-            badgeClass: "bg-red-500"
-        },
-    ];
-
     if (!storeId) {
         return <div className="p-8 text-center text-gray-2">الرجاء تحديد متجر لعرض خدماته</div>;
     }
@@ -272,7 +245,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
                                     <Button className="bg-blue-3 text-white px-6 gap-2">
                                         <Plus className="w-5 h-5" />
-                                        انشئ خدمة جديدة
+                                       أضف خدمة
                                     </Button>
                                 </Link>
                                 <Link href={`${dashboardBase}/reports/${storeId}`}>
@@ -285,171 +258,47 @@ export function ServicesPage({ storeId }: { storeId: number }) {
             )}
 
             {/* ── Header تاجر ── */}
-            {userType === "merchant" && (
-                !showGuide ? (
-                    /* الوضع العادي: Avatar card كما هو */
-                    <>
-                        <header className="p-4 pb-0">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4">
-                                <div>
-                                    <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">إدارة الخدمات</h1>
-                                    <p className="text-sm text-gray-2 mt-1">عرض وإدارة جميع الخدمات</p>
-                                </div>
-                                <div className="flex flex-row gap-2">
-                                    <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
-                                        <Button className="bg-blue-3 text-white px-6 gap-2">
-                                            <Plus className="w-5 h-5" />
-                                            انشئ خدمة جديدة
-                                        </Button>
-                                    </Link>
-                                    <button
-                                        onClick={() => { setShowGuide(true); setGuideStep(1); }}
-                                        className="flex items-center gap-2 bg-[#C8D7E8] text-[#2D496A] border border-[#5B87B9] text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#b8cbdc] transition-colors"
-                                    >
-                                        <HelpCircle className="w-4 h-4" />
-                                        مساعدة
-                                    </button>
-                                </div>
-                            </div>
-                        </header>
-                    </>
-                ) : (
-                    /* وضع الدليل: عنوان الدليل فقط */
-                    <header className="w-full bg-transparent p-6 pb-0">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                            <div className="flex items-center gap-2 md:gap-3">
-                                <img src="/guide-images/Frame.png" alt="" className="w-5 h-5 md:w-6 md:h-6" />
-                                <h1 className="text-xl md:text-2xl font-bold text-[#2D496A]">
-                                    دليل شامل مع أمثلة مصورة لإضافة خدمات جديدة بسهولة
-                                </h1>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
-                                    <Button className="bg-blue-3 text-white px-6 gap-2">
-                                        <Plus className="w-5 h-5" />
-                                        انشئ خدمة جديدة
-                                    </Button>
-                                </Link>
-                                <button
-                                    onClick={() => setShowGuide(false)}
-                                    className="flex items-center gap-2 bg-[#C8D7E8] text-[#2D496A] border border-[#5B87B9] text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#b8cbdc] transition-colors"
-                                >
-                                    <HelpCircle className="w-4 h-4" />
-                                    مساعدة
-                                </button>
-                            </div>
+            {userType === "merchant" && !showGuide && (
+                <header className="mt-6 pb-0">
+                    <div className="heading-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h1 className="heading-1">إدارة الخدمات</h1>
+                            <p className="heading-2">عرض وإدارة جميع الخدمات</p>
                         </div>
-                    </header>
-                )
+                        <div className="flex flex-row gap-4 lg:gap-6">
+                            {/* TODO: this should be a link not a nested button */}
+                            <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
+                                <Button size="lg" className="bg-blue-3 text-white gap-2">
+                                    <Plus className="size-6" />
+                                    <span className="pt-1">أضف خدمة</span>
+                                </Button>
+                            </Link>
+                            <Button
+                                size="lg"
+                                onClick={() => setShowGuide(true)}
+                                className="gap-2 bg-[#C8D7E8] text-[#2D496A] border border-[#5B87B9]hover:bg-[#b8cbdc]"
+                            >
+                                <CircleQuestionMark className="size-5 stroke-1" />
+                                مساعدة
+                            </Button>
+                        </div>
+                    </div>
+                </header>
             )}
 
             {/* ── دليل المساعدة (للتاجر فقط) ── */}
             {userType === "merchant" && showGuide && (
-                <div className="flex-1 px-4 pt-4 pb-6 overflow-y-auto" dir="rtl">
-                    <div className="bg-white rounded-xl border border-[#E5EBF0] shadow-sm overflow-hidden">
-
-                        {/* Welcome Banner */}
-                        <div className="px-4 md:px-8 pt-4 md:pt-6">
-                            <div className="bg-[#DDE9F5] border-r-4 border-r-[#5B87B9] rounded-xl p-4 md:p-6 mb-4 md:mb-8 shadow-sm">
-                                <div className="flex items-start gap-3 md:gap-4">
-                                    <img src="/guide-images/idea-01.png" alt="" className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" />
-                                    <div className="flex-1">
-                                        <h3 className="text-[#2D496A] font-bold text-base md:text-lg mb-2 md:mb-3">مرحباً بك في دليل إضافة الخدمات.</h3>
-                                        <p className="text-[#5B7C93] text-sm md:text-base leading-relaxed mb-2 md:mb-3">
-                                            هذا الدليل التفصيلي سيساعدك على إضافة خدمات جديدة إلى موقعك خطوة بخطوة.
-                                        </p>
-                                        <p className="text-[#5B7C93] text-sm md:text-base leading-relaxed mb-2 md:mb-3">
-                                            كل خطوة تتضمن صوراً توضيحية من لوحة التحكم والموقع الرئيسي لتوضيح كيفية ظهور الخدمات.
-                                        </p>
-                                        <p className="text-[#5B7C93] text-sm md:text-base leading-relaxed">
-                                            اتبع الخطوات بالترتيب للتمكن من إضافة خدمتك الأولى في دقائق معدودة.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Step Content */}
-                        <div className="px-4 md:px-8 pb-4 md:pb-8">
-                            <div className="border border-[#E5EBF0] rounded-xl p-4 md:p-6 lg:p-8 mb-4 md:mb-8">
-                                {guideStep === 1 && <StepOne />}
-                                {guideStep === 2 && <StepTwo />}
-                                {guideStep === 3 && <StepThree />}
-                                {guideStep === 4 && <StepFour />}
-                                {guideStep === 5 && <StepFive />}
-                                {guideStep === 6 && <StepSix />}
-                            </div>
-
-                            {/* Navigation */}
-                            <div className="flex items-center justify-between gap-3">
-                                {/* زر إغلاق - يسار */}
-                                <button
-                                    onClick={() => setShowGuide(false)}
-                                    className="flex items-center gap-2 bg-[#2D496A] hover:bg-[#223952] text-white px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
-                                >
-                                    <span>إغلاق</span>
-                                    <X className="w-4 h-4" />
-                                </button>
-
-                                {/* Dots - منتصف */}
-                                <div className="flex items-center gap-2">
-                                    {[1, 2, 3, 4, 5, 6].map((s) => (
-                                        <button
-                                            key={s}
-                                            onClick={() => setGuideStep(s)}
-                                            className={cn(
-                                                "h-2 rounded-full transition-all duration-200",
-                                                guideStep === s ? "bg-[#2D496A] w-6" : "w-2 bg-[#C8D7E8] hover:bg-[#5B87B9]"
-                                            )}
-                                        />
-                                    ))}
-                                </div>
-
-                                {/* أزرار التنقل - يمين */}
-                                <div className="flex items-center gap-2">
-                                    {guideStep > 1 && guideStep < 6 && (
-                                        <button
-                                            onClick={() => setGuideStep((s) => Math.max(1, s - 1))}
-                                            className="flex items-center gap-2 border border-[#E8EDF2] bg-white hover:bg-[#F8FAFB] text-[#2D496A] px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
-                                        >
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-                                                <path d="M8 15L13 10L8 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                            </svg>
-                                            رجوع
-                                        </button>
-                                    )}
-                                    {guideStep < 6 ? (
-                                        <button
-                                            onClick={() => setGuideStep((s) => Math.min(6, s + 1))}
-                                            className="flex items-center gap-2 bg-[#2D496A] hover:bg-[#223952] text-white px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
-                                        >
-                                            التالي
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-                                                <path d="M12 15L7 10L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                            </svg>
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => setGuideStep((s) => Math.max(1, s - 1))}
-                                            className="flex items-center gap-2 border border-[#E8EDF2] bg-white hover:bg-[#F8FAFB] text-[#2D496A] px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
-                                        >
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-                                                <path d="M8 15L13 10L8 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                            </svg>
-                                            رجوع
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <ServiceGuide
+                    dashboardBase={dashboardBase}
+                    storeId={storeId}
+                    onClose={() => setShowGuide(false)}
+                />
             )}
 
             {/* ── Main (مخفي عند عرض الدليل للتاجر) ── */}
             {(userType !== "merchant" || !showGuide) && (
-                <main className="flex-1 p-4">
-                    <div className="mb-4">
+                <main className="flex-1">
+                    <div className="my-6">
                         <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
                             <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <Input
@@ -466,7 +315,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
 
                     <div className="grid grid-cols-12 gap-6 items-start ">
                         {!isLoadingSections && sections.length > 0 && (
-                            <div className="col-span-12 lg:col-span-3 h-full flex flex-col">
+                            <div className="col-span-12 lg:col-span-3 flex flex-col">
                                 <SidebarFilterPanel
                                     options={sectionOptions}
                                     activeValue={selectedSectionId}
@@ -474,46 +323,27 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                         setSelectedSectionId(val);
                                         setCurrentPage(1);
                                     }}
-                                    className="h-full border border-gray-200 rounded-lg bg-white"
+                                    className="border border-gray-200 rounded-lg bg-white"
                                     action={
-                                        <Button
-                                            type="button"
-                                            onClick={() => setIsSectionModalOpen(true)}
-                                            className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border"
-                                            style={{ backgroundColor: "var(--blue-5)" }}
-                                        >
-                                            اضافة أقسام جديدة
-                                            <Plus className="w-4 h-4" />
+                                        <Button type="button" onClick={() => setIsSectionModalOpen(true)} className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border bg-blue-5">
+                                            <Plus className="size-6" />
+                                            <span className="pt-1">إضافة قسم جديد</span>
                                         </Button>
                                     }
                                 />
                             </div>
                         )}
 
-                        <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}>
-                            <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
-                                {statusTabs.map((tab) => (
-                                    <button
-                                        key={tab.key}
-                                        onClick={() => {
-                                            setActiveStatus(tab.key);
-                                            setCurrentPage(1);
-                                        }}
-                                        className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${activeStatus === tab.key
-                                            ? tab.activeClass
-                                            : "border-transparent text-gray-2 hover:text-gray-2"
-                                            }`}
-                                    >
-                                        <span className="font-bold text-sm">{tab.label}</span>
-                                        <span
-                                            className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 pt-1 rounded text-xs font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
-                                                }`}
-                                        >
-                                            {getCountForStatus(tab.key)}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
+                        <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"}`}>
+                            <StatusTabs<ServiceStatus>
+                                activeKey={activeStatus}
+                                onChange={(key) => {
+                                    setActiveStatus(key);
+                                    setCurrentPage(1);
+                                }}
+                                getCount={getCountForStatus}
+                                className="bg-white rounded-lg border border-gray-200 mb-4"
+                            />
 
                             {!isLoadingSections && sections.length === 0 ? (
                                 <ServiceEmptyState

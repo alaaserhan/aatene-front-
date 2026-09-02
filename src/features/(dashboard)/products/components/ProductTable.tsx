@@ -13,7 +13,7 @@ import {
     DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { Pagination } from "@/src/components/ui/Pagination";
-import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
+import { VideoOrImageNext } from "@/src/components/ui/VideoOrImageNext";
 
 interface ProductTableProps {
     products: Product[];
@@ -101,7 +101,7 @@ export function ProductTable({
                                     <div className="flex justify-center">
                                         <div className="relative w-16 h-12 rounded bg-gray-100 overflow-hidden shrink-0">
                                             {product.cover_url ? (
-                                                <VideoOrImage
+                                                <VideoOrImageNext
                                                     src={product.cover_url}
                                                     alt={product.name}
                                                     fill
@@ -123,7 +123,7 @@ export function ProductTable({
                                 </td>
 
                                 {/* Title */}
-                                <td className="px-6 py-4 text-right">
+                                <td className="px-6 py-4 text-center">
                                     <span className="text-sm font-medium line-clamp-2 leading-snug">
                                         {product.name}
                                     </span>

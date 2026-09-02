@@ -324,7 +324,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               required
             />
 
-            <FormInput
+            {/* <FormInput
               label="وصف قصير"
               value={formData.description}
               onChange={(e) =>
@@ -335,7 +335,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               maxLength={75}
               showCounter
               error={errors.description}
-            />
+            /> */}
 
             <div >
               <Label className="text-sm font-medium mb-2">

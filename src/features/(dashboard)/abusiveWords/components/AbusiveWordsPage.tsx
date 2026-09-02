@@ -389,7 +389,7 @@ export function AbusiveWordsPage() {
                                                 className="flex items-center gap-2 h-10 bg-blue-3 rounded-sm text-white hover:bg-blue-4"
                                             >
                                                 <Plus className="w-4 h-4" />
-                                                اضافة
+                                                إضافة
                                             </Button>
                                         </div>
                                     </div>

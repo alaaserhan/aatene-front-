@@ -1,446 +1,531 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter, useParams } from "next/navigation";
-import { useState, useMemo } from "react";
-import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4, ChevronDown } from "lucide-react";
-import { Service } from "../api";
-import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
-import { useAddServiceToCompare, useRemoveServiceFromCompare } from "@/src/features/(web)/compares/hooks";
-import { cn, isVideoFile } from "@/src/lib/utils";
-import { formatPrice } from "@/src/lib/format-price";
-import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
-import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
-import { useQueryClient } from "@tanstack/react-query";
-import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
+import StoreInfoCard from "@/src/components/shared/StoreInfoCard";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { Checkbox } from "@/src/components/ui/checkbox";
+import { Price } from "@/src/components/ui/Price";
+import { RatingStars } from "@/src/components/ui/RatingStars";
 import { ShareModal } from "@/src/components/ui/ShareModal";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { VideoOrImageNext } from "@/src/components/ui/VideoOrImageNext";
+import {
+  useAddServiceToCompare,
+  useRemoveServiceFromCompare,
+} from "@/src/features/(web)/compares/hooks";
+import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
+import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
+import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Clock4,
+  Flag,
+  MoreVertical,
+  Phone,
+  Play,
+  Send,
+  Share2,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
+import { Service, ServiceExtra } from "../api";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import type { ChatTarget } from "@/src/lib/chat-links";
 
-interface ServiceHeroProps {
-    service: Service;
-}
-
-const executeTypeMap: Record<string, string> = {
-    hour: "ساعة",
-    day: "يوم",
-    week: "اسبوع",
-    month: "شهر",
+const EXECUTE_TYPE_LABELS: Record<string, string> = {
+  hour: "ساعة",
+  day: "يوم",
+  week: "اسبوع",
+  month: "شهر",
 };
 
-function SpecialtiesDropdown({ specialties }: { specialties: { id: number; title: string }[] }) {
-    const [open, setOpen] = useState(false);
-    return (
-        <div>
-            <button
-                type="button"
-                onClick={() => setOpen((v) => !v)}
-                className={cn(
-                    "w-full flex items-center justify-between px-4 py-3 border border-gray-200 bg-[#f5f8fc] hover:bg-[#eef2f7] transition-colors",
-                    open ? "rounded-t-xl" : "rounded-xl"
-                )}
-            >
-                <span className="text-sm font-medium text-gray-700">التخصصات ومجالات العمل</span>
-                <div className="flex items-center gap-2">
-                    <span className="text-xs text-[#395a7d] bg-[#dce8f4] px-2 py-0.5 rounded-full font-medium">
-                        {specialties.length}
-                    </span>
-                    <ChevronDown
-                        className={cn("w-4 h-4 text-gray-500 transition-transform duration-200", open && "rotate-180")}
-                    />
-                </div>
-            </button>
-            {open && (
-                <div className="border border-t-0 border-gray-200 rounded-b-xl bg-white max-h-52 overflow-y-auto">
-                    {specialties.map((spec) => (
-                        <div
-                            key={spec.id}
-                            className="px-4 py-2.5 hover:bg-[#f5f8fc] border-b border-gray-100 last:border-0 transition-colors"
-                        >
-                            <span className="text-sm text-gray-700">{spec.title}</span>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+const PLACEHOLDER_SRC = "/images/placeholders/product-placeholder.svg";
+
+type MediaItem = { type: "image" | "video"; url: string };
+
+interface ServiceHeroProps {
+  service: Service;
 }
 
+// TODO: this component needs to be refactored
 export default function ServiceHero({ service }: ServiceHeroProps) {
-    const allMedia = useMemo(() => {
-        const items: { type: "image" | "video"; url: string }[] = [];
-        if (service.images_urls && service.images_urls.length > 0) {
-            service.images_urls.forEach((img) => items.push({ type: isVideoFile(img) ? "video" : "image", url: img }));
-        } else if (service.image_url) {
-            items.push({ type: isVideoFile(service.image_url) ? "video" : "image", url: service.image_url });
-        }
-        return items;
-    }, [service]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
+  const [selectedExtras, setSelectedExtras] = useState<number[]>([]);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isInCompare, setIsInCompare] = useState(service.is_compare);
 
-    const [selectedIndex, setSelectedIndex] = useState(0);
-    const [showMenu, setShowMenu] = useState(false);
-    const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
-    const [selectedExtras, setSelectedExtras] = useState<number[]>([]);
-    const [isReportOpen, setIsReportOpen] = useState(false);
-    const [isShareOpen, setIsShareOpen] = useState(false);
-    const [isInCompare, setIsInCompare] = useState(service.is_compare);
+  const qc = useQueryClient();
+  const { mutate: addToCompare } = useAddServiceToCompare();
+  const { mutate: removeFromCompare } = useRemoveServiceFromCompare();
 
-    const router = useRouter();
-    const params = useParams();
-    const lang = params?.locale || params?.lang || "ar";
-    const { user } = useAuthStore();
-    const qc = useQueryClient();
-    const { mutate: addToCompare } = useAddServiceToCompare();
-    const { mutate: removeFromCompare } = useRemoveServiceFromCompare();
+  const allMedia = useMemo<MediaItem[]>(() => {
+    const sources = service.images_urls?.length
+      ? service.images_urls
+      : [service.image_url];
 
-    const currentMedia = allMedia[selectedIndex] || allMedia[0];
-    const rating = parseFloat(service.review_rate || "0");
-    const reviewCount = parseInt(service.review_count || "0");
+    const items: MediaItem[] = [];
+    const seen = new Set<string>();
 
-    // Calculate total price with extras
-    const basePrice = parseFloat(service.price || "0");
-    const shouldAskForPrice = shouldShowAskForPrice(service.ask_for_price, service.price);
+    sources.forEach((source) => {
+      const url = sanitizeMediaUrl(source);
+      if (!url || seen.has(url)) return;
+      seen.add(url);
+      items.push({ type: isVideoFile(url) ? "video" : "image", url });
+    });
 
-    const extrasTotal = selectedExtras.reduce((sum, id) => {
-        const extra = service.extras?.find(e => e.id === id);
+    return items;
+  }, [service.images_urls, service.image_url]);
+
+  // Keep the selection valid when the media list shrinks between renders.
+  const activeIndex = Math.min(selectedIndex, Math.max(allMedia.length - 1, 0));
+  const currentMedia = allMedia[activeIndex];
+  const hasGallery = allMedia.length > 1;
+
+  const rating = parseFloat(service.review_rate || "0");
+  const reviewCount = parseInt(service.review_count || "0");
+
+  const basePrice = parseFloat(service.price || "0");
+  const shouldAskForPrice = shouldShowAskForPrice(
+    service.ask_for_price,
+    service.price,
+  );
+  const extrasTotal = useMemo(
+    () =>
+      selectedExtras.reduce((sum, id) => {
+        const extra = service.extras?.find((item) => item.id === id);
         return sum + (extra ? parseFloat(extra.price) : 0);
-    }, 0);
+      }, 0),
+    [selectedExtras, service.extras],
+  );
+  const totalPrice = basePrice + extrasTotal;
 
-    const totalPrice = basePrice + extrasTotal;
+  const invalidateService = () => {
+    // Both the slug and the id variants are cached, so refresh either one.
+    qc.invalidateQueries({ queryKey: ["service"] });
+  };
 
-    const handlePrev = () => {
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : allMedia.length - 1));
-    };
+  const chatTarget = (askPrice = false): ChatTarget => ({
+    type: "store",
+    id: service.store?.id,
+    serviceId: service.id,
+    askPrice,
+  });
 
-    const handleNext = () => {
-        setSelectedIndex((prev) => (prev < allMedia.length - 1 ? prev + 1 : 0));
-    };
+  const showPrev = () =>
+    setSelectedIndex(activeIndex > 0 ? activeIndex - 1 : allMedia.length - 1);
 
-    const toggleExtra = (id: number) => {
-        setSelectedExtras(prev =>
-            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-        );
-    };
+  const showNext = () =>
+    setSelectedIndex(activeIndex < allMedia.length - 1 ? activeIndex + 1 : 0);
 
-    return (
-        <div className="flex flex-col gap-5">
-            {/* Breadcrumb */}
-            <nav className="flex items-center gap-1 text-sm text-gray-500">
-                <Link href="/search?type=services" className="hover:text-blue-3 transition-colors">قائمة الخدمات</Link>
-                <ChevronLeft className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-700">{service.title}</span>
-            </nav>
+  const toggleExtra = (id: number) =>
+    setSelectedExtras((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
 
-            <div className="flex flex-col lg:flex-row gap-10">
-                {/* Right Side: Image Gallery */}
-                <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%]">
-                    {/* Thumbnails Strip */}
-                    {allMedia.length > 1 && (
-                        <div className="flex gap-2.5 overflow-auto shrink-0 flex-row w-full h-[100px] lg:flex-col lg:w-[100px] lg:h-auto lg:max-h-[600px]">
-                            {allMedia.map((item, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setSelectedIndex(index)}
-                                    className={cn(
-                                        "relative w-[100px] h-[100px] rounded-md overflow-hidden shrink-0 border-2 transition-colors",
-                                        selectedIndex === index
-                                            ? "border-[#046cff]"
-                                            : "border-transparent hover:border-gray-300"
-                                    )}
-                                >
-                                    {item.type === "video" ? (
-                                        <div className="relative w-full h-full">
-                                            <video
-                                                src={item.url}
-                                                className="w-full h-full object-cover pointer-events-none"
-                                                muted
-                                                playsInline
-                                                preload="metadata"
-                                            />
-                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none">
-                                                <div className="w-[40px] h-[40px] bg-white/90 rounded-full flex items-center justify-center">
-                                                    <Play className="w-5 h-5 text-gray-700 fill-gray-700" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <img
-                                            src={item.url}
-                                            alt={`${service.title} - ${index + 1} `}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                e.currentTarget.src = "/placeholder.png";
-                                            }}
-                                        />
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                    )}
+  const toggleCompare = () => {
+    const mutate = isInCompare ? removeFromCompare : addToCompare;
+    mutate(service.id, {
+      onSuccess: () => {
+        setIsInCompare(!isInCompare);
+        invalidateService();
+      },
+    });
+  };
 
-                    {/* Main Image */}
-                    <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
-                        {currentMedia?.type === "video" ? (
-                            <video
-                                src={currentMedia.url}
-                                controls
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <img
-                                src={currentMedia?.url || "/placeholder.png"}
-                                alt={service.title}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                    e.currentTarget.src = "/placeholder.png";
-                                }}
-                            />
-                        )}
+  return (
+    <section>
+      <Breadcrumb
+        items={[
+          { label: "قائمة الخدمات", href: "/search?type=services" },
+          { label: service.title },
+        ]}
+      />
 
-                        {/* Navigation Arrows */}
-                        {allMedia.length > 1 && (
-                            <>
-                                <button
-                                    onClick={handleNext}
-                                    className="absolute top-1/2 right-4 -translate-y-1/2 w-12 h-12 rounded-full bg-white/60 shadow-lg flex items-center justify-center hover:bg-white/80 transition-colors backdrop-blur-sm"
-                                >
-                                    <ChevronRight className="w-5 h-5 text-gray-700" />
-                                </button>
-                                <button
-                                    onClick={handlePrev}
-                                    className="absolute top-1/2 left-4 -translate-y-1/2 w-12 h-12 rounded-full bg-white/60 shadow-lg flex items-center justify-center hover:bg-white/80 transition-colors backdrop-blur-sm"
-                                >
-                                    <ChevronLeft className="w-5 h-5 text-gray-700" />
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </div>
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%] lg:items-start">
+          {hasGallery && (
+            <ul
+              className={cn(
+                "flex shrink-0 gap-2.5 list-none",
+                "flex-row h-[100px] w-full overflow-x-auto overflow-y-hidden",
+                "lg:flex-col lg:h-auto lg:max-h-[600px] lg:w-[100px]",
+                "lg:overflow-x-hidden lg:overflow-y-auto",
+              )}
+            >
+              {allMedia.map((item, index) => (
+                <li key={item.url}>
+                  <MediaThumbnail
+                    item={item}
+                    index={index}
+                    title={service.title}
+                    isActive={activeIndex === index}
+                    onSelect={() => setSelectedIndex(index)}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
 
-                {/* Left Side: Service Info */}
-                <div className="flex-1 flex flex-col gap-6">
-                    {/* Price & Rating Row */}
-                    <div className="flex items-center justify-between flex-wrap gap-3">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            {shouldAskForPrice ? (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        if (!user) {
-                                            router.push(`/${lang}/login`);
-                                            return;
-                                        }
-                                        const storeId = service.store?.id;
-                                        if (!storeId) return;
-                                        router.push(
-                                            `/${lang}/chat?type=store&id=${storeId}&serviceId=${service.id}&askPrice=1`
-                                        );
-                                    }}
-                                    className={productAskForPriceButtonClassName}
-                                >
-                                    اطلب السعر
-                                </button>
-                            ) : (
-                                <span className="text-2xl font-normal">
-                                    {formatPrice(totalPrice)} ₪
-                                </span>
-                            )}
-                            <div className="w-px h-4 bg-gray-300 mx-2" />
-                            <div className="flex items-center gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className={cn(
-                                            "w-4 h-4",
-                                            i < Math.round(rating)
-                                                ? "fill-[#FB923C] text-[#FB923C]"
-                                                : "fill-gray-200 text-gray-200"
-                                        )}
-                                    />
-                                ))}
-                            </div>
-                            <span className="text-sm text-gray-2">
-                                ( {reviewCount} مراجعة )
-                            </span>
-                        </div>
-                    </div>
+          <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
+            <VideoOrImageNext
+              src={currentMedia?.url}
+              alt={service.title}
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 55vw"
+              fallbackSrc={PLACEHOLDER_SRC}
+              videoProps={{ controls: true }}
+            />
 
-                    {/* Title */}
-                    <div className="flex items-start justify-between gap-3">
-                        <h1 className="text-2xl font-medium leading-relaxed">
-                            {service.title}
-                        </h1>
-                        <div className="flex items-center gap-2 shrink-0">
-                            <FavoriteButton
-                                id={service.id}
-                                type="service"
-                                isFavorite={service.is_favorite}
-                                className="w-8 h-8 rounded-full"
-                                iconClassName="w-5 h-5"
-                                onSuccess={() => {
-                                    qc.invalidateQueries({ queryKey: ["service", service.slug] });
-                                    qc.invalidateQueries({ queryKey: ["service", service.id] }); // Invalidate both ID and Slug variants just in case
-                                }}
-                            />
-                            {/* More menu */}
-                            <div className="relative">
-                                <button
-                                    onClick={() => setShowMenu(!showMenu)}
-                                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-                                >
-                                    <MoreVertical className="w-5 h-5 text-gray-600" />
-                                </button>
-                                {showMenu && (
-                                    <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[160px] z-30">
-                                        <button
-                                            onClick={() => {
-                                                setIsShareOpen(true);
-                                                setShowMenu(false);
-                                            }}
-                                            className="flex cursor-pointer items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                        >
-                                            <Share2 className="w-4 h-4" />
-                                            مشاركة الخدمة
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setIsReportOpen(true);
-                                                setShowMenu(false);
-                                            }}
-                                            className="flex cursor-pointer items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                        >
-                                            <Flag className="w-4 h-4" />
-                                            ابلاغ عن الخدمة
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+            {hasGallery && (
+              <>
+                <GalleryArrow
+                  side="right"
+                  label="الصورة التالية"
+                  onClick={showNext}
+                />
+                <GalleryArrow
+                  side="left"
+                  label="الصورة السابقة"
+                  onClick={showPrev}
+                />
+              </>
+            )}
+          </div>
+        </div>
 
-                            <ReportAbuseModal
-                                isOpen={isReportOpen}
-                                onClose={() => setIsReportOpen(false)}
-                                type="service"
-                                id={service.id}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="h-px bg-gray-100 w-full" />
-
-                    {/* Extras Section */}
-                    {service.extras && service.extras.length > 0 && (
-                        <div className="flex flex-col gap-3">
-                            <h3 className="text-sm font-medium text-blue-3">تطويرات اختيارية</h3>
-                            <div className="flex flex-col gap-2">
-                                {service.extras.map((extra) => (
-                                    <div
-                                        key={extra.id}
-                                        className={cn(
-                                            "border rounded-lg p-3 flex items-center gap-3 cursor-pointer transition-colors",
-                                            selectedExtras.includes(extra.id) ? "border-blue-4 bg-blue-5" : "border-gray-200 hover:border-gray-300"
-                                        )}
-                                        onClick={() => toggleExtra(extra.id)}
-                                    >
-                                        <div className={cn(
-                                            "w-4 h-4 rounded border flex items-center justify-center transition-colors",
-                                            selectedExtras.includes(extra.id) ? "bg-blue-4 border-none" : "border-gray-200 bg-white"
-                                        )}>
-                                            {selectedExtras.includes(extra.id) && <Check className="w-3.5 h-3.5 text-white" />}
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="font-medium text-sm">{extra.title}</span>
-                                            <div className="flex items-center gap-4 text-xs text-gray-2">
-                                                <span className="font-medium text-gray-2  ">
-                                                    {formatPrice(extra.price)} <span className="text-base">₪ </span>
-                                                </span>
-                                                <span className="flex items-center gap-1">
-                                                    <Clock4 className="w-3 h-3 mb-0.5" /> {extra.execute_count} {executeTypeMap[extra.execute_type] || extra.execute_type}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Specialties / Field Tags */}
-                    {service.specialties && service.specialties.length > 0 && (
-                        <SpecialtiesDropdown specialties={service.specialties} />
-                    )}
-
-                    {/* CTA Buttons */}
-                    <div className="flex flex-col gap-3">
-                        {service.store?.phone && (
-                            <a
-                                href={`tel:${service.store.phone}`}
-                                onClick={(e) => {
-                                    if (!isPhoneRevealed) {
-                                        e.preventDefault();
-                                        setIsPhoneRevealed(true);
-                                    }
-                                }}
-                                className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity"
-                            >
-                                <span dir="ltr">
-                                    {isPhoneRevealed 
-                                        ? service.store.phone 
-                                        : service.store.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** ***")}
-                                </span>
-                                <Phone className="w-5 h-5" />
-                            </a>
-                        )}
-
-                        <button
-                            onClick={() => {
-                                if (!user) { router.push(`/${lang}/login`); return; }
-                                router.push(`/${lang}/chat?type=store&id=${service.store?.id}&serviceId=${service.id}`);
-                            }}
-                            className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium  hover:bg-gray-50 transition-colors"
-                        >
-                            دردش
-                            <Send className="w-5 h-5" />
-                        </button>
-
-                        {/* Compare Link */}
-                        {!isInCompare ? (
-                            <button
-                                onClick={() => addToCompare(service.id, {
-                                    onSuccess: () => {
-                                        setIsInCompare(true);
-                                        qc.invalidateQueries({ queryKey: ["service", service.slug] });
-                                        qc.invalidateQueries({ queryKey: ["service", service.id] });
-                                    }
-                                })}
-                                className="text-blue-4 text-sm font-medium underline underline-offset-4 cursor-pointer"
-                            >
-                                أضف الى المقارنة
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => removeFromCompare(service.id, {
-                                    onSuccess: () => {
-                                        setIsInCompare(false);
-                                        qc.invalidateQueries({ queryKey: ["service", service.slug] });
-                                        qc.invalidateQueries({ queryKey: ["service", service.id] });
-                                    }
-                                })}
-                                className="text-red-500 text-sm font-medium underline underline-offset-4 cursor-pointer"
-                            >
-                                إزالة من المقارنة
-                            </button>
-                        )}
-                    </div>
-
-                </div>
+        {/* Details */}
+        <div className="flex-1">
+          <div className="white-card mb-6">
+            <div className="mb-4">
+              {shouldAskForPrice ? (
+                <ChatNowButton
+                  size="md"
+                  className="text-base"
+                  target={chatTarget(true)}
+                  label="اطلب السعر"
+                  icon={null}
+                />
+              ) : (
+                <Price value={totalPrice} className="text-primary" />
+              )}
             </div>
 
-            <ShareModal
-                isOpen={isShareOpen}
-                onClose={() => setIsShareOpen(false)}
-                shareUrl={typeof window !== "undefined" ? window.location.href : ""}
-                title={service.title}
-                description="قم بمشاركة هذه الخدمة مع أصدقائك"
+            <RatingStars
+              className="mb-4"
+              rating={rating}
+              count={reviewCount}
+              size="md"
             />
+
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="heading-1 text-c2-neutral-800">{service.title}</h1>
+              <div className="flex items-center gap-2 shrink-0">
+                <FavoriteButton
+                  id={service.id}
+                  type="service"
+                  isFavorite={service.is_favorite}
+                  onSuccess={invalidateService}
+                  iconClassName="size-7"
+                />
+                <ServiceActionsMenu
+                  onShare={() => setIsShareOpen(true)}
+                  onReport={() => setIsReportOpen(true)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {service.extras && service.extras.length > 0 && (
+            <div className="flex flex-col gap-3 white-card mb-6">
+              <h2 className="text-sm font-medium text-c2-navy-1000">
+                تطويرات اختيارية
+              </h2>
+              <ul className="flex flex-col gap-2 list-none">
+                {service.extras.map((extra) => (
+                  <li key={extra.id}>
+                    <ExtraOption
+                      extra={extra}
+                      isSelected={selectedExtras.includes(extra.id)}
+                      onToggle={() => toggleExtra(extra.id)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-3">
+            {service.store?.phone && (
+              <a
+                href={`tel:${service.store.phone}`}
+                onClick={(e) => {
+                  if (isPhoneRevealed) return;
+                  e.preventDefault();
+                  setIsPhoneRevealed(true);
+                }}
+                className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity"
+              >
+                <span dir="ltr">
+                  {isPhoneRevealed
+                    ? service.store.phone
+                    : service.store.phone.replace(
+                        /^\+?(\d{3}).*/,
+                        "+$1 *** ***",
+                      )}
+                </span>
+                <Phone className="w-5 h-5" aria-hidden="true" />
+              </a>
+            )}
+
+            <ChatNowButton
+              unstyled
+              target={chatTarget()}
+              icon={<Send className="w-5 h-5" aria-hidden="true" />}
+              iconPosition="end"
+              iconClassName="w-5 h-5"
+              className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+            />
+
+            <button
+              type="button"
+              onClick={toggleCompare}
+              className={cn(
+                "text-sm font-medium underline underline-offset-4 cursor-pointer",
+                isInCompare ? "text-c2-danger" : "text-c2-navy-500",
+              )}
+            >
+              {isInCompare ? "إزالة من المقارنة" : "أضف الى المقارنة"}
+            </button>
+          </div>
+
+          {service.store && (
+            <StoreInfoCard store={service.store} className="mt-6" />
+          )}
         </div>
-    );
+      </div>
+
+      <ReportAbuseModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        type="service"
+        id={service.id}
+      />
+
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        shareUrl={typeof window !== "undefined" ? window.location.href : ""}
+        title={service.title}
+        description="قم بمشاركة هذه الخدمة مع أصدقائك"
+      />
+    </section>
+  );
+}
+
+function MediaThumbnail({
+  item,
+  index,
+  title,
+  isActive,
+  onSelect,
+}: {
+  item: MediaItem;
+  index: number;
+  title: string;
+  isActive: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-current={isActive}
+      aria-label={`${title} - ${index + 1}`}
+      className={cn(
+        "relative block w-[100px] h-[100px] rounded-md overflow-hidden shrink-0 border-2 cursor-pointer transition-colors",
+        isActive ? "border-blue-4" : "border-transparent hover:border-gray-300",
+      )}
+    >
+      <VideoOrImageNext
+        src={item.url}
+        alt={`${title} - ${index + 1}`}
+        fill
+        sizes="100px"
+        fallbackSrc={PLACEHOLDER_SRC}
+        className="pointer-events-none"
+        videoProps={{ controls: false, autoPlay: false }}
+      />
+
+      {item.type === "video" && (
+        <span className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
+          <span className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
+            <Play
+              className="w-5 h-5 text-gray-700 fill-gray-700"
+              aria-hidden="true"
+            />
+          </span>
+        </span>
+      )}
+    </button>
+  );
+}
+
+function GalleryArrow({
+  side,
+  label,
+  onClick,
+}: {
+  side: "left" | "right";
+  label: string;
+  onClick: () => void;
+}) {
+  const Icon = side === "right" ? ChevronRight : ChevronLeft;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className={cn(
+        "absolute top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/60 shadow-lg cursor-pointer",
+        "flex items-center justify-center backdrop-blur-sm hover:bg-white/80 transition-colors",
+        side === "right" ? "right-4" : "left-4",
+      )}
+    >
+      <Icon className="w-5 h-5 text-gray-700" aria-hidden="true" />
+    </button>
+  );
+}
+
+function ExtraOption({
+  extra,
+  isSelected,
+  onToggle,
+}: {
+  extra: ServiceExtra;
+  isSelected: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={isSelected}
+      onClick={onToggle}
+      className={cn(
+        "w-full border rounded-lg p-3 flex items-center gap-3 text-start cursor-pointer transition-colors",
+        isSelected
+          ? "border-blue-4 bg-blue-5"
+          : "border-gray-200 hover:border-gray-300",
+      )}
+    >
+      <Checkbox checked={isSelected} />
+
+      <span className="flex flex-col gap-2">
+        <span className="font-medium text-sm text-c2-navy-1000">
+          {extra.title}
+        </span>
+        <div className="flex items-center gap-3">
+          <Price
+            value={extra.price}
+            size="sm"
+            className="text-c2-primary font-bold"
+          />
+          <div className="flex items-center gap-1 text-xs font-medium text-[#80859B]">
+            <Clock4 className="w-4 h-4 mb-1" aria-hidden="true" />
+
+            <div className="flex items-center gap-1">
+              <span>{extra.execute_count}</span>
+              <span>
+                {EXECUTE_TYPE_LABELS[extra.execute_type] || extra.execute_type}
+              </span>
+            </div>
+          </div>
+        </div>
+      </span>
+    </button>
+  );
+}
+
+function ServiceActionsMenu({
+  onShare,
+  onReport,
+}: {
+  onShare: () => void;
+  onReport: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  const runAndClose = (action: () => void) => () => {
+    action();
+    setIsOpen(false);
+  };
+
+  const itemClassName =
+    "flex cursor-pointer items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors";
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-label="خيارات الخدمة"
+        className="w-8 h-8 flex items-center justify-center rounded-full cursor-pointer hover:bg-gray-100 transition-colors"
+      >
+        <MoreVertical className="w-7 h-7 text-c2-primary" aria-hidden="true" />
+      </button>
+
+      {isOpen && (
+        <div
+          role="menu"
+          className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-40 z-30"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            onClick={runAndClose(onShare)}
+            className={itemClassName}
+          >
+            <Share2 className="w-4 h-4" aria-hidden="true" />
+            مشاركة الخدمة
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={runAndClose(onReport)}
+            className={itemClassName}
+          >
+            <Flag className="w-4 h-4" aria-hidden="true" />
+            ابلاغ عن الخدمة
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }

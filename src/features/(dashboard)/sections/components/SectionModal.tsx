@@ -63,7 +63,7 @@ export function SectionModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-medium text-brand-black-1">
+          <DialogTitle className="text-xl font-medium text-brand-black-1 text-gray-7">
             {mode === "add" ? "أضف قسم جديد" : "تعديل بيانات القسم"}
             <p className="text-sm text-gray-2 font-normal pt-2">
               ابدأ بتنظيم متجرك بإضافة قسم خاص بك. هذه الأقسام تساعدك على ترتيب متجرك فقط، ولن تؤثر على التصنيفات الرئيسية في المنصة.
@@ -109,14 +109,14 @@ export function SectionModal({
             onClick={handleSave}
             disabled={!formData.name.trim()}
             className={cn(
-              "w-full px-6 py-3 rounded-sm bg-blue-4 font-medium transition-colors cursor-pointer",
+              "w-full px-6 py-7 rounded-xl bg-blue-4 font-medium",
               formData.name.trim()
                 ? ""
                 : "cursor-not-allowed"
             )}
           >
             {
-              mode === "add" ? "اضافة القسم" : "تعديل القسم"
+              mode === "add" ? "إضافة القسم" : "تعديل القسم"
             }
           </Button>
         </DialogFooter>

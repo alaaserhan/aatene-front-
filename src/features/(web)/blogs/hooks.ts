@@ -14,13 +14,22 @@ import {
 import { BlogFilterParams, CreateBlogData, BaseResponse } from "./types";
 import { toast } from "sonner";
 
+// Key factories: the `*All` variants are prefixes meant for invalidation.
+// Never call the parametrized variant with an undefined param to invalidate — a
+// trailing `undefined` segment does not partial-match a key holding a real
+// params object, so nothing gets invalidated.
 export const blogsKeys = {
     all: ["blogs"] as const,
+    myAll: ["blogs", "my"] as const,
     my: (params?: BlogFilterParams) => ["blogs", "my", params] as const,
+    publicAll: ["blogs", "public"] as const,
     public: (params?: BlogFilterParams) => ["blogs", "public", params] as const,
     detail: (slugOrId: string | number) => ["blogs", "detail", slugOrId] as const,
+    reviewsAll: (slug: string) => ["blogs", "reviews", slug] as const,
     reviews: (slug: string, params?: { page?: number }) => ["blogs", "reviews", slug, params] as const,
-    replies: (slug: string, id: number | string) => ["blogs", "replies", slug, id] as const,
+    // id is normalized to a string so the key matches whether the caller has a
+    // number (list item) or a string (FormData value).
+    replies: (slug: string, id: number | string) => ["blogs", "replies", slug, String(id)] as const,
 };
 
 // --- Hooks ---
@@ -54,7 +63,7 @@ export function useCreateBlog() {
         mutationFn: createMyBlog,
         onSuccess: () => {
             toast.success("تم إضافة المدونة بنجاح");
-            queryClient.invalidateQueries({ queryKey: blogsKeys.my() });
+            queryClient.invalidateQueries({ queryKey: blogsKeys.myAll });
         },
         onError: (error: AxiosError<BaseResponse>) => {
             toast.error(error?.response?.data?.message || "حدث خطأ ما");
@@ -70,7 +79,7 @@ export function useUpdateBlog() {
             updateMyBlog(id, data),
         onSuccess: (data) => {
             toast.success("تم تعديل المدونة بنجاح");
-            queryClient.invalidateQueries({ queryKey: blogsKeys.my() });
+            queryClient.invalidateQueries({ queryKey: blogsKeys.myAll });
             const id = data.blog?.id || data.record?.id;
             if (id) {
                 queryClient.invalidateQueries({ queryKey: blogsKeys.detail(id) });
@@ -89,7 +98,7 @@ export function useDeleteBlog() {
         mutationFn: deleteMyBlog,
         onSuccess: () => {
             toast.success("تم حذف المدونة بنجاح");
-            queryClient.invalidateQueries({ queryKey: blogsKeys.my() });
+            queryClient.invalidateQueries({ queryKey: blogsKeys.myAll });
         },
         onError: (error: AxiosError<BaseResponse>) => {
             toast.error(error?.response?.data?.message || "حدث خطأ ما");
@@ -123,7 +132,10 @@ export function useAddBlogReview() {
             addBlogReview(slug, data),
         onSuccess: (_, variables) => {
             toast.success("تم إضافة التعليق بنجاح");
-            queryClient.invalidateQueries({ queryKey: blogsKeys.reviews(variables.slug) });
+            // Prefix key: refetches every page of the reviews list.
+            queryClient.invalidateQueries({ queryKey: blogsKeys.reviewsAll(variables.slug) });
+            // Keep the blog detail in sync so the comment counter updates.
+            queryClient.invalidateQueries({ queryKey: blogsKeys.detail(variables.slug) });
             const parentId = variables.data.get("parent_id");
             if (parentId) {
                 queryClient.invalidateQueries({ queryKey: blogsKeys.replies(variables.slug, parentId as string) });

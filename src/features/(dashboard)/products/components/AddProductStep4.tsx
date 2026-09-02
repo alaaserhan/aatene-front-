@@ -101,7 +101,7 @@ export function AddProductStep4({
 
     const defaultBreadcrumbItems = [
         { label: "المنتجات", href: "/admin/products" },
-        { label: "انشاء منتج جديد" },
+        { label: "إنشاء منتج جديد" },
     ];
 
     const handleSelectProducts = (products: RelatedProduct[]) => {
@@ -310,8 +310,8 @@ export function AddProductStep4({
                                             >
                                                 <Percent className="w-4 h-4" />
                                                 {formData.hasDiscount
-                                                    ? "تعديل الخصم علي المنتجات المختارة"
-                                                    : "تخفيض علي المنتجات المختارة"
+                                                    ? "تعديل الخصم على المنتجات المختارة"
+                                                    : "تخفيض على المنتجات المختارة"
                                                 }
                                             </button>
                                         </div>
@@ -463,7 +463,7 @@ function DiscountModal({
                 <div className="p-4 pb-2 shrink-0">
                     <DialogHeader>
                         <DialogTitle className="text-base font-medium  border-b border-gray-100 pb-4 ">
-                            اضافة خصم علي الكوليكشن
+                            إضافة خصم علي الكوليكشن
                         </DialogTitle>
                     </DialogHeader>
                 </div>
@@ -574,7 +574,6 @@ function DiscountModal({
                                 }}
                                 placeholder="ادخل اسم العرض (حروف فقط)"
                                 error={errors.name}
-                                hint={`حد أقصى ${OFFER_NAME_MAX_CHARS} حرفًا`}
                                 className="min-h-[100px] px-4 py-3 font-medium bg-white shadow-none focus:ring-0 resize-y"
                             />
                         </div>
@@ -602,7 +601,6 @@ function DiscountModal({
                                 }}
                                 placeholder="ادخل وصف العرض (حروف فقط)"
                                 error={errors.description}
-                                hint={`حد أقصى ${OFFER_DESCRIPTION_MAX_CHARS} حرفًا`}
                                 className="min-h-[100px] px-4 py-3 font-medium bg-white shadow-none focus:ring-0 resize-y"
                             />
                         </div>

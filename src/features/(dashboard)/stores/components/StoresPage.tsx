@@ -2,36 +2,34 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
 import { useGetStores, useUpdateStoreShown } from "../hooks";
+import { useStoreDeleteConfirm } from "../use-store-delete-confirm";
 import { Store, StoreStatus } from "../api";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { StoresAdminTable } from "./StoresAdminTable";
 import { StoresTypeSidebar, StoreTypeFilter } from "./StoresTypeSidebar";
 import { StoreEmptyState } from "./StoreEmptyState";
 import { Input } from "@/src/components/ui/input";
 import { useAuthStore } from "@/src/stores/auth-store";
-
-const storeStatusTabs: {
-  key: StoreStatus;
-  label: string;
-  activeClass: string;
-  badgeClass: string;
-}[] = [
-  { key: "approved", label: "تمت الموافقة عليه", activeClass: "border-emerald-500 text-emerald-500", badgeClass: "bg-emerald-500" },
-  { key: "pending", label: "قيد المراجعة", activeClass: "border-amber-400 text-amber-400", badgeClass: "bg-amber-400" },
-  { key: "rejected", label: "مرفوض", activeClass: "border-red-500 text-red-500", badgeClass: "bg-red-500" },
-];
+import { Button } from "@/src/components/ui/button";
+import { StatusTabs, REVIEW_STATUS_TABS } from "@/src/components/(dashboard)/StatusTabs";
 
 export function StoresPage() {
   const router = useRouter();
   const { locale, type } = useParams<{ locale: string; type: string }>();
+  const searchParams = useSearchParams();
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.user_type === "admin";
   const isMerchant = user?.user_type === "merchant";
 
-  const [statusTab, setStatusTab] = useState<StoreStatus>("approved");
+  const statusParam = searchParams.get("status") as StoreStatus | null;
+  const initialStatusTab: StoreStatus =
+    statusParam && REVIEW_STATUS_TABS.some((tab) => tab.key === statusParam) ? statusParam : "approved";
+
+  const [statusTab, setStatusTab] = useState<StoreStatus>(initialStatusTab);
   const [typeFilter, setTypeFilter] = useState<StoreTypeFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -142,34 +140,39 @@ export function StoresPage() {
     updateShown({ id: store.id, payload: { shown: !currentlyVisible } });
   };
 
+  const storesBasePath = locale && type ? `/${locale}/${type}/stores` : "/admin/stores";
+
   const openDetails = (store: Store) => {
-    if (locale && type) {
-      router.push(`/${locale}/${type}/stores/${store.id}`);
-    } else {
-      router.push(`/admin/stores/${store.id}`);
-    }
+    router.push(`${storesBasePath}/${store.id}`);
   };
 
-  const addStoreHref =
-    locale && type ? `/${locale}/${type}/stores/add` : "/admin/stores/add";
+  // نفس منطق الحذف المستخدم في صفحة تفاصيل المتجر
+  const { requestDelete, pendingStoreId, isDeleting, confirmModalProps } =
+    useStoreDeleteConfirm();
+
+  const addStoreHref = `${storesBasePath}/add`;
 
   return (
     <div className="bg-gray-50 min-h-full flex flex-col">
-      <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
-        <div className="flex items-center justify-between h-16 px-6">
-          <h1 className="text-blue-4 font-semibold">إدارة المتاجر</h1>
-          <Link
+      <header className="mt-6 pb-0">
+        <div className="heading-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h1 className="heading-1">إدارة المتاجر</h1>
+          <div className="flex flex-row gap-4 lg:gap-6">
+            {/* TODO: this should be a link not a nested button */}
+            <Link
             href={addStoreHref}
-            prefetch={false}
-            className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-xs text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            إضافة متجر
-          </Link>
+
+            >
+              <Button size="lg" className="bg-blue-3 text-white gap-2">
+                <Plus className="size-6" />
+                <span className="pt-1">إضافة متجر</span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
-      <main className="flex-1 p-6 space-y-4">
+      <main className="flex-1 my-6 space-y-4">
         {isTrueEmpty ? (
           <StoreEmptyState />
         ) : (
@@ -187,37 +190,20 @@ export function StoresPage() {
               />
             </aside>
             <div className="flex-1 min-w-0 space-y-4 w-full order-2 lg:order-none">
-            <div className="bg-white rounded-lg border border-gray-200 px-4 pt-3 pb-0 overflow-x-auto">
-              <div className="flex items-center gap-6 min-w-min">
-                {storeStatusTabs.map((tab) => (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => {
-                      setStatusTab(tab.key);
-                      setCurrentPage(1);
-                    }}
-                    className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 shrink-0 ${
-                      statusTab === tab.key ? tab.activeClass : "border-transparent text-gray-2 hover:text-gray-600"
-                    }`}
-                  >
-                    <span className="font-bold text-sm whitespace-nowrap">{tab.label}</span>
-                    <span
-                      className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${
-                        statusTab === tab.key ? tab.badgeClass : "bg-gray-2"
-                      }`}
-                    >
-                      {getTabCount(tab.key)}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            <StatusTabs<StoreStatus>
+              activeKey={statusTab}
+              onChange={(key) => {
+                setStatusTab(key);
+                setCurrentPage(1);
+              }}
+              getCount={getTabCount}
+              className="bg-white rounded-lg border border-gray-200"
+            />
 
             <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
               <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <Input
-                placeholder="ابحث باسم المتجر أو الوصف أو الإيميل..."
+                placeholder="ابحث باسم المتجر أو الإيميل..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -236,12 +222,17 @@ export function StoresPage() {
               listStatus={statusTab}
               onToggleShown={handleToggleShown}
               onViewDetails={openDetails}
+              getSettingsHref={(store) => `${storesBasePath}/${store.id}/edit`}
+              onDelete={(store) => requestDelete(store.id)}
+              deletingStoreId={isDeleting ? pendingStoreId : null}
               canToggleStoreShown={isAdmin || isMerchant}
             />
             </div>
           </div>
         )}
       </main>
+
+      <ConfirmDeleteModal {...confirmModalProps} />
     </div>
   );
 }

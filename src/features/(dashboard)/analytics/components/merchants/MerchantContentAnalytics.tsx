@@ -147,7 +147,7 @@ export function MerchantContentAnalytics() {
 
                 {!isServiceStore && (
                     <StatCard
-                        title="الاضافة للمفضلة"
+                        title="الإضافة للمفضلة"
                         count={data?.favoriteProducts || 0}
                         icon={<img src={"/icons/dashboard/heart.svg"} />}
                         bgClass="bg-[#1FC16B1A]"
@@ -156,7 +156,7 @@ export function MerchantContentAnalytics() {
                 )}
                 {isServiceStore && (
                     <StatCard
-                        title="الاضافة للمفضلة"
+                        title="الإضافة للمفضلة"
                         count={data?.favoriteServices || 0}
                         icon={<img src={"/icons/dashboard/heart.svg"} />}
                         bgClass="bg-[#1FC16B1A]"

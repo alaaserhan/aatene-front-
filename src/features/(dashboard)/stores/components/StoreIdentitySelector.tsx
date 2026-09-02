@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
 import { MediaItem, getMediaPreviewUrl } from "../../mediaCenter/api";
+import Image from "next/image";
 
 interface StoreIdentitySelectorProps {
   label?: string;
@@ -13,14 +14,16 @@ interface StoreIdentitySelectorProps {
   previewUrl?: string | null;
   onChange: (fileName: string | null, src: string | null) => void;
   error?: string;
+  required?: boolean;
 }
 
 export function StoreIdentitySelector({
-  label = "هوية متجرك",
+  label = "شعار متجرك",
   value,
   previewUrl,
   onChange,
   error,
+  required = false,
 }: StoreIdentitySelectorProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -39,7 +42,9 @@ export function StoreIdentitySelector({
       {/* Header Section */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-1">
-          <label className="text-sm font-medium ">{label}</label>
+          <label className="text-sm font-medium">
+            {label} {required && <span className="text-red-500">*</span>}
+          </label>
         </div>
         <p className="text-xs text-gray-2">
           ستظهر هوية متجرك في صفحة المتجر
@@ -47,13 +52,13 @@ export function StoreIdentitySelector({
       </div>
 
       {/* Selection Area */}
-      <div className="w-[240px]">
+      <div className="w-60">
         {!previewUrl ? (
           // Empty State (Matched with Banner Selector)
           <div
             onClick={() => setIsModalOpen(true)}
             className={cn(
-              "w-full h-[160px] rounded-lg",
+              "w-full h-40 rounded-lg",
               "flex flex-col items-center justify-center gap-1 cursor-pointer transition-all",
               "bg-[#F8F8F8] hover:bg-gray-100"
             )}
@@ -70,9 +75,11 @@ export function StoreIdentitySelector({
           // Filled State (Matched with Banner Selector Card)
           <div className="w-full bg-white rounded-xl border border-gray-200 overflow-hidden ">
             {/* Image Area */}
-            <div className="h-[120px] w-full bg-gray-100 relative group">
-              <img
+            <div className="h-30 w-full bg-gray-100 relative group">
+              <Image
                 src={previewUrl}
+                height={120}
+                width={360}
                 alt="Store Identity"
                 className="w-full h-full object-cover"
               />
@@ -94,9 +101,11 @@ export function StoreIdentitySelector({
                 onClick={handleRemove}
                 className="w-5 h-5 flex items-center justify-center rounded bg-red-2 cursor-pointer hover:bg-red-100 transition-colors"
               >
-                <img
+                <Image
                   src="/icons/dashboard/trash.svg"
                   className="w-3 h-3"
+                  width={12}
+                  height={12}
                   alt="delete"
                 />
               </button>

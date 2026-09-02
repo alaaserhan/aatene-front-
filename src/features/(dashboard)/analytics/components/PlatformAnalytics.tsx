@@ -128,8 +128,8 @@ export function PlatformAnalytics() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-6">
                 {/* Total Merchants (Blue) */}
                 <StatCard
-                    title="إجمالي الطلبات"
-                    count={data?.totalOrders || 0}
+                    title="إجمالي الخدمات"
+                    count={data?.totalServices || 0}
                     icon={ShoppingBag}
                     bgClass="bg-[#EAF5FF]"
                     iconClass="text-[#007AFF]"

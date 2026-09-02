@@ -14,18 +14,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  webpack(config) {
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      "firebase/app": join(process.cwd(), "node_modules/firebase/app/dist/esm/index.esm.js"),
-      "firebase/messaging": join(process.cwd(), "node_modules/firebase/messaging/dist/esm/index.esm.js"),
-      "firebase/firestore": join(process.cwd(), "node_modules/firebase/firestore/dist/esm/index.esm.js"),
-      "@firebase/app": join(process.cwd(), "node_modules/@firebase/app/dist/esm/index.esm.js"),
-      "@firebase/messaging": join(process.cwd(), "node_modules/@firebase/messaging/dist/esm/index.esm.js"),
-      "@firebase/firestore": join(process.cwd(), "node_modules/@firebase/firestore/dist/index.esm.js"),
-    };
-    return config;
-  },
   /**
    * الصفحات تحت `app/[locale]/(dashboard)/[type]/...` تحتاج `/ar/admin/...` أو `/en/admin/...`.
    * كثير من الروابط في المشروع تستخدم `/admin/...` بدون locale → 404 بدون هذا التوجيه الداخلي.

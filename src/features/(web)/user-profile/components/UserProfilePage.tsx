@@ -3,12 +3,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { UserProfile, UserStory, UserFollower, UserProfilePageData, ProfilePageFavoriteRow } from "../types";
 import Image from "next/image";
-import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, UserMinus, User as UserIcon, MoreHorizontal, Share2, Flag } from "lucide-react";
+import { Star, Loader2, UserPlus, Plus, Search, UserMinus, User as UserIcon, MoreHorizontal, Share2, Flag } from "lucide-react";
 import { useUserProfile, useUserProfilePageData } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
 import { cn, isVideoFile } from "@/src/lib/utils";
-import { formatPrice } from "@/src/lib/format-price";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useFollowUserOrStore, useUnfollowUserOrStore, useCreateHighlight, useGetStories } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -16,13 +15,14 @@ import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/Sh
 import { CreateHighlightModal } from "@/src/features/(dashboard)/stories/components/CreateHighlightModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
+import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
+import type { Service } from "@/src/features/(web)/services/api";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { Pagination } from "@/src/components/ui/Pagination";
+import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
-import { useLanguage } from "@/src/hooks/use-language";
-import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
-import Link from "next/link";
 
 function UserHeader({ user, isOwnProfile, followers, stories }: {
     user: UserProfile;
@@ -35,7 +35,6 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
     const [showShareModal, setShowShareModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
-    const { user: authUser } = useAuthStore();
 
     const mappedAvatarStories: Story[] = [...stories].reverse().map(s => ({
         id: s.id,
@@ -45,8 +44,6 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
         created_at: s.created_at,
     }));
     const router = useRouter();
-    const lang = useLanguage();
-    const [isChatLoading, setIsChatLoading] = useState(false);
     const queryClient = useQueryClient();
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
@@ -122,7 +119,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                             </div>
                         </div>
 
-                        <div className="flex flex-row md:flex-col items-center justify-center gap-6 md:gap-4 mt-4 md:mt-2 px-2">
+                        <div className="flex flex-row md:flex-col items-center justify-center gap-4 mt-4 md:mt-2 px-2">
                             {/* Stars */}
                             <div className="flex flex-col items-center">
                                 <div className="flex items-center gap-1 mb-1">
@@ -190,50 +187,32 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                 </button>
                             ) : (
                                 <>
-                                    <button
+                                    <Button
                                         onClick={handleFollowToggle}
                                         disabled={isFollowing || isUnfollowing}
                                         className={cn(
-                                            "flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1 rounded-full px-2 py-2 text-[11px] font-medium transition-colors cursor-pointer max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:gap-2 md:px-8 md:py-2 md:text-sm",
+                                            "flex-[1.6] basis-0 min-w-0 min-h-11 rounded-full px-2! text-[11px] md:flex-none md:basis-auto md:min-h-10 md:px-5! md:text-sm",
                                             user.is_following
-                                                ? "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                                                : "bg-[#456A8E] text-white hover:bg-[#355A7E]"
+                                                ? "border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50"
+                                                : "text-white hover:bg-[#355A7E] hover:opacity-100"
                                         )}
                                     >
-                                        
                                         {(isFollowing || isUnfollowing) ? (
                                             <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
                                         ) :
                                             user.is_following ? <UserMinus className="h-4 w-4 shrink-0" /> : <UserPlus className="h-4 w-4 shrink-0" />
                                         }
-                                        <span className="min-w-0 truncate md:hidden">
-                                            {user.is_following ? "إلغاء" : "متابعة"}
-                                        </span>
-                                        <span className="hidden md:inline">
+                                        <span className="min-w-0 whitespace-nowrap">
                                             {user.is_following ? "إلغاء المتابعة" : "تابع المستخدم"}
                                         </span>
-                                    </button>
+                                    </Button>
 
-                                    <button
-                                        disabled={isChatLoading}
-                                        onClick={() => {
-                                            if (!authUser) {
-                                                router.push(loginUrlWithAuthRequired(lang));
-                                                return;
-                                            }
-                                            setIsChatLoading(true);
-                                            router.push(`/${lang}/chat?type=user&id=${user.id}`);
-                                            setIsChatLoading(false);
-                                        }}
-                                        className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1 rounded-full border border-[#456A8E] bg-white px-2 py-2 text-[11px] font-medium text-[#456A8E] transition-colors hover:bg-blue-50 max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:gap-2 md:px-8 md:py-2 md:text-sm disabled:opacity-50"
-                                    >
-                                        {isChatLoading ? (
-                                            <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                                        ) : (
-                                            <MessageSquare className="h-4 w-4 shrink-0" />
-                                        )}
-                                        <span className="shrink-0">دردش</span>
-                                    </button>
+                                    <ChatNowButton
+                                        unstyled
+                                        target={{ type: "user", id: user.id }}
+                                        iconClassName="h-4 w-4 shrink-0"
+                                        className="flex min-h-11 min-w-0 flex-1 basis-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-c2-primary bg-white px-2 py-2 text-[11px] font-medium text-c2-primary transition-colors hover:bg-blue-50 max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:px-8 md:py-2 md:text-sm disabled:opacity-50"
+                                    />
 
                                     <div className="relative shrink-0 self-center">
                                         <button
@@ -462,33 +441,6 @@ function ProfileTabs({ user }: { user: UserProfile }) {
 }
 
 type ActiveFavoritesTab = "all" | "products" | "services" | "stores";
-
-function ServiceCardMini({ service }: { service: any }) {
-    const imageUrl = service.image_url || service.images_urls?.[0] || "/placeholder.png";
-    return (
-        <Link
-            href={`/services/${service.slug}`}
-            className="group flex flex-col rounded-xl overflow-hidden border border-gray-100 bg-white hover:shadow-md transition-shadow"
-        >
-            <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
-                <Image
-                    src={imageUrl}
-                    alt={service.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/placeholder.png"; }}
-                />
-            </div>
-            <div className="p-3 flex flex-col gap-1">
-                <p className="font-medium text-sm line-clamp-2 text-gray-800">{service.title}</p>
-                {service.store?.name && (
-                    <p className="text-xs text-gray-400 truncate">{service.store.name}</p>
-                )}
-                <p className="text-blue-4 font-semibold text-sm mt-1">{formatPrice(service.price || 0)} ₪</p>
-            </div>
-        </Link>
-    );
-}
 
 const PROFILE_FAV_PAGE_SIZE = 12;
 
@@ -721,7 +673,7 @@ function ProductsSection({
                                             <h3 className="text-lg font-semibold mb-3">الخدمات</h3>
                                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                                                 {services.map((service) => (
-                                                    <ServiceCardMini key={String(service.id)} service={service} />
+                                                    <ServiceCard key={String(service.id)} service={service as unknown as Service} />
                                                 ))}
                                             </div>
                                         </section>
@@ -733,7 +685,7 @@ function ProductsSection({
                                             }
                                         >
                                             <h3 className="text-lg font-semibold mb-3">المتاجر</h3>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                                                 {stores.map((store) => (
                                                     <StoreCard key={String(store.id)} store={store as never} />
                                                 ))}
@@ -785,7 +737,7 @@ function ProductsSection({
                                     ) : (
                                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                                             {services.map((service) => (
-                                                <ServiceCardMini key={String(service.id)} service={service} />
+                                                <ServiceCard key={String(service.id)} service={service as unknown as Service} />
                                             ))}
                                         </div>
                                     )}
@@ -799,7 +751,7 @@ function ProductsSection({
                                             <p className="text-gray-500">لا توجد متاجر مفضلة</p>
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                                             {stores.map((store) => (
                                                 <StoreCard key={String(store.id)} store={store as never} />
                                             ))}

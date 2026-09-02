@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useConversations, useTotalUnreadCount, useCreateConversation, useSendMessage } from "../hooks";
 import { Conversation } from "../api";
 import { ConversationListSidebar } from "./ConversationListSidebar";
@@ -15,7 +15,9 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useLanguage } from "@/src/hooks/use-language";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
+import { stripChatTargetParams } from "@/src/lib/chat-links";
 
 /** تفعيله من الكونسول: localStorage.setItem("DEBUG_CHAT_NAV","1") ثم إعادة تحميل */
 function chatNavLog(...args: unknown[]) {
@@ -73,10 +75,15 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const ignoreCookie = !isDashboard;
     const storeId = isDashboard ? Cookies.get("current_store_id") : undefined;
 
-    const { data, isLoading, isError, refetch } = useConversations(storeId, ignoreCookie);
+    const { data, isLoading, isFetching, isError, refetch } = useConversations(storeId, ignoreCookie);
     const { data: unreadData } = useTotalUnreadCount(storeId, ignoreCookie);
-    const { mutate: createConversation } = useCreateConversation();
-    const { mutate: sendMessage } = useSendMessage();
+    /**
+     * `mutateAsync`, not `mutate`: React Query drops the per-call callbacks passed
+     * to `mutate` when the observer is torn down before the request settles, which
+     * leaves the "opening conversation" state stuck forever.
+     */
+    const { mutateAsync: createConversationAsync } = useCreateConversation();
+    const { mutateAsync: sendMessageAsync } = useSendMessage();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("all");
@@ -84,6 +91,10 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
     /** يمنع «فراغ» التحديد بين النقر واكتمال تحديث الـ URL أو القائمة */
     const [pendingConversation, setPendingConversation] = useState<Conversation | null>(null);
+    /** Last target that failed to open — falls back to the list instead of spinning forever. */
+    const [failedOpenTargetKey, setFailedOpenTargetKey] = useState<string | null>(null);
+    /** Target whose open already started — stops the conversation being created/messaged twice. */
+    const handledOpenTargetRef = useRef<string | null>(null);
 
     const allConversations = useMemo(() => data?.conversations || [], [data]);
 
@@ -100,9 +111,32 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     }, [searchParams, allConversations, pendingConversation]);
 
     const chatIdFromUrl = searchParams.get("chat");
-    const isResolvingChatFromUrl = Boolean(
-        chatIdFromUrl && !activeConversation && (isLoading || isCreatingFromUrl)
-    );
+
+    /**
+     * Arriving from a "chat now" button (`?type=store&id=…`): the target is known on
+     * the first render, before any effect runs, so derive it straight from the URL.
+     * Without this the conversation list flashes until the conversation is created
+     * and the URL is rewritten to `?chat=…`.
+     */
+    const openTargetKey = useMemo(() => {
+        const type = searchParams.get("type");
+        const id = searchParams.get("id");
+        if (!type || !id) return null;
+        return [type, id, searchParams.get("serviceId") ?? "", searchParams.get("productId") ?? ""].join("|");
+    }, [searchParams]);
+
+    const isOpeningTargetFromUrl = Boolean(openTargetKey) && openTargetKey !== failedOpenTargetKey;
+
+    /**
+     * `isFetching` is deliberate: a conversation opened by id alone (product/service
+     * message) has no data until the list arrives, so keep the opening state up
+     * rather than flashing the empty state.
+     */
+    const isResolvingChatFromUrl =
+        isOpeningTargetFromUrl ||
+        Boolean(
+            chatIdFromUrl && !activeConversation && (isLoading || isFetching || isCreatingFromUrl)
+        );
 
     /**
      * مسار صفحة الدردشة للروابط والتنقل.
@@ -117,11 +151,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     /** بناء رابط المحادثة — `<Link>` يستخدم مساراً مطلقاً متسقاً */
     const getConversationHref = useCallback(
         (conversation: Conversation) => {
-            const params = new URLSearchParams(searchParams.toString());
-            params.delete("type");
-            params.delete("id");
-            params.delete("serviceId");
-            params.delete("productId");
+            const params = stripChatTargetParams(searchParams);
             params.set("chat", String(conversation.id));
             const q = params.toString();
             return q ? `${chatListPath}?${q}` : chatListPath;
@@ -129,13 +159,18 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         [searchParams, chatListPath]
     );
 
-    /** فتح محادثة برمجياً (إنشاء من الرابط، مجموعة جديدة، إلخ) */
+    /**
+     * Opens a conversation programmatically (created from the URL, new group, ...).
+     * Pass `replace` when opening from `?type=…&id=…` so the back button doesn't
+     * land on those params and re-run the whole creation.
+     */
     const navigateToConversation = useCallback(
-        (conversation: Conversation) => {
+        (conversation: Conversation, options?: { replace?: boolean }) => {
             setPendingConversation(conversation);
             const next = getConversationHref(conversation);
-            chatNavLog("navigateToConversation", { next, id: conversation.id });
-            router.push(next, { scroll: false });
+            chatNavLog("navigateToConversation", { next, id: conversation.id, replace: options?.replace });
+            if (options?.replace) router.replace(next, { scroll: false });
+            else router.push(next, { scroll: false });
         },
         [getConversationHref, router]
     );
@@ -156,11 +191,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         });
 
         setPendingConversation(null);
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete("type");
-        params.delete("id");
-        params.delete("serviceId");
-        params.delete("productId");
+        const params = stripChatTargetParams(searchParams);
         if (params.get("chat")) {
             params.delete("chat");
         }
@@ -200,137 +231,106 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     }, [handleCloseChat]);
 
     useEffect(() => {
-        const typeParam = searchParams.get("type");
-        const idParam = searchParams.get("id");
+        if (!openTargetKey) {
+            handledOpenTargetRef.current = null;
+            return;
+        }
+        /**
+         * Each target is handled once: without this guard the effect fires again
+         * after `setIsCreatingFromUrl(false)`, since `type`/`id` are still in the URL.
+         */
+        if (handledOpenTargetRef.current === openTargetKey) return;
+        handledOpenTargetRef.current = openTargetKey;
+
+        const typeParam = searchParams.get("type") as string;
+        const idParam = searchParams.get("id") as string;
         const serviceIdParam = searchParams.get("serviceId");
         const productIdParam = searchParams.get("productId");
 
-        if (!typeParam || !idParam || isCreatingFromUrl) {
-            return;
-        }
+        const failOpen = (message: string) => {
+            chatNavLog("openFromUrl:failed", { openTargetKey, message });
+            toast.error(message);
+            setIsCreatingFromUrl(false);
+            setFailedOpenTargetKey(openTargetKey);
+        };
 
-        /** يطابق Laravel `CreateConversationRequest`: participants.*.id = integer */
+        /** Matches Laravel's `CreateConversationRequest`: participants.*.id = integer */
         const participantIdNum = Number.parseInt(String(idParam), 10);
         if (!Number.isFinite(participantIdNum) || participantIdNum < 1) {
-            toast.error("معرف المحادثة غير صالح");
+            failOpen("معرف المحادثة غير صالح");
             return;
         }
 
-        const openConversationFromSendResponse = (conversationId: number | string) => {
+        /**
+         * Navigates straight away using what the response returned; the conversation
+         * list refreshes in the background. Gating navigation on the `refetch` result
+         * means a failure there hangs the page.
+         */
+        const openConversation = (
+            conversationId: number | string,
+            conversation?: Conversation,
+        ) => {
+            chatNavLog("openFromUrl:opening", { openTargetKey, conversationId });
+            if (conversation) {
+                navigateToConversation(conversation, { replace: true });
+            } else {
+                const p = stripChatTargetParams(searchParams);
+                p.set("chat", String(conversationId));
+                router.replace(`${chatListPath}?${p.toString()}`, { scroll: false });
+            }
+            setIsCreatingFromUrl(false);
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
-            refetch().then((result) => {
-                const conv = result.data?.conversations?.find(
-                    (c) => String(c.id) === String(conversationId)
-                );
-                if (conv) {
-                    navigateToConversation(conv);
-                } else {
-                    const p = new URLSearchParams(searchParams.toString());
-                    p.delete("type");
-                    p.delete("id");
-                    p.delete("serviceId");
-                    p.delete("productId");
-                    p.set("chat", String(conversationId));
-                    router.replace(`${chatListPath}?${p.toString()}`, { scroll: false });
-                    queryClient.invalidateQueries({ queryKey: ["conversations"] });
-                }
-            });
+            refetch().catch(() => { });
         };
 
         setIsCreatingFromUrl(true);
 
-        if (serviceIdParam) {
-            sendMessage(
-                {
-                    payload: {
-                        participant_type: typeParam,
-                        participant_id: String(participantIdNum),
-                        service_id: serviceIdParam,
-                    },
-                    ignoreCookie
-                },
-                {
-                    onSuccess: (res) => {
-                        setIsCreatingFromUrl(false);
-                        if (res.status && res.message) {
-                            openConversationFromSendResponse(res.message.conversation_id);
-                        } else {
-                            toast.error("تعذر فتح المحادثة");
-                        }
-                    },
-                    onError: () => {
-                        toast.error("حدث خطأ أثناء إرسال الرسالة");
-                        setIsCreatingFromUrl(false);
+        const isSeededMessage = Boolean(serviceIdParam || productIdParam);
+
+        (async () => {
+            try {
+                if (isSeededMessage) {
+                    const res = await sendMessageAsync({
+                        payload: {
+                            participant_type: typeParam,
+                            participant_id: String(participantIdNum),
+                            ...(serviceIdParam
+                                ? { service_id: serviceIdParam }
+                                : { product_id: productIdParam as string }),
+                        },
+                        ignoreCookie,
+                    });
+                    if (res.status && res.message) openConversation(res.message.conversation_id);
+                    else failOpen("تعذر فتح المحادثة");
+                } else {
+                    const res = await createConversationAsync({
+                        payload: {
+                            type: "direct",
+                            participants: [{ type: typeParam as "user" | "store", id: participantIdNum }],
+                        },
+                        ignoreCookie,
+                    });
+                    if (res.status && res.conversation) {
+                        openConversation(res.conversation.id, res.conversation);
+                    } else {
+                        failOpen(res.message || "حدث خطأ أثناء إنشاء المحادثة");
                     }
                 }
-            );
-        } else if (productIdParam) {
-            sendMessage(
-                {
-                    payload: {
-                        participant_type: typeParam,
-                        participant_id: String(participantIdNum),
-                        product_id: productIdParam,
-                    },
-                    ignoreCookie
-                },
-                {
-                    onSuccess: (res) => {
-                        setIsCreatingFromUrl(false);
-                        if (res.status && res.message) {
-                            openConversationFromSendResponse(res.message.conversation_id);
-                        } else {
-                            toast.error("تعذر فتح المحادثة");
-                        }
-                    },
-                    onError: () => {
-                        toast.error("حدث خطأ أثناء إرسال الرسالة");
-                        setIsCreatingFromUrl(false);
-                    }
-                }
-            );
-        } else {
-            createConversation(
-                {
-                    payload: {
-                        type: "direct",
-                        participants: [{ type: typeParam as "user" | "store", id: participantIdNum }],
-                    },
-                    ignoreCookie
-                },
-                {
-                    onSuccess: (res) => {
-                        setIsCreatingFromUrl(false);
-                        if (res.status && res.conversation) {
-                            queryClient.invalidateQueries({ queryKey: ["conversations"] });
-                            refetch().then((result) => {
-                                const conv =
-                                    result.data?.conversations?.find(
-                                        (c) => String(c.id) === String(res.conversation.id)
-                                    ) ?? res.conversation;
-                                navigateToConversation(conv);
-                            });
-                        } else {
-                            toast.error(res.message || "حدث خطأ أثناء إنشاء المحادثة");
-                        }
-                    },
-                    onError: () => {
-                        toast.error("حدث خطأ أثناء إنشاء المحادثة");
-                        setIsCreatingFromUrl(false);
-                    }
-                }
-            );
-        }
+            } catch {
+                failOpen(
+                    isSeededMessage ? "حدث خطأ أثناء إرسال الرسالة" : "حدث خطأ أثناء إنشاء المحادثة"
+                );
+            }
+        })();
     }, [
+        openTargetKey,
         searchParams,
-        createConversation,
-        sendMessage,
-        isCreatingFromUrl,
+        createConversationAsync,
+        sendMessageAsync,
         navigateToConversation,
         queryClient,
         refetch,
         ignoreCookie,
-        refetch,
         chatListPath,
         router,
     ]);
@@ -458,6 +458,18 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         context,
     };
 
+    /** On mobile there is no side-by-side pane, so the empty state replaces the list itself. */
+    const showMobileEmptyState =
+        !isLoading && !isError && !searchQuery && filteredConversations.length === 0;
+
+    /** Shown instead of the conversation list as soon as a "chat now" target arrives. */
+    const openingConversationState = (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-gray-500 text-sm">
+            <Loader2 className="w-6 h-6 animate-spin text-c2-primary" aria-hidden="true" />
+            <span>جاري فتح المحادثة…</span>
+        </div>
+    );
+
     const mobileTypeFilter = (
         <div className="flex gap-2 p-2 bg-white rounded-t-lg border border-b-0 border-gray-200 overflow-x-auto shrink-0">
             <button
@@ -504,10 +516,19 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     <div className="flex flex-col flex-1 min-h-0 gap-0">
                         {mobileTypeFilter}
                         <div className="flex-1 min-h-0 flex flex-col relative isolate">
-                            <ConversationListSidebar
-                                {...conversationListProps}
-                                className="flex-1 min-h-0 max-h-full rounded-b-lg border border-t-0 border-gray-200"
-                            />
+                            {showMobileEmptyState ? (
+                                <div className="flex-1 min-h-0 flex flex-col overflow-y-auto bg-white rounded-b-lg border border-t-0 border-gray-200">
+                                    <ChatEmptyState
+                                        isGroupsFilter={activeFilter === "group"}
+                                        onCreateGroup={() => setShowCreateGroupModal(true)}
+                                    />
+                                </div>
+                            ) : (
+                                <ConversationListSidebar
+                                    {...conversationListProps}
+                                    className="flex-1 min-h-0 max-h-full rounded-b-lg border border-t-0 border-gray-200"
+                                />
+                            )}
                         </div>
                     </div>
                 ) : (
@@ -515,9 +536,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                         className={`flex flex-1 min-h-0 flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0`}
                     >
                         {isResolvingChatFromUrl || !activeConversation ? (
-                            <div className="flex flex-1 items-center justify-center text-gray-500 text-sm">
-                                جاري فتح المحادثة…
-                            </div>
+                            openingConversationState
                         ) : (
                             <ChatWindow
                                 key={activeConversation.id}
@@ -561,9 +580,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                             context={context}
                         />
                     ) : isResolvingChatFromUrl ? (
-                        <div className="flex flex-1 items-center justify-center text-gray-500 text-sm">
-                            جاري فتح المحادثة…
-                        </div>
+                        openingConversationState
                     ) : (
                         <ChatEmptyState
                             isGroupsFilter={activeFilter === "group"}

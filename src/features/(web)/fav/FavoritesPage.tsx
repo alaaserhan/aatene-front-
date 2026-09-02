@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import FavoritesSidebar from "./components/FavoritesSidebar";
 import FavoritesContent from "./components/FavoritesContent";
 
-export type FavoritesType = "all" | "product" | "store" | "service";
+export type FavoritesType = "all" | "product" | "store" | "service" | "blog";
 
 export default function FavoritesPage() {
     const pathname = usePathname();

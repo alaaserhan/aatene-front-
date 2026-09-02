@@ -1,38 +1,36 @@
 // src/features/(dashboard)/services/components/ServiceDetailsPage.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import {
-    Phone,
-    Send,
-    CheckCircle2,
-    Pen,
-    XCircle,
-    PauseCircle,
-    Trash2,
-    Clock4,
-} from "lucide-react";
-import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
-import { useDeleteService, useGetService, useUpdateServiceStatus, useUpdateServiceShown } from "../hooks";
-import { formatPrice } from "@/src/lib/format-price";
-import { useGetSingleStore } from "../../stores/hooks";
-import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { Button } from "@/src/components/ui/button";
-import { RejectServiceModal } from "./RejectServiceModal";
-import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
+import { Button } from "@/src/components/ui/button";
+import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
+import { formatPrice } from "@/src/lib/format-price";
+import {
+  Clock4,
+  Pen,
+  Phone,
+  Send,
+  Trash2
+} from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useGetSingleStore } from "../../stores/hooks";
+import { useDeleteService, useGetService, useUpdateServiceShown, useUpdateServiceStatus } from "../hooks";
+import { RejectServiceModal } from "./RejectServiceModal";
 
+import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
 import { ShareModal } from "@/src/components/ui/ShareModal";
-import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
+import { Badge } from "@/src/components/ui/badge";
+import { Switch } from "@/src/components/ui/switch";
 import { cn } from "@/src/lib/utils";
-import Cookies from "js-cookie"; // ✅ للتحقق من الصلاحيات
 import { useQueryClient } from "@tanstack/react-query";
-import ServiceTabs from "@/src/features/(web)/services/components/ServiceTabs";
-import { Service as WebService } from "@/src/features/(web)/services/api";
-import Link from "next/link";
+import Cookies from "js-cookie"; // ✅ للتحقق من الصلاحيات
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 interface ServiceDetailsPageProps {
     serviceId: number;
@@ -62,6 +60,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successModalTitle, setSuccessModalTitle] = useState("");
+    // بعد قبول/رفض خدمة كانت "قيد المراجعة" → نُوجّه الأدمن لتبويب قيد المراجعة
+    const [redirectToReviewList, setRedirectToReviewList] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [activeImage, setActiveImage] = useState<string>("");
@@ -117,6 +117,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     // --- Handlers ---
 
     const handleApprove = () => {
+        const wasInReview = serviceData?.data?.status === "pending";
         updateStatus({
             id: serviceId,
             payload: { status: "approved" },
@@ -127,6 +128,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 queryClient.invalidateQueries({ queryKey: ["services"] });
                 queryClient.invalidateQueries({ queryKey: ["services", serviceId] }); // تحديث الخدمة الحالية
                 setSuccessModalTitle("تم قبول الخدمة بنجاح");
+                if (wasInReview) setRedirectToReviewList(true);
                 setIsSuccessModalOpen(true);
             }
         });
@@ -146,6 +148,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     };
 
     const confirmReject = (reasonText: string, details: string) => {
+        const wasInReview = serviceData?.data?.status === "pending";
         const fullReason = details ? `${reasonText} - ${details}` : reasonText;
         updateStatus({
             id: serviceId,
@@ -158,6 +161,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
             onSuccess: () => {
                 setIsRejectModalOpen(false);
                 setSuccessModalTitle("تم رفض الخدمة بنجاح");
+                if (wasInReview) setRedirectToReviewList(true);
                 setIsSuccessModalOpen(true);
                 queryClient.invalidateQueries({ queryKey: ["services"] });
                 queryClient.invalidateQueries({ queryKey: ["services", serviceId] });
@@ -231,12 +235,10 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         <div className="flex min-h-screen flex-col bg-[#F7F8FA] pb-10">
             {/* Header Area */}
             <div className="space-y-4">
-                <div className="container mx-auto px-4 md:px-0">
-                    <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
-                </div>
+                <Breadcrumb items={breadcrumbItems} withContainer className="mb-0"/>
 
                 {isOwner && (currentStatus === "pending" || currentStatus === "rejected") && (
-                    <div className="container mx-auto px-4 md:px-0">
+                    <div className="">
                         <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between" dir="rtl">
                             <div>
                                 <p className="text-base font-bold text-gray-900">إدارة الخدمة قبل اعتمادها</p>
@@ -269,7 +271,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                 {/* Status Alerts */}
                 {isOwner && (
-                    <div className="container mx-auto px-4 md:px-0">
+                    <div className="px-4 md:px-0">
                         <PreviewStatusAlert
                             status={isShown === false && currentStatus === "approved" ? "deactivated" : currentStatus}
                             type="service"
@@ -282,7 +284,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     dismissAlert();
                                 }
                             }}
-                            className={cn(currentStatus === "pending" || currentStatus === "rejected" ? "mt-4" : "")}
+                            className={"mt-6"}
                         />
                     </div>
                 )}
@@ -290,7 +292,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                 {/* ✅ Action Bar: يظهر للأدمن عندما تكون الحالة pending أو rejected أو approved */}
                 {isAdmin && (service.status === "pending" || service.status === "rejected" || service.status === "approved") && (
-                    <div className="container mx-auto mt-4 px-4 md:px-0">
+                    <div className="mt-4 px-4 md:px-0">
                         <div className="px-6 py-4 flex items-center justify-between border border-gray-100 bg-white rounded-2xl shadow-sm">
                             <h2 className="text-lg font-bold ">اختر الاجراء المناسب للخدمة</h2>
                             <div className="flex gap-3">
@@ -319,24 +321,22 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
             </div>
 
-            <div className="container mx-auto px-4 md:px-0 mt-6">
+            <div className="px-4 md:px-0 mt-6">
                 <div className="grid grid-cols-12 gap-6 items-start">
 
                     {/* Main Content Area */}
                     <div className="col-span-12 lg:col-span-8 flex flex-col gap-6 order-2 lg:order-1">
-                        <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+                        <div className="bg-white rounded-2xl p-4 lg:p-7 border border-[#CCCED7] shadow-sm">
                             {/* Title & Actions */}
-                            <div className="flex justify-between items-center mb-6">
+                            <div className="flex justify-between items-center mb-8">
                                 <h1 className="text-2xl font-bold  leading-tight max-w-[70%]">
                                     {service.title}
                                 </h1>
                                 {showInlineEdit && (
-                                    <div className="flex gap-4 text-gray-2">
-                                        <button className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer" onClick={() => router.push(`${dashboardBase}/serviceProviders/services/edit/${serviceId}/${storeId}`)}>
+                                      <button className="flex items-center gap-2 text-blue-3 transition-colors cursor-pointer" onClick={() => router.push(`${dashboardBase}/serviceProviders/services/edit/${serviceId}/${storeId}`)}>
                                             <Pen className="w-4 h-4" />
                                             <span className="text-sm font-medium">تعديل الخدمة</span>
-                                        </button>
-                                    </div>
+                                      </button>
                                 )}
                             </div>
 
@@ -386,21 +386,21 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                             {/* Service Details Section */}
                             <div className="mt-8">
-                                <h2 className="text-xl font-bold mb-6 text-[#1e3a52]">تفاصيل الخدمة</h2>
+                                <h2 className="text-xl font-bold mb-6 text-blue-7">تفاصيل الخدمة</h2>
                                 <div className="border-b border-blue-4 bg-[#F7F4FF] py-3 text-center text-sm font-medium text-blue-4 mb-4 rounded-t-sm">
                                     وصف الخدمة
                                 </div>
                                 <div className="prose prose-sm max-w-none leading-relaxed text-gray-700 px-2">
                                     {service.description ? (
-                                        <div dangerouslySetInnerHTML={{ __html: service.description }} />
+                                        <SafeHTML html={service.description} />
                                     ) : (
                                         <p>لا يوجد وصف متاح لهذه الخدمة.</p>
                                     )}
                                 </div>
 
                                 <div className="mt-10 mb-4 px-2">
-                                    <h3 className="text-lg font-bold mb-1 text-[#1e3a52]">الأسئلة الشائعة (اختياري)</h3>
-                                    <p className="text-gray-400 text-sm">شاهد إجابات الأسئلة الشائعة</p>
+                                    <h3 className="text-lg font-bold mb-1 text-blue-7">الأسئلة الشائعة</h3>
+                                    <p className={cn("text-gray-400 text-sm", { hidden: service.questions?.length === 0 })}>شاهد إجابات الأسئلة الشائعة</p>
                                 </div>
 
                                 <div className="divide-y divide-gray-100 px-2">
@@ -408,7 +408,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                         service.questions.map((q, index) => (
                                             <div key={index} className="py-4">
                                                 <button className="flex items-center justify-between w-full text-right group">
-                                                    <span className="font-bold text-sm transition-colors text-[#1e3a52]">
+                                                    <span className="font-bold text-sm transition-colors text-blue-7">
                                                         {index + 1}. {q.question}
                                                     </span>
                                                 </button>
@@ -430,14 +430,15 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
 
                     {/* Sidebar Area */}
-                    <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2 lg:sticky lg:top-6">
-                        <div className="bg-white rounded-lg border border-[#DDE5EC] h-fit overflow-hidden shadow-sm">
+                    <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2 lg:sticky lg:top-22">
+                        <div className="bg-white p-4 lg:p-7 rounded-lg border border-[#CCCED7] h-fit overflow-hidden shadow-sm">
 
                             {/* Activate Toggle Row — يظهر فقط للتاجر وفقط إذا كان الخدمه مقبولاً */}
                             {isOwner && currentStatus === "approved" && (
-                                <div className="flex items-center justify-between px-4 py-3 rounded-md mx-4 mt-4 bg-[#DCE8F2]">
-                                    <span className="font-bold text-sm text-[#1e3a52]">تفعيل الخدمة</span>
-                                    <button
+                                <div className="flex items-center justify-between px-4 py-3 rounded-md bg-[#DCE8F2]">
+                                    <span className="font-bold text-xl text-blue-7">تفعيل الخدمة</span>
+                                    <Switch
+                                        checked={isShown}
                                         onClick={() => {
                                             const newShown = isShown === false ? true : false;
                                             updateShown(
@@ -451,67 +452,39 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                             );
                                         }}
                                         disabled={isUpdatingShown}
-                                        role="switch"
-                                        aria-checked={isShown !== false}
-                                        style={{
-                                            width: 44,
-                                            height: 24,
-                                            borderRadius: 9999,
-                                            backgroundColor: isShown !== false ? "#34D399" : "#94A3B8",
-                                            position: "relative",
-                                            border: "none",
-                                            cursor: "pointer",
-                                            transition: "background-color 0.2s",
-                                            flexShrink: 0,
-                                            opacity: isUpdatingShown ? 0.6 : 1,
-                                        }}
-                                    >
-                                        <span
-                                            style={{
-                                                position: "absolute",
-                                                top: 4,
-                                                width: 16,
-                                                height: 16,
-                                                borderRadius: 9999,
-                                                backgroundColor: "white",
-                                                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-                                                transition: "left 0.2s",
-                                                left: isShown !== false ? 24 : 4,
-                                            }}
-                                        />
-                                    </button>
+                                    />
                                 </div>
                             )}
 
-                            <div className="p-4 pt-2" dir="rtl">
+                            <div className="mt-2" dir="rtl">
 
                                 {/* Service Metadata */}
-                                <div className="py-3 border-b border-[#E6ECF2] text-right">
-                                    <p className="font-bold text-sm mb-1 text-[#1e3a52]">فئة الخدمة</p>
-                                    <p className="text-gray-500 text-xs font-medium leading-5">
+                                <div className="py-3 border-b border-[#CCCED7] text-right">
+                                    <p className="font-bold text-lg mb-3 text-blue-7">فئة الخدمة</p>
+                                    <p className="text-gray-7 text-base leading-5">
                                         {service.category?.name || "-"}
                                     </p>
                                 </div>
 
-                                <div className="py-3 border-b border-[#E6ECF2] text-right">
-                                    <p className="font-bold text-sm mb-1 text-[#1e3a52]">قسم الخدمة</p>
-                                    <p className="text-gray-500 text-xs font-medium leading-5">{service.section?.name || "-"}</p>
+                                <div className="py-3 border-b border-[#CCCED7] text-right">
+                                    <p className="font-bold text-lg mb-3 text-blue-7">قسم الخدمة</p>
+                                    <p className="text-gray-7 text-base leading-5">{service.section?.name || "-"}</p>
                                 </div>
 
-                                <div className="py-3 border-b border-[#E6ECF2] text-right">
-                                    <p className="font-bold text-sm mb-1 text-[#1e3a52]">سعر الخدمة</p>
-                                    <p className="text-gray-500 text-xs font-medium">₪ {formatPrice(service.price)}</p>
+                                <div className="py-3 border-b border-[#CCCED7] text-right">
+                                    <p className="font-bold text-lg mb-3 text-blue-7">سعر الخدمة</p>
+                                    <p className="text-gray-7 text-base">₪ {formatPrice(service.price)}</p>
                                 </div>
 
                                 {/* Cities Section */}
-                                <div className="py-3 border-b border-[#E6ECF2] text-right">
-                                    <p className="font-bold text-sm mb-2 text-[#1e3a52]">المدن التي يمكنه العمل بها</p>
+                                <div className="py-3 border-b border-[#CCCED7] text-right">
+                                    <p className="font-bold text-lg mb-3 text-blue-7">المدن التي يمكنه العمل بها</p>
                                     <div className="flex flex-wrap justify-start gap-1.5">
                                         {store?.serviceCities && store.serviceCities.length > 0 ? (
                                             store.serviceCities.map((city) => (
-                                                <span key={city.id} className="px-3 py-1 bg-[#EEF4FA] text-[#3A5779] text-[10px] rounded-full font-medium border border-[#C8D6E4]">
+                                                <Badge key={city.id} variant="secondary-outline">
                                                     {city.name}
-                                                </span>
+                                                </Badge>
                                             ))
                                         ) : (
                                             <span className="text-xs text-gray-2">لا توجد مدن محددة</span>
@@ -519,8 +492,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     </div>
                                 </div>
 
-                                <div className="py-3 border-b border-[#E6ECF2] text-right">
-                                    <p className="font-bold text-sm mb-2 text-[#1e3a52]">تخصصات أو مجالات العمل</p>
+                                <div className="py-3 border-b border-[#CCCED7] text-right">
+                                    <p className="font-bold text-lg mb-3 text-blue-7">تخصصات أو مجالات العمل</p>
                                     <div className="flex flex-wrap justify-start gap-1.5">
                                         {service.specialties && service.specialties.length > 0 ? (
                                             service.specialties.map((spec: string | { id: number; title: string }, idx: number) => (
@@ -535,8 +508,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
 
                                 {/* Keywords Section */}
-                                <div className="py-3 border-b border-[#E6ECF2] text-right">
-                                    <p className="font-bold text-sm mb-2 text-[#1e3a52]">الكلمات المفتاحية</p>
+                                <div className="py-3 border-b border-[#CCCED7] text-right">
+                                    <p className="font-bold text-lg mb-3 text-blue-7">الكلمات المفتاحية</p>
                                     <div className="flex flex-wrap justify-start gap-1.5">
                                         {service.tags && service.tags.length > 0 ? (
                                             service.tags.map((tag: string | { id: number; title: string }, idx: number) => (
@@ -551,8 +524,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
 
                                 {service.extras && service.extras.length > 0 && (
-                                    <div className="py-3 border-b border-[#E6ECF2] text-right">
-                                        <p className="font-bold text-sm mb-2 text-[#1e3a52]">تطويرات اختيارية</p>
+                                    <div className="py-3 border-b border-[#CCCED7] text-right">
+                                        <p className="font-bold text-lg mb-3 text-blue-7">تطويرات اختيارية</p>
                                         <div className="space-y-2">
                                             {service.extras.map((extra, idx) => (
                                                 <div key={`${extra.title}-${idx}`} className="flex items-start justify-start gap-3 rounded-md border border-[#DDE5EC] px-3 py-2 bg-white">
@@ -576,19 +549,23 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 )}
 
                                 {/* Contact Buttons */}
-                                <div className="flex flex-col gap-2.5 mt-4">
+                                <div className="flex flex-col gap-4 mt-4">
                                     {store?.phone && (
-                                        <Button className="w-full bg-[#1e3a52] hover:bg-[#152a3b] text-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
-                                            <Phone className="w-4 h-4 text-white" />
-                                            <span dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
+                                        <Button className="w-full bg-blue-3 hover:bg-[#152a3b] text-white font-bold h-13 rounded-md flex items-center justify-center gap-2 text-base shadow-sm">
+                                            <span className="pt-1" dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
+                                            <Phone className="size-5 text-white" />
                                         </Button>
                                     )}
-                                    <Link href={`${dashboardBase}/chat?type=store&id=${store?.id}`}>
-                                        <Button variant="outline" className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
-                                            <span>دردشة</span>
-                                            <Send className="w-4 h-4" />
-                                        </Button>
-                                    </Link>
+                                    <ChatNowButton
+                                        variant="outline"
+                                        target={{ type: "store", id: store?.id }}
+                                        basePath={`${dashboardBase}/chat`}
+                                        label="دردشة"
+                                        icon={<Send className="size-5" />}
+                                        iconPosition="end"
+                                        iconClassName="size-5"
+                                        className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-13 rounded-md flex items-center justify-center gap-2 text-base shadow-sm"
+                                    />
                                 </div>
 
                             </div>
@@ -607,7 +584,10 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 isOpen={isSuccessModalOpen}
                 onClose={() => {
                     setIsSuccessModalOpen(false);
-                    if (service.status === "rejected") {
+                    if (redirectToReviewList) {
+                        setRedirectToReviewList(false);
+                        router.push(`${dashboardBase}/serviceProviders?status=pending`);
+                    } else if (service.status === "rejected") {
                         router.push(`${dashboardBase}/serviceProviders/${storeId}`);
                     }
                 }}

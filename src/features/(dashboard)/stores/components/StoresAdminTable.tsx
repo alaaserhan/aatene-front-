@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Eye, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Eye, Loader2, Settings, Trash2 } from "lucide-react";
 import { Store, StoreStatus } from "../api";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { Pagination } from "@/src/components/ui/Pagination";
@@ -42,6 +43,11 @@ interface StoresAdminTableProps {
   listStatus: StoreStatus;
   onToggleShown: (store: Store) => void;
   onViewDetails: (store: Store) => void;
+  /** رابط صفحة إعدادات/تعديل المتجر */
+  getSettingsHref: (store: Store) => string;
+  onDelete: (store: Store) => void;
+  /** المتجر الجاري حذفه — لعرض مؤشر التحميل مكان أيقونة الحذف */
+  deletingStoreId?: number | null;
   canToggleStoreShown?: boolean;
 }
 
@@ -54,6 +60,9 @@ export function StoresAdminTable({
   listStatus,
   onToggleShown,
   onViewDetails,
+  getSettingsHref,
+  onDelete,
+  deletingStoreId = null,
   canToggleStoreShown = false,
 }: StoresAdminTableProps) {
   if (isLoading) {
@@ -163,7 +172,7 @@ export function StoresAdminTable({
                   </>
                 )}
                 <td className="px-3 sm:px-4 py-4">
-                  <div className="flex justify-center">
+                  <div className="flex justify-center gap-2">
                     <button
                       type="button"
                       onClick={() => onViewDetails(store)}
@@ -171,6 +180,28 @@ export function StoresAdminTable({
                       title="عرض التفاصيل"
                     >
                       <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </button>
+
+                    <Link
+                      href={getSettingsHref(store)}
+                      className="w-8 h-8 sm:w-9 sm:h-9 cursor-pointer flex items-center justify-center rounded-xs bg-blue-5 text-blue-3 hover:bg-blue-100 transition-colors"
+                      title="إعدادات المتجر"
+                    >
+                      <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => onDelete(store)}
+                      disabled={deletingStoreId === store.id}
+                      className="w-8 h-8 sm:w-9 sm:h-9 cursor-pointer flex items-center justify-center rounded-xs bg-[#FFE5E7] text-[#FF4D4F] hover:bg-[#ffd1d1] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="حذف المتجر"
+                    >
+                      {deletingStoreId === store.id ? (
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                      )}
                     </button>
                   </div>
                 </td>

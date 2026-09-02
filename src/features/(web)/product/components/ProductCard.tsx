@@ -3,15 +3,15 @@
 import { memo, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star } from "lucide-react";
 import { cn, isVideoFile, sanitizeMediaUrl, resolveImageSrc } from "@/src/lib/utils";
+import { RatingStars } from "@/src/components/ui/RatingStars";
 import { formatPrice } from "@/src/lib/format-price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useOpenChat } from "@/src/hooks/use-open-chat";
 import { getProductBySlug } from "@/src/features/(web)/product/api";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "./productAskForPriceButton";
@@ -41,7 +41,34 @@ export interface ProductCardProps {
     type?: "product" | "store" | "service" | "blog";
     /** لربط «اطلب السعر» بمحادثة المتجر؛ إن لم يُمرَّر يُفتح صفحة المنتج */
     storeId?: number | string;
+    /**
+     * Visual style of the card.
+     * - "default": bordered card, 4/5 cover, medium title
+     * - "c2": borderless shadowed card, square cover, bold navy title
+     */
+    variant?: "default" | "c2";
 }
+
+const CARD_VARIANTS = {
+    default: {
+        root: "flex w-full flex-col cursor-pointer group relative rounded-2xl bg-white border border-gray-100 hover:border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-visible transition-all hover:shadow-md",
+        mediaLink: "relative block w-full shrink-0 overflow-hidden bg-gray-100 aspect-square rounded-t-2xl",
+        video: "absolute inset-0",
+        videoInner: "group-hover:scale-105 transition-transform duration-300",
+        image: "object-cover object-center group-hover:scale-105 transition-transform duration-300",
+        content: "flex flex-col px-3 pt-2.5 pb-3 text-right gap-1.5",
+        title: "font-medium text-sm leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors min-h-10",
+    },
+    c2: {
+        root: "flex w-full flex-col cursor-pointer group relative transition-all",
+        mediaLink: "relative block w-full shrink-0 card-shadow bg-gray-100 aspect-square rounded-[14px]",
+        video: "absolute inset-0 rounded-[14px]",
+        videoInner: "group-hover:scale-101 transition-transform duration-300",
+        image: "object-cover object-center group-hover:scale-101 transition-transform duration-300 rounded-[14px]",
+        content: "flex flex-col px-0 py-3 text-right gap-1",
+        title: "font-bold text-base text-c2-navy-900 leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors",
+    },
+} as const;
 
 const ProductCard = memo(({
     id,
@@ -60,7 +87,9 @@ const ProductCard = memo(({
     className,
     type = "product", // Default type
     storeId,
+    variant = "default",
 }: ProductCardProps) => {
+    const styles = CARD_VARIANTS[variant] ?? CARD_VARIANTS.default;
     const normalizedCover = sanitizeMediaUrl(cover);
     const [failedCoverUrl, setFailedCoverUrl] = useState<string | null>(null);
     const mediaSrc = resolveImageSrc(normalizedCover, failedCoverUrl, "product");
@@ -79,10 +108,8 @@ const ProductCard = memo(({
     const rating = typeof reviewRate === 'number' ? reviewRate : parseFloat(reviewRate || "0");
     const count = typeof reviewCount === 'number' ? reviewCount : parseInt(String(reviewCount || "0"), 10);
     const router = useRouter();
-    const params = useParams();
-    const lang = (params?.locale as string) || (params?.lang as string) || "ar";
-    const { user } = useAuthStore();
     const qc = useQueryClient();
+    const { openChat, isOpening: isOpeningChat } = useOpenChat();
     const [localIsFavorite, setLocalIsFavorite] = useState(isFavorite);
     const [askPriceLoading, setAskPriceLoading] = useState(false);
 
@@ -108,19 +135,12 @@ const ProductCard = memo(({
             else toast.error("لا يمكن فتح المحادثة لهذا المنتج.");
             return;
         }
-        if (!user) {
-            router.push(`/${lang}/login`);
-            return;
-        }
-        router.push(`/${lang}/chat?type=store&id=${sid}&productId=${id}&askPrice=1`);
+        openChat({ type: "store", id: sid, productId: id, askPrice: true });
     };
 
     return (
         <div
-            className={cn(
-                "flex w-full flex-col cursor-pointer group relative rounded-2xl bg-white border border-gray-100 hover:border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-visible transition-all hover:shadow-md",
-                className
-            )}
+            className={cn(styles.root, className)}
             onClick={onClick}
         >
             <CompareCheckbox id={id} type="product" />
@@ -128,13 +148,13 @@ const ProductCard = memo(({
             {/* Image Container */}
             <Link
                 href={slug ? `/product/${slug}` : "#"}
-                className="relative block w-full shrink-0 overflow-hidden bg-gray-100 aspect-[4/5] rounded-t-2xl"
+                className={styles.mediaLink}
             >
                 {isVideoFile(normalizedCover) ? (
                     <HoverPlayVideo
                         src={mediaSrc}
-                        className="absolute inset-0"
-                        videoClassName="group-hover:scale-105 transition-transform duration-300"
+                        className={styles.video}
+                        videoClassName={styles.videoInner}
                     />
                 ) : (
                     <Image
@@ -142,7 +162,7 @@ const ProductCard = memo(({
                         alt={name}
                         fill
                         sizes="(max-width: 640px) 168px, (max-width: 768px) 200px, 220px"
-                        className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                        className={styles.image}
                         onError={() => {
                             setFailedCoverUrl(normalizedCover || null);
                         }}
@@ -178,50 +198,31 @@ const ProductCard = memo(({
             </Link>
 
             {/* Content */}
-            <div className="flex flex-col px-3 pt-2.5 pb-3 text-right gap-1.5" dir="rtl">
+            <div className={styles.content} dir="rtl">
                 {/* Product Name */}
                 <Link href={slug ? `/product/${slug}` : "#"}>
-                    <h3 className="font-medium text-sm leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors">
+                    <h3 className={styles.title}>
                         {name || "اسم المنتج"}
                     </h3>
                 </Link>
 
                 {/* Rating */}
-                {rating > 0 && (
-                    <div className="flex items-center gap-1">
-                        <div className="flex items-center gap-0.5">
-                            {[...Array(5)].map((_, i) => (
-                                <Star
-                                    key={i}
-                                    className={cn(
-                                        "w-3 h-3",
-                                        i < Math.round(rating)
-                                            ? "fill-[#FB923C] text-[#FB923C]"
-                                            : "fill-gray-200 text-gray-200"
-                                    )}
-                                />
-                            ))}
-                        </div>
-                        <span className="text-[11px] text-gray-400">
-                            ({count})
-                        </span>
-                    </div>
-                )}
+                <RatingStars rating={rating} count={count} size="sm" />
 
                 {/* Price / اطلب السعر */}
                 <div className="mt-1">
                     {shouldAskForPrice ? (
                         <button
                             type="button"
-                            disabled={askPriceLoading}
+                            disabled={askPriceLoading || isOpeningChat}
                             className={cn(
                                 productAskForPriceButtonClassName,
                                 "w-full text-xs py-1.5",
-                                askPriceLoading && "opacity-75 cursor-wait pointer-events-none"
+                                (askPriceLoading || isOpeningChat) && "opacity-75 cursor-wait pointer-events-none"
                             )}
                             onClick={handleAskForPriceClick}
                         >
-                            {askPriceLoading ? "جاري الفتح…" : "اطلب السعر"}
+                            {askPriceLoading || isOpeningChat ? "جاري الفتح…" : "اطلب السعر"}
                         </button>
                     ) : (
                         <div className="flex items-baseline gap-1.5">

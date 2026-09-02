@@ -89,6 +89,11 @@ export function CreateHighlightModal({
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 block text-right">اختر القصص</label>
+            {availableStories.length === 0 ? (
+              <div className="flex items-center justify-center h-32 rounded-xl border border-dashed border-gray-200 text-sm text-gray-500 text-center">
+                لا توجد قصص متاحة لاختيارها
+              </div>
+            ) : (
             <div className="grid grid-cols-3 md:grid-cols-4 gap-4 max-h-[400px] overflow-y-auto p-1">
               {availableStories.map((story) => (
                 <div
@@ -128,6 +133,7 @@ export function CreateHighlightModal({
                 </div>
               ))}
             </div>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4 border-t border-gray-100">

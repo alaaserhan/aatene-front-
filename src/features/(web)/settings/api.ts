@@ -37,6 +37,7 @@ export interface GlobalSettingsData {
     is_site_under_construction?: boolean | number | string;
     is_app_under_construction?: boolean | number | string;
     is_app_needs_update?: boolean | number | string;
+    is_chat_bot_allowed?: boolean | number | string;
 }
 
 export interface GetGlobalSettingsResponse extends BaseResponse {
@@ -182,6 +183,8 @@ export interface User {
     district: District | null;
     user_type: string;
     email: string;
+    /** Registration doesn't enforce it, so the email can be unverified. Backend sends true/false or 1/0. */
+    is_email_verified?: boolean | number | string;
     phone: string;
     followers_count: string;
     followings_count: string;
@@ -199,6 +202,18 @@ export interface UpdateAccountPayload {
     bio?: string;
     city_id?: number;
     district_id?: number;
+}
+
+export interface UpdateEmailResponse extends BaseResponse {
+    /** The id used to verify the emailed code. */
+    id: string | number;
+}
+
+export interface VerifyEmailUpdatePayload {
+    id: string | number;
+    code: string;
+    /** Only used locally to refresh the auth store — not sent to the API. */
+    email?: string;
 }
 
 export interface UpdatePasswordPayload {
@@ -487,9 +502,17 @@ export const updateAccount = async (payload: UpdateAccountPayload): Promise<Base
     return data;
 };
 
-export const updateEmail = async (email: string): Promise<AccountResponse> => {
-    // Prompt says Body: form-data (email: ...).
-    const { data } = await api.post<AccountResponse>("/auth/account/update_email", { email });
+export const updateEmail = async (email: string): Promise<UpdateEmailResponse> => {
+    // Sends a verification code to the new email and returns the id used to verify it.
+    const { data } = await api.post<UpdateEmailResponse>("/auth/account/update_email", { email });
+    return data;
+};
+
+export const verifyEmailUpdate = async (payload: VerifyEmailUpdatePayload): Promise<BaseResponse> => {
+    const { data } = await api.post<BaseResponse>(
+        `/auth/account/verify_email_update/${payload.id}`,
+        { code: payload.code }
+    );
     return data;
 };
 
@@ -531,6 +554,8 @@ export const unfollowUserOrStore = async (payload: UnfollowPayload): Promise<Unf
 
 export interface RemoveFollowerPayload {
     follower_id: number | string;
+    // TODO: ask for the union type
+    follower_type: string;
 }
 
 export const removeFollower = async (payload: RemoveFollowerPayload): Promise<RemoveFollowerResponse> => {

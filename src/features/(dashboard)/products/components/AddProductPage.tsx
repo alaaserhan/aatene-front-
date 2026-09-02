@@ -1,209 +1,191 @@
 // src/features/(dashboard)/products/components/AddProductPage.tsx
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
-import { AddProductStep1 } from "./AddProductStep1";
-import { AddProductStep2 } from "./AddProductStep2";
-import { AddProductStep3 } from "./AddProductStep3";
-import { AddProductStep4 } from "./AddProductStep4";
-import { ProductCreatePayload } from "../api";
-import { useCreateProduct, useGenerateProductAI } from "../hooks";
-import {
-  CompleteProductFormData,
-  Step1FormData,
-  Step2FormData,
-  Step3FormData,
-  Step4FormData,
-} from "../types";
-
 import { toast } from "sonner";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { KeywordsField } from "@/src/components/ui/KeywordsField";
+import { Label } from "@/src/components/ui/label";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { useDebounce } from "@/src/hooks/use-debounce";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
+import { useInfiniteGetStores } from "../../stores/hooks";
+import { ProductCreatePayload } from "../api";
+import { useCreateProduct } from "../hooks";
 import { validateProductStep1 } from "../product-step1-validation";
+import { Step1FormData, Step3FormData } from "../types";
+import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
+import { ProductBasicInfoFields } from "./sections/ProductBasicInfoFields";
+import { ProductFormAccordion } from "./sections/ProductFormAccordion";
+import { ProductSectionField } from "./sections/ProductSectionField";
+import { ProductSubmitBar } from "./sections/ProductSubmitBar";
+import {
+  ProductVariationsFields,
+  validateProductVariations,
+} from "./sections/ProductVariationsFields";
+
+type AccordionKey = "basic" | "variations" | null;
+
+const EMPTY_BASIC: Step1FormData = {
+  category_id: 0,
+  category_name: "",
+  cover: "",
+  cover_preview: "",
+  gallery: [],
+  gallery_previews: [],
+  name: "",
+  price: 0,
+  ask_for_price: false,
+  condition: "new",
+  short_description: "",
+  description: "",
+};
+
+const EMPTY_VARIATIONS: Step3FormData = {
+  hasVariations: false,
+  attributes: [],
+  variations: [],
+};
 
 export function AddProductPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sectionIdFromUrl = searchParams.get("section_id");
-
   const storeIdFromUrl = searchParams.get("store_id");
-  const storeId = storeIdFromUrl || Cookies.get("current_store_id");
+
   const userType = Cookies.get("user_type");
   const isAdmin = userType === "admin";
-  const toastShownRef = useRef(false);
+  const currentStoreId = Cookies.get("current_store_id");
 
   const createProductMutation = useCreateProduct();
+
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState<AccordionKey>("basic");
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<CompleteProductFormData>({
-    step2: (sectionIdFromUrl || storeIdFromUrl) ? {
-      store_id: Number(storeId) || 0,
-      tags: [],
-      ...(sectionIdFromUrl ? { section_id: Number(sectionIdFromUrl) } : {}),
-    } : undefined
-  });
+  const [basic, setBasic] = useState<Step1FormData>(EMPTY_BASIC);
+  const [storeId, setStoreId] = useState<number>(
+    Number(storeIdFromUrl || currentStoreId) || 0
+  );
+  const [sectionId, setSectionId] = useState<number | undefined>(
+    sectionIdFromUrl ? Number(sectionIdFromUrl) : undefined
+  );
+  const [tags, setTags] = useState<string[]>([]);
+  const [variations, setVariations] = useState<Step3FormData>(EMPTY_VARIATIONS);
 
-  const generateAIMutation = useGenerateProductAI();
-  const isGeneratingAI = generateAIMutation.isPending;
-  const [lastGeneratedInput, setLastGeneratedInput] = useState<{ title: string; description: string } | null>(null);
-  const [aiKeywords, setAiKeywords] = useState<string[]>([]);
+  /** الأخطاء تظهر فقط بعد أول محاولة حفظ، ثم تختفي تلقائياً عند إصلاح الحقل */
+  const [showErrors, setShowErrors] = useState(false);
 
-  const breadcrumbItems = useMemo(() => [
-    {
-      label: "المنتجات",
-      href: storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products",
-    },
-    { label: "انشاء منتج جديد" },
-  ], [storeIdFromUrl]);
+  const showStoreField = isAdmin && !storeIdFromUrl;
 
-  useEffect(() => {
-    if (toastShownRef.current) return;
+  const breadcrumbItems = useMemo(
+    () => [
+      {
+        label: "المنتجات",
+        href: storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products",
+      },
+      { label: "إنشاء منتج جديد" },
+    ],
+    [storeIdFromUrl]
+  );
 
-    const savedDraft = localStorage.getItem("product_draft");
-    if (savedDraft) {
-      toastShownRef.current = true;
-      try {
-        const parsedDraft = JSON.parse(savedDraft);
-        toast("يوجد مسودة سابقة", {
-          description: "هل تريد استكمال آخر جلسة؟",
-          action: {
-            label: "نعم، استكمل",
-            onClick: () => {
-              setFormData(parsedDraft);
-              if (parsedDraft.step3) setCurrentStep(4);
-              else if (parsedDraft.step2) setCurrentStep(3);
-              else if (parsedDraft.step1) setCurrentStep(2);
-            },
-          },
-          cancel: {
-            label: "لا، ابدأ من جديد",
-            onClick: () => {
-              localStorage.removeItem("product_draft");
-            }
-          },
-          duration: 10000,
-        });
-      } catch (error) {
-        console.error("Failed to parse draft", error);
-      }
-    }
-  }, []);
+  // ---------------------------------------------------------------- المتاجر (للأدمن)
+  const [storeSearchQuery, setStoreSearchQuery] = useState("");
+  const debouncedStoreSearch = useDebounce(storeSearchQuery, 500);
 
-  const handleSaveDraft = (currentStepData?: Step1FormData | Step2FormData | Step3FormData | Step4FormData | null) => {
-    try {
-      const dataToSave = { ...formData };
+  const storesQueryParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("per_page", "10");
+    params.set("type", "products");
+    if (debouncedStoreSearch) params.set("name", debouncedStoreSearch);
+    return params;
+  }, [debouncedStoreSearch]);
 
-      if (currentStepData) {
-        if (currentStep === 1) dataToSave.step1 = currentStepData as Step1FormData;
-        if (currentStep === 2) dataToSave.step2 = currentStepData as Step2FormData;
-        if (currentStep === 3) dataToSave.step3 = currentStepData as Step3FormData;
-        if (currentStep === 4) dataToSave.step4 = currentStepData as Step4FormData;
-        setFormData(dataToSave);
-      }
+  const {
+    data: storesData,
+    isLoading: isStoresLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteGetStores(storesQueryParams);
 
-      localStorage.setItem("product_draft", JSON.stringify(dataToSave));
-      toast.success("تم حفظ المسودة بنجاح");
-    } catch (error) {
-      toast.error("فشل حفظ المسودة");
-    }
+  const storeOptions = useMemo(
+    () =>
+      (storesData?.pages?.flatMap((page) => page.data) || []).map((store) => ({
+        value: String(store.id),
+        label: store.name,
+      })),
+    [storesData]
+  );
+
+  // ---------------------------------------------------------------- التحقق
+  const collectErrors = (): Record<string, string> => {
+    const newErrors = validateProductStep1(basic);
+    if (!storeId) newErrors.store_id = "يجب اختيار المتجر";
+    if (!sectionId) newErrors.section_id = "يجب اختيار القسم";
+    return newErrors;
   };
 
-  const handleStepClick = (step: number) => {
-    if (step === 1) setCurrentStep(1);
-    else if (step === 2 && formData.step1) setCurrentStep(2);
-    else if (step === 3 && formData.step1 && formData.step2) setCurrentStep(3);
-    else if (step === 4 && formData.step1 && formData.step2 && formData.step3) setCurrentStep(4);
+  // الأخطاء محسوبة أثناء العرض، فتختفي بمجرد إصلاح الحقل
+  const errors = showErrors ? collectErrors() : {};
+  const variationsError = showErrors ? validateProductVariations(variations) : null;
+
+  const scrollToFirstError = (firstKey: string) => {
+    const element =
+      (firstKey === "cover" ? document.getElementById("product-step1-cover") : null) ||
+      document.querySelector(`[name="${firstKey}"]`) ||
+      document.querySelector(".text-red-500");
+    element?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  const handleStep1Sync = (data: Step1FormData) => {
-    setFormData((prev) => ({ ...prev, step1: data }));
-  };
-
-  const handleStep1Next = (data: Step1FormData) => {
-    const newData = { ...formData, step1: data };
-    setFormData(newData);
-    setCurrentStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    // Trigger AI generation automatically
-    handleGenerateAI(data);
-  };
-
-  const handleStep1Cancel = () => {
+  // ---------------------------------------------------------------- الحفظ
+  const handleCancel = () => {
     router.push(storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products");
   };
 
-  const handleStep2Next = (data: Step2FormData) => {
-    setFormData((prev) => ({ ...prev, step2: data }));
-    setCurrentStep(3);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const handleSubmit = async () => {
+    const basicErrors = collectErrors();
+    const variationsMessage = validateProductVariations(variations);
 
-  const handleStep2Back = () => {
-    setCurrentStep(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+    setShowErrors(true);
 
-  const handleStep3Next = (data: Step3FormData) => {
-    setFormData((prev) => ({ ...prev, step3: data }));
-    setCurrentStep(4);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleStep3Back = () => {
-    setCurrentStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleStep4Save = async (data: Step4FormData) => {
-    const updatedFormData = { ...formData, step4: data };
-
-    const step1 = updatedFormData.step1;
-    const step2 = updatedFormData.step2;
-    const step3 = updatedFormData.step3;
-
-    if (!step1 || !step2 || !step3) {
-      toast.error("يرجى إكمال جميع الخطوات المطلوبة");
+    const basicErrorKeys = Object.keys(basicErrors);
+    if (basicErrorKeys.length > 0) {
+      setOpenAccordion("basic");
+      toast.error("يرجى إكمال حقول المعلومات الأساسية المطلوبة");
+      // ننتظر فتح الأكورديون قبل التمرير للحقل
+      setTimeout(() => scrollToFirstError(basicErrorKeys[0]), 100);
       return;
     }
 
-    const step1Errors = validateProductStep1(step1);
-    if (Object.keys(step1Errors).length > 0) {
-      toast.error("يرجى إكمال المعلومات الأساسية (السعر والحقول المطلوبة)");
-      setCurrentStep(1);
+    if (variationsMessage) {
+      setOpenAccordion("variations");
+      toast.error(variationsMessage);
       return;
     }
 
     const payload: ProductCreatePayload = {
       sku: `SKU-${Date.now()}`,
-      name: updatedFormData.step1!.name,
-      short_description: updatedFormData.step1!.short_description,
-      description: updatedFormData.step1!.description,
-      cover: updatedFormData.step1!.cover,
-      gallery: updatedFormData.step1!.gallery,
-      type: updatedFormData.step3!.hasVariations ? "variation" : "simple",
-      condition: updatedFormData.step1!.condition,
-      category_id: updatedFormData.step1!.category_id,
-      store_id: updatedFormData.step2!.store_id,
-      section_id: updatedFormData.step2!.section_id || 0,
-      price: updatedFormData.step1!.price,
-      ask_for_price: updatedFormData.step1!.ask_for_price,
-
+      name: basic.name,
+      short_description: basic.short_description,
+      description: basic.description,
+      cover: basic.cover,
+      gallery: basic.gallery,
+      type: variations.hasVariations ? "variation" : "simple",
+      condition: basic.condition,
+      category_id: basic.category_id,
+      store_id: storeId,
+      section_id: sectionId || 0,
+      price: basic.price,
+      ask_for_price: basic.ask_for_price,
       status: isAdmin ? "approved" : "pending",
-      tags: updatedFormData.step2!.tags,
-  crossSells: [...new Set(data.crossSells || [])],
-  cross_sells_price: data.cross_sells_price || undefined,
-  cross_sells_due_date: data.cross_sells_due_date || undefined,
-  cross_sells_name: data.cross_sells_name || undefined,
-  cross_sells_description: data.cross_sells_description || undefined,
-  cross_sells_title: data.cross_sells_name || undefined,
-  cross_sells_offer_name: data.cross_sells_name || undefined,
-  cross_sells_offer_description: data.cross_sells_description || undefined,
+      tags,
     };
 
-    if (updatedFormData.step3!.hasVariations && updatedFormData.step3!.variations.length > 0) {
-      payload.variations = updatedFormData.step3!.variations
+    if (variations.hasVariations && variations.variations.length > 0) {
+      payload.variations = variations.variations
         .filter((v) => v.enabled)
         .map((v) => ({
           price: v.price,
@@ -224,207 +206,121 @@ export function AddProductPage() {
     }
   };
 
-  const handleStep4Back = (data: Step4FormData) => {
-    setFormData({ ...formData, step4: data });
-    setCurrentStep(3);
+  const toggleAccordion = (key: Exclude<AccordionKey, null>) => {
+    setOpenAccordion((prev) => (prev === key ? null : key));
   };
 
-  const handleGenerateAI = async (currentStep1Data: Step1FormData) => {
-    const title = currentStep1Data.name.trim();
-    const description = currentStep1Data.description.trim();
-
-    if (
-      lastGeneratedInput &&
-      lastGeneratedInput.title === title &&
-      lastGeneratedInput.description === description
-    ) {
-      return;
-    }
-
-    try {
-      const data = await generateAIMutation.mutateAsync({
-        title,
-        description,
-        type: "product",
-      });
-
-      setLastGeneratedInput({ title, description });
-
-
-      const generatedKeywords = data.results?.keywords || [];
-      if (generatedKeywords.length > 0) {
-        setAiKeywords(generatedKeywords);
-      }
-
-      setFormData((prev) => {
-        const newStep1 = { ...prev.step1, ...currentStep1Data };
-        if (data.title) newStep1.name = data.title;
-        if (data.short_description) newStep1.short_description = data.short_description;
-
-        const newStep2 = { ...prev.step2 } as Step2FormData;
-
-        if (!newStep2.tags) {
-          newStep2.tags = [];
-        }
-
-        if (generatedKeywords.length > 0) {
-          newStep2.tags = generatedKeywords;
-        }
-
-        return {
-          ...prev,
-          step1: newStep1,
-          step2: newStep2
-        };
-      });
-
-    } catch (error) {
-      console.error("AI Generation Error:", error);
-      toast.error("فشل توليد البيانات");
-    }
-  };
-
-
-  const steps = [
-    { number: 1, label: "المعلومات الاساسية", completed: currentStep > 1 },
-    { number: 2, label: "المعلومات المتقدمة", completed: currentStep > 2 },
-    { number: 3, label: "الاختلافات و الكميات", completed: currentStep > 3 },
-    { number: 4, label: "منتجات مرتبطة", completed: false },
-  ];
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <AddProductStep1
-            initialData={formData.step1}
-            onNext={handleStep1Next}
-            onStep1Sync={handleStep1Sync}
-            onCancel={handleStep1Cancel}
-            onSaveDraft={() => handleSaveDraft(null)}
-            barSteps={steps}
-            storeId={storeId}
-            breadcrumbItems={breadcrumbItems}
-            onStepClick={handleStepClick}
-          />
-        );
-
-      case 2:
-        if (!formData.step1) {
-          return (
-            <AddProductStep1
-              initialData={formData.step1}
-              onNext={handleStep1Next}
-              onStep1Sync={handleStep1Sync}
-              onCancel={handleStep1Cancel}
-              onSaveDraft={() => handleSaveDraft(null)}
-              barSteps={steps}
-              storeId={storeId}
-              breadcrumbItems={breadcrumbItems}
-              onStepClick={handleStepClick}
-            />
-          );
-        }
-        return (
-          <AddProductStep2
-            previousData={formData.step1}
-            initialData={formData.step2}
-            onNext={handleStep2Next}
-            onBack={handleStep2Back}
-            onSaveDraft={() => handleSaveDraft(null)}
-            barSteps={steps}
-            breadcrumbItems={breadcrumbItems}
-            onStepClick={handleStepClick}
-            isGeneratingAI={isGeneratingAI}
-            aiKeywords={aiKeywords}
-          />
-        );
-
-      case 3:
-        if (!formData.step1) {
-          return (
-            <AddProductStep1
-              initialData={formData.step1}
-              onNext={handleStep1Next}
-              onStep1Sync={handleStep1Sync}
-              onCancel={handleStep1Cancel}
-              onSaveDraft={() => handleSaveDraft(null)}
-              barSteps={steps}
-              storeId={storeId}
-              breadcrumbItems={breadcrumbItems}
-              onStepClick={handleStepClick}
-            />
-          );
-        }
-        return (
-          <AddProductStep3
-            previousData={formData.step1}
-            initialData={formData.step3}
-            onNext={handleStep3Next}
-            onBack={handleStep3Back}
-            onSaveDraft={handleSaveDraft}
-            barSteps={steps}
-            breadcrumbItems={breadcrumbItems}
-            onStepClick={handleStepClick}
-          />
-        );
-
-      case 4:
-        if (!formData.step1) {
-          return (
-            <AddProductStep1
-              initialData={formData.step1}
-              onNext={handleStep1Next}
-              onStep1Sync={handleStep1Sync}
-              onCancel={handleStep1Cancel}
-              onSaveDraft={() => handleSaveDraft(null)}
-              barSteps={steps}
-              storeId={storeId}
-              breadcrumbItems={breadcrumbItems}
-              onStepClick={handleStepClick}
-            />
-          );
-        }
-        return (
-          <AddProductStep4
-            previousData={formData.step1}
-            initialData={formData.step4}
-            onSave={handleStep4Save}
-            onBack={handleStep4Back}
-            onSaveDraft={handleSaveDraft}
-            isSubmitting={createProductMutation.isPending}
-            barSteps={steps}
-            isEditMode={false}
-            breadcrumbItems={breadcrumbItems}
-            onStepClick={handleStepClick}
-          />
-        );
-
-      default:
-        return (
-          <AddProductStep1
-            initialData={formData.step1}
-            onNext={handleStep1Next}
-            onStep1Sync={handleStep1Sync}
-            onCancel={handleStep1Cancel}
-            onSaveDraft={() => handleSaveDraft(null)}
-            barSteps={steps}
-            storeId={storeId}
-            breadcrumbItems={breadcrumbItems}
-            onStepClick={handleStepClick}
-          />
-        );
-    }
-  };
+  const hasBasicErrors = Object.keys(errors).length > 0;
 
   return (
-    <>
-      {renderStep()}
+    // Filling the viewport keeps the submit bar at the bottom of the screen on
+    // a short form, while it still flows after the content on a long one.
+    <div className="flex min-h-[calc(100vh-5rem)] flex-col">
+      <div className="container mx-auto flex-1 py-4 px-4 mb-6">
+        <Breadcrumb items={breadcrumbItems} className="my-4" />
+
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-12 lg:col-span-9 space-y-4">
+            <ProductFormAccordion
+              title="المعلومات الأساسية"
+              subtitle="الصور، الاسم، السعر، الفئة، القسم، الوصف والكلمات المفتاحية"
+              isOpen={openAccordion === "basic"}
+              onToggle={() => toggleAccordion("basic")}
+              hasError={hasBasicErrors}
+              errorText="يوجد حقول مطلوبة غير مكتملة"
+            >
+              <ProductBasicInfoFields
+                value={basic}
+                onChange={(patch) => setBasic((prev) => ({ ...prev, ...patch }))}
+                errors={errors}
+                headerField={
+                  showStoreField ? (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium flex items-center gap-1">
+                        إظهار المنتج في متجر
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <ReusableDropdown
+                        options={storeOptions}
+                        value={storeId ? String(storeId) : ""}
+                        onChange={(value) => {
+                          setStoreId(Number(value));
+                          setSectionId(undefined);
+                        }}
+                        placeholder={isStoresLoading ? "جاري التحميل..." : "اختر المتجر..."}
+                        error={errors.store_id}
+                        className="h-11"
+                        onSearch={setStoreSearchQuery}
+                        searchPlaceholder="ابحث عن متجر..."
+                        onReachEnd={() => hasNextPage && fetchNextPage()}
+                        isLoadingMore={isFetchingNextPage}
+                      />
+                    </div>
+                  ) : null
+                }
+                sectionField={
+                  <ProductSectionField
+                    storeId={storeId}
+                    value={sectionId}
+                    onChange={setSectionId}
+                    error={errors.section_id}
+                  />
+                }
+                footerField={
+                  <KeywordsField value={tags} onChange={setTags} type="product" />
+                }
+              />
+            </ProductFormAccordion>
+
+            <ProductFormAccordion
+              title="الاختلافات"
+              subtitle="سمات المنتج مثل الحجم أو اللون وأسعارها"
+              isOpen={openAccordion === "variations"}
+              onToggle={() => toggleAccordion("variations")}
+              hasError={!!variationsError}
+              errorText={variationsError || undefined}
+            >
+              <ProductVariationsFields
+                categoryId={basic.category_id || undefined}
+                onChange={setVariations}
+              />
+            </ProductFormAccordion>
+          </div>
+
+          <div className="col-span-12 lg:col-span-3">
+            <div className="sticky top-6 flex flex-col gap-4">
+              <ProductPreviewSidebar
+                data={{
+                  name: basic.name,
+                  price: basic.price,
+                  ask_for_price: basic.ask_for_price,
+                  coverImage: basic.cover_preview,
+                  galleryImages: basic.gallery_previews,
+                }}
+              />
+              <GuideVideoCard location="add-product" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ProductSubmitBar
+        submitLabel="إضافة المنتج"
+        loadingLabel="جاري الإضافة..."
+        isSubmitting={createProductMutation.isPending}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+      />
+
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          router.push(storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products");
+          router.push(
+            storeIdFromUrl
+              ? `/admin/productProviders/${storeIdFromUrl}`
+              : "/admin/products?status=pending"
+          );
         }}
         title="تم إضافة المنتج بنجاح"
         message={
@@ -434,6 +330,6 @@ export function AddProductPage() {
         }
         buttonText="العودة للقائمة"
       />
-    </>
+    </div>
   );
 }

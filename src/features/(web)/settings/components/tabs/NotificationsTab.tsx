@@ -88,7 +88,7 @@ export default function NotificationsTab() {
                     onClick={handleSave}
                     disabled={isUpdating}
                     className={cn(
-                        " bg-[#3D5E83] text-white py-3 px-16 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer hover:bg-[#324d6d] flex justify-center items-center gap-2",
+                        "bg-c2-primary hover:bg-c2-navy-600 text-white py-3 px-16 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer flex justify-center items-center gap-2",
                         isUpdating && "opacity-60 cursor-not-allowed"
                     )}
                 >

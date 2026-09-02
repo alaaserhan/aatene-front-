@@ -38,7 +38,7 @@ export default function PhoneTab() {
             return;
         }
 
-        // The PhoneNumberInput might handle internal validation, 
+        // The PhoneNumberInput might handle internal validation,
         // but we can add a check here too if needed.
         updatePhone(`${countryCode}${phone}`);
     };
@@ -55,7 +55,7 @@ export default function PhoneTab() {
                     رقم الهاتف
                 </h1>
                 <p className="text-gray-400 text-sm">
-                    تغير رقم الهاتف
+                    تغيير رقم الهاتف
                 </p>
             </div>
 
@@ -86,7 +86,7 @@ export default function PhoneTab() {
                             type="submit"
                             disabled={isUpdating}
                             className={cn(
-                                "bg-[#3D5E83] text-white px-16 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer hover:bg-[#324d6d]",
+                                "bg-c2-primary hover:bg-c2-navy-600 text-white px-16 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer",
                                 isUpdating && "opacity-60 cursor-not-allowed"
                             )}
                         >

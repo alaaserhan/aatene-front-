@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { safeRedirectPath } from "@/src/lib/safe-redirect";
 
 const PREVIEW_COOKIE = "coming_soon_preview";
 
@@ -41,7 +42,13 @@ export async function GET(request: NextRequest) {
   }
 
   const baseUrl = getBaseUrl(request);
-  const response = NextResponse.redirect(new URL(redirect, baseUrl));
+  const safePath = safeRedirectPath(redirect, baseUrl);
+
+  if (safePath === null) {
+    return NextResponse.json({ message: "Invalid redirect" }, { status: 400 });
+  }
+
+  const response = NextResponse.redirect(new URL(safePath, baseUrl));
   response.cookies.set(PREVIEW_COOKIE, "1", {
     path: "/",
     httpOnly: true,

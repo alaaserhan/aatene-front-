@@ -75,7 +75,7 @@ const PhoneNumberInput = React.forwardRef<
 
         return (
             <div className={cn("space-y-2", containerClassName)}>
-                <label className="block text-sm font-medium text-start">
+                <label className="block text-sm text-[#3D3D3D] text-start">
                     {label}
                     {required && <span className="text-red-500 mr-1">*</span>}
                 </label>

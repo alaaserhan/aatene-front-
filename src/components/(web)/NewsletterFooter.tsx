@@ -57,7 +57,7 @@ const NewsletterFooter = () => {
                     <label htmlFor="newsletter-email" className="sr-only">
                         البريد الإلكتروني للاشتراك في النشرة
                     </label>
-                    <div className="flex w-full overflow-hidden rounded-full shadow-[0_8px_28px_-10px_rgba(45,67,98,0.18)] ring-1 ring-[#cfd9e6]">
+                    <div className="flex w-full overflow-hidden rounded-sm shadow-[0_8px_28px_-10px_rgba(45,67,98,0.18)] ring-1 ring-[#cfd9e6]">
                         <div className="flex min-w-0 flex-1 items-center gap-2 bg-white py-1.5 ps-3 pe-2 sm:gap-3 sm:py-2 sm:ps-4 sm:pe-3 md:ps-5 md:pe-4">
                             <Mail
                                 className="h-4 w-4 shrink-0 text-gray-400 sm:h-5 sm:w-5"

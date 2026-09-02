@@ -17,6 +17,7 @@ export default function FavoritesSidebar({
         { label: "المنتجات المفضلة", value: "product" },
         { label: "المتاجر المفضلة", value: "store" },
         { label: "الخدمات المفضلة", value: "service" },
+        { label: "المدونات المفضلة", value: "blog" },
     ];
 
     return (

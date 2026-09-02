@@ -1,3 +1,10 @@
+// ============================================================
+// ⚠️  نظام شراء العملات الذهبية (Coins) - معطّل مؤقتاً
+// لإعادة تفعيله: احذف /* COINS_DISABLED_START و COINS_DISABLED_END */
+// ============================================================
+
+/* COINS_DISABLED_START
+
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
@@ -78,6 +85,9 @@ export interface CoinsGeneralResponse extends BaseResponse {
     current_balance: number;
 }
 
+// --- API Functions ---
+
+// 1. Get Store Balance
 export const getStoreBalance = async (
     params?: URLSearchParams,
     storeId?: number | string
@@ -91,6 +101,7 @@ export const getStoreBalance = async (
     return data;
 };
 
+// 2. Get Coins Packages
 export const getCoinsPackages = async (
     storeId?: number | string
 ): Promise<CoinsPackagesResponse> => {
@@ -127,6 +138,16 @@ export const purchaseCoinsPackage = async (
     return data;
 };
 
+// 5. Get Coins Growth
+export interface CoinsGrowthResponse extends BaseResponse {
+    period: string;
+    growth_chart: {
+        date: string;
+        gained_coins: number;
+        spent_coins: number;
+    }[];
+}
+
 export const getCoinsGrowth = async (
     period: string = "all_time",
     storeId?: number | string
@@ -139,6 +160,13 @@ export const getCoinsGrowth = async (
     return data;
 };
 
+// 6. Get General Coins Stats
+export interface CoinsGeneralResponse extends BaseResponse {
+    total_bought_coins: number;
+    total_spent_coins: number;
+    current_balance: number;
+}
+
 export const getCoinsGeneral = async (
     storeId?: number | string
 ): Promise<CoinsGeneralResponse> => {
@@ -150,7 +178,21 @@ export const getCoinsGeneral = async (
     return data;
 };
 
-// --- My Coins ---
+COINS_DISABLED_END */
+
+// ============================================================
+// ✅ نظام العملات الشخصية للتاجر (My Coins)
+// ============================================================
+
+import api from "@/src/lib/axios";
+import { getDynamicEndpoint } from "@/src/lib/api-helper";
+
+// --- Interfaces ---
+
+export interface BaseResponse {
+    status: boolean;
+    message: string;
+}
 
 export interface MyBalanceResponse extends BaseResponse {
     balance: number;
@@ -198,6 +240,8 @@ export interface TransferBetweenStoresRequest {
 export interface TransferResponse extends BaseResponse {
     [key: string]: unknown;
 }
+
+// --- API Functions ---
 
 export const getMyBalance = async (): Promise<MyBalanceResponse> => {
     const endpoint = getDynamicEndpoint("/my-coins/balance");

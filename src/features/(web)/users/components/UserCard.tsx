@@ -1,101 +1,119 @@
 "use client";
 
+import { useState } from "react";
 import { User } from "@/src/features/(web)/searchAndFilter/api";
-import { cn, isVideoFile } from "@/src/lib/utils";
-import { Star, MapPin, Crown, User as UserIcon } from "lucide-react";
+import { cn } from "@/src/lib/utils";
+import { UserPlus, User as UserIcon, UserMinus } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  useFollowUserOrStore,
+  useUnfollowUserOrStore,
+} from "@/src/features/(web)/settings/hooks";
 import { useLanguage } from "@/src/hooks/use-language";
 
 interface UserCardProps {
-    user: User;
-    className?: string;
+  user: User;
+  className?: string;
 }
 
-
 export default function UserCard({ user, className }: UserCardProps) {
-    const lang = useLanguage();
-    const rating = parseFloat(user.review_rate || "0").toFixed(1);
-    const cityName = user.city?.name || "لا يوجد مدينة";
-    const coverImage = user.cover_url;
+  const lang = useLanguage();
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
-    const profileLink = `/${lang}/profile/${user.slug || user.id}`;
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const [followOverride, setFollowOverride] = useState<boolean | null>(null);
+  const followed = followOverride ?? Boolean(user.is_following);
 
-    return (
-        <Link
-            href={profileLink}
-            className={cn(
-                "bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col group cursor-pointer hover:shadow-lg transition-all duration-300 w-full max-w-[320px] mx-auto",
-                className
-            )}>
-            {/* Cover Image */}
-            <div className="relative h-32 w-full bg-gray-100">
-                {coverImage ? (
-                    isVideoFile(coverImage) ? (
-                        <video
-                            src={coverImage}
-                            controls
-                            playsInline
-                            className="absolute inset-0 h-full w-full object-cover"
-                        />
-                    ) : (
-                        <Image
-                            src={coverImage}
-                            alt="Cover"
-                            fill
-                            className="object-cover"
-                            priority
-                        />
-                    )
-                ) : (
-                    <div className="bg-blue-1 w-full h-full" />
-                )}
-            </div>
+  const { mutate: follow, isPending: isFollowPending } = useFollowUserOrStore();
+  const { mutate: unfollow, isPending: isUnfollowPending } =
+    useUnfollowUserOrStore();
+  const isPending = isFollowPending || isUnfollowPending;
 
-            {/* Content Section */}
-            <div className="relative px-3 pb-3 pt-12 flex flex-col items-center text-center">
+  const followersCount = Number(user.followers_count || 0);
+  const profileLink = `/${lang}/profile/${user.slug || user.id}`;
+  const showAvatar = Boolean(user.avatar_url) && !avatarFailed;
 
-                {/* Profile Picture - Centered & Overlapping */}
-                <div className="absolute -top-[2.5rem] left-1/2 -translate-x-1/2 w-20 h-20 rounded-full border-[2px] border-white overflow-hidden shadow-sm bg-gray-100 z-10 flex items-center justify-center">
-                    <UserIcon className="w-8 h-8 text-gray-400 absolute" />
-                    {user.avatar_url && (
-                        <Image
-                            src={user.avatar_url}
-                            alt={user.name || "User"}
-                            fill
-                            className="object-cover z-10"
-                            onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                            }}
-                        />
-                    )}
-                </div>
+  const invalidateUserQueries = () => {
+    queryClient.invalidateQueries({ queryKey: ["users", "search"] });
+    queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+  };
 
-                {/* Name & Crown */}
-                <div className="flex items-center justify-center gap-2 mb-2 w-full px-4" dir="rtl">
-                    <h3 className="font-semibold text-base truncate">{user.name}</h3>
-                </div>
+  const handleFollowToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const payload = { followed_type: "user" as const, followed_id: user.id };
+    const onSuccess = () => {
+      setFollowOverride(!followed);
+      invalidateUserQueries();
+    };
 
-                {/* Bio / Job Title */}
-                <p className="text-gray-500 text-xs font-medium mb-5 truncate w-full px-4" dir="rtl">
-                    {user.bio || "لا يوجد وصف"}
-                </p>
+    if (followed) {
+      unfollow(payload, { onSuccess });
+    } else {
+      follow(payload, { onSuccess });
+    }
+  };
 
-                {/* Location & Rating Row */}
-                <div className="flex items-center justify-center gap-4 text-xs w-full" dir="rtl">
-                    <div className="flex items-center gap-1.5">
-                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                        <span className="font-medium  pt-0.5" >{rating}</span>
-                        <span className="text-gray-400 pt-0.5">({user.review_count || 0})</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <MapPin className="w-4 h-4 text-emerald-500" />
-                        <span className="font-medium ">{cityName}</span>
-                    </div>
+  return (
+    <div
+      onClick={() => router.push(profileLink)}
+      className={cn(
+        "group mx-auto flex w-full max-w-[320px] cursor-pointer flex-col items-center rounded-2xl border border-c2-neutral-200 bg-white px-5 pb-5 pt-7 text-center transition-all duration-300 hover:shadow-md",
+        className,
+      )}
+      dir="rtl"
+    >
+      {/* Avatar */}
+      <div className="relative mb-4 size-32.5 shrink-0 overflow-hidden rounded-full border-[3px] border-white bg-c2-neutral-50 shadow-sm">
+        {showAvatar ? (
+          <Image
+            src={user.avatar_url!}
+            alt={user.name || "User"}
+            width={130}
+            height={130}
+            className="h-full w-full object-cover"
+            onError={() => setAvatarFailed(true)}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <UserIcon className="size-10 text-c2-neutral-500" />
+          </div>
+        )}
+      </div>
 
+      {/* Name */}
+      <h3 className="mb-2 line-clamp-1 w-full px-1 text-lg font-bold text-c2-neutral-900">
+        {user.name}
+      </h3>
 
-                </div>
-            </div>
-        </Link>
-    );
+      {/* Followers count */}
+      <p className="mb-4 text-sm text-c2-neutral-500">{followersCount} متابع</p>
+
+      {/* Follow toggle */}
+      <button
+        type="button"
+        disabled={isPending}
+        onClick={handleFollowToggle}
+        className={cn(
+          "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-colors disabled:opacity-50 min-h-12",
+          followed
+            ? "bg-[#EFF3F8] text-c2-primary hover:bg-c2-neutral-200"
+            : "bg-c2-primary text-white hover:bg-c2-navy-600",
+        )}
+      >
+        {followed ? <UserMinus className="size-5 shrink-0" /> : <UserPlus className="size-5 shrink-0" />}
+        <span className="truncate">
+          {isPending
+            ? followed
+              ? "جاري الإلغاء..."
+              : "جاري المتابعة..."
+            : followed
+              ? "إلغاء المتابعة"
+              : "متابعة"}
+        </span>
+      </button>
+    </div>
+  );
 }

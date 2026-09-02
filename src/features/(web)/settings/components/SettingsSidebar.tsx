@@ -18,8 +18,8 @@ import {
     ChevronLeft,
 } from "lucide-react";
 import Link from "next/link";
-import { useLogout } from "../../auth/hooks";
 import { useLanguage } from "@/src/hooks/use-language";
+import { useLogout } from "@/src/auth";
 
 interface SettingsSidebarProps {
     activeTab: SettingsTab;
@@ -51,7 +51,7 @@ const allTabs: TabItem[] = [
     {
         id: "phone",
         label: "رقم الهاتف",
-        description: "تغير رقم الهاتف",
+        description: "تغيير رقم الهاتف",
         icon: <Phone className="w-5 h-5" />,
     },
     {
@@ -119,7 +119,7 @@ export default function SettingsSidebar({
     };
 
     return (
-        <div className="flex flex-col gap-3 border border-gray-200 rounded-xl p-4">
+        <div className="flex flex-col gap-2 lg:gap-4 bg-[#fff] gap-3 border border-gray-200 rounded-xl p-4">
             {/* Header */}
             <h2 className=" font-medium mb-2">
                 معلومات الحساب
@@ -132,7 +132,7 @@ export default function SettingsSidebar({
                     "flex items-center justify-between gap-1.5 p-2 rounded-lg transition-all duration-200 cursor-pointer w-full text-right",
                     isActive
                         ? "bg-blue-3 text-white shadow-md"
-                        : "bg-blue-5 border border-gray-200 text-gray-700 hover:bg-gray-50"
+                        : "bg-[#5B87B91A] border border-[#C8D7E8] text-[#2D496A] hover:bg-gray-50"
                 );
 
                 const content = (
@@ -149,8 +149,8 @@ export default function SettingsSidebar({
                         <div className="flex-1 text-right">
                             <p
                                 className={cn(
-                                    "font-medium text-sm",
-                                    isActive ? "text-white" : "text-blue-4"
+                                    "font-normal text-sm",
+                                    isActive ? "text-white" : "text-c2-primary"
                                 )}
                             >
                                 {tab.label}
@@ -158,7 +158,7 @@ export default function SettingsSidebar({
                             <p
                                 className={cn(
                                     "text-xs mt-0.5",
-                                    isActive ? "text-white/80" : "text-gray-2"
+                                    isActive ? "text-white/80" : "text-[#717171]"
                                 )}
                             >
                                 {tab.description}
@@ -169,7 +169,7 @@ export default function SettingsSidebar({
                         <ChevronLeft
                             className={cn(
                                 "w-5 h-5",
-                                isActive ? "text-white" : "text-[#92AFD0]"
+                                isActive ? "text-white" : "text-[#A4BCD5]"
                             )}
                         />
                     </>

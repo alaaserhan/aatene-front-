@@ -10,7 +10,7 @@ import {
     getUserProducts
 } from "./api";
 
-const USER_PROFILE_KEYS = {
+export const USER_PROFILE_KEYS = {
     all: ["userProfile"] as const,
     detail: (slugOrId: string | number) => [...USER_PROFILE_KEYS.all, "detail", slugOrId] as const,
     pageData: (slugOrId: string | number) => [...USER_PROFILE_KEYS.all, "pageData", slugOrId] as const,

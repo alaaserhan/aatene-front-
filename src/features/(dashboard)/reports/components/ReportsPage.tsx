@@ -93,7 +93,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                     <Link href="/admin/users/add">
                         <Button className="bg-blue-3 text-white px-6 gap-2 ">
                             <Plus className="w-5 h-5" />
-                            اضافة مقدم خدمة جديد
+                            إضافة مقدم خدمة جديد
                         </Button>
                     </Link>
                 )}
@@ -139,7 +139,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                     <Input
                         type="text"
                         className="w-full bg-white rounded-lg border border-gray-200 pr-12 h-12 shadow-none focus-visible:ring-0"
-                        placeholder="ابحث باسم المنتج او الوصف"
+                        placeholder="ابحث باسم المنتج"
                         value={search}
                         onChange={(e) => {
                             setSearch(e.target.value);

@@ -11,7 +11,7 @@ import { CompareCheckbox } from "@/src/features/(web)/compares/components/Compar
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useRouter, useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useOpenChat } from "@/src/hooks/use-open-chat";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
@@ -33,8 +33,8 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const router = useRouter();
     const params = useParams();
     const lang = (params?.locale as string) || (params?.lang as string) || "ar";
-    const { user } = useAuthStore();
     const qc = useQueryClient();
+    const { openChat, isOpening: isOpeningChat } = useOpenChat();
     const [askPriceLoading, setAskPriceLoading] = useState(false);
     const [imgError, setImgError] = useState(false);
     const [logoError, setLogoError] = useState(false);
@@ -43,6 +43,9 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const shouldAskForPrice = shouldShowAskForPrice(service.ask_for_price, service.price);
     const cityName = service.store?.city?.name || "فلسطين";
     const providerName = service.store?.name || "مقدم الخدمة";
+    // The rating in the provider row belongs to the store, not the service.
+    const storeReviewCount = Number(service.store?.review_count || 0);
+    const storeReviewRate = parseFloat(service.store?.review_rate || "0");
 
     const handleClick = () => {
         if (onClick) {
@@ -73,17 +76,14 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
             router.push(`/${lang}/services/${service.slug}`);
             return;
         }
-        if (!user) {
-            router.push(`/${lang}/login`);
-            return;
-        }
-        router.push(`/${lang}/chat?type=store&id=${sid}&serviceId=${service.id}&askPrice=1`);
+        openChat({ type: "store", id: sid, serviceId: service.id, askPrice: true });
     };
 
     const serviceImage = sanitizeMediaUrl(
         service.image_url || service.images_urls?.[0] || ""
     );
-    const serviceLogoSrc = sanitizeMediaUrl(service.store?.logo || "");
+    // `logo` is the raw storage path; `logo_url` is the absolute one the API exposes.
+    const serviceLogoSrc = sanitizeMediaUrl(service.store?.logo_url || "");
 
     return (
         <div
@@ -139,15 +139,15 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                     {shouldAskForPrice ? (
                         <button
                             type="button"
-                            disabled={askPriceLoading}
+                            disabled={askPriceLoading || isOpeningChat}
                             className={cn(
                                 productAskForPriceButtonClassName,
                                 "w-full max-w-full sm:w-auto",
-                                askPriceLoading && "opacity-75 cursor-wait pointer-events-none"
+                                (askPriceLoading || isOpeningChat) && "opacity-75 cursor-wait pointer-events-none"
                             )}
                             onClick={handleAskForPriceClick}
                         >
-                            {askPriceLoading ? "جاري الفتح…" : "اطلب السعر"}
+                            {askPriceLoading || isOpeningChat ? "جاري الفتح…" : "اطلب السعر"}
                         </button>
                     ) : (
                         <p className="flex font-medium items-baseline gap-1 h-9">
@@ -159,39 +159,43 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
 
                 <div className="h-px bg-gray-200 w-full mb-2" />
 
-                <div className="flex items-center gap-2">
-                    <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden shadow-sm ring-1 ring-gray-100 flex items-center justify-center bg-gray-50">
-                        {serviceLogoSrc && !logoError ? (
-                            <Image
-                                src={serviceLogoSrc}
-                                alt={providerName}
-                                fill
-                                className="object-cover"
-                                onError={() => setLogoError(true)}
-                            />
-                        ) : (
-                            <User className="w-6 h-6 text-gray-400" />
-                        )}
-                    </div>
+                {/* Store info and rating share one row, wrapping to two lines when the card is narrow. */}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <div className="flex items-center gap-2 min-w-0 flex-1 basis-37.5">
+                        <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden shadow-sm ring-1 ring-gray-100 flex items-center justify-center bg-gray-50">
+                            {serviceLogoSrc && !logoError ? (
+                                <Image
+                                    src={serviceLogoSrc}
+                                    alt={providerName}
+                                    fill
+                                    className="object-cover"
+                                    onError={() => setLogoError(true)}
+                                />
+                            ) : (
+                                <User className="w-6 h-6 text-gray-400" />
+                            )}
+                        </div>
 
-                    <div className="flex flex-col min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">{providerName}</p>
-                        <div className="flex items-center justify-between mt-1">
-                            <div className="flex items-center gap-1 text-[10px] text-gray-500">
-                                <MapPin className="w-3 h-3 text-[#3D5E83]" />
-                                <span className="truncate max-w-[60px]">{cityName}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-xs">
-                                <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
-                                <span className="font-medium text-[#FB923C] pt-1">
-                                    {parseFloat(service.review_rate || "0").toFixed(1)}
-                                </span>
-                                <span className="whitespace-nowrap pt-1 text-gray-400">
-                                    ({service.review_count || 0})
-                                </span>
+                        <div className="flex flex-col min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate">{providerName}</p>
+                            <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-1">
+                                <MapPin className="w-3 h-3 shrink-0 text-[#3D5E83] mb-px" />
+                                <span className="truncate pt-0.5">{cityName}</span>
                             </div>
                         </div>
                     </div>
+
+                    {storeReviewCount ? (
+                        <div className="flex items-center gap-1 text-xs shrink-0">
+                            <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
+                            <span className="font-medium text-[#FB923C] pt-1">
+                                {storeReviewRate.toFixed(1)}
+                            </span>
+                            <span className="whitespace-nowrap pt-1 text-gray-400">
+                                ({storeReviewCount})
+                            </span>
+                        </div>
+                    ) : null}
                 </div>
             </div>
         </div>

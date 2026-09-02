@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Filter, Plus } from "lucide-react";
 import Link from "next/link";
 import { useGetStores, useDeleteStore } from "../../stores/hooks";
@@ -31,8 +31,14 @@ const productStatusTabs: { key: MerchantProductStatus; label: string; activeClas
 // ── مكوّن عرض كل المنتجات (بدون شريط أقسام جانبي) ──
 function AllProductsSection() {
     const router = useRouter();
+    const searchParams = useSearchParams();
 
-    const [activeStatus, setActiveStatus] = useState<MerchantProductStatus>("approved");
+    // يسمح بفتح تبويب حالة محددة عبر ?status= (مثلاً بعد قبول/رفض منتج قيد المراجعة)
+    const statusParam = searchParams.get("status") as MerchantProductStatus | null;
+    const initialStatus: MerchantProductStatus =
+        statusParam && productStatusTabs.some((tab) => tab.key === statusParam) ? statusParam : "approved";
+
+    const [activeStatus, setActiveStatus] = useState<MerchantProductStatus>(initialStatus);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [productToDelete, setProductToDelete] = useState<number | null>(null);

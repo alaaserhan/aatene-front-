@@ -49,9 +49,9 @@ export function ImageGallerySelector({
     error,
     label,
     subLabel,
-    emptyStateText = "أضف أو اسحب صورة",
-    emptyStateSubText = "png, jpg, svg",
-    mainImageLabel = "الصورة الاساسية",
+    emptyStateText,
+    emptyStateSubText,
+    mainImageLabel = "الصورة الأساسية",
     galleryItemLabel = "المعرض",
     showMainSelector = true,
     showDragHint = false,
@@ -218,6 +218,15 @@ export function ImageGallerySelector({
               ? "الموضع الأول وباقي المواضع: صور أو فيديو من تبويب الصور أو المعرض"
               : "PNG, JPG, WebP, SVG");
 
+    // الموضع الأول قد يكون صوراً فقط، لذلك لا نذكر الفيديو إلا حين يكون مسموحاً فعلاً
+    const emptyStateAllowsVideo = !firstSlotImageOnly && allowsGalleryVideos(allowedMediaTypes);
+
+    const resolvedEmptyStateText =
+        emptyStateText ?? (emptyStateAllowsVideo ? "أضف أو اسحب صورة أو فيديو" : "أضف أو اسحب صورة");
+
+    const resolvedEmptyStateSubText =
+        emptyStateSubText ?? (emptyStateAllowsVideo ? "png, jpg, svg, mp4, mov" : "png, jpg, svg");
+
     return (
         <div className={cn("space-y-3", className)}>
             {(label || subLabel) && (
@@ -227,7 +236,7 @@ export function ImageGallerySelector({
                             {label} {required && <span className="text-red-500">*</span>}
                         </label>
                     )}
-                    {subLabel && <span className="text-xs text-gray-2">{subLabel}</span>}
+                    {subLabel && <span className="text-xs text-gray-6">{subLabel}</span>}
                 </div>
             )}
 
@@ -342,9 +351,9 @@ export function ImageGallerySelector({
                             <Plus className="w-5 h-5 text-gray-2" />
                         </div>
                         <span className="text-xs text-gray-3 font-medium">
-                            {emptyStateText}
+                            {resolvedEmptyStateText}
                         </span>
-                        <span className="text-xs text-gray-3">{emptyStateSubText}</span>
+                        <span className="text-xs text-gray-3">{resolvedEmptyStateSubText}</span>
                     </div>
                 ) : null}
             </div>

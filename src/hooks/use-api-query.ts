@@ -11,6 +11,7 @@ import { notFound, useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { useLanguage } from "./use-language";
+import { loginUrl } from "@/src/auth/links";
 
 type UseApiQueryOptions<
   TQueryFnData = unknown,
@@ -62,7 +63,7 @@ export const useApiQuery = <
         if (res?.status === 404) return notFound();
         if (res?.status === 401) {
           if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
-            router.push("/login");
+            router.push(loginUrl(lang, { authRequired: true }));
           }
           return;
         }
@@ -70,7 +71,7 @@ export const useApiQuery = <
         console.error("Non-Axios error in useApiQuery:", queryResult.error);
       }
     }
-  }, [queryResult.error, router]);
+  }, [queryResult.error, router, lang]);
 
   return queryResult;
 };

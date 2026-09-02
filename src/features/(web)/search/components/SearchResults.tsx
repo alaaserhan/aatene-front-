@@ -1,15 +1,13 @@
 "use client";
 
 import { Pagination } from "@/src/components/ui/Pagination";
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import UserCard from "@/src/features/(web)/users/components/UserCard";
 import { Product, Service, Store, User } from "@/src/features/(web)/searchAndFilter/api";
-import { Loader2 } from "lucide-react";
-
-export type SearchType = "products" | "services" | "stores" | "users";
+import type { SearchType } from "../types";
+import SearchResultsSkeleton, { ResultsCountSkeleton } from "./SearchResultsSkeleton";
 
 interface SearchResultsProps {
     type: SearchType;
@@ -18,7 +16,7 @@ interface SearchResultsProps {
     currentPage: number;
     onPageChange: (page: number) => void;
     isLoading?: boolean;
-    isFetching?: boolean;
+
     perPage?: number;
 }
 
@@ -29,74 +27,36 @@ export default function SearchResults({
     currentPage,
     onPageChange,
     isLoading = false,
-    isFetching = false,
     perPage = 5,
 }: SearchResultsProps) {
-    const paginationRef = useRef<HTMLDivElement>(null);
     const displayTotal = total;
     const totalPages = Math.ceil(displayTotal / perPage);
     const startItem = (currentPage - 1) * perPage + 1;
     const endItem = Math.min(currentPage * perPage, displayTotal);
 
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [lastHeight, setLastHeight] = useState(400);
-    const savedPaginationTopRef = useRef<number | null>(null);
-
-    useLayoutEffect(() => {
-        if (containerRef.current && !isLoading && !isFetching && items && items.length > 0) {
-            setLastHeight(containerRef.current.offsetHeight);
-        }
-    }, [isLoading, isFetching, items]);
-
-    useLayoutEffect(() => {
-        if (!isLoading && !isFetching && savedPaginationTopRef.current !== null && paginationRef.current) {
-            const currentTop = paginationRef.current.getBoundingClientRect().top;
-            const delta = currentTop - savedPaginationTopRef.current;
-            
-            if (Math.abs(delta) > 1) {
-                window.scrollBy({ top: delta, left: 0 });
-            }
-            
-            savedPaginationTopRef.current = null;
-        }
-    }, [isLoading, isFetching, items]);
-
-    const handlePageChange = (page: number) => {
-        if (paginationRef.current) {
-            savedPaginationTopRef.current = paginationRef.current.getBoundingClientRect().top;
-        }
-        onPageChange(page);
-    };
-
     if (isLoading && displayTotal === 0) {
         return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-[#3D5E83]" />
+            <div className="flex flex-col gap-5">
+                <ResultsCountSkeleton />
+                <SearchResultsSkeleton type={type} count={perPage} />
             </div>
         );
     }
 
     return (
-        <div 
-            ref={containerRef} 
-            className="flex flex-col gap-5"
-            style={{
-                minHeight: isLoading || isFetching ? `${lastHeight}px` : undefined,
-                overflowAnchor: "none",
-            }}
-        >
+        <div className="flex flex-col gap-5">
             {/* Results Count */}
-            {displayTotal > 0 && (
+            {displayTotal > 0 ? (
                 <p className="text-gray-500 text-sm">
                     <span className="font-medium text-gray-700">{displayTotal}</span> نتيجة — إظهار {startItem}-{endItem}
                 </p>
-            )}
+            ) : isLoading ? (
+                <ResultsCountSkeleton />
+            ) : null}
 
             {/* Content Area */}
             {isLoading ? (
-                <div className="flex items-center justify-center py-20 min-h-[300px]">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#3D5E83]" />
-                </div>
+                <SearchResultsSkeleton type={type} count={perPage} />
             ) : !items || items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 text-gray-400">
                     <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center mb-4">
@@ -108,10 +68,11 @@ export default function SearchResults({
                     <p className="text-gray-400 text-sm mt-1">حاول تغيير كلمات البحث أو تصفية الفئات</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
                     {type === "products" &&
                         (items as Product[]).map((product) => (
                             <ProductCard
+                                variant="c2"
                                 key={product.id}
                                 id={product.id}
                                 name={product.name}
@@ -150,11 +111,11 @@ export default function SearchResults({
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div ref={paginationRef} className="mt-8 flex justify-center">
+                <div className="mt-8 flex justify-center">
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}
-                        onPageChange={handlePageChange}
+                        onPageChange={onPageChange}
                     />
                 </div>
             )}

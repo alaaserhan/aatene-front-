@@ -332,7 +332,7 @@ export function PermissionsPage() {
                   href="/admin/permissions"
                   className="text-sm font-semibold text-[#3A5779] border-b-2 border-[#3A5779] h-full flex items-center transition-colors"
                 >
-                  الادوار والصلاحيات
+                  الأدوار والصلاحيات
                 </Link>
               </li>
             </ul>

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+
 import { useRouter, useParams } from "next/navigation";
 import { AddToFavoritesModal } from "./AddToFavoritesModal";
 import { useRemoveFromFavorites } from "../hooks";
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { Heart } from "lucide-react";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 interface FavoriteButtonProps {
     id: number | string;
@@ -37,7 +39,7 @@ export function FavoriteButton({
         e.preventDefault();
 
         if (!user) {
-            router.push(`/${lang}/login`);
+            router.push(loginUrlWithAuthRequired(lang));
             return;
         }
 
@@ -71,23 +73,9 @@ export function FavoriteButton({
                 )}
                 aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
             >
-                {isFavorite ? (
-                    <Image
-                        src="/icons/HeartRed.png"
-                        alt="Favorite"
-                        width={20}
-                        height={20}
-                        className={iconClassName}
-                    />
-                ) : (
-                    <Image
-                        src="/icons/heart.svg"
-                        alt="Favorite"
-                        width={20}
-                        height={20}
-                        className={iconClassName}
-                    />
-                )}
+                <Heart
+                    className={cn("size-5", iconClassName, isFavorite ? "fill-c2-red-700 text-c2-red-700" : "text-current")}
+                />
             </button>
 
             {/* Modal */}

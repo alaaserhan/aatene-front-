@@ -12,6 +12,7 @@ import {
 import * as api from "./api";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { setStoreContext } from "@/src/store-context";
 import {
   PaginatedStoresResponse,
   SingleStoreResponse,
@@ -23,7 +24,7 @@ import {
   UpdateStoreShownPayload,
 } from "./api";
 
-const StoresQK = {
+export const StoresQK = {
   any: ["stores"] as const,
   listAny: ["stores", "list"] as const,
   list: (paramsString: string) => ["stores", "list", paramsString] as const,
@@ -77,12 +78,12 @@ export function useCreateStore() {
       // بعد الإنشاء مباشرة — عيّن الـ cookies حتى لا يحدث race condition في StoreGuard
       const store = data?.record;
       if (store?.id) {
-        Cookies.set("current_store_id", store.id.toString(), { expires: 365 });
-        Cookies.set("store_type", store.type, { expires: 365 });
-        if (store.role_in_store) {
-          Cookies.set("store_role", store.role_in_store, { expires: 365 });
-        }
-        window.dispatchEvent(new Event("store-info-updated"));
+        setStoreContext({
+          storeId: store.id.toString(),
+          storeType: store.type,
+          storeSlug: store.slug ?? null,
+          storeRole: store.role_in_store ?? null,
+        });
       }
     },
     onSettled: () => {

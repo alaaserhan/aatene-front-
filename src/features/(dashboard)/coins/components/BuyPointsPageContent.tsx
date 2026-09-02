@@ -1,3 +1,10 @@
+// ============================================================
+// ⚠️  مكوّن صفحة شراء العملات الذهبية (Coins) - معطّل مؤقتاً
+// لإعادة تفعيله: احذف /* COINS_DISABLED_START و COINS_DISABLED_END */
+// ============================================================
+
+/* COINS_DISABLED_START
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -26,10 +33,9 @@ export function BuyPointsPageContent() {
 
     const packages = packagesData?.packages || [];
 
-    const activePackage = packages.find((pkg) => pkg.id === selectedId)
-        || (packages.length > 0 ? packages.find((pkg) => pkg.coins_count === "100") : null)
-        || packages[0]
-        || null;
+    const activePackage = packages.find(p => p.id === selectedId) ||
+        (packages.length > 0 ? packages.find(p => p.coins_count === "100") : null) ||
+        packages[0] || null;
 
     useEffect(() => {
         const status = searchParams.get("status");
@@ -84,16 +90,18 @@ export function BuyPointsPageContent() {
 
     return (
         <div className="container mx-auto p-4 md:p-8 space-y-6" dir="rtl">
+
             <div className="my-2">
                 <Breadcrumb
                     items={[
                         { label: "الرئيسية", href: "/admin/home" },
-                        { label: "شراء عملات ذهبية" },
+                        { label: "شراء عملات ذهبية" }
                     ]}
                 />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
                 <div className="lg:col-span-8 space-y-8 bg-white h-fit rounded-lg p-4">
                     <div className="space-y-4">
                         <h2 className="text-xl font-medium">اختر الباقة المناسبة لك</h2>
@@ -191,7 +199,7 @@ export function BuyPointsPageContent() {
                 isOpen={isSuccessModalOpen}
                 onClose={() => setIsSuccessModalOpen(false)}
                 title="تمت العملية بنجاح"
-                message={`تمت اضافة ${coinsCount} عملة ذهبية إلى حسابك`}
+                message={`تمت إضافة ${coinsCount} عملة ذهبية إلى حسابك`}
                 buttonText="الذهاب الى الفواتير"
                 onButtonClick={() => {
                     setIsSuccessModalOpen(false);
@@ -200,4 +208,11 @@ export function BuyPointsPageContent() {
             />
         </div>
     );
+}
+
+COINS_DISABLED_END */
+
+// مكوّن فارغ مؤقت
+export function BuyPointsPageContent() {
+    return null;
 }

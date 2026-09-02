@@ -3,12 +3,11 @@
 import { useBlog, useBlogReviews, useAddBlogReview, usePublicBlogs, useBlogReplies } from "../hooks";
 import { Blog } from "../types";
 import { BlogCard } from "./BlogCard";
-import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
-import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
+import { ReviewItem, ReviewsSection, type ReviewFormRef, type ReviewSubmitPayload, type SharedReview } from "@/src/components/(web)/reviews";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import Link from "next/link";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import {
     Star,
@@ -23,12 +22,13 @@ import {
     Instagram,
 } from "lucide-react";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { blogsKeys } from "../hooks";
 import { cn } from "@/src/lib/utils";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -77,13 +77,6 @@ function AuthorCard({ blog }: { blog: Blog }) {
     const avatarUrl = isStore ? blog.store?.logo_url : blog.user?.avatar_url;
     const description = isStore ? blog.store?.description : blog.user?.bio;
 
-    const router = useRouter();
-    const params = useParams();
-    const lang = params?.locale || params?.lang || "ar";
-    const { user: authUser } = useAuthStore();
-
-    const chatHref = `/${lang}/chat?type=${isStore ? "store" : "user"}&id=${isStore ? blog.store?.id : blog.user?.id}`;
-
     return (
         <div className="bg-white border border-[#e0dfdc] rounded-xl p-6 flex flex-col items-center gap-4">
             <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
@@ -110,16 +103,17 @@ function AuthorCard({ blog }: { blog: Blog }) {
                 {description?.slice(0, 150) || "لا يوجد وصف"}
             </p>
             <div className="flex items-center gap-2 w-full">
-                <button
-                    onClick={() => {
-                        if (!authUser) { router.push(`/${lang}/login`); return; }
-                        router.push(chatHref);
+                <ChatNowButton
+                    unstyled
+                    target={{
+                        type: isStore ? "store" : "user",
+                        id: isStore ? blog.store?.id : blog.user?.id,
                     }}
-                    className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer"
-                >
-                    <MessageSquare size={13} />
-                    تواصل معي
-                </button>
+                    label="تواصل معي"
+                    icon={<MessageSquare size={13} />}
+                    iconClassName="size-[13px] shrink-0"
+                    className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer disabled:opacity-50"
+                />
                 {blog.store ? (
                     <ReportAbuse type="store" id={blog.store.id}>
                         <button className="flex cursor-pointer items-center justify-center gap-1 border border-[#b75959] text-[#b75959] rounded-full px-4 h-[25px] text-[11px] font-medium whitespace-nowrap">
@@ -172,31 +166,43 @@ function BlogReviewWithReplies({
     review,
     slug,
     onOpenMedia,
-    onReply,
+    onSubmitReply,
+    isSubmittingReply,
     showReplies,
     onToggleReplies,
+    onReviewChanged,
 }: {
     review: SharedReview;
     slug: string;
     onOpenMedia: (media: string[], index: number) => void;
-    onReply: (id: number, userName: string) => void;
+    onSubmitReply: (data: ReviewSubmitPayload) => Promise<void> | void;
+    isSubmittingReply: boolean;
     showReplies: boolean;
     onToggleReplies: (id: number) => void;
+    onReviewChanged: () => void;
 }) {
-    const { data: repliesData, isLoading: loadingReplies } = useBlogReplies(
+    const { data: repliesData, isLoading: loadingReplies, refetch: refetchReplies } = useBlogReplies(
         showReplies ? slug : "",
         showReplies ? review.id : 0
     );
+
+    const handleChanged = () => {
+        onReviewChanged();
+        if (showReplies) refetchReplies();
+    };
 
     return (
         <ReviewItem
             review={review}
             onOpenMedia={onOpenMedia}
-            onReply={onReply}
+            onSubmitReply={onSubmitReply}
+            isSubmittingReply={isSubmittingReply}
             showReplies={showReplies}
             onToggleReplies={onToggleReplies}
             replies={repliesData?.reviews as unknown as SharedReview[]}
             isLoadingReplies={loadingReplies}
+            onDeleted={handleChanged}
+            onUpdated={handleChanged}
         />
     );
 }
@@ -254,8 +260,6 @@ export default function BlogDetailsPage() {
     const closeMedia = () => {
         setMediaViewerState((prev) => ({ ...prev, isOpen: false }));
     };
-    const [parentId, setParentId] = useState<number | null>(null);
-    const [replyToName, setReplyToName] = useState<string | null>(null);
     const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
 
     const handleToggleReplies = (reviewId: number) => {
@@ -301,18 +305,6 @@ export default function BlogDetailsPage() {
         }
     };
 
-    const handleReply = (id: number, userName: string) => {
-        setParentId(id);
-        setReplyToName(userName);
-        formRef.current?.scrollToForm();
-        formRef.current?.focusTextarea();
-    };
-
-    const handleCancelReply = () => {
-        setParentId(null);
-        setReplyToName(null);
-    };
-
     const handleSubmitReview = async (data: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
         const formData = new FormData();
         formData.append("content", data.content);
@@ -325,8 +317,6 @@ export default function BlogDetailsPage() {
                 { slug, data: formData },
                 {
                     onSuccess: () => {
-                        setParentId(null);
-                        setReplyToName(null);
                         if (data.parent_id) {
                             setExpandedReplies((prev) => new Set(prev).add(data.parent_id!));
                         }
@@ -339,7 +329,8 @@ export default function BlogDetailsPage() {
     };
 
     const { data: blogData, isLoading, error } = useBlog(slug);
-    const { data: reviewsData } = useBlogReviews(slug);
+    const [reviewsPage, setReviewsPage] = useState(1);
+    const { data: reviewsData, isLoading: isLoadingReviews, refetch: refetchReviews } = useBlogReviews(slug, { page: reviewsPage });
     const { data: relatedData } = usePublicBlogs({ per_page: 4 });
 
     const blog = blogData?.blog || blogData?.record;
@@ -460,7 +451,7 @@ export default function BlogDetailsPage() {
                         </div>
                         <div className="flex items-center gap-3">
                             <span className="text-[15px] hidden sm:block pt-2 md:text-[18px] text-[rgba(0,0,0,0.8)] tracking-[-0.36px] font-medium leading-[30px]">
-                                شارك المقاله
+                                شارك المقال
                             </span>
                             <div className="flex items-center gap-2">
                                 <button onClick={() => handleShare("tiktok")} className="w-[27px] h-[27px] cursor-pointer flex items-center justify-center border border-[#3c5d80] rounded text-[#3c5d80] hover:bg-[#3c5d80] hover:text-white transition-colors">
@@ -502,33 +493,43 @@ export default function BlogDetailsPage() {
                                 <h2 className="text-lg font-medium  leading-normal">
                                     {section.title}
                                 </h2>
-                                <div
+                                <SafeHTML
+                                    html={section.paragraph}
                                     className="text-sm  leading-normal whitespace-pre-wrap"
-                                    dangerouslySetInnerHTML={{ __html: section.paragraph }}
                                 />
                             </div>
                         ))}
                     </div>
 
-                    {/* Reviews Section */}
-                    {reviews.length > 0 && (
-                        <div className="flex flex-col gap-4 mt-8">
-                            <h3 className="text-xl font-medium ">التعليقات</h3>
-                            <div className="flex flex-col gap-4">
-                                {reviews.map((review) => (
-                                    <BlogReviewWithReplies
-                                        key={review.id}
-                                        review={review as unknown as SharedReview}
-                                        slug={slug}
-                                        onOpenMedia={openMedia}
-                                        onReply={handleReply}
-                                        showReplies={expandedReplies.has(review.id)}
-                                        onToggleReplies={handleToggleReplies}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    {/* Comments: composer on top, then the paginated list */}
+                    <div className="mt-8 flex flex-col gap-4">
+                        <h3 className="text-xl font-medium">التعليقات</h3>
+                        <ReviewsSection
+                            isLoading={isLoadingReviews}
+                            itemsOnPage={reviews.length}
+                            total={reviewsData?.total}
+                            page={reviewsPage}
+                            setPage={setReviewsPage}
+                            emptyMessage="لا توجد تعليقات بعد — كن أول من يعلّق"
+                            composerRef={formRef}
+                            onSubmit={handleSubmitReview}
+                            isSubmitting={addReview.isPending}
+                        >
+                            {reviews.map((review) => (
+                                <BlogReviewWithReplies
+                                    key={review.id}
+                                    review={review as unknown as SharedReview}
+                                    slug={slug}
+                                    onOpenMedia={openMedia}
+                                    onSubmitReply={handleSubmitReview}
+                                    isSubmittingReply={addReview.isPending}
+                                    showReplies={expandedReplies.has(review.id)}
+                                    onToggleReplies={handleToggleReplies}
+                                    onReviewChanged={refetchReviews}
+                                />
+                            ))}
+                        </ReviewsSection>
+                    </div>
 
                     {mediaViewerState.isOpen && (
                         <MediaViewer
@@ -538,16 +539,6 @@ export default function BlogDetailsPage() {
                             initialIndex={mediaViewerState.index}
                         />
                     )}
-
-                    {/* Review Form */}
-                    <ReviewForm
-                        ref={formRef}
-                        onSubmit={handleSubmitReview}
-                        isSubmitting={addReview.isPending}
-                        parentId={parentId}
-                        replyToName={replyToName}
-                        onCancelReply={handleCancelReply}
-                    />
                 </div>
                 {/* Left Sidebar */}
                 <div className="w-full lg:w-[320px] shrink-0 flex flex-col gap-16">

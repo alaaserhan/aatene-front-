@@ -7,7 +7,6 @@ import StoreHeader from "../components/StoreHeader";
 import StoreStoriesSection from "../components/StoreStoriesSection";
 import StoreTabs from "../components/StoreTabs";
 import StoreProductsSection from "../components/StoreProductsSection";
-import StoreFavoritesSection from "../components/StoreFavoritesSection";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -28,10 +27,10 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
     const { data: pageData, isPending: isPendingPageData } = useStorePageData(slug);
     const authUser = useAuthStore(state => state.user);
     const queryClient = useQueryClient();
-    
+
     const store = profileData?.store;
     const isOwnStore = authUser?.id === Number(store?.owner_id);
-    
+
     const isAdmin = authUser?.user_type === "admin";
 
     const { mutate: createStory, isPending: isCreatingStory } = useCreateStory();
@@ -106,7 +105,7 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
 
                     {store && (
                         <>
-                            <StoreFavoritesSection storeId={store.id} storeType={store.type} />
+                            {/* <StoreFavoritesSection storeId={store.id} storeType={store.type} /> */}
                             <StoreProductsSection storeId={store.id} storeType={store.type} sections={pageData?.sections || []} />
                         </>
                     )}

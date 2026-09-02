@@ -81,7 +81,7 @@ export function StoriesList({
           <DropdownMenuTrigger asChild>
             <Button className="bg-blue-3 text-white hover:bg-[#2c425e] gap-2 px-6">
               <Plus className="w-4 h-4" />
-              اضافة قصة
+              إضافة قصة
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 p-2 rounded-lg border border-gray-200 shadow-none bg-white">
@@ -94,7 +94,7 @@ export function StoriesList({
               </div>
               <div className="flex flex-col text-right">
                 <span className="font-medium text-blue-4 text-sm">نص</span>
-                <span className="text-xs text-gray-2 mt-0.5">قم باضافة نص الي قصتك</span>
+                <span className="text-xs text-gray-2 mt-0.5">قم بإضافة نص الي قصتك</span>
               </div>
             </DropdownMenuItem>
 
@@ -107,7 +107,7 @@ export function StoriesList({
               </div>
               <div className="flex flex-col text-right">
                 <span className="font-medium text-blue-4 text-sm">صورة او فيديو</span>
-                <span className="text-xs text-gray-2 mt-0.5">قم باضافة صورة او فيديو الي قصتك</span>
+                <span className="text-xs text-gray-2 mt-0.5">قم بإضافة صورة او فيديو الي قصتك</span>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>

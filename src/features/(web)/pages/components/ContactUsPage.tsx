@@ -4,17 +4,20 @@ import { ChevronLeft, Mail, MessageSquareText } from "lucide-react";
 import Image from "next/image";
 import { useUIStore } from "@/src/stores/ui-store";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { useIsChatBotAllowed } from "@/src/stores/settings-store";
 import { useRouter, useParams } from "next/navigation";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 export default function ContactUsPage() {
     const { user } = useAuthStore();
     const router = useRouter();
     const params = useParams();
     const locale = params?.locale ?? "ar";
+    const isChatBotAllowed = useIsChatBotAllowed();
 
     const handleContactClick = () => {
         if (!user) {
-            router.push(`/${locale}/login`);
+            router.push(loginUrlWithAuthRequired(locale));
             return;
         }
         useUIStore.getState().setChatOpen(true);
@@ -41,7 +44,7 @@ export default function ContactUsPage() {
 
                         <div className="space-y-8">
                             {/* Live Chat */}
-                            <div className="flex items-start gap-4">
+                            {isChatBotAllowed && <div className="flex items-start gap-4">
                                 <div className="mt-1 text-blue-3">
                                     <MessageSquareText className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.5} />
                                 </div>
@@ -53,7 +56,7 @@ export default function ContactUsPage() {
                                         تواصل مع المساعد الذكي عبر الشات الفوري للحصول على الدعم وحل مشكلتك في أسرع وقت
                                     </p>
                                 </div>
-                            </div>
+                            </div>}
 
                             {/* Email */}
                             <div className="flex items-start gap-4">
@@ -71,15 +74,17 @@ export default function ContactUsPage() {
                             </div>
                         </div>
 
-                        <div className="pt-4 ">
-                            <button
-                                onClick={handleContactClick}
-                                className="bg-blue-4 text-white rounded-full px-4 py-2.5  text-sm font-medium flex items-center gap-3 transition-colors cursor-pointer"
-                            >
-                                تواصل معنا
-                                <ChevronLeft className="w-5 h-5 pr-1" />
-                            </button>
-                        </div>
+                        {isChatBotAllowed && (
+                            <div className="pt-4 ">
+                                <button
+                                    onClick={handleContactClick}
+                                    className="bg-blue-4 text-white rounded-full px-4 py-2.5  text-sm font-medium flex items-center gap-3 transition-colors cursor-pointer"
+                                >
+                                    تواصل معنا
+                                    <ChevronLeft className="w-5 h-5 pr-1" />
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Left Content (Image) */}

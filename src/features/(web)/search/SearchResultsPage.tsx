@@ -20,27 +20,9 @@ import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { CompareFloatingBar } from "../compares/components/CompareFloatingBar";
 import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
-
-export type SearchType = "products" | "services" | "stores" | "users";
-
-interface FilterState {
-    category_id?: number;
-    city_id?: number[];
-    tags?: number[];
-    min_price?: number;
-    max_price?: number;
-    review_rate?: number;
-    variation_options?: number[];
-}
+import { normalizeSearchType, type FilterState } from "./types";
 
 const PER_PAGE = 16;
-
-function normalizeSearchType(raw: string | null): SearchType {
-    if (raw === "services" || raw === "stores" || raw === "users" || raw === "products") {
-        return raw;
-    }
-    return "products";
-}
 
 export default function SearchResultsPage() {
     const searchParams = useSearchParams();
@@ -88,6 +70,7 @@ function SearchContent() {
             min_price: searchParams.get("min_price") ? parseInt(searchParams.get("min_price")!) : undefined,
             max_price: searchParams.get("max_price") ? parseInt(searchParams.get("max_price")!) : undefined,
             review_rate: searchParams.get("review_rate") ? parseInt(searchParams.get("review_rate")!) : undefined,
+            has_discount: searchParams.get("has_discount") ? parseInt(searchParams.get("has_discount")!) : undefined,
         };
     }, [searchParams]);
 
@@ -183,6 +166,9 @@ function SearchContent() {
         if (newFilters.review_rate !== undefined) params.set("review_rate", newFilters.review_rate.toString());
         else params.delete("review_rate");
 
+        if (newFilters.has_discount !== undefined) params.set("has_discount", newFilters.has_discount.toString());
+        else params.delete("has_discount");
+
         // Reset page to 1 on filter change
         params.set("page", "1");
         setPage(1);
@@ -206,6 +192,7 @@ function SearchContent() {
             max_price: filters.max_price,
             review_rate: filters.review_rate,
             variation_options: filters.variation_options,
+            has_discount: filters.has_discount ?? 0,
             page,
             per_page: PER_PAGE,
         };
@@ -239,46 +226,42 @@ function SearchContent() {
     }, [query, filters, page]);
 
     // Fetch results based on type
-    const { data: productsData, isLoading: isLoadingProducts, isFetching: isFetchingProducts } = useSearchProducts(searchParamsObj, type === "products");
-    const { data: servicesData, isLoading: isLoadingServices, isFetching: isFetchingServices } = useSearchServices(servicesParamsObj, type === "services");
-    const { data: storesData, isLoading: isLoadingStores, isFetching: isFetchingStores } = useSearchStores(storesParamsObj, type === "stores");
-    const { data: usersData, isLoading: isLoadingUsers, isFetching: isFetchingUsers } = useSearchUsers(searchParamsObj, type === "users");
+    const { data: productsData, isLoading: isLoadingProducts } = useSearchProducts(searchParamsObj, type === "products");
+    const { data: servicesData, isLoading: isLoadingServices } = useSearchServices(servicesParamsObj, type === "services");
+    const { data: storesData, isLoading: isLoadingStores } = useSearchStores(storesParamsObj, type === "stores");
+    const { data: usersData, isLoading: isLoadingUsers } = useSearchUsers(searchParamsObj, type === "users");
 
     // Current results based on type
-    const { items, total, isLoading, isFetching } = useMemo(() => {
+    const { items, total, isLoading } = useMemo(() => {
         switch (type) {
             case "products":
                 return {
                     items: productsData?.products || [],
                     total: productsData?.total || 0,
                     isLoading: isLoadingProducts,
-                    isFetching: isFetchingProducts,
                 };
             case "services":
                 return {
                     items: servicesData?.services || [],
                     total: servicesData?.total || 0,
                     isLoading: isLoadingServices,
-                    isFetching: isFetchingServices,
                 };
             case "stores":
                 return {
                     items: storesData?.stores || [],
                     total: storesData?.total || 0,
                     isLoading: isLoadingStores,
-                    isFetching: isFetchingStores,
                 };
             case "users":
                 return {
                     items: usersData?.users || [],
                     total: usersData?.total || 0,
                     isLoading: isLoadingUsers,
-                    isFetching: isFetchingUsers,
                 };
             default:
-                return { items: [], total: 0, isLoading: false, isFetching: false };
+                return { items: [], total: 0, isLoading: false };
         }
-    }, [type, productsData, servicesData, storesData, usersData, isLoadingProducts, isLoadingServices, isLoadingStores, isLoadingUsers, isFetchingProducts, isFetchingServices, isFetchingStores, isFetchingUsers]);
+    }, [type, productsData, servicesData, storesData, usersData, isLoadingProducts, isLoadingServices, isLoadingStores, isLoadingUsers]);
 
     // Handle page change
     const handlePageChange = (newPage: number) => {
@@ -287,10 +270,7 @@ function SearchContent() {
         const params = new URLSearchParams(searchParams.toString());
         params.set("page", newPage.toString());
         setPage(newPage);
-
-        if (typeof window !== "undefined") {
-            window.history.pushState(null, "", `${searchPath}?${params.toString()}`);
-        }
+        router.push(`${searchPath}?${params.toString()}`);
     };
 
     const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
@@ -358,7 +338,6 @@ function SearchContent() {
                         currentPage={page}
                         onPageChange={handlePageChange}
                         isLoading={isLoading}
-                        isFetching={isFetching}
                         perPage={PER_PAGE}
                     />
                 </main>

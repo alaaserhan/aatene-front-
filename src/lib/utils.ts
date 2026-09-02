@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import DOMPurify from "isomorphic-dompurify";
+import { API_BASE_URL } from "@/src/lib/config";
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
@@ -17,9 +18,8 @@ export const isVideoFile = (urlOrName: string) => {
  */
 export const fixMediaUrl = (url: string): string => {
     if (!url) return url;
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "";
     try {
-        const origin = new URL(apiBase).origin;
+        const origin = new URL(API_BASE_URL).origin;
         return url.replace(/^http:\/\/localhost(:\d+)?/, origin);
     } catch {
         return url;
@@ -55,7 +55,11 @@ export function getPlaceholder(type: PlaceholderType = "product"): string {
 /** ينفذ fixMediaUrl + upgradeHttpToHttps معًا */
 export function sanitizeMediaUrl(url: string | null | undefined): string {
     if (!url) return "";
-    return upgradeHttpToHttps(fixMediaUrl(url));
+    let normalized = url;
+    if (!normalized.startsWith("/") && !normalized.startsWith("http://") && !normalized.startsWith("https://")) {
+        normalized = `/${normalized}`;
+    }
+    return upgradeHttpToHttps(fixMediaUrl(normalized));
 }
 
 /** يجهز مصدر الصورة مع fallback */
@@ -94,11 +98,49 @@ export function stripHtmlTags(html: string | null | undefined): string {
         .trim();
 }
 
-/**
- * يطهر النص من وسوم HTML الخبيثة للاستخدام مع dangerouslySetInnerHTML
- */
 export function sanitizeHtml(html: string | null | undefined): string {
     if (!html) return "";
     return DOMPurify.sanitize(html);
+}
+
+/** Detects markup — notification bodies arrive as plain text, JSON, or a full HTML email document. */
+export function isHtmlContent(value?: string | null): boolean {
+    return Boolean(value && /<\/?[a-z][^>]*>|<!doctype/i.test(value));
+}
+
+/**
+ * Normalizes any notification body shape (plain text, JSON payload, or HTML
+ * email document) into a single-line plain-text summary for list/table cells.
+ * Render the HTML itself with NotificationBodyModal instead of this.
+ */
+export function notificationBodyToText(body: string | null | undefined): string {
+    if (!body) return "";
+
+    let raw = body;
+
+    try {
+        const parsed = JSON.parse(body);
+        raw = typeof parsed === "object" && parsed !== null
+            ? parsed.message || parsed.body || parsed.text || parsed.title || ""
+            : String(parsed);
+    } catch {
+        // Not JSON — treat the body as text/HTML as-is.
+    }
+
+    return stripHtmlTags(raw).replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Sanitizes a full HTML document (email template) while keeping <head>, <style>
+ * and the document structure intact. The result is only safe to render inside a
+ * sandboxed iframe — never inline, since its <style> rules are document-global.
+ */
+export function sanitizeHtmlDocument(html: string | null | undefined): string {
+    if (!html) return "";
+    return DOMPurify.sanitize(html, {
+        WHOLE_DOCUMENT: true,
+        ADD_TAGS: ["style"],
+        ADD_ATTR: ["target"],
+    });
 }
 

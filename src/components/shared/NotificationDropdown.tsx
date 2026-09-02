@@ -1,144 +1,85 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { formatDistanceToNow } from "date-fns";
-import { ar } from "date-fns/locale";
-import Image from "next/image";
-import { toLocal } from "@/src/lib/date-helper";
+import { Bell } from "lucide-react";
 import { useLanguage } from "@/src/hooks/use-language";
-import { useMyNotifications, useMyNotificationStats } from "@/src/features/(web)/notifications/hooks";
-
-// تنظيف body الإشعار من JSON أو HTML
-function cleanNotificationBody(body: string): string {
-    if (!body) return "";
-    // إذا كان JSON، نحاول استخراج رسالة منه
-    try {
-        const parsed = JSON.parse(body);
-        if (typeof parsed === "object" && parsed !== null) {
-            return parsed.message || parsed.body || parsed.text || parsed.title || JSON.stringify(parsed);
-        }
-        return String(parsed);
-    } catch {
-        // ليس JSON، نزيل HTML tags إن وجدت
-        return body.replace(/<[^>]*>/g, "").trim();
-    }
-}
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    DropdownMenuLabel,
-} from "@/src/components/ui/dropdown-menu";
+  useMyNotifications,
+  useMyNotificationStats,
+} from "@/src/features/(web)/notifications/hooks";
+import { NotificationList } from "@/src/components/shared/NotificationList";
+import { NavIconButton } from "@/src/components/(web)/NavIconButton";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/src/components/ui/popover";
 import { Badge } from "@/src/components/ui/badge";
 import { Separator } from "@/src/components/ui/separator";
-import { Button } from "@/src/components/ui/button";
 
-interface NotificationDropdownProps {
-    variant?: "web" | "dashboard";
-}
+export function NotificationDropdown({
+  triggerClassName,
+}: {
+  triggerClassName?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const lang = useLanguage();
+  const { data: notificationsData, refetch: refetchNotifications } =
+    useMyNotifications(1, 3);
+  const notifications = notificationsData?.notifications || [];
 
-export function NotificationDropdown({ variant = "web" }: NotificationDropdownProps) {
-    const [open, setOpen] = useState(false);
-    const router = useRouter();
-    const lang = useLanguage();
-    const { data: notificationsData } = useMyNotifications(1, 3);
-    const notifications = notificationsData?.notifications || [];
+  const { data: statsData } = useMyNotificationStats();
+  const unreadCount = statsData?.unseen || 0;
 
-    const { data: statsData } = useMyNotificationStats();
-    const unreadCount = statsData?.unseen || 0;
+  const handleNotificationsClick = () => {
+    setOpen(false);
+    router.push(`/${lang}/notifications`);
+  };
 
-    const handleNotificationsClick = () => {
-        setOpen(false);
-        router.push(`/${lang}/notifications`); // Use standard routing instead of root redirect
-    };
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen) {
+      refetchNotifications();
+    }
+  };
 
-    return (
-        <DropdownMenu open={open} onOpenChange={setOpen} dir="rtl">
-            <DropdownMenuTrigger asChild>
-                {variant === "dashboard" ? (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="rounded-lg outline-none hover:bg-white/20 relative cursor-pointer"
-                        aria-label="الإشعارات"
-                    >
-                        <Image src="/icons/ring.svg" width={20} height={20} className="w-5 h-5" alt="notifications" />
-                        {unreadCount > 0 && (
-                            <Badge
-                                className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 pt-[3px] text-[10px]"
-                                variant="destructive"
-                            >
-                                {unreadCount}
-                            </Badge>
-                        )}
-                    </Button>
-                ) : (
-                    <button className="cursor-pointer relative bg-gray-4 rounded-full p-1.5" aria-label="الإشعارات">
-                        <Image src="/icons/Notification.svg" alt="notifications" width={24} height={24} className="h-6 w-6" />
-                        {unreadCount > 0 && (
-                            <Badge
-                                className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 pt-[3px] text-[10px]"
-                                variant="destructive"
-                            >
-                                {unreadCount}
-                            </Badge>
-                        )}
-                    </button>
-                )}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-                align="end"
-                className="w-[280px] p-2 border-none shadow-sm rounded-sm bg-white max-h-[85vh] overflow-y-auto custom-scrollbar"
-                sideOffset={8}
+  return (
+    <Popover open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>
+        <NavIconButton
+          count={unreadCount}
+          aria-label="الإشعارات"
+          className={triggerClassName}
+        >
+          <Bell className="size-5" />
+        </NavIconButton>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        dir="rtl"
+        className="w-88 max-w-[calc(100vw-2rem)] p-0 border border-c2-neutral-200 shadow-lg rounded-xl bg-white max-h-[85vh] overflow-y-auto custom-scrollbar"
+        sideOffset={8}
+      >
+        <div className="flex items-center justify-between gap-2 px-4 py-3">
+          <h3 className="text-base font-semibold text-c2-navy-900">الإشعارات</h3>
+          {unreadCount > 0 && (
+            <Badge
+              variant="secondary"
+              className="bg-c2-navy-700-a08 text-c2-primary text-xs font-medium"
             >
-                <DropdownMenuLabel className="p-2">
-                    <div className="flex items-center justify-between">
-                        <h3 className="font-medium text-blue-4">الإشعارات</h3>
-                        {unreadCount > 0 && (
-                            <Badge variant="secondary" className="bg-blue-5 text-blue-4">
-                                {unreadCount} جديد
-                            </Badge>
-                        )}
-                    </div>
-                </DropdownMenuLabel>
-                <Separator className=" bg-gray-50" />
-                <div className="flex flex-col max-h-[300px] overflow-y-auto custom-scrollbar p-1">
-                    {notifications.length === 0 ? (
-                        <p className="text-sm text-gray-2 text-center py-4">
-                            لا توجد إشعارات جديدة
-                        </p>
-                    ) : (
-                        <>
-                            {notifications.map((notification) => (
-                                <DropdownMenuItem
-                                    key={notification.id}
-                                    className="p-2 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 outline-none cursor-pointer transition-colors mb-1 shadow-none flex flex-col rounded-none items-start focus:bg-gray-50 align-top"
-                                    onClick={handleNotificationsClick}
-                                >
-                                    <div className="flex w-full items-center justify-between gap-2 mb-1">
-                                        <h4 className="text-sm font-medium text-blue-4 truncate">{notification.title}</h4>
-                                        <span className="text-[10px] text-gray-2 whitespace-nowrap shrink-0">
-                                            {notification.created_at ? formatDistanceToNow(toLocal(notification.created_at), { addSuffix: true, locale: ar }) : 'الآن'}
-                                        </span>
-                                    </div>
-                                    <p className="text-xs text-gray-2 line-clamp-1">{cleanNotificationBody(notification.body)}</p>
-                                </DropdownMenuItem>
-                            ))}
-                            <div className="p-2 pt-0 w-full mt-2">
-                                <Button
-                                    variant="outline"
-                                    className="w-full bg-blue-5 text-xs h-8 text-blue-4 border-blue-200 hover:bg-blue-50 cursor-pointer"
-                                    onClick={handleNotificationsClick}
-                                >
-                                    عرض جميع الإشعارات
-                                </Button>
-                            </div>
-                        </>
-                    )}
-                </div>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
+              {unreadCount} جديد
+            </Badge>
+          )}
+        </div>
+        <Separator className="bg-c2-neutral-200" />
+        <NotificationList
+          notifications={notifications}
+          onItemClick={handleNotificationsClick}
+          onViewAllClick={handleNotificationsClick}
+        />
+      </PopoverContent>
+    </Popover>
+  );
 }

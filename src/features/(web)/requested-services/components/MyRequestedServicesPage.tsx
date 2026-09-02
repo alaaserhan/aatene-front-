@@ -152,10 +152,10 @@ export default function MyRequestedServicesPage() {
       <div className="flex flex-col gap-6 max-w-[1000px] mx-auto">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl md:text-3xl font-medium ">طلباتي</h1>
-          <p className="text-gray-2 text-sm">
+          {/* <p className="text-gray-2 text-sm">
             هل تمتلك مهارات رائعة؟ ابحث عن ما يحتاجه عملاؤنا، وابدأ بتقديم
             خدماتك بكل احتراف
-          </p>
+          </p> */}
         </div>
 
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">

@@ -17,6 +17,7 @@ interface ProductsSelectionModalProps {
     onClose: () => void;
     onSave: (selectedProducts: { id: string; name: string; image?: string }[]) => void;
     initialSelectedIds?: string[];
+    sectionIds?: string[];
 }
 
 export function ProductsSelectionModal({
@@ -24,6 +25,7 @@ export function ProductsSelectionModal({
     onClose,
     onSave,
     initialSelectedIds = [],
+    sectionIds = [],
 }: ProductsSelectionModalProps) {
     const [search, setSearch] = useState("");
     const debouncedSearch = useDebounce(search, 500);
@@ -37,9 +39,14 @@ export function ProductsSelectionModal({
     if (debouncedSearch) {
         params.set("name", debouncedSearch);
     }
+    // Filter products by the sections selected in the coupon (أقسام)
+    sectionIds.forEach((id) => {
+        if (id) params.append("section_id", id);
+    });
 
     const { data, isLoading } = useGetProducts(params, { enabled: isOpen });
-    const products = data?.data || [];
+
+    const products = data?.data.filter(product => product.price) ?? [];
 
     const isValidImageSrc = (src: string | null | undefined) => {
         if (!src || src.trim() === "") return false;

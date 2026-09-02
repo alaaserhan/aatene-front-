@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createI18nMiddleware } from "next-international/middleware";
 import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from "@/src/config/role-permissions";
+import { loginUrl, postLoginRedirect } from "@/src/auth/links";
 
 const LOCALES = new Set(["ar", "en", "he"]);
 const COMING_SOON_PATH = "coming-soon";
@@ -44,6 +45,15 @@ function getLocaleFromPath(pathname: string) {
     return segments[0];
   }
   return "ar";
+}
+
+function stripLocalePrefix(pathname: string): string {
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length === 0) return "";
+  if (LOCALES.has(parts[0])) {
+    return parts.length > 1 ? "/" + parts.slice(1).join("/") : "";
+  }
+  return "/" + parts.join("/");
 }
 
 function isRouteMatch(pathname: string, locale: string, route: string) {
@@ -97,8 +107,10 @@ export default function proxy(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const webLocale = getLocaleFromPath(pathname);
 
+  // Already signed in on an auth screen: honour a pending ?redirect=, else home.
   if (token && PUBLIC_AUTH_ROUTES.some((route) => isRouteMatch(pathname, webLocale, route))) {
-    return NextResponse.redirect(new URL(`/${webLocale}`, request.url));
+    const target = postLoginRedirect(request.nextUrl.searchParams, webLocale);
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   const protectedWebRoutes = [
@@ -114,7 +126,10 @@ export default function proxy(request: NextRequest) {
   });
 
   if (isProtectedWebRoute && !token) {
-    return NextResponse.redirect(new URL(`/${webLocale}/login`, request.url));
+    const target = pathname + request.nextUrl.search;
+    return NextResponse.redirect(
+      new URL(loginUrl(webLocale, { redirectTo: target }), request.url),
+    );
   }
 
   // 3. Admin & Role Permissions Proxy Logic
@@ -134,7 +149,10 @@ export default function proxy(request: NextRequest) {
     const segment = segments[adminIndex + 1];
 
     if (!token || !role) {
-      return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+      const target = pathname + request.nextUrl.search;
+      return NextResponse.redirect(
+        new URL(loginUrl(locale, { redirectTo: target }), request.url),
+      );
     }
 
     if (role !== 'admin' && role !== 'merchant') {
@@ -196,6 +214,8 @@ export default function proxy(request: NextRequest) {
 
   // Cache-Control: private, no-cache يسمح بـ bfcache (عكس no-store الذي يمنعه)
   i18nResponse.headers.set("Cache-Control", "private, no-cache");
+
+  i18nResponse.headers.set("x-pathname", stripLocalePrefix(pathname));
 
   // منع الـ redirect loop على iOS
   if (

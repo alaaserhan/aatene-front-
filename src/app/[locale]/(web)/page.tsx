@@ -2,15 +2,17 @@ import { Metadata } from "next";
 import { setStaticParamsLocale } from "next-international/server";
 import HomePage from "@/src/features/(web)/home/components/HomePage";
 import { generatePageMetadata } from "@/src/lib/seo.config";
-import { 
-  getFirstBanners, 
-  getStoryOwners, 
+import {
+  getFirstBanners,
+  getStoryOwners,
   getSpecialServices,
   getSecondBanners,
   getThirdBanner,
   getFourthBanner,
   getFifthBanner,
-  getSixthBanner
+  getSixthBanner,
+  getSpecialMerchants,
+  getCategoriesWithProducts,
 } from "@/src/features/(web)/home/api";
 import { headers } from "next/headers";
 
@@ -49,14 +51,16 @@ export default async function page({
 
   // Fetch initial data in parallel to avoid waterfall
   const [
-    bannersData, 
-    storiesData, 
+    bannersData,
+    storiesData,
     servicesData,
     secondBanners,
     thirdBanner,
     fourthBanner,
     fifthBanner,
-    sixthBanner
+    sixthBanner,
+    specialMerchants,
+    categoriesWithProducts,
   ] = await Promise.all([
     getFirstBanners().catch(() => null),
     getStoryOwners().catch(() => null),
@@ -66,6 +70,8 @@ export default async function page({
     getFourthBanner().catch(() => null),
     getFifthBanner().catch(() => null),
     getSixthBanner().catch(() => null),
+    getSpecialMerchants().catch(() => null),
+    getCategoriesWithProducts().catch(() => null),
   ]);
 
   const firstBanner = bannersData?.data?.[0];
@@ -103,6 +109,8 @@ export default async function page({
           fourthBanner: fourthBanner?.data,
           fifthBanner: fifthBanner?.data,
           sixthBanner: sixthBanner?.data,
+          specialMerchants: specialMerchants?.data,
+          categoriesWithProducts: categoriesWithProducts?.data,
         }}
       />
     </>

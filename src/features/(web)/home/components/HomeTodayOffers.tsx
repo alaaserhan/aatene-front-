@@ -15,7 +15,7 @@ export default function HomeTodayOffers({ products: initialProducts }: HomeToday
 
   return (
     <HomeProductsCarousel
-      title="عروض اليوم الكبرى"
+      title="تخفيضات"
       products={products}
       viewAllHref="/search?type=products&has_discount=1"
       className="py-12 bg-gray-50 bg-linear-to-b from-gray-50 to-white"

@@ -9,7 +9,8 @@ import ReportDetailsModal from "./ReportDetailsModal";
 import ReportResponsesModal from "./ReportResponsesModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { useRouter, useParams } from "next/navigation";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useAuth } from "@/src/auth";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 const statusMap: Record<string, { label: string; bg: string; border: string; text: string }> = {
     pending: { label: "جديدة", bg: "#e0eeff", border: "#c0d4f0", text: "#287cda" },
@@ -35,20 +36,19 @@ export default function ReportInquiryPage() {
     const router = useRouter();
     const params = useParams();
     const lang = params?.locale || "ar";
-    const { isLoggedIn, isHydrated } = useAuthStore();
+    const { isLoggedIn } = useAuth();
 
     useEffect(() => {
-        if (!isHydrated) return;
         if (!isLoggedIn) {
-            router.replace(`/${lang}/login`);
+            router.replace(loginUrlWithAuthRequired(lang));
         }
-    }, [isHydrated, isLoggedIn, router, lang]);
+    }, [isLoggedIn, router, lang]);
 
     const { data: statsData, isLoading: statsLoading, isError: statsError } = useGetReportStats();
     const { data: reportsData, isLoading: reportsLoading, isError: reportsError } = useGetReports(filters);
     const { data: typesData } = useGetReportTypes();
 
-    if (!isHydrated || !isLoggedIn) {
+    if (!isLoggedIn) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <Loader2 className="w-6 h-6 animate-spin text-blue-4" />
@@ -130,9 +130,9 @@ export default function ReportInquiryPage() {
                     <h1 className="text-xl md:text-2xl font-medium">
                         إستعلام عن الشكاوي
                     </h1>
-                    <p className="text-gray-2 text-sm ">
+                    {/* <p className="text-gray-2 text-sm ">
                         سيتم متابعة شكوتك عن طريق البريد الإلكتروني الخاص بك.
-                    </p>
+                    </p> */}
                 </div>
 
                 {/* Stats Cards */}
@@ -248,7 +248,7 @@ export default function ReportInquiryPage() {
                                         {/* Row 2: Meta Info */}
                                         <div className="flex flex-wrap items-center gap-6 text-base">
                                             <div className="flex items-center gap-2">
-                                                <span className=" text-[#626262]">رقم الشكوي :</span>
+                                                <span className=" text-[#626262]">رقم الشكوى :</span>
                                                 <span className=" font-medium text-blue-3 text-sm ">{report.uuid}</span>
                                             </div>
                                             <div className="flex items-center gap-2">

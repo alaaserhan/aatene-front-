@@ -60,7 +60,7 @@ export function BlockUserModal({
                     <Button
                         onClick={handleSubmit}
                         disabled={isLoading}
-                        className="w-full bg-[#5B7B9A] hover:bg-[#4A6A89] text-white py-3"
+                        className="w-full"
                     >
                         {isLoading ? "جاري الحظر..." : "أرسل"}
                     </Button>

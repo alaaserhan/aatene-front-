@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import DashboardNavbar from "@/src/components/(dashboard)/DashboardNavbar";
 import { StoreGuard } from "@/src/components/providers/StoreGuard";
 import { cookies } from "next/headers";
 import { redirect, notFound } from "next/navigation";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 type Role = "admin" | "merchant" | "user";
 
@@ -31,7 +36,7 @@ export default async function DashboardLayout({
   return <>
     <DashboardNavbar navPrefix="/admin" />
     <StoreGuard>
-      <div className="mx-auto w-full max-w-[1400px] px-3 sm:px-4">
+      <div className="mx-auto w-full max-w-350 px-3 sm:px-4">
         {children}
       </div>
     </StoreGuard>

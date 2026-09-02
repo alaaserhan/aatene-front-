@@ -15,7 +15,7 @@ export default function HomeCustomizedProducts({ products: initialProducts }: Ho
 
   return (
     <HomeProductsCarousel
-      title="منتجات تم تخصيصها لك"
+      title="المنتجات الأكثر استخدامًا"
       products={products}
       className="py-12 bg-white"
     />

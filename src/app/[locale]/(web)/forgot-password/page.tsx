@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { ForgotPasswordForm } from "@/src/features/(web)/auth/components/ForgotPasswordForm";
+import { ForgotPasswordForm } from "@/src/auth/components/ForgotPasswordForm";
 import { generatePageMetadata } from "@/src/lib/seo.config";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";

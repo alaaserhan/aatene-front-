@@ -1,12 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { StoreProfile, StorePageData } from "../api";
 import { cn, sanitizeMediaUrl } from "@/src/lib/utils";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { formatPrice } from "@/src/lib/format-price";
 import {
-    Loader2,
     Star,
     MessageSquare,
     Flag,
@@ -19,17 +19,17 @@ import {
     X,
 } from "lucide-react";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../hooks";
-import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
-import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
+import { ReviewItem, ReviewsSection, type ReviewSubmitPayload, type SharedReview } from "@/src/components/(web)/reviews";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ReviewStatisticsDisplay } from "@/src/features/(web)/product/components/ReviewStatisticsDisplay";
 import { ReviewStatistics, ProductInPageData } from "@/src/features/(web)/product/types";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 import { Pagination } from "@/src/components/ui/Pagination";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { Button } from "@/src/components/ui/button";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -194,7 +194,7 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
                 ))}
             </div>
 
-            <div className="p-4 md:p-6 min-h-[300px]">
+            <div className="p-4 md:p-7 min-h-[300px]">
                 {activeTab === "overview" && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300">
                         <OverviewTab store={store} />
@@ -301,7 +301,8 @@ function OffersGrid({
 function OfferCard({ product }: { product: ProductInPageData }) {
     const crossSellProducts = product.crossSells || [];
     const hasCrossSells = crossSellProducts.length > 0;
-    const imageUrl = sanitizeMediaUrl(product.cross_sells_image_url || product.cover) || "/images/placeholders/product-placeholder.svg";
+    const imageUrl = sanitizeMediaUrl(product.cross_sells_image_url || product.cover) || "/images/placeholders/product-placeholder.webp";
+    const [mainImageError, setMainImageError] = useState(false);
     const name = product.cross_sells_name || product.name || "اسم العرض";
     const desc = product.cross_sells_description || product.short_description || product.name || "";
 
@@ -317,6 +318,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
     const PAGE_SIZE = 3;
     const totalPages = Math.ceil(crossSellProducts.length / PAGE_SIZE);
     const [page, setPage] = useState(0);
+    const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
     const visibleProducts = crossSellProducts.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
     const originalTotal = hasCrossSells
@@ -346,7 +348,8 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                     <div className="flex flex-col items-center gap-2">
 
                         {/* صف واحد: سهم يمين + منتجات + سهم يسار + = + السعر */}
-                        <div className="flex items-center gap-1 sm:gap-1.5 md:gap-3 w-full justify-center overflow-x-auto py-1 no-scrollbar">
+                        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-1.5 md:gap-3 w-full justify-center py-1">
+                            <div className="flex items-center gap-1.5 sm:gap-1.5 md:gap-3 justify-center overflow-x-auto no-scrollbar">
 
                             {totalPages > 1 && (
                                 <button
@@ -364,23 +367,23 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                             <div className="flex items-center gap-1 sm:gap-1.5 md:gap-4 shrink-0">
                                 {visibleProducts.map((item, index) => (
                                     <div key={item.id} className="flex items-center gap-1 sm:gap-1.5 md:gap-4">
-                                        <Link href={`/product/${item.slug}`} className="flex flex-col items-center gap-0.5 sm:gap-1.5 w-[70px] sm:w-[110px] md:w-[180px] shrink-0 group/item">
-                                            <div className="w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
+                                        <Link href={`/product/${item.slug}`} className="flex flex-col items-center gap-0.5 sm:gap-1.5 w-[110px] sm:w-[110px] md:w-[180px] shrink-0 group/item">
+                                            <div className="mb-1 w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
                                                 <Image
-                                                    src={item.cover || "/images/placeholders/product-placeholder.svg"}
+                                                    src={!item.cover || failedImages.has(item.id) ? "/images/placeholders/product-placeholder.webp" : item.cover}
                                                     alt={item.name}
                                                     width={180}
                                                     height={180}
                                                     className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
-                                                    onError={(e) => { e.currentTarget.src = "/images/placeholders/product-placeholder.svg"; }}
+                                                    onError={() => setFailedImages(prev => new Set(prev).add(item.id))}
                                                 />
                                             </div>
-                                            <p className="text-[9px] sm:text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors">
+                                            <p className="text-xs sm:text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors">
                                                 {item.name}
                                             </p>
                                         </Link>
                                         {index < visibleProducts.length - 1 && (
-                                            <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-400 shrink-0">+</span>
+                                            <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-400 shrink-0">+</span>
                                         )}
                                     </div>
                                 ))}
@@ -398,21 +401,22 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                                     <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
                                 </button>
                             )}
+                            </div>
 
                             {/* = والسعر */}
                             <div className="flex items-center gap-1 sm:gap-2 md:gap-4 shrink-0">
-                                <span className="text-base sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
+                                <span className="text-2xl sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
                                 <div className="flex flex-col items-center gap-0.5 shrink-0">
-                                    <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-800 whitespace-nowrap">
+                                    <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 whitespace-nowrap">
                                         {formatPrice(mainPrice)}{" "}
-                                        <span className="text-[9px] sm:text-base font-medium">₪</span>
+                                        <span className="text-sm sm:text-base font-medium">₪</span>
                                     </span>
-                                    <span className="text-[7px] sm:text-xs text-black whitespace-nowrap">بدلاً من</span>
-                                    <span className="text-[8px] sm:text-sm text-black line-through whitespace-nowrap">
+                                    <span className="text-xs sm:text-xs text-black whitespace-nowrap">بدلاً من</span>
+                                    <span className="text-sm sm:text-sm text-black line-through whitespace-nowrap">
                                         {formatPrice(originalTotal ?? parseFloat(oldPrice || mainPrice))} ₪
                                     </span>
                                     {savings !== null && savings > 0 && (
-                                        <span className="mt-0.5 text-[7px] sm:text-xs font-semibold text-red-1 whitespace-nowrap">
+                                        <span className="mt-0.5 text-xs sm:text-xs font-semibold text-red-1 whitespace-nowrap">
                                             وفّر {formatPrice(savings)} ₪
                                         </span>
                                     )}
@@ -428,10 +432,11 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                         <div className="flex flex-col-reverse sm:flex-row items-center gap-4">
                             <div className="relative w-full sm:w-[160px] aspect-square rounded-xl overflow-hidden bg-gray-100 shrink-0">
                                 <Image
-                                    src={imageUrl}
+                                    src={mainImageError ? "/images/placeholders/product-placeholder.webp" : imageUrl}
                                     alt={name}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                    onError={() => setMainImageError(true)}
                                 />
                             </div>
                             <div className="flex flex-col gap-2 text-center sm:text-right flex-1" dir="rtl">
@@ -472,7 +477,7 @@ function ShortcutButton({
     className?: string;
 }) {
     const commonClasses = cn(
-        "w-10 h-10 sm:w-11 sm:h-11 lg:w-8 lg:h-8 rounded-sm border border-blue-4 text-blue-4 flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
+        "w-10 h-10 sm:w-11 sm:h-11 lg:w-8 lg:h-8 rounded-sm border border-[#3C5D80] text-[#3C5D80] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
         className
     );
 
@@ -557,13 +562,12 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
 
     return (
         <div
-            className="mb-2 bg-white border border-[#e0dfdc] rounded-[10px] px-3 py-2.5 sm:px-3.5 lg:px-2.5 lg:py-2 flex flex-row items-center gap-2 sm:gap-3 lg:gap-2 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]"
-            dir="rtl"
+            className="mb-2 bg-white border border-[#e0dfdc] justify-center rounded-[10px] px-3 py-2.5 sm:px-3.5 lg:px-2.5 lg:py-2 flex flex-row items-center gap-2 sm:gap-3 lg:gap-2 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]"
         >
-            <h4 className="text-base sm:text-lg lg:text-sm font-bold text-blue-4 shrink-0 whitespace-nowrap">
+            <h4 className="text-base sm:text-lg lg:text-sm font-bold text-[#3C5D80] shrink-0 whitespace-nowrap">
                 اختصارات المتجر:
             </h4>
-            <div className="flex items-center justify-end gap-1.5 sm:gap-2 lg:gap-1 flex-wrap flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-1 flex-wrap min-w-0">
                 {shortcuts.filter(s => s.show).map((s, idx) => (
                     <ShortcutButton
                         key={idx}
@@ -602,7 +606,7 @@ function OverviewTab({ store }: { store: StoreProfile }) {
 
                 {/* الوصف + إحصائيات: أولاً على الجوال | يمين الديسكتوب */}
                 <div className="flex-1 min-w-0 w-full order-1 flex flex-col lg:flex-row items-start gap-6 lg:gap-8">
-                    <div className="flex flex-row lg:flex-col flex-wrap justify-center lg:justify-start gap-6 lg:gap-8 shrink-0">
+                    <div className="flex flex-row lg:flex-col flex-wrap justify-between w-full lg:w-auto lg:justify-start gap-6 lg:gap-8 shrink-0">
                         <StoreStatItem
                             icon={<img src="/icons/clock.svg" alt="" className="w-6 h-6" />}
                             label="مواعيد العمل"
@@ -613,7 +617,7 @@ function OverviewTab({ store }: { store: StoreProfile }) {
                         />
                         <StoreStatItem
                             icon={<img src="/icons/heart2.svg" alt="" className="w-6 h-6" />}
-                            label="فضلو المتجر"
+                            label="فضلوا المتجر"
                             value={String(store.favorites_count || 0)}
                         />
                         <StoreStatItem
@@ -624,8 +628,9 @@ function OverviewTab({ store }: { store: StoreProfile }) {
                     </div>
                     <div
                         className="store-overview-description prose prose-lg !max-w-none flex-1 min-w-0 w-full text-gray-700 leading-relaxed font-sans text-right [&_p]:mb-4 [&_p:last-child]:mb-0 [&_div]:mb-4 [&_p]:max-w-none [&_div]:max-w-none [&_*]:max-w-none [&_a]:text-blue-4"
-                        dangerouslySetInnerHTML={{ __html: store.description || "<p>لا يوجد وصف</p>" }}
-                    />
+                    >
+                        <SafeHTML html={store.description} fallback="<p>لا يوجد وصف</p>" />
+                    </div>
                 </div>
             </div>
 
@@ -722,7 +727,7 @@ function WorkingStatusModal({
                             config.imageClass
                         )}
                     />
-                    <h3 className={cn("mt-3 text-[28px] sm:text-[30px] leading-tight font-bold", config.titleClass)}>
+                    <h3 className={cn("mt-5 text-[28px] leading-tight font-bold", config.titleClass)}>
                         {config.title}
                     </h3>
                     {/*
@@ -849,10 +854,8 @@ function WorkingStatusModal({
 }
 
 function StoreOwnerCard({ store }: { store: StoreProfile }) {
-    const router = useRouter();
     const params = useParams();
     const lang = params?.locale || params?.lang || "ar";
-    const { user } = useAuthStore();
     const ownerName = store.owner
         ? (store.owner.first_name || "") + " " + (store.owner.last_name || "")
         : store.name;
@@ -894,26 +897,23 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2.5 w-full" dir="rtl">
-                <button
-                    type="button"
-                    onClick={() => {
-                        if (!user) { router.push(`/${lang}/login`); return; }
-                        router.push(`/${lang}/chat?type=user&id=${store.owner?.id || store.owner_id}`);
-                    }}
-                    className="w-full h-[34px] flex items-center justify-center gap-1.5 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full px-3 text-[11px] sm:text-xs font-medium cursor-pointer"
-                >
-                    <MessageSquare size={15} className="shrink-0" strokeWidth={2} />
-                    <span className="whitespace-nowrap">تواصل مع البائع</span>
-                </button>
+                <ChatNowButton
+                    target={{ type: "user", id: store.owner?.id || store.owner_id }}
+                    label={<span className="whitespace-nowrap">تواصل مع البائع</span>}
+                    icon={<MessageSquare size={15} className="shrink-0" strokeWidth={2} />}
+                    iconClassName="shrink-0 size-[15px]"
+                    className="rounded-full has-[>svg]:px-5 min-h-10"
+                />
                 <div className="min-w-0">
                     <ReportAbuse type="store" id={store.id}>
-                        <button
+                        <Button
                             type="button"
-                            className="w-full h-[34px] flex cursor-pointer items-center justify-center gap-1.5 bg-white border border-[#b75959] text-[#b75959] rounded-full px-3 text-[11px] sm:text-xs font-medium"
+                            variant="outline"
+                            className="rounded-full has-[>svg]:px-5 min-h-10 text-c2-red-400 border-c2-red-400 border bg-transparent"
                         >
                             <Flag size={15} className="shrink-0" strokeWidth={2} />
                             <span className="whitespace-nowrap">ابلغ عن إساءة</span>
-                        </button>
+                        </Button>
                     </ReportAbuse>
                 </div>
             </div>
@@ -951,9 +951,6 @@ function StoreStatItem({ icon, label, value, sub, color, onClick }: {
 }
 
 function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count: number; rate: number } }) {
-    const formRef = useRef<ReviewFormRef>(null);
-    const [parentId, setParentId] = useState<number | null>(null);
-    const [replyToName, setReplyToName] = useState<string | null>(null);
     const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
     const [mediaViewerState, setMediaViewerState] = useState<{
         isOpen: boolean;
@@ -961,20 +958,9 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
         index: number;
     }>({ isOpen: false, media: [], index: 0 });
 
-    const { data, isLoading } = useGetStoreReviews(slug);
+    const [page, setPage] = useState(1);
+    const { data, isLoading, refetch: refetchReviews } = useGetStoreReviews(slug, page);
     const { mutate: addReview, isPending } = useAddStoreReview();
-
-    const handleReply = (id: number, userName: string) => {
-        setParentId(id);
-        setReplyToName(userName);
-        formRef.current?.scrollToForm();
-        formRef.current?.focusTextarea();
-    };
-
-    const handleCancelReply = () => {
-        setParentId(null);
-        setReplyToName(null);
-    };
 
     const handleSubmit = (formData: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
         const savedScrollY = window.scrollY;
@@ -983,8 +969,6 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
                 { slug, payload: { content: formData.content, rate: String(formData.rate), images: formData.images, parent_id: formData.parent_id } },
                 {
                     onSuccess: () => {
-                        setParentId(null);
-                        setReplyToName(null);
                         if (formData.parent_id) {
                             setExpandedReplies((prev) => new Set(prev).add(formData.parent_id!));
                         }
@@ -1016,8 +1000,6 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
         setMediaViewerState({ isOpen: true, media, index });
     };
 
-    if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-blue-3" /></div>;
-
     const reviews = data?.reviews || [];
     let statistics: ReviewStatistics | undefined;
     if (data?.rate_stats) {
@@ -1035,30 +1017,31 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
     }
 
     return (
-        <div className="space-y-6">
-            {statistics && (
-                <ReviewStatisticsDisplay stats={statistics} />
-            )}
-
-            {reviews.length > 0 ? (
-                <div className="space-y-4">
-                    {reviews.map((review) => (
-                        <StoreReviewWithReplies
-                            key={review.id}
-                            review={review as unknown as SharedReview}
-                            slug={slug}
-                            onOpenMedia={openMedia}
-                            onReply={handleReply}
-                            showReplies={expandedReplies.has(review.id)}
-                            onToggleReplies={handleToggleReplies}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center py-10 bg-gray-50 rounded-lg">
-                    <p className="text-gray-500">لا توجد مراجعات بعد</p>
-                </div>
-            )}
+        <>
+            <ReviewsSection
+                stats={statistics && <ReviewStatisticsDisplay stats={statistics} />}
+                isLoading={isLoading}
+                itemsOnPage={reviews.length}
+                total={data?.total}
+                page={page}
+                setPage={setPage}
+                onSubmit={handleSubmit}
+                isSubmitting={isPending}
+            >
+                {reviews.map((review) => (
+                    <StoreReviewWithReplies
+                        key={review.id}
+                        review={review as unknown as SharedReview}
+                        slug={slug}
+                        onOpenMedia={openMedia}
+                        onSubmitReply={handleSubmit}
+                        isSubmittingReply={isPending}
+                        showReplies={expandedReplies.has(review.id)}
+                        onToggleReplies={handleToggleReplies}
+                        onReviewChanged={refetchReviews}
+                    />
+                ))}
+            </ReviewsSection>
 
             {mediaViewerState.isOpen && (
                 <MediaViewer
@@ -1068,16 +1051,7 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
                     initialIndex={mediaViewerState.index}
                 />
             )}
-
-            <ReviewForm
-                ref={formRef}
-                onSubmit={handleSubmit}
-                isSubmitting={isPending}
-                parentId={parentId}
-                replyToName={replyToName}
-                onCancelReply={handleCancelReply}
-            />
-        </div>
+        </>
     );
 }
 
@@ -1085,31 +1059,43 @@ function StoreReviewWithReplies({
     review,
     slug,
     onOpenMedia,
-    onReply,
+    onSubmitReply,
+    isSubmittingReply,
     showReplies,
     onToggleReplies,
+    onReviewChanged,
 }: {
     review: SharedReview;
     slug: string;
     onOpenMedia: (media: string[], index: number) => void;
-    onReply: (id: number, userName: string) => void;
+    onSubmitReply: (data: ReviewSubmitPayload) => Promise<void> | void;
+    isSubmittingReply: boolean;
     showReplies: boolean;
     onToggleReplies: (id: number) => void;
+    onReviewChanged: () => void;
 }) {
-    const { data: repliesData, isLoading: loadingReplies } = useGetStoreReviewReplies(
+    const { data: repliesData, isLoading: loadingReplies, refetch: refetchReplies } = useGetStoreReviewReplies(
         showReplies ? slug : "",
         showReplies ? review.id : 0
     );
+
+    const handleChanged = () => {
+        onReviewChanged();
+        if (showReplies) refetchReplies();
+    };
 
     return (
         <ReviewItem
             review={review}
             onOpenMedia={onOpenMedia}
-            onReply={onReply}
+            onSubmitReply={onSubmitReply}
+            isSubmittingReply={isSubmittingReply}
             showReplies={showReplies}
             onToggleReplies={onToggleReplies}
             replies={repliesData?.reviews as unknown as SharedReview[]}
             isLoadingReplies={loadingReplies}
+            onDeleted={handleChanged}
+            onUpdated={handleChanged}
         />
     );
 }

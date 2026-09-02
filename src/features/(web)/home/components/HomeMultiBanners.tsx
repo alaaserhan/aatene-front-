@@ -62,7 +62,7 @@ export default function HomeMultiBanners({ banners }: HomeMultiBannersProps) {
                         onClick={() => scroll("right")}
                         className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-lg rounded-full p-2 opacity-0 group-hover/section:opacity-100 transition-all hover:bg-gray-50 border border-gray-100"
                     >
-                        <ChevronRight className="w-6 h-6 text-black" />
+                    <ChevronLeft className="w-6 h-6 text-black" />
                     </button>
                     <button
                         onClick={() => scroll("left")}

@@ -8,6 +8,9 @@ import { ar } from "date-fns/locale";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { toLocal } from "@/src/lib/date-helper";
+import { isHtmlContent, notificationBodyToText } from "@/src/lib/utils";
+import { NotificationBodyModal } from "@/src/components/shared/NotificationBodyModal";
+import type { DashboardNotification } from "../api";
 
 export default function NotificationsPage() {
     const [page, setPage] = useState(1);
@@ -15,6 +18,7 @@ export default function NotificationsPage() {
     const { mutate: markAsSeen } = useMarkNotificationsAsSeen();
     const { mutate: deleteNotification } = useDeleteNotification();
     const [visuallyUnseenIds, setVisuallyUnseenIds] = useState<Set<number>>(new Set());
+    const [previewedNotification, setPreviewedNotification] = useState<DashboardNotification | null>(null);
 
     const notifications = data?.notifications || [];
     const totalPages = data ? Math.ceil(data.recordsTotal / 6) : 1;
@@ -90,8 +94,18 @@ export default function NotificationsPage() {
                                     <div>
                                         {notification.title && <h3 className={`font-medium text-base mb-1 ${isVisuallyUnseen ? 'text-[#395A7D]' : 'text-gray-800'}`}>{notification.title}</h3>}
                                         <p className={`text-sm whitespace-pre-wrap leading-relaxed ${isVisuallyUnseen ? 'text-gray-700' : 'text-gray-500'}`}>
-                                            {notification.body}
+                                            {notificationBodyToText(notification.body)}
                                         </p>
+
+                                        {isHtmlContent(notification.body) && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setPreviewedNotification(notification)}
+                                                className="mt-2 text-sm font-medium text-c2-primary hover:underline cursor-pointer"
+                                            >
+                                                عرض التفاصيل
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -109,6 +123,13 @@ export default function NotificationsPage() {
                     </div>
                 )}
             </div>
+
+            <NotificationBodyModal
+                isOpen={Boolean(previewedNotification)}
+                onClose={() => setPreviewedNotification(null)}
+                title={previewedNotification?.title}
+                body={previewedNotification?.body || ""}
+            />
         </div>
     );
 }

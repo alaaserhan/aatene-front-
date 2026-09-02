@@ -47,9 +47,9 @@ export function SidebarFilterPanel({
                   className={cn(
                     "w-full flex items-center justify-between p-3 transition-colors cursor-pointer",
                     isActive
-                      ? "bg-blue-5 text-blue-3 font-medium"
+                      ? "bg-blue-6 text-blue-3 font-medium"
                       : "text-gray-2 hover:bg-gray-50",
-                    option.value === "other" && !activeValue ? "bg-blue-5 text-blue-3 font-medium" : "" // Handle default selection style
+                    option.value === "other" && !activeValue ? "bg-blue-6 text-blue-3 font-medium" : "" // Handle default selection style
                   )}
                 >
                   <ChevronLeft className="w-4 h-4" />

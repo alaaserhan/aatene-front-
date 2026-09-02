@@ -8,7 +8,7 @@ import { CheckCircle2, Loader2, Flag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
+import { loginUrlWithAuthRequired } from "@/src/auth";
 
 interface ReportAbuseModalProps {
     isOpen: boolean;
@@ -246,7 +246,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                                         جاري الإرسال...
                                     </>
                                 ) : (
-                                    "ارسال"
+                                    "إرسال"
                                 )}
                             </button>
                             <button

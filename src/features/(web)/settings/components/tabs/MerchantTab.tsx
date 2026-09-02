@@ -1,15 +1,25 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { sessionQueryKey } from "@/src/auth";
 import { useConvertToMerchant } from "../../hooks";
 import { cn } from "@/src/lib/utils";
 
 export default function MerchantTab() {
+    const router = useRouter();
+    const queryClient = useQueryClient();
     const user = useAuthStore((state) => state.user);
     const { mutate: convertToMerchant, isPending: isUpdating } = useConvertToMerchant();
 
     const handleConvert = () => {
-        convertToMerchant();
+        convertToMerchant(undefined, {
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: sessionQueryKey });
+                router.replace("/ar/admin/stores/add");
+            },
+        });
     };
 
     if (user?.user_type !== "client") {
@@ -31,11 +41,12 @@ export default function MerchantTab() {
             <div className="border-b border-gray-100 mb-6 w-full" />
 
             <div className=" mt-4">
+                {/* TODO: use Button component */}
                 <button
                     onClick={handleConvert}
                     disabled={isUpdating}
                     className={cn(
-                        "bg-[#4F6D8C] text-white px-20 py-4 rounded-full font-medium w-full transition-all shadow-md active:scale-95 cursor-pointer hover:bg-[#3d5670] ",
+                        "bg-primary hover:bg-primary/90 text-white px-20 py-4 rounded-lg font-medium w-full transition-colors shadow-md",
                         isUpdating && "opacity-60 cursor-not-allowed"
                     )}
                 >

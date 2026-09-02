@@ -499,7 +499,7 @@ export function CreateCouponModal({
         return (
             <div className="space-y-6">
                 <InfiniteMultiSelect
-                    label="الاقسام "
+                    label="الأقسام "
                     placeholder="اختر..."
                     searchPlaceholder="ابحث عن قسم..."
                     selectedItems={formData.sections}
@@ -557,6 +557,7 @@ export function CreateCouponModal({
                     onClose={() => setIsProductModalOpen(false)}
                     onSave={handleProductsSave}
                     initialSelectedIds={formData.products.map(p => p.id)}
+                    sectionIds={formData.sections.map(s => s.id)}
                 />
             </div>
         );

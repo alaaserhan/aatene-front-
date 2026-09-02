@@ -1,5 +1,6 @@
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
+import { BASE_URL } from "@/src/lib/config";
 import Cookies from "js-cookie";
 import {
     Video,
@@ -21,9 +22,7 @@ export const uploadToMediaCenter = async (file: File, type: "image" | "media"): 
         { headers: { "Content-Type": "multipart/form-data" } }
     );
     
-    const baseURL = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://aatene.dev/api")
-        .replace(/\/api$/, "");
-    return `${baseURL}/storage/${data.data.file_name}`;
+    return `${BASE_URL}/storage/${data.data.file_name}`;
 };
 
 // Helper: رفع الملفات (الفيديو والصورة المصغرة) إذا كانت موجودة

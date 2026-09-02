@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/componen
 import { DeliveryType, Product, Store, ShippingCompany, ShippingDetails, ShippingPrice } from "../types";
 import { useGetCities } from "@/src/features/(web)/settings/hooks";
 import { formatPrice } from "@/src/lib/format-price";
+import { cn } from "@/src/lib/utils";
 
 interface ShippingPoliciesProps {
     product: Product;
@@ -15,6 +16,7 @@ interface ShippingPoliciesProps {
     allShippingCompanies?: ShippingCompany[] | null;
     deliveryType?: DeliveryType | null;
     onCityChange?: (city: { id: number; name: string }) => void;
+    className?: string;
 }
 
 export default function ShippingPolicies({
@@ -23,6 +25,7 @@ export default function ShippingPolicies({
     allShippingCompanies,
     deliveryType,
     onCityChange,
+    className,
 }: ShippingPoliciesProps) {
     const { data: citiesData } = useGetCities();
     const [isCityModalOpen, setIsCityModalOpen] = useState(false);
@@ -130,6 +133,11 @@ export default function ShippingPolicies({
     const deliveryCompanyName = getDisplayCompanyName(activeCompany?.name);
     const deliveryCompanyPhone = normalizeDisplayPhone(activeCompany?.phone);
 
+    const openCityModal = () => {
+        setTempSelectedCityId(selectedCityId);
+        setIsCityModalOpen(true);
+    };
+
     const handleApplyCity = () => {
         const city = citiesData?.cities?.find((c) => c.id === tempSelectedCityId);
         if (city) {
@@ -144,93 +152,86 @@ export default function ShippingPolicies({
     };
 
     return (
-        <div className="mt-8 flex flex-col gap-6">
-            {/* Title */}
-            {/* <h2 className="text-lg font-medium">
-                تفاصيل الشحن والسياسات
-            </h2> */}
+        <div className={cn("white-card", className)}>
+            <h2 className="mb-4 text-sm font-medium text-c2-navy-1000">تفاصيل الشحن</h2>
 
-            {/* Info Row */}
-            <div className="flex flex-wrap items-center justify-between gap-6 md:gap-12 text-gray-2 text-sm">
-                {/* Delivery Time */}
-                <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-md bg-gray-50 flex items-center justify-center">
-                        <img src="/icons/dashboard/calender.svg" alt="مدة التوصيل" width={24} height={24} />
-                    </div>
-                    <span className="font-medium ">
-                        {isShippingDelivery
-                            ? `يتم التوصيل خلال ${activeDetails?.days || "1-4"} أيام`
-                            : "يتم الاتفاق على التسليم مع المتجر"}
-                    </span>
-                </div>
-
-                {/* Shipping Cost */}
-                <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-md bg-gray-50 flex items-center justify-center">
-                        <img src="/icons/car.svg" alt="توصيل" width={24} height={24} />
-                    </div>
-                    <span className="font-medium ">
-                        {!isShippingDelivery
-                            ? "تسليم من يد ليد"
-                            : (!activeCompany || String(activeDetails?.price) === "0") ? "توصيل مجاني" : `توصيل: ${formatPrice(activeDetails?.price)} ₪ `}
-                    </span>
-                </div>
-
-                {/* Delivery Location */}
-                <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-md bg-gray-50 flex items-center justify-center">
-                        <img src="/icons/box.svg" alt="مدينة التوصيل" width={30} height={30} />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {isShippingDelivery ? (
-                            <>
-                                <span className="font-medium ">التوصيل إلى: <span className="underline decoration-blue-3 underline-offset-4 cursor-pointer" onClick={() => { setTempSelectedCityId(selectedCityId); setIsCityModalOpen(true); }}>{selectedCityName}</span></span>
-                                <button
-                                    className="text-blue-3 hover:opacity-80 transition-opacity"
-                                    onClick={() => { setTempSelectedCityId(selectedCityId); setIsCityModalOpen(true); }}
-                                    aria-label="تعديل مدينة التوصيل"
-                                >
-                                    <Pencil className="w-3 h-3" />
-                                </button>
-                            </>
-                        ) : (
-                            <span className="font-medium ">بدون شركات توصيل</span>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Delivery Company Card */}
-            {deliveryCompanyName && (
-                <div className="flex items-center justify-between flex-wrap gap-4 border border-gray-200 rounded-md p-3 px-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-md bg-blue-4 flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-white" />
+            <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+                {/* Carrier + destination */}
+                <div className="flex flex-col gap-3">
+                    {deliveryCompanyName ? (
+                        <div className="flex items-center gap-2">
+                            <span className="size-9 shrink-0 rounded-lg bg-c2-primary flex items-center justify-center">
+                                <Building2 className="size-5 text-white" aria-hidden="true" />
+                            </span>
+                            <span className="text-sm font-medium text-c2-navy-1000">
+                                {deliveryCompanyName}
+                            </span>
                         </div>
-                        <span className="font-bold text-gray-700 text-lg">
-                            {deliveryCompanyName}
+                    ) : (
+                        <span className="text-sm font-medium text-c2-neutral-700">
+                            {isShippingDelivery ? "بدون شركات توصيل" : "تسليم من يد ليد"}
                         </span>
-                    </div>
+                    )}
 
+                    {isShippingDelivery && (
+                        <div className="flex items-center gap-2 text-sm text-c2-neutral-700">
+                            <span>
+                                التوصيل إلى:{" "}
+                                <button
+                                    type="button"
+                                    onClick={openCityModal}
+                                    className="cursor-pointer text-c2-primary underline underline-offset-4"
+                                >
+                                    {selectedCityName}
+                                </button>
+                            </span>
+                            <button
+                                type="button"
+                                onClick={openCityModal}
+                                aria-label="تعديل مدينة التوصيل"
+                                className="size-6 shrink-0 rounded-md bg-c2-neutral-300-a10 flex items-center justify-center text-c2-primary transition-colors hover:bg-c2-neutral-200"
+                            >
+                                <Pencil className="size-3" aria-hidden="true" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Carrier phone + timing */}
+                <div className="flex flex-col items-end gap-3">
                     {deliveryCompanyPhone && (
                         <a
                             href={`tel:${deliveryCompanyPhone}`}
                             onClick={(e) => {
-                                if (!showPhone) {
-                                    e.preventDefault();
-                                    setShowPhone(true);
-                                }
+                                if (showPhone) return;
+                                e.preventDefault();
+                                setShowPhone(true);
                             }}
-                            className="flex items-center gap-3 bg-[#EFF6FF] text-blue-4 px-6 py-2 rounded-full text-sm font-bold border border-blue-4 transition-colors hover:bg-blue-100 cursor-pointer"
+                            className="flex cursor-pointer items-center gap-2 rounded-full border border-c2-primary/30 bg-c2-primary/5 px-4 py-1.5 text-sm font-medium text-c2-primary transition-colors hover:bg-c2-primary/10"
                         >
                             <span dir="ltr">
                                 {showPhone ? deliveryCompanyPhone : maskDisplayPhone(deliveryCompanyPhone)}
                             </span>
-                            <Phone className="w-4 h-4 fill-current" />
+                            <Phone className="size-4 fill-current" aria-hidden="true" />
                         </a>
                     )}
+
+                    <p className="flex items-center gap-2 text-sm text-c2-neutral-700">
+                        <span>
+                            {isShippingDelivery
+                                ? `يتم التوصيل خلال ${activeDetails?.days || "1-4"} أيام`
+                                : "يتم الاتفاق على التسليم مع المتجر"}
+                        </span>
+                        {isShippingDelivery && (
+                            <span className="font-medium text-c2-navy-1000">
+                                {!activeCompany || String(activeDetails?.price) === "0"
+                                    ? "توصيل مجاني"
+                                    : `${formatPrice(activeDetails?.price)} ₪`}
+                            </span>
+                        )}
+                    </p>
                 </div>
-            )}
+            </div>
 
             <Dialog open={isShippingDelivery && isCityModalOpen} onOpenChange={(open) => {
                 if (open) setTempSelectedCityId(selectedCityId);

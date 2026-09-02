@@ -3,6 +3,7 @@ import AddEditRequestedServicePage from "@/src/features/(web)/requested-services
 import { generatePageMetadata } from "@/src/lib/seo.config";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { loginUrl } from "@/src/auth/links";
 
 export const metadata: Metadata = generatePageMetadata("createRequestedService");
 
@@ -16,7 +17,9 @@ export default async function CreateRequestedServicePage({
   const token = jar.get("token")?.value;
 
   if (!token) {
-    redirect(`/${locale}/login`);
+    redirect(
+      loginUrl(locale, { redirectTo: `/${locale}/requested-services/create` }),
+    );
   }
 
   return <AddEditRequestedServicePage />;

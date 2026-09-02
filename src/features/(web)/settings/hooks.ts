@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
+import Cookies from "js-cookie";
+import { USER_TYPE_COOKIE, AUTH_COOKIE_ATTRS } from "@/src/auth/cookies";
 import {
     getCities,
     GetCitiesParams,
@@ -26,6 +28,7 @@ import {
     updateCover,
     updateAccount,
     updateEmail,
+    verifyEmailUpdate,
     updatePhone,
     updatePassword,
     getDeviceNotificationSettings,
@@ -37,6 +40,7 @@ import {
     CreateHighlightPayload,
     UpdateAccountPayload,
     UpdatePasswordPayload,
+    VerifyEmailUpdatePayload,
     UpdateDevicePreferencesPayload,
     FollowPayload,
     UnfollowPayload,
@@ -342,13 +346,26 @@ export const useUpdateAccount = () => {
     });
 };
 
+/** Sends a verification code to the new email. The email only changes once the code is verified. */
 export const useUpdateEmail = () => {
-    const qc = useQueryClient();
     return useMutation({
         mutationFn: (email: string) => updateEmail(email),
+        onSuccess: (data) => {
+            toast.success(data.message || "تم إرسال كود التحقق إلى بريدك الإلكتروني الجديد");
+        },
+    });
+};
+
+export const useVerifyEmailUpdate = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (payload: VerifyEmailUpdatePayload) => verifyEmailUpdate(payload),
         onSuccess: (data, variables) => {
-            toast.success(data.message || "Email updated successfully");
-            useAuthStore.getState().updateUser({ email: variables });
+            toast.success(data.message || "تم تأكيد البريد الإلكتروني بنجاح");
+            useAuthStore.getState().updateUser({
+                is_email_verified: true,
+                ...(variables.email ? { email: variables.email } : {}),
+            });
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });
@@ -406,6 +423,7 @@ export const useConvertToMerchant = () => {
         onSuccess: (data) => {
             toast.success(data.message || "Account converted to merchant successfully");
             useAuthStore.getState().updateUser({ user_type: "merchant" });
+            Cookies.set(USER_TYPE_COOKIE, "merchant", AUTH_COOKIE_ATTRS);
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });

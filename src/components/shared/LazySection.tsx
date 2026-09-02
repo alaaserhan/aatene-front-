@@ -15,10 +15,11 @@ export default function LazySection({
     children,
     fallback = null,
     threshold = 0.01,
-    rootMargin = "200px",
+    rootMargin = "400px",
     className,
 }: LazySectionProps) {
     const [isInView, setIsInView] = useState(false);
+    const [hasRendered, setHasRendered] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -48,6 +49,13 @@ export default function LazySection({
         };
     }, [isInView, threshold, rootMargin]);
 
+    useEffect(() => {
+        if (isInView) {
+            const frame = requestAnimationFrame(() => setHasRendered(true));
+            return () => cancelAnimationFrame(frame);
+        }
+    }, [isInView]);
+
     return (
         <div
             ref={containerRef}
@@ -57,7 +65,18 @@ export default function LazySection({
                 className
             )}
         >
-            {isInView ? <>{children}</> : <>{fallback}</>}
+            {isInView ? (
+                <div
+                    className={cn(
+                        "transition-opacity duration-500 ease-out",
+                        hasRendered ? "opacity-100" : "opacity-0"
+                    )}
+                >
+                    {children}
+                </div>
+            ) : (
+                <>{fallback}</>
+            )}
         </div>
     );
 }

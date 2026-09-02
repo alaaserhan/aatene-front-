@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useAuthStore } from "@/src/stores/auth-store";
-import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus } from "lucide-react";
+import { useAuth } from "@/src/auth";
+import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { useLanguage } from "@/src/hooks/use-language";
-import { useLogout } from "@/src/features/(web)/auth/hooks";
-import { useConvertToMerchant } from "@/src/features/(web)/settings/hooks";
-import { Button } from "../ui/button";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
+import { useLanguage } from "@/src/hooks/use-language";
+import { useLogout } from "@/src/auth";
+import { STORE_SLUG_COOKIE } from "@/src/store-context";
+import { loginUrl } from "@/src/auth/links";
 
 interface UserMenuProps {
   isMobile?: boolean;
@@ -18,31 +18,22 @@ interface UserMenuProps {
 }
 
 const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
-  const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
-  const isHydrated = useAuthStore((state) => state.isHydrated);
-  const user = useAuthStore((state) => state.user);
+  const { isLoggedIn, user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const lang = useLanguage();
-  const router = useRouter();
+  const pathname = usePathname();
   const { mutate: logoutMutation } = useLogout();
-  const { mutate: convertToMerchant, isPending: isLoading } = useConvertToMerchant();
 
-  const handleTheClientClick = () => {
-    convertToMerchant(undefined, {
-      onSuccess: () => {
-        Cookies.set("user_type", "merchant", {
-          expires: 365,
-          sameSite: "lax",
-        });
+  const isActive = (href: string) => pathname === href;
+  const menuLinkClass = (active: boolean) =>
+    `flex items-center gap-3 text-sm transition-colors ${active ? "text-primary" : "text-gray-2"}`;
+  const menuIconClass = (active: boolean) =>
+    `w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+      active ? "bg-primary/10 text-primary" : "bg-gray-100"
+    }`;
 
-        setIsOpen(false);
-        onClose?.();
-
-        router.push(`/${lang}/admin/home`);
-      }
-    });
-  };
+  const storeSlug = typeof window !== "undefined" ? Cookies.get(STORE_SLUG_COOKIE) || Cookies.get("current_store_id") : undefined;
 
   const handleLinkClick = () => {
     setIsOpen(false);
@@ -70,10 +61,13 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
     }
   }, [isMobile]);
 
-  if (!isHydrated || !isAuthenticated || !user) {
+  if (!isLoggedIn) {
+    // `pathname` (not window.location) keeps the href identical on server and
+    // client, so signing in returns the user to the page they were browsing.
+    const loginHref = loginUrl(lang, { redirectTo: pathname });
     return (
       <Link
-        href={`/${lang}/login`}
+        href={loginHref}
         className={`group flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-all duration-200 ${isMobile
           ? "w-full p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-primary/30 hover:bg-primary/5"
           : "px-4 py-2 rounded-lg hover:bg-gray-50"
@@ -95,6 +89,10 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
       </Link>
     );
   }
+
+  // Logged in, but the /auth/account fetch hasn't filled in the user object yet.
+  // Render nothing briefly — better than flashing the logged-out CTA.
+  if (!user) return null;
 
   const getUserTypeIcon = (userType: string) => {
     switch (userType) {
@@ -164,25 +162,25 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             {user.user_type !== "admin" && (
               <Link
                 href={`/${lang}/report`}
-                className="flex items-center gap-3 text-sm text-gray-2"
+                className={menuLinkClass(isActive(`/${lang}/report`))}
                 onClick={handleLinkClick}
               >
-                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <div className={menuIconClass(isActive(`/${lang}/report`))}>
                   <Headset size={16} />
                 </div>
                 <span className="font-medium">بوابة الشكاوى والاقتراحات</span>
               </Link>
             )}
 
-             <Link href={`/${lang}/my/requested-services`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+             <Link href={`/${lang}/my/requested-services`} className={menuLinkClass(isActive(`/${lang}/my/requested-services`))} onClick={handleLinkClick}>
+              <div className={menuIconClass(isActive(`/${lang}/my/requested-services`))}>
                 <MessageSquarePlus size={16} />
               </div>
               <span className="font-medium">طلباتي</span>
             </Link>
 
-            <Link href={`/${lang}/settings`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+            <Link href={`/${lang}/settings`} className={menuLinkClass(isActive(`/${lang}/settings`))} onClick={handleLinkClick}>
+              <div className={menuIconClass(isActive(`/${lang}/settings`))}>
                 <Settings size={16} />
               </div>
               <span className="font-medium">الاعدادات</span>
@@ -191,17 +189,14 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
           {/* Action Button */}
           {user.user_type === "client" && (
-            <Button
-              disabled={isLoading}
-              onClick={handleTheClientClick}
-              className="w-full justify-start h-11 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg shadow-sm transition-all duration-200 mt-3"
+            <Link
+              href={`/${lang}/settings?tab=merchant`}
+              onClick={handleLinkClick}
+              className="w-full flex items-center justify-start h-11 bg-blue-3 text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors duration-200 mt-3 px-4 gap-2"
             >
               <Store size={16} />
               <span className="mr-2">الدخول كتاجر</span>
-              {isLoading && (
-                <div className="ml-2 w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              )}
-            </Button>
+            </Link>
           )}
         </div>
 
@@ -209,7 +204,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
         <div className="space-y-2">
           {user.user_type === "admin" && (
             <Link
-              href={`/${lang}/admin/home`}
+              href={`/admin/home`}
               className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
               onClick={handleLinkClick}
             >
@@ -223,9 +218,25 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             </Link>
           )}
 
+          {user.user_type === "merchant" && storeSlug && (
+            <Link
+              href={`/${lang}/store/${storeSlug}`}
+              className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
+              onClick={handleLinkClick}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <ExternalLink size={16} className="text-blue-4" />
+                </div>
+                <span className="font-medium">الذهاب للمتجر</span>
+              </div>
+              <ChevronLeft size={16} className="text-gray-2" />
+            </Link>
+          )}
+
           {user.user_type === "merchant" && (
             <Link
-              href={`/${lang}/admin/home`}
+              href={`/admin/home`}
               className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
               onClick={handleLinkClick}
             >
@@ -317,25 +328,25 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             {user.user_type !== "admin" && (
               <Link
                 href={`/${lang}/report`}
-                className="flex items-center gap-3 text-sm text-gray-2"
+                className={menuLinkClass(isActive(`/${lang}/report`))}
                 onClick={handleLinkClick}
               >
-                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <div className={menuIconClass(isActive(`/${lang}/report`))}>
                   <Headset size={16} />
                 </div>
                 <span className="font-medium">بوابة الشكاوى والاقتراحات</span>
               </Link>
             )}
 
-            <Link href={`/${lang}/my/requested-services`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+            <Link href={`/${lang}/my/requested-services`} className={menuLinkClass(isActive(`/${lang}/my/requested-services`))} onClick={handleLinkClick}>
+              <div className={menuIconClass(isActive(`/${lang}/my/requested-services`))}>
                 <MessageSquarePlus size={16} />
               </div>
               <span className="font-medium">طلباتي</span>
             </Link>
 
-            <Link href={`/${lang}/settings`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+            <Link href={`/${lang}/settings`} className={menuLinkClass(isActive(`/${lang}/settings`))} onClick={handleLinkClick}>
+              <div className={menuIconClass(isActive(`/${lang}/settings`))}>
                 <Settings size={16} />
               </div>
               <span className="font-medium">الاعدادات</span>
@@ -345,23 +356,20 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
           {/* Actions Section */}
           <div className="p-4 space-y-2">
             {user.user_type === "client" && (
-              <Button
-                disabled={isLoading}
-                onClick={handleTheClientClick}
-                className="w-full justify-start h-auto py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg shadow-sm transition-all duration-200"
+              <Link
+                href={`/${lang}/settings?tab=merchant`}
+                onClick={handleLinkClick}
+                className="w-full flex items-center gap-2 justify-start h-auto py-3 px-4 bg-primary hover:bg-primary/90 rounded-lg shadow-sm transition-colors duration-200 text-white"
               >
                 <Store size={16} />
                 <span className="mr-3">الدخول كتاجر</span>
-                {isLoading && (
-                  <div className="ml-auto w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                )}
-              </Button>
+              </Link>
             )}
 
             {user.user_type === "admin" && (
               <Link
-                href={`/${lang}/admin/home`}
-                className="flex items-center gap-3 w-full text-sm text-gray-700 "
+                href={`/admin/home`}
+                className="flex items-center gap-3 w-full py-2 px-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                 onClick={handleLinkClick}
               >
                 <div className="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
@@ -371,19 +379,29 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               </Link>
             )}
 
-            {user.user_type === "merchant" && (
+            {user.user_type === "merchant" && storeSlug && (
               <Link
-                href={`/${lang}/admin/home`}
-                className="flex items-center gap-3 w-full px-2 text-sm text-gray-700 "
+                href={`/${lang}/store/${storeSlug}`}
+                className="flex items-center gap-3 w-full py-2 px-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                 onClick={handleLinkClick}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                    <Store size={16} className="text-blue-4" />
-                  </div>
-                  <span className="font-medium">لوحة التحكم</span>
+                <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <ExternalLink size={16} className="text-blue-4" />
                 </div>
-                <ChevronLeft size={16} className="text-gray-2 group-hover:text-blue-600" />
+                <span className="font-medium">الذهاب للمتجر</span>
+              </Link>
+            )}
+
+            {user.user_type === "merchant" && (
+              <Link
+                href={`/admin/home`}
+                className="flex items-center gap-3 w-full py-2 px-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
+                onClick={handleLinkClick}
+              >
+                <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <Store size={16} className="text-blue-4" />
+                </div>
+                <span className="font-medium">لوحة التحكم</span>
               </Link>
             )}
           </div>

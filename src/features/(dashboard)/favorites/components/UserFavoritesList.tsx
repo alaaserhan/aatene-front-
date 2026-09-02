@@ -98,7 +98,7 @@ export function UserFavoritesList({ userId }: UserFavoritesListProps) {
                 <h2 className="text-xl font-medium ">{getTitleByType()}</h2>
 
                 {/* Delete By Type Button (Visible only if there are items) */}
-                {items.length > 0 && !isLoadingItems && (
+                {/* {items.length > 0 && !isLoadingItems && (
                     <Button
                         onClick={() => setIsDeleteTypeModalOpen(true)}
                         className="bg-red-2 hover:bg-[#FECDD3] rounded-sm text-[#F43F5E] border-none h-8 w-8 p-0 flex items-center justify-center transition-colors"
@@ -111,7 +111,7 @@ export function UserFavoritesList({ userId }: UserFavoritesListProps) {
                             <img src="/icons/dashboard/trash.svg" alt="حذف" className="w-4 h-4" />
                         )}
                     </Button>
-                )}
+                )} */}
             </div>
 
             {/* Tabs (Lists) */}

@@ -2,18 +2,17 @@
 
 import { usePublicBlogs } from "../hooks";
 import Link from "next/link";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useAuth } from "@/src/auth";
 import { Plus } from "lucide-react";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { useState } from "react";
 
 import { BlogCard } from "./BlogCard";
+import { BlogsGridSkeleton } from "./BlogsPageSkeleton";
 
 
 export default function BlogsPage() {
-    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-    const isHydrated = useAuthStore((state) => state.isHydrated);
-    const user = useAuthStore((state) => state.user);
+    const { isLoggedIn, user } = useAuth();
     const canAddPersonalArticle = user?.user_type !== "merchant";
     const [page, setPage] = useState(1);
 
@@ -24,14 +23,6 @@ export default function BlogsPage() {
 
     const blogs = data?.records || [];
     const totalPages = data ? Math.ceil(data.recordsTotal / 9) : 1;
-
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-        );
-    }
 
     if (error) {
         return (
@@ -47,7 +38,8 @@ export default function BlogsPage() {
             <div className="flex justify-between mb-5">
                 <h1 className="text-2xl font-medium ">جميع المقالات</h1>
 
-                {isHydrated && isLoggedIn && canAddPersonalArticle && (
+                {/* canAddPersonalArticle depends on user.user_type — wait for the user object */}
+                {isLoggedIn && user && canAddPersonalArticle && (
                     <Link
                         href="/my/blogs/create"
                         className="bg-blue-3 text-white px-4 py-2 rounded-sm text-sm flex items-center gap-2 font-medium transition-colors shadow-sm"
@@ -59,7 +51,9 @@ export default function BlogsPage() {
             </div>
 
             {/* Content Grid */}
-            {blogs.length > 0 ? (
+            {isLoading ? (
+                <BlogsGridSkeleton />
+            ) : blogs.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {/* Hero Section - Takes full width on mobile, 2 cols on desktop if available */}
                     {blogs[0] && (

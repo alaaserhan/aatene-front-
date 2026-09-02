@@ -113,6 +113,7 @@ export interface ProductSearchParams {
     max_price?: number;
     condition?: string;
     review_rate?: number;
+    has_discount?: number;
     city_id?: number[];
     store_id?: number;
     order_by?: string;
@@ -259,6 +260,7 @@ export interface User {
     review_count: string;
     city: City | null;
     is_following: boolean;
+    followers_count?: number | string;
     slug?: string;
     cover: string | null;
     cover_url: string | null;
@@ -333,6 +335,7 @@ export interface Store {
     location_cities: City[];
     service_cities: City[];
     description: string;
+    city: City | null;
 }
 
 export interface StoresSearchResponse extends GenericPaginationResponse {

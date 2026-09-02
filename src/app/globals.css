@@ -11,7 +11,7 @@
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
+  --primary: oklch(47.66% 0.0716 252.14);
   --primary-foreground: oklch(0.984 0.003 247.858);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
@@ -38,168 +38,92 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
   /* --------------------------------------------------------------- */
   --white-1: #f9fafb;
-  --blue-1: #C8D7E8;
-  --blue-2: #38587A;
-  --blue-3: #2D496A;
+  --blue-1: #c8d7e8;
+  --blue-2: #38587a;
+  --blue-3: #2d496a;
   --blue-4: #406896;
-  --blue-5: #5B87B91A;
-  --blue-6: #5B88BA33;
-  --gray-1: #9291A5;
+  --blue-5: #5b87b91a;
+  --blue-6: #5b88ba33;
+  --blue-7: #010b38;
+  --gray-1: #9291a5;
   --gray-2: #6d6d6d;
   --gray-3: #6d6d6d;
-  --gray-4: #E3E3E3;
+  --gray-4: #e3e3e3;
   --black-1: #393939;
-  --red-1: #D00416;
-  --red-2: #FB37481A;
-  --gold-1: #D3871A;
-  --gary-4: rgba(170, 170, 170, 0.08);
+  --red-1: #d00416;
+  --red-2: #fb37481a;
+  --gold-1: #d3871a;
+
+  /* --------------------------------------------------------------- */
+  /* NEW COLOR SYSTEM (c2) — use these for all new/updated UI.
+     Legacy tokens above (--blue-*, --gray-*, --red-*, ...) stay as-is
+     until each screen using them gets refactored separately. */
+
+  /* neutral (grays / near-black / near-white) */
+  --c2-neutral-50: #fafafa;
+  --c2-neutral-200: #e3e3e3;
+  --c2-neutral-300-a10: #aaaaaa1a;
+  --c2-neutral-600: #555555;
+  /* breadcrumb: current page (700) vs. ancestor links (500) */
+  --c2-neutral-700: #414141;
+  --c2-neutral-500: #7b7b7b;
+  /* store header action icons (phone, chat) */
+  --c2-neutral-550: #717171;
+  /* store header review counter */
+  --c2-neutral-560: #726f6e;
+  /* tinted slate surface — sample / preview blocks that stand in for a screenshot */
+  --c2-slate-50: #f9fbfc;
+  /* muted slate — inactive tab / segmented-control labels */
+  --c2-slate-500: #64748b;
+  /* secondary body copy — page subtitles, helper lines under a heading */
+  --c2-slate-600: #6a7282;
+  --c2-neutral-800: #2d2d2d;
+  --c2-neutral-900: #222222;
+  /* near-black body copy — detail-row values */
+  --c2-neutral-950: #1c1c1c;
+  /* pure black — detail-row icons and similar flat glyphs */
+  --c2-neutral-1000: #000000;
+
+  /* navy (brand blue family, incl. primary) */
+  --c2-navy-1000: #010b38;
+  --c2-navy-950: #141f2c;
+  --c2-navy-900: #203246;
+  --c2-navy-700: #2d496a;
+  --c2-navy-600: #3d5e83;
+  --c2-navy-500: #406896;
+  --c2-navy-300: #8b96a5;
+  /* palest navy tint — table header rows and similar flat surfaces */
+  --c2-navy-50: #eef2f6;
+  /* navy at low alpha — tinted surfaces (unread rows, icon chips) */
+  --c2-navy-700-a08: #2d496a14;
+
+  /* ink (distinct dark purple-navy surface, not part of the navy scale) */
+  --c2-ink-900: #200e32;
+
+  /* red / danger family */
+  --c2-red-800: #b12b2b;
+  --c2-red-700: #d00416;
+  --c2-red-600: #d92727;
+  --c2-red-500: #e40014;
+  --c2-red-400: #b75959;
+  /* 10% tint of red-500, for destructive icon-button surfaces */
+  --c2-red-500-a10: #e400141a;
+
+  /* status accents */
+  --c2-warning-500: #ffc220;
+  --c2-success-500: #35c21ee5;
+  /* deeper green — approve/accept action buttons */
+  --c2-green-600: #07b131;
+  --c2-amber-400: #fb923c;
+
+  /* semantic aliases */
+  --c2-primary: var(--c2-navy-700);
+  --c2-danger: var(--c2-red-500);
+  --c2-warning: var(--c2-warning-500);
+  --c2-success: var(--c2-success-500);
+  /* filled rating stars — empty ones use --c2-neutral-200 */
+  --c2-rating: var(--c2-amber-400);
 }
-
-.bg-blue-3 {
-  background-color: var(--blue-3);
-}
-
-.bg-blue-2 {
-  background-color: var(--blue-2);
-}
-
-.bg-blue-1 {
-  background-color: var(--blue-1);
-}
-
-.bg-blue-4 {
-  background-color: var(--blue-4);
-}
-
-.bg-blue-5 {
-  background-color: var(--blue-5);
-}
-
-.bg-blue-6 {
-  background-color: var(--blue-6);
-}
-
-.bg-white-1 {
-  background-color: var(--white-1);
-}
-
-.bg-gray-1 {
-  background-color: var(--gray-1);
-}
-
-.bg-gray-2 {
-  background-color: var(--gray-2);
-}
-
-.bg-gray-4 {
-  background-color: var(--gray-3);
-}
-
-.bg-black-1 {
-  background-color: var(--black-1);
-}
-
-.bg-blue-5 {
-  background-color: var(--blue-5);
-}
-
-.bg-red-2 {
-  background-color: var(--red-2);
-}
-
-.bg-gray-3 {
-  background-color: var(--gray-3);
-}
-
-.bg-gray-4 {
-  background-color: var(--gray-4);
-}
-
-.bg-gold-1 {
-  background-color: var(--gold-1);
-}
-
-.border-blue-3 {
-  border-color: var(--blue-3);
-}
-
-.border-blue-2 {
-  border-color: var(--blue-2);
-}
-
-.border-blue-1 {
-  border-color: var(--blue-1);
-}
-
-.border-blue-4 {
-  border-color: var(--blue-4);
-}
-
-.border-blue-5 {
-  border-color: var(--blue-5);
-}
-
-.border-white-1 {
-  border-color: var(--white-1);
-}
-
-
-.border-gray-1 {
-  border-color: var(--gray-1);
-}
-
-.border-gray-2 {
-  border-color: var(--gray-2);
-}
-
-.border-black-1 {
-  border-color: var(--black-1);
-}
-
-.border-blue-5 {
-  border-color: var(--blue-5);
-}
-
-.text-blue-3 {
-  color: var(--blue-3);
-}
-
-.text-blue-2 {
-  color: var(--blue-2);
-}
-
-.text-blue-1 {
-  color: var(--blue-1);
-}
-
-.text-blue-4 {
-  color: var(--blue-4);
-}
-
-.text-blue-5 {
-  color: var(--blue-5);
-}
-
-.text-gray-2 {
-  color: var(--gray-2);
-}
-
-.text-gray-3 {
-  color: var(--gray-3);
-}
-
-
-.text-red-1 {
-  color: var(--red-1);
-}
-
-.text-gold-1 {
-  color: var(--gold-1);
-}
-
-
-
-
 
 @theme inline {
   --color-background: var(--white-1);
@@ -239,6 +163,67 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-white-1: var(--white-1);
+  --color-blue-1: var(--blue-1);
+  --color-blue-2: var(--blue-2);
+  --color-blue-3: var(--blue-3);
+  --color-blue-4: var(--blue-4);
+  --color-blue-5: var(--blue-5);
+  --color-blue-6: var(--blue-6);
+  --color-blue-7: var(--blue-7);
+  --color-gray-1: var(--gray-1);
+  --color-gray-2: var(--gray-2);
+  --color-gray-3: var(--gray-3);
+  --color-gray-4: var(--gray-4);
+  --color-black-1: var(--black-1);
+  --color-red-1: var(--red-1);
+  --color-red-2: var(--red-2);
+  --color-gold-1: var(--gold-1);
+  --color-gray-5: #555555;
+  --color-gray-6: #8e8e8e;
+  --color-gray-7: #1c1c1c;
+
+  /* c2 — new color system, see :root for notes */
+  --color-c2-neutral-50: var(--c2-neutral-50);
+  --color-c2-neutral-200: var(--c2-neutral-200);
+  --color-c2-neutral-300-a10: var(--c2-neutral-300-a10);
+  --color-c2-neutral-600: var(--c2-neutral-600);
+  --color-c2-neutral-700: var(--c2-neutral-700);
+  --color-c2-neutral-500: var(--c2-neutral-500);
+  --color-c2-neutral-550: var(--c2-neutral-550);
+  --color-c2-neutral-560: var(--c2-neutral-560);
+  --color-c2-slate-50: var(--c2-slate-50);
+  --color-c2-slate-500: var(--c2-slate-500);
+  --color-c2-slate-600: var(--c2-slate-600);
+  --color-c2-neutral-800: var(--c2-neutral-800);
+  --color-c2-neutral-900: var(--c2-neutral-900);
+  --color-c2-neutral-950: var(--c2-neutral-950);
+  --color-c2-neutral-1000: var(--c2-neutral-1000);
+  --color-c2-navy-1000: var(--c2-navy-1000);
+  --color-c2-navy-950: var(--c2-navy-950);
+  --color-c2-navy-900: var(--c2-navy-900);
+  --color-c2-navy-700: var(--c2-navy-700);
+  --color-c2-navy-600: var(--c2-navy-600);
+  --color-c2-navy-500: var(--c2-navy-500);
+  --color-c2-navy-300: var(--c2-navy-300);
+  --color-c2-navy-50: var(--c2-navy-50);
+  --color-c2-navy-700-a08: var(--c2-navy-700-a08);
+  --color-c2-ink-900: var(--c2-ink-900);
+  --color-c2-red-800: var(--c2-red-800);
+  --color-c2-red-700: var(--c2-red-700);
+  --color-c2-red-600: var(--c2-red-600);
+  --color-c2-red-500: var(--c2-red-500);
+  --color-c2-red-400: var(--c2-red-400);
+  --color-c2-red-500-a10: var(--c2-red-500-a10);
+  --color-c2-warning-500: var(--c2-warning-500);
+  --color-c2-success-500: var(--c2-success-500);
+  --color-c2-green-600: var(--c2-green-600);
+  --color-c2-amber-400: var(--c2-amber-400);
+  --color-c2-primary: var(--c2-primary);
+  --color-c2-danger: var(--c2-danger);
+  --color-c2-warning: var(--c2-warning);
+  --color-c2-success: var(--c2-success);
+  --color-c2-rating: var(--c2-rating);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -249,14 +234,13 @@
 }
 
 body {
-  background: var(--white-1);
+  background: #f8fafc;
   color: var(--black-1);
   min-height: 100vh;
   height: 100%;
   max-width: 100vw !important;
   overflow-x: hidden !important;
 }
-
 
 .dark {
   --background: oklch(0.129 0.042 264.695);
@@ -292,7 +276,6 @@ body {
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
-
 html {
   scroll-behavior: smooth;
 }
@@ -305,7 +288,7 @@ html {
 }
 
 .gradient-blue {
-  background: linear-gradient(90deg, #5E8CBE 0%, #3B5D80 100%);
+  background: linear-gradient(90deg, #5e8cbe 0%, #3b5d80 100%);
 }
 
 @media (max-width: 676px) {
@@ -341,8 +324,8 @@ html body[data-scroll-locked] {
   margin-bottom: 0.5em;
 }
 
-.prose ol>li::marker,
-.prose ul>li::marker {
+.prose ol > li::marker,
+.prose ul > li::marker {
   color: #6b7280;
 }
 
@@ -355,7 +338,6 @@ html body[data-scroll-locked] {
 .prose a:hover {
   color: var(--blue-3);
 }
-
 
 .phone-input-container .PhoneInput {
   display: flex;
@@ -424,7 +406,8 @@ html body[data-scroll-locked] {
   color: hsl(var(--popover-foreground));
   border-radius: 0.5rem;
   border: 1px solid hsl(var(--border));
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 0.25rem;
 }
@@ -441,15 +424,46 @@ html body[data-scroll-locked] {
   outline: none;
 }
 
-
 @layer base {
-
   /* Firefox */
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--blue-4) transparent;
   }
 
+  button {
+    cursor: pointer;
+  }
+
+  .heading-1 {
+    @apply text-xl md:text-2xl font-bold text-c2-primary;
+  }
+
+  .heading-2 {
+    @apply text-base text-gray-6 font-normal;
+  }
+
+  .heading-3 {
+    @apply text-2xl md:text-3xl text-c2-primary font-medium;
+  }
+
+  .heading-card {
+    @apply bg-white rounded-lg border border-gray-200 px-4 py-4 lg:py-7 lg:px-9;
+  }
+
+  .heading-lg {
+    @apply text-2xl lg:text-3xl font-bold mb-6 text-c2-neutral-900;
+  }
+
+  .white-card {
+    @apply bg-white rounded-xl border border-c2-neutral-200 p-4;
+    box-shadow: 0px 4px 7px 0px #00000014;
+  }
+
+  .card-shadow {
+    box-shadow: 0px 4px 6px 0px #0000001a;
+    box-shadow: 0px 10px 15px 0px #0000001a;
+  }
 }
 
 .font-baseline-fix {
@@ -477,4 +491,19 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: none;
+}
+
+/* Prevent iOS Safari from auto-zooming when focusing inputs with font-size < 16px */
+@supports (-webkit-touch-callout: none) {
+  input,
+  textarea,
+  select,
+  [contenteditable] {
+    font-size: 16px;
+  }
+}
+
+.reverse-in-rtl,
+.lucide-circle-question-mark {
+  @apply rtl:scale-x-[-1];
 }

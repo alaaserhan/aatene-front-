@@ -16,7 +16,9 @@ import { TermsSection } from "./TermsSection";
 import { PrivacyPolicySection } from "./PrivacyPolicySection";
 import { SocialMediaSection } from "./SocialMediaSection";
 import { CaseManagement, type CaseManagementData } from "./CaseManagement";
+import { ChatBotSection, type ChatBotData } from "./ChatBotSection";
 import { useGetSettings, useUpdateSettings } from "../hooks";
+import { isSettingFlagEnabled } from "@/src/stores/settings-store";
 import { toast } from "sonner";
 import type { PolicyItemPayload, TranslatableString } from "../api";
 
@@ -60,6 +62,7 @@ interface SettingsFormData {
   privacyPolicies: PolicyParagraph[];
   terms: PolicyParagraph[];
   caseManagement: CaseManagementData;
+  chatBot: ChatBotData;
 }
 
 const settingsItems = [
@@ -86,6 +89,11 @@ const settingsItems = [
   {
     id: "case-management",
     title: "إدارة الحالة",
+    isCompleted: true,
+  },
+  {
+    id: "chat-bot",
+    title: "المساعد الذكي",
     isCompleted: true,
   },
 ];
@@ -139,6 +147,9 @@ export function ClientSettingsPage() {
       isSiteUnderConstruction: false,
       isAppUnderConstruction: false,
       isAppNeedsUpdate: false,
+    },
+    chatBot: {
+      isChatBotAllowed: true,
     },
   });
 
@@ -196,6 +207,11 @@ export function ClientSettingsPage() {
           isAppUnderConstruction: !!settings.is_app_under_construction,
           isAppNeedsUpdate: !!settings.is_app_needs_update,
         },
+        chatBot: {
+          // The flag can arrive as false/0/"0"; anything else (including a
+          // missing flag) keeps the bot enabled.
+          isChatBotAllowed: isSettingFlagEnabled(settings.is_chat_bot_allowed, true),
+        },
       });
     }
   }, [settingsData]);
@@ -236,6 +252,13 @@ export function ClientSettingsPage() {
     setFormData((prev) => ({
       ...prev,
       caseManagement: { ...prev.caseManagement, ...data },
+    }));
+  };
+
+  const handleChatBotChange = (data: Partial<ChatBotData>) => {
+    setFormData((prev) => ({
+      ...prev,
+      chatBot: { ...prev.chatBot, ...data },
     }));
   };
 
@@ -307,6 +330,7 @@ export function ClientSettingsPage() {
         is_site_under_construction: formData.caseManagement.isSiteUnderConstruction,
         is_app_under_construction: formData.caseManagement.isAppUnderConstruction,
         is_app_needs_update: formData.caseManagement.isAppNeedsUpdate,
+        is_chat_bot_allowed: formData.chatBot.isChatBotAllowed,
       });
     } catch (error) {
 
@@ -401,6 +425,13 @@ export function ClientSettingsPage() {
                   <CaseManagement
                     data={formData.caseManagement}
                     onChange={handleCaseManagementChange}
+                  />
+                )}
+
+                {item.id === "chat-bot" && (
+                  <ChatBotSection
+                    data={formData.chatBot}
+                    onChange={handleChatBotChange}
                   />
                 )}
               </AccordionContent>

@@ -37,7 +37,7 @@ export default function CrossSellsSection({
     const savings = originalTotal - parseFloat(crossSellsPrice);
 
     return (
-        <div className="my-10 md:my-20">
+        <div className="white-card mt-8 p-4 lg:p-8">
             {/* العنوان والأسهم */}
             <div className="flex flex-col items-center gap-4 border-b border-gray-100 pb-5 mb-6 px-2 text-center">
                 <div className="min-w-0 space-y-2 text-center">

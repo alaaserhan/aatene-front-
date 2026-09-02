@@ -10,7 +10,7 @@ import {
     getCategoryPathFromLeaf,
 } from "@/src/features/(web)/search/utils/categoryTree";
 
-export type MegaMenuSearchType = "products" | "services" | "stores" | "users";
+export type { SearchType as MegaMenuSearchType } from "../types";
 
 export type CategoryKind = "product" | "service";
 

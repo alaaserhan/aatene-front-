@@ -352,7 +352,6 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
                     <div className="space-y-4">
                         <div className="flex items-center gap-1">
                             <Label className="  font-medium">الفقرات</Label>
-                            <span className="text-red-500">*</span>
                         </div>
 
                         <div className="space-y-3">
@@ -430,7 +429,7 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
                                     required
                                     helpTooltip=""
                                     helpText=""
-                                    placeholder="... نص المحتوى"
+                                    placeholder="نص المحتوى..."
                                     className="min-h-[300px]"
                                     error={errors.paraContent}
                                 />

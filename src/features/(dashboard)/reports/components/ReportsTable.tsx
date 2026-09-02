@@ -35,7 +35,7 @@ export function ReportsTable({ reports, isLoading, showStore = true, emptyMessag
             <table className="w-full">
                 <thead className="bg-[#F9FAFB]">
                     <tr>
-                        <th className="px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">رقم الشكوي</th>
+                        <th className="px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">رقم الشكوى</th>
                         <th className="px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">العميل</th>
                         <th className="hidden sm:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">نوع البلاغ</th>
                         {showStore && (

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { API_BASE_URL } from "@/src/lib/config";
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     const backendRes = await fetch(
-      "https://backend.aatene.com/api/ai-support/admin/knowledge-bank",
+      API_BASE_URL + "/ai-support/admin/knowledge-bank",
       {
         method: "POST",
         headers: {

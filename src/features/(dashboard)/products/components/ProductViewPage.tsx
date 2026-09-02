@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Pen, Phone, Send, CheckCircle2, XCircle, PauseCircle, Trash2, Play } from "lucide-react";
 import Cookies from "js-cookie";
@@ -10,14 +10,14 @@ import { useGetSingleStore } from "@/src/features/(dashboard)/stores/hooks";
 import { useGetCities } from "@/src/features/(dashboard)/cities/hooks";
 import { useGetProductReviews, useGetProductReviewReplies, useAddProductReview } from "@/src/features/(web)/product/hooks";
 import { ReviewStatisticsDisplay } from "@/src/features/(web)/product/components/ReviewStatisticsDisplay";
-import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
-import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
+import { ReviewItem, ReviewsSection, type ReviewSubmitPayload, type SharedReview } from "@/src/components/(web)/reviews";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { RejectProductModal } from "./RejectProductModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ShareModal } from "@/src/components/ui/ShareModal";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { Button } from "@/src/components/ui/button";
 import { Switch } from "@/src/components/ui/switch";
 import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
@@ -26,6 +26,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 export default function ProductViewPage() {
     const params = useParams();
@@ -38,6 +39,8 @@ export default function ProductViewPage() {
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successModalTitle, setSuccessModalTitle] = useState("");
+    // بعد قبول/رفض منتج كان "قيد المراجعة" → نُوجّه الأدمن لتبويب قيد المراجعة
+    const [redirectAfterSuccess, setRedirectAfterSuccess] = useState<string | null>(null);
     const [activeImage, setActiveImage] = useState<string | null>(null);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -58,6 +61,10 @@ export default function ProductViewPage() {
         staleTime: 0,
         refetchOnWindowFocus: true,
     });
+
+    useEffect(() => {
+        window.scrollTo({ top: 0 });
+    }, []);
 
     // عند تغيّر الـ status (مثلاً أُعيد قبوله بعد رفضه) → أعِد إظهار الـ alert
     useEffect(() => {
@@ -122,20 +129,29 @@ export default function ProductViewPage() {
         );
     };
 
+    // إن كان المنتج قيد المراجعة وقت اتخاذ الإجراء → نُوجّه لتبويب "قيد المراجعة" بعد الإغلاق
+    const reviewRedirectUrl = "/admin/productProviders?status=pending";
+
     const handleApprove = () => {
+        const wasInReview = dashboardData?.data?.status === "pending";
         updateStatus(
             { id: Number(id), payload: { status: "approved" } },
             {
                 onSuccess: () => {
                     setSuccessModalTitle("تمت الموافقة على المنتج بنجاح");
                     setIsSuccessModalOpen(true);
-                    refetch();
+                    if (isAdmin && wasInReview) {
+                        setRedirectAfterSuccess(reviewRedirectUrl);
+                    } else {
+                        refetch();
+                    }
                 },
             }
         );
     };
 
     const confirmReject = (reasonText: string, details: string) => {
+        const wasInReview = dashboardData?.data?.status === "pending";
         const fullReason = details ? `${reasonText} - ${details}` : reasonText;
         updateStatus(
             { id: Number(id), payload: { status: "rejected", reject_reason: fullReason } },
@@ -144,10 +160,23 @@ export default function ProductViewPage() {
                     setIsRejectModalOpen(false);
                     setSuccessModalTitle("تم رفض المنتج بنجاح");
                     setIsSuccessModalOpen(true);
-                    refetch();
+                    if (isAdmin && wasInReview) {
+                        setRedirectAfterSuccess(reviewRedirectUrl);
+                    } else {
+                        refetch();
+                    }
                 },
             }
         );
+    };
+
+    const handleSuccessModalClose = () => {
+        setIsSuccessModalOpen(false);
+        if (redirectAfterSuccess) {
+            const target = redirectAfterSuccess;
+            setRedirectAfterSuccess(null);
+            router.push(target);
+        }
     };
 
     const handleDelete = () => {
@@ -430,7 +459,7 @@ export default function ProductViewPage() {
                                         <p className="mb-4 font-medium whitespace-pre-line">{raw.short_description}</p>
                                     )}
                                     {raw.description ? (
-                                        <div dangerouslySetInnerHTML={{ __html: raw.description }} />
+                                        <SafeHTML html={raw.description} />
                                     ) : !raw.short_description && (
                                         <p>لا يوجد وصف متاح لهذا المنتج.</p>
                                     )}
@@ -511,7 +540,7 @@ export default function ProductViewPage() {
                                                 <span className="font-black text-2xl whitespace-nowrap">₪ {raw.cross_sells_price || 0}</span>
                                             </div>
                                             <p className="text-sm text-gray-500 line-through mt-2 text-center md:text-right">بدلاً من ₪ {Number(raw.price) + (Number(raw.cross_sells_price) || 0) + 50}</p>
-                                            <p className="text-xs text-red-500 font-bold mt-1 text-center md:text-right">وفر 10 ₪!</p>
+                                            <p className="text-xs text-red-500 font-bold mt-1 text-center md:text-right">وفر ₪ {(Number(raw.price) + (Number(raw.cross_sells_price) || 0) + 50) - (Number(raw.cross_sells_price) || 0)}!</p>
                                         </div>
                                     </div>
                                 </div>
@@ -632,10 +661,16 @@ export default function ProductViewPage() {
                                         <Phone className="w-4 h-4 text-white" />
                                         <span dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
                                     </Button>
-                                    <Button variant="outline" className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
-                                        <span>دردشة</span>
-                                        <Send className="w-4 h-4" />
-                                    </Button>
+                                    <ChatNowButton
+                                        variant="outline"
+                                        target={{ type: "store", id: store?.id }}
+                                        basePath="/admin/chat"
+                                        label="دردشة"
+                                        icon={<Send className="w-4 h-4" />}
+                                        iconPosition="end"
+                                        iconClassName="w-4 h-4"
+                                        className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -653,10 +688,10 @@ export default function ProductViewPage() {
             />
             <SuccessModal
                 isOpen={isSuccessModalOpen}
-                onClose={() => setIsSuccessModalOpen(false)}
+                onClose={handleSuccessModalClose}
                 title={successModalTitle}
                 buttonText="تم"
-                onButtonClick={() => setIsSuccessModalOpen(false)}
+                onButtonClick={handleSuccessModalClose}
             />
             <ShareModal
                 isOpen={isShareModalOpen}
@@ -702,23 +737,14 @@ function DashboardProductMedia({ src, alt }: { src?: string | null; alt: string 
 }
 
 function ProductReviewsSection({ slug, summary }: { slug: string; summary: { count: number; rate: number } }) {
-    const formRef = useRef<ReviewFormRef>(null);
-    const [parentId, setParentId] = useState<number | null>(null);
-    const [replyToName, setReplyToName] = useState<string | null>(null);
     const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
     const [mediaViewerState, setMediaViewerState] = useState<{ isOpen: boolean; media: string[]; index: number }>({
         isOpen: false, media: [], index: 0,
     });
 
-    const { data, isLoading } = useGetProductReviews(slug);
+    const [page, setPage] = useState(1);
+    const { data, isLoading, refetch: refetchReviews } = useGetProductReviews(slug, page);
     const { mutate: addReview, isPending } = useAddProductReview();
-
-    const handleReply = (id: number, userName: string) => {
-        setParentId(id);
-        setReplyToName(userName);
-        formRef.current?.scrollToForm();
-        formRef.current?.focusTextarea();
-    };
 
     const handleSubmit = (formData: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
         return new Promise<void>((resolve, reject) => {
@@ -726,8 +752,6 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
                 { slug, payload: { content: formData.content, rate: String(formData.rate), images: formData.images, parent_id: formData.parent_id } },
                 {
                     onSuccess: () => {
-                        setParentId(null);
-                        setReplyToName(null);
                         if (formData.parent_id) setExpandedReplies((prev) => new Set(prev).add(formData.parent_id!));
                         resolve();
                     },
@@ -745,8 +769,6 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
         });
     };
 
-    if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-blue-3" /></div>;
-
     const reviews = data?.reviews || [];
     const statistics = data?.rate_stats
         ? { total_reviews: data.total || 0, average_rate: Number(data.avg_rate) || 0, stars: data.rate_stats }
@@ -755,31 +777,31 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
             : undefined;
 
     return (
-        <div className="space-y-6">
-            {statistics && <ReviewStatisticsDisplay stats={statistics} />}
-
-            {reviews.length > 0 ? (
-                <div className="space-y-4">
-                    {reviews.map((review) => {
-                        const showReplies = expandedReplies.has(review.id);
-                        return (
-                            <ReviewItemWithReplies
-                                key={review.id}
-                                review={review as unknown as SharedReview}
-                                slug={slug}
-                                onOpenMedia={(media, index) => setMediaViewerState({ isOpen: true, media, index })}
-                                onReply={handleReply}
-                                showReplies={showReplies}
-                                onToggleReplies={handleToggleReplies}
-                            />
-                        );
-                    })}
-                </div>
-            ) : (
-                <div className="text-center py-10 bg-gray-50 rounded-lg">
-                    <p className="text-gray-2">لا توجد مراجعات بعد</p>
-                </div>
-            )}
+        <>
+            <ReviewsSection
+                stats={statistics && <ReviewStatisticsDisplay stats={statistics} />}
+                isLoading={isLoading}
+                itemsOnPage={reviews.length}
+                total={data?.total}
+                page={page}
+                setPage={setPage}
+                onSubmit={handleSubmit}
+                isSubmitting={isPending}
+            >
+                {reviews.map((review) => (
+                    <ReviewItemWithReplies
+                        key={review.id}
+                        review={review as unknown as SharedReview}
+                        slug={slug}
+                        onOpenMedia={(media, index) => setMediaViewerState({ isOpen: true, media, index })}
+                        onSubmitReply={handleSubmit}
+                        isSubmittingReply={isPending}
+                        showReplies={expandedReplies.has(review.id)}
+                        onToggleReplies={handleToggleReplies}
+                        onReviewChanged={refetchReviews}
+                    />
+                ))}
+            </ReviewsSection>
 
             {mediaViewerState.isOpen && (
                 <MediaViewer
@@ -789,40 +811,41 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
                     initialIndex={mediaViewerState.index}
                 />
             )}
-
-            <ReviewForm
-                ref={formRef}
-                onSubmit={handleSubmit}
-                isSubmitting={isPending}
-                parentId={parentId}
-                replyToName={replyToName}
-                onCancelReply={() => { setParentId(null); setReplyToName(null); }}
-            />
-        </div>
+        </>
     );
 }
 
-function ReviewItemWithReplies({ review, slug, onOpenMedia, onReply, showReplies, onToggleReplies }: {
+function ReviewItemWithReplies({ review, slug, onOpenMedia, onSubmitReply, isSubmittingReply, showReplies, onToggleReplies, onReviewChanged }: {
     review: SharedReview;
     slug: string;
     onOpenMedia: (media: string[], index: number) => void;
-    onReply: (id: number, userName: string) => void;
+    onSubmitReply: (data: ReviewSubmitPayload) => Promise<void> | void;
+    isSubmittingReply: boolean;
     showReplies: boolean;
     onToggleReplies: (id: number) => void;
+    onReviewChanged: () => void;
 }) {
-    const { data: repliesData, isLoading: isLoadingReplies } = useGetProductReviewReplies(slug, showReplies ? review.id : 0);
+    const { data: repliesData, isLoading: isLoadingReplies, refetch: refetchReplies } = useGetProductReviewReplies(slug, showReplies ? review.id : 0);
     const replies = (repliesData?.reviews || []) as unknown as SharedReview[];
+
+    const handleChanged = () => {
+        onReviewChanged();
+        if (showReplies) refetchReplies();
+    };
 
     return (
         <ReviewItem
             review={review}
             onOpenMedia={onOpenMedia}
             reportType="comment"
-            onReply={onReply}
+            onSubmitReply={onSubmitReply}
+            isSubmittingReply={isSubmittingReply}
             showReplies={showReplies}
             onToggleReplies={onToggleReplies}
             replies={replies}
             isLoadingReplies={isLoadingReplies && showReplies}
+            onDeleted={handleChanged}
+            onUpdated={handleChanged}
         />
     );
 }

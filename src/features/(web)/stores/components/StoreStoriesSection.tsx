@@ -37,7 +37,7 @@ export default function StoreStoriesSection({
 
     const filteredHighlights = highlights.filter(h => h.stories && h.stories.length > 0);
 
-    if (!isOwnStore && !isAdmin && filteredHighlights.length === 0) return null;
+    if (!isOwnStore && filteredHighlights.length === 0) return null;
 
     const getLastStory = (highlight: StoreHighlight) => {
         if (!highlight.stories || highlight.stories.length === 0) return undefined;
@@ -71,8 +71,7 @@ export default function StoreStoriesSection({
     };
 
     return (
-        <div className="mb-8 bg-white p-3 rounded-lg border border-gray-100 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
-            <h2 className="font-bold text-gray-900 mb-2 px-1 border-b border-gray-100 pb-2" dir="rtl">أبرز الأحداث</h2>
+        <div className="mb-8 white-card">
             <div className="flex gap-4 overflow-x-auto py-2 px-1 scrollbar-hide" dir="rtl">
                 {isOwnStore && onAddHighlight && (
                     <button
@@ -110,7 +109,7 @@ export default function StoreStoriesSection({
                                 </div>
                                 <div className="flex flex-col text-right">
                                     <span className="font-medium text-blue-4 text-sm">نص</span>
-                                    <span className="text-xs text-gray-2 mt-0.5">قم باضافة نص الي القصة</span>
+                                    <span className="text-xs text-gray-2 mt-0.5">قم بإضافة نص الي القصة</span>
                                 </div>
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -122,7 +121,7 @@ export default function StoreStoriesSection({
                                 </div>
                                 <div className="flex flex-col text-right">
                                     <span className="font-medium text-blue-4 text-sm">صورة او فيديو</span>
-                                    <span className="text-xs text-gray-2 mt-0.5">قم باضافة صورة او فيديو الي القصة</span>
+                                    <span className="text-xs text-gray-2 mt-0.5">قم بإضافة صورة او فيديو الي القصة</span>
                                 </div>
                             </DropdownMenuItem>
                         </DropdownMenuContent>

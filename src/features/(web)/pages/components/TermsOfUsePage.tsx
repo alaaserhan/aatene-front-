@@ -6,6 +6,7 @@ import Image from "next/image";
 import { cn } from "@/src/lib/utils";
 import { useGetTermsAndConditions } from "@/src/features/(web)/pages/hooks";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { useParams } from "next/navigation";
 
 export default function TermsPage() {
@@ -207,10 +208,9 @@ export default function TermsPage() {
                                             <h2 className="text-[17px] text-blue-4 mb-2  font-medium">
                                                 {index + 1}. {item.title?.[lang]}
                                             </h2>
-                                            {/* Using dangerouslySetInnerHTML because the API response contains HTML tags like <div><br></div> */}
-                                            <div
+                                            <SafeHTML
+                                                html={item.content?.[lang]}
                                                 className="text-[15px] leading-loose whitespace-pre-line"
-                                                dangerouslySetInnerHTML={{ __html: item.content?.[lang] || "" }}
                                             />
                                         </div>
                                     ))

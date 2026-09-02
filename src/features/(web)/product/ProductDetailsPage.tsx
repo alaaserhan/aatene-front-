@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, notFound } from "next/navigation";
-import { useGetProductBySlug, useGetProductPageDataBySlug } from "./hooks";
+import { Section } from "@/src/components/shared/Container";
 import { Loader2 } from "lucide-react";
-import ProductHero from "./components/ProductHero";
-import ShippingPolicies from "./components/ShippingPolicies";
-import StoreInfoBar from "./components/StoreInfoBar";
+import { notFound, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import CrossSellsSection from "./components/CrossSellsSection";
-import ProductTabs from "./components/ProductTabs";
+import ProductHero from "./components/ProductHero";
 import ProductsChooseForYou from "./components/ProductsChooseForYou";
+import ProductTabs from "./components/ProductTabs";
+import ShippingPolicies from "./components/ShippingPolicies";
 import StoresYouMayLike from "./components/StoresYouMayLike";
+import { useGetProductBySlug, useGetProductPageDataBySlug } from "./hooks";
 
 function firstStringField(source: Record<string, unknown>, keys: string[]) {
     for (const key of keys) {
@@ -66,50 +66,50 @@ export default function ProductDetailsPage() {
     ]);
 
     return (
-        <div className="max-w-[1280px] mx-auto w-full px-4 md:px-8 lg:px-16 py-8" dir="rtl">
-            {/* Component 1: Product Hero with Image Gallery & Info */}
-            <ProductHero
-                product={product}
-                store={store}
-                attributes={attributes}
-            />
-
-            {/* Component 2: Shipping & Policies */}
-
-            <ShippingPolicies
-                product={product}
-                store={store}
-                shippingCompany={pageData?.shippingCompany}
-                shippingDetails={pageData?.shippingDetails}
-                allShippingCompanies={pageData?.allShippingCompanies}
-                deliveryType={pageData?.delivery_type ?? store.delivery_type}
-                onCityChange={(city) => setSelectedDeliveryCityId(city.id)}
-            />
-
-            {/* Component 3: Store Info Bar */}
-            <StoreInfoBar store={store} />
-
-            {/* Component 5: Cross-Sells Bundle */}
-            {product.crossSells && product.crossSells.length > 0 && (
-                <CrossSellsSection
-                    crossSells={product.crossSells}
-                    crossSellsPrice={product.cross_sells_price}
-                    crossSellsName={crossSellsName}
-                    crossSellsDescription={crossSellsDescription}
+        <div dir="rtl" className="bg-white">
+            {/* Tinted band: hero + the tabs triggers (rendered by ProductTabs, which
+                is full-bleed so it can close this band and open the white one). */}
+            <Section className="bg-c2-neutral-50 pt-8 pb-6 lg:pb-8">
+                <ProductHero
+                    product={product}
+                    store={store}
+                    attributes={attributes}
+                    shipping={
+                        <ShippingPolicies
+                            product={product}
+                            store={store}
+                            shippingCompany={pageData?.shippingCompany}
+                            shippingDetails={pageData?.shippingDetails}
+                            allShippingCompanies={pageData?.allShippingCompanies}
+                            deliveryType={pageData?.delivery_type ?? store.delivery_type}
+                            onCityChange={(city) => setSelectedDeliveryCityId(city.id)}
+                            className="mt-6"
+                        />
+                    }
                 />
-            )}
 
-            {/* Component 4: Description & Reviews Tabs */}
+                {product.crossSells && product.crossSells.length > 0 && (
+                    <CrossSellsSection
+                        crossSells={product.crossSells}
+                        crossSellsPrice={product.cross_sells_price}
+                        crossSellsName={crossSellsName}
+                        crossSellsDescription={crossSellsDescription}
+                    />
+                )}
+            </Section>
+
             <ProductTabs product={product} store={store} />
 
-            {/* Component 5: Products Choose For You */}
             {pageData?.productsChooseForYou && pageData.productsChooseForYou.length > 0 && (
-                <ProductsChooseForYou products={pageData.productsChooseForYou} />
+                <Section className="bg-c2-neutral-50 pt-8 pb-6 lg:pb-8">
+                    <ProductsChooseForYou products={pageData.productsChooseForYou} />
+                </Section>
             )}
 
-            {/* Component 6: Stores You May Like */}
             {pageData?.storesYouMayLike && pageData.storesYouMayLike.length > 0 && (
-                <StoresYouMayLike stores={pageData.storesYouMayLike} />
+                <Section className="bg-c2-neutral-50 pt-8 pb-6 lg:pb-8">
+                    <StoresYouMayLike stores={pageData.storesYouMayLike} />
+                </Section>
             )}
         </div>
     );
