@@ -37,6 +37,7 @@ export interface GlobalSettingsData {
     is_site_under_construction?: boolean | number | string;
     is_app_under_construction?: boolean | number | string;
     is_app_needs_update?: boolean | number | string;
+    is_chat_bot_allowed?: boolean | number | string;
 }
 
 export interface GetGlobalSettingsResponse extends BaseResponse {

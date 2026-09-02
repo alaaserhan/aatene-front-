@@ -4,12 +4,14 @@ import { useEffect } from "react";
 import { Bot } from "lucide-react";
 import { useAuth } from "@/src/auth";
 import { useUIStore } from "@/src/stores/ui-store";
+import { useIsChatBotAllowed } from "@/src/stores/settings-store";
 import { usePathname } from "next/navigation";
 import BotChatWindow from "./BotChatWindow";
 
 export default function BotChat() {
     const { isLoggedIn, user } = useAuth();
     const pathname = usePathname();
+    const isChatBotAllowed = useIsChatBotAllowed();
 
     const isOpen = useUIStore((state) => state.isChatOpen);
     const setChatOpen = useUIStore((state) => state.setChatOpen);
@@ -19,6 +21,13 @@ export default function BotChat() {
         setChatOpen(false);
     }, [pathname, setChatOpen]);
 
+    // The bot can be turned off platform-wide from the admin settings; make
+    // sure a window left open in the store doesn't survive that.
+    useEffect(() => {
+        if (!isChatBotAllowed) setChatOpen(false);
+    }, [isChatBotAllowed, setChatOpen]);
+
+    if (!isChatBotAllowed) return null;
     if (!isLoggedIn || !user) return null;
 
     return (
