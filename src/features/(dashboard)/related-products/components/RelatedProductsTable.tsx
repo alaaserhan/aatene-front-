@@ -88,7 +88,7 @@ export function RelatedProductsTable({
                                 {/* Offer name */}
                                 <td className="px-6 py-4">
                                     <span className="line-clamp-2 text-sm font-medium text-c2-neutral-900">
-                                        {offer.cross_sells_name || "-"}
+                                        {offer.offer_name || "-"}
                                     </span>
                                 </td>
 
@@ -96,10 +96,10 @@ export function RelatedProductsTable({
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
                                         <div className="relative size-12 shrink-0 overflow-hidden rounded bg-c2-neutral-50">
-                                            {offer.cover_url ? (
+                                            {offer.product_cover_url ? (
                                                 <VideoOrImage
-                                                    src={offer.cover_url}
-                                                    alt={offer.name || ""}
+                                                    src={offer.product_cover_url}
+                                                    alt={offer.product_name || ""}
                                                     fill
                                                     thumb
                                                 />
@@ -110,7 +110,7 @@ export function RelatedProductsTable({
                                             )}
                                         </div>
                                         <span className="line-clamp-2 text-sm text-c2-neutral-700">
-                                            {offer.name || "-"}
+                                            {offer.product_name || "-"}
                                         </span>
                                     </div>
                                 </td>
@@ -122,24 +122,24 @@ export function RelatedProductsTable({
 
                                 {/* Price before the offer */}
                                 <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-c2-neutral-500 line-through">
-                                    {formatPrice(offer.cross_sells_original_price)} ₪
+                                    {formatPrice(offer.offer_original_price)} ₪
                                 </td>
 
                                 {/* Price after the offer */}
                                 <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-semibold text-c2-primary">
-                                    {formatPrice(offer.cross_sells_price)} ₪
+                                    {formatPrice(offer.offer_price)} ₪
                                 </td>
 
                                 {/* Due date */}
                                 <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-c2-neutral-700">
-                                    {formatDate(offer.cross_sells_due_date)}
+                                    {formatDate(offer.offer_due_date)}
                                 </td>
 
                                 {/* Status */}
                                 <td className="whitespace-nowrap px-6 py-4">
                                     <div className="flex justify-center">
                                         <ToggleSwitch
-                                            enabled={offer.cross_sells_status === "active"}
+                                            enabled={offer.offer__status === "active"}
                                             onChange={() => onToggleStatus(offer)}
                                         />
                                     </div>

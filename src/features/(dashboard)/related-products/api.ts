@@ -39,10 +39,10 @@ export const getCrossSellingOffers = async (
 };
 
 export const getCrossSellingOffer = async (
-    productId: number | string
+    offerId: number | string
 ): Promise<SingleCrossSellingOfferResponse> => {
     const { data } = await api.get<SingleCrossSellingOfferResponse>(
-        `${BASE_URL}/${productId}`,
+        `${BASE_URL}/${offerId}`,
         { headers: storeHeaders() }
     );
     return data;
@@ -58,11 +58,11 @@ export const createCrossSellingOffer = async (
 };
 
 export const updateCrossSellingOffer = async (
-    productId: number | string,
+    offerId: number | string,
     payload: CrossSellingOfferUpdatePayload
 ): Promise<SingleCrossSellingOfferResponse> => {
     const { data } = await api.post<SingleCrossSellingOfferResponse>(
-        `${BASE_URL}/${productId}`,
+        `${BASE_URL}/${offerId}`,
         payload,
         { headers: storeHeaders() }
     );
@@ -70,20 +70,20 @@ export const updateCrossSellingOffer = async (
 };
 
 export const deleteCrossSellingOffer = async (
-    productId: number | string
+    offerId: number | string
 ): Promise<BaseResponse> => {
-    const { data } = await api.delete<BaseResponse>(`${BASE_URL}/${productId}`, {
+    const { data } = await api.delete<BaseResponse>(`${BASE_URL}/${offerId}`, {
         headers: storeHeaders(),
     });
     return data;
 };
 
 export const updateCrossSellingOfferStatus = async (
-    productId: number | string,
+    offerId: number | string,
     status: CrossSellingStatus
 ): Promise<BaseResponse> => {
     const { data } = await api.post<BaseResponse>(
-        `${BASE_URL}/${productId}/update-status`,
+        `${BASE_URL}/${offerId}/update-status`,
         { status },
         { headers: storeHeaders() }
     );

@@ -1,4 +1,4 @@
-// src/features/(dashboard)/related-products/components/create/CreateOfferDialog.tsx
+// src/features/(dashboard)/related-products/components/create/OfferFormDialog.tsx
 "use client";
 
 import { useState } from "react";
@@ -14,8 +14,13 @@ import {
 } from "@/src/components/ui/dialog";
 import { Stepper } from "@/src/components/ui/Stepper";
 import { cn } from "@/src/lib/utils";
-import { useCreateCrossSellingOffer } from "../../hooks";
-import type { CrossSellItem } from "../../types";
+import {
+    useCreateCrossSellingOffer,
+    useCrossSellingOffer,
+    useUpdateCrossSellingOffer,
+} from "../../hooks";
+import { toOfferDetails } from "../../offer-details";
+import type { CrossSellItem, CrossSellingOffer } from "../../types";
 import { OfferDiscountForm } from "./OfferDiscountForm";
 import { ProductPicker } from "./ProductPicker";
 import {
@@ -35,21 +40,51 @@ const STEPS = [
 
 const LAST_STEP = STEPS.length;
 
-interface CreateOfferDialogProps {
+interface OfferFormDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    /** Editing an existing offer: same three steps, prefilled, saved to the update endpoint. */
+    offer?: CrossSellingOffer | null;
 }
 
-export function CreateOfferDialog({ open, onOpenChange }: CreateOfferDialogProps) {
+export function OfferFormDialog({ open, onOpenChange, offer = null }: OfferFormDialogProps) {
+    const isEdit = !!offer;
+
     const [step, setStep] = useState(1);
     const [mainProduct, setMainProduct] = useState<CrossSellItem[]>([]);
     const [relatedProducts, setRelatedProducts] = useState<CrossSellItem[]>([]);
     const [draft, setDraft] = useState<OfferDraft>(EMPTY_OFFER_DRAFT);
     const [errors, setErrors] = useState<OfferDraftErrors>({});
 
-    const { mutate: createOffer, isPending } = useCreateCrossSellingOffer();
+    const { data: details, isLoading: isLoadingDetails } = useCrossSellingOffer(
+        open && isEdit ? offer.id : undefined
+    );
+    const { mutate: createOffer, isPending: isCreating } = useCreateCrossSellingOffer();
+    const { mutate: updateOffer, isPending: isUpdating } = useUpdateCrossSellingOffer();
 
+    const isPending = isCreating || isUpdating;
     const originalTotal = getOriginalTotal(relatedProducts);
+
+    // Fill the form once the offer being edited comes back. Adjusting state
+    // while rendering — not in an effect — keeps it to a single render pass.
+    const [prefilledOfferId, setPrefilledOfferId] = useState<number | null>(null);
+
+    if (open && isEdit && details && prefilledOfferId !== offer.id) {
+        const values = toOfferDetails(details, offer);
+        setPrefilledOfferId(offer.id);
+
+        if (values) {
+            setMainProduct(values.mainProduct ? [values.mainProduct] : []);
+            setRelatedProducts(values.relatedProducts);
+            setDraft({
+                name: values.name,
+                // The API stores no description for an offer, so it is typed again.
+                description: "",
+                dueDate: values.dueDate,
+                price: values.price,
+            });
+        }
+    }
 
     const resetAndClose = () => {
         onOpenChange(false);
@@ -58,6 +93,7 @@ export function CreateOfferDialog({ open, onOpenChange }: CreateOfferDialogProps
         setRelatedProducts([]);
         setDraft(EMPTY_OFFER_DRAFT);
         setErrors({});
+        setPrefilledOfferId(null);
     };
 
     const handleDraftChange = (patch: Partial<OfferDraft>) => {
@@ -94,19 +130,23 @@ export function CreateOfferDialog({ open, onOpenChange }: CreateOfferDialogProps
             return;
         }
 
-        createOffer(
-            {
-                product_id: mainProduct[0].id,
-                cross_sells_name: draft.name.trim(),
-                cross_sells_description: draft.description.trim(),
-                cross_sells_price: Number(draft.price),
-                cross_sells_original_price: originalTotal,
-                cross_sells_due_date: toDueDateTime(draft.dueDate),
-                cross_sells_status: "active",
-                cross_sell_ids: relatedProducts.map((product) => product.id),
-            },
-            { onSuccess: resetAndClose }
-        );
+        const payload = {
+            product_id: mainProduct[0].id,
+            cross_sells_name: draft.name.trim(),
+            cross_sells_description: draft.description.trim(),
+            cross_sells_price: Number(draft.price),
+            cross_sells_original_price: originalTotal,
+            cross_sells_due_date: toDueDateTime(draft.dueDate),
+            cross_sells_status: "active" as const,
+            cross_sell_ids: relatedProducts.map((product) => product.id),
+        };
+
+        if (isEdit) {
+            updateOffer({ offerId: offer.id, payload }, { onSuccess: resetAndClose });
+            return;
+        }
+
+        createOffer(payload, { onSuccess: resetAndClose });
     };
 
     return (
@@ -122,7 +162,7 @@ export function CreateOfferDialog({ open, onOpenChange }: CreateOfferDialogProps
                 {/* Gutters stay at px-4 to line up with the shared Stepper's own padding. */}
                 <DialogHeader className="shrink-0 border-b border-c2-neutral-200 px-4 py-3.5 text-right">
                     <DialogTitle className="text-base font-semibold text-c2-neutral-800">
-                        إضافة منتجات مرتبطة
+                        {isEdit ? "تعديل منتجات مرتبطة" : "إضافة منتجات مرتبطة"}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -141,27 +181,39 @@ export function CreateOfferDialog({ open, onOpenChange }: CreateOfferDialogProps
                         step === LAST_STEP ? "overflow-y-auto custom-scrollbar" : "overflow-hidden"
                     )}
                 >
-                    {step === 1 && (
-                        <ProductPicker mode="single" selected={mainProduct} onChange={setMainProduct} />
-                    )}
+                    {isLoadingDetails ? (
+                        <div className="flex h-full items-center justify-center">
+                            <Loader2 className="size-7 animate-spin text-c2-primary" />
+                        </div>
+                    ) : (
+                        <>
+                            {step === 1 && (
+                                <ProductPicker
+                                    mode="single"
+                                    selected={mainProduct}
+                                    onChange={setMainProduct}
+                                />
+                            )}
 
-                    {step === 2 && (
-                        <ProductPicker
-                            mode="multi"
-                            selected={relatedProducts}
-                            onChange={setRelatedProducts}
-                            excludeIds={mainProduct.map((product) => product.id)}
-                        />
-                    )}
+                            {step === 2 && (
+                                <ProductPicker
+                                    mode="multi"
+                                    selected={relatedProducts}
+                                    onChange={setRelatedProducts}
+                                    excludeIds={mainProduct.map((product) => product.id)}
+                                />
+                            )}
 
-                    {step === LAST_STEP && (
-                        <OfferDiscountForm
-                            relatedProducts={relatedProducts}
-                            originalTotal={originalTotal}
-                            draft={draft}
-                            errors={errors}
-                            onChange={handleDraftChange}
-                        />
+                            {step === LAST_STEP && (
+                                <OfferDiscountForm
+                                    relatedProducts={relatedProducts}
+                                    originalTotal={originalTotal}
+                                    draft={draft}
+                                    errors={errors}
+                                    onChange={handleDraftChange}
+                                />
+                            )}
+                        </>
                     )}
                 </div>
 
@@ -189,7 +241,11 @@ export function CreateOfferDialog({ open, onOpenChange }: CreateOfferDialogProps
                             onClick={handleNext}
                         >
                             {isPending && <Loader2 className="size-4 animate-spin" />}
-                            {step === LAST_STEP ? "حفظ العرض" : "التالي"}
+                            {step === LAST_STEP
+                                ? isEdit
+                                    ? "حفظ التعديلات"
+                                    : "حفظ العرض"
+                                : "التالي"}
                         </Button>
                     </div>
                 </DialogFooter>

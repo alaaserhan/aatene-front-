@@ -2,7 +2,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { HelpCircle, Plus, Search } from "lucide-react";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { Button } from "@/src/components/ui/button";
@@ -11,7 +10,8 @@ import { Tooltip } from "@/src/components/ui/Tooltip";
 import { useDebounce } from "@/src/hooks/use-debounce";
 import { useCrossSellingOffers, useDeleteCrossSellingOffer, useUpdateCrossSellingOfferStatus } from "../hooks";
 import type { CrossSellingOffer } from "../types";
-import { CreateOfferDialog } from "./create/CreateOfferDialog";
+import { OfferFormDialog } from "./create/OfferFormDialog";
+import { OfferPreviewDialog } from "./OfferPreviewDialog";
 import { RelatedProductsEmptyState } from "./RelatedProductsEmptyState";
 import { RelatedProductsTable } from "./RelatedProductsTable";
 
@@ -21,14 +21,11 @@ const HELP_TEXT =
     "المنتجات المرتبطة تظهر للعميل كاقتراحات إضافية عند تصفح هذا المنتج، مما يزيد من فرص البيع.";
 
 export function RelatedProductsPage() {
-    const router = useRouter();
-    const routeParams = useParams<{ locale?: string; type?: string }>();
-    const dashboardBase = `/${routeParams?.locale || "ar"}/${routeParams?.type || "admin"}`;
-    const featureBase = `${dashboardBase}/related-products`;
-
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     const [offerToDelete, setOfferToDelete] = useState<CrossSellingOffer | null>(null);
+    const [offerToPreview, setOfferToPreview] = useState<CrossSellingOffer | null>(null);
+    const [offerToEdit, setOfferToEdit] = useState<CrossSellingOffer | null>(null);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
     const debouncedSearch = useDebounce(searchQuery, 400);
@@ -44,16 +41,16 @@ export function RelatedProductsPage() {
     );
 
     const { data, isLoading } = useCrossSellingOffers(params);
-    const offers = data?.data || [];
-    const totalPages = Math.ceil((data?.recordsFiltered || 0) / PER_PAGE);
+    const offers = data?.items || [];
+    const totalPages = data?.pagination?.total_pages || 1;
 
     const { mutate: updateStatus } = useUpdateCrossSellingOfferStatus();
     const { mutate: deleteOffer } = useDeleteCrossSellingOffer();
 
     const handleToggleStatus = (offer: CrossSellingOffer) => {
         updateStatus({
-            productId: offer.id,
-            status: offer.cross_sells_status === "active" ? "inactive" : "active",
+            offerId: offer.id,
+            status: offer.offer__status === "active" ? "inactive" : "active",
         });
     };
 
@@ -125,15 +122,27 @@ export function RelatedProductsPage() {
                             totalPages={totalPages}
                             onPageChange={setCurrentPage}
                             onToggleStatus={handleToggleStatus}
-                            onView={(offer) => router.push(`${featureBase}/${offer.id}`)}
-                            onEdit={(offer) => router.push(`${featureBase}/${offer.id}/edit`)}
+                            onView={setOfferToPreview}
+                            onEdit={setOfferToEdit}
                             onDelete={setOfferToDelete}
                         />
                     </>
                 )}
             </main>
 
-            <CreateOfferDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+            <OfferFormDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+
+            {/* Editing is the same three-step form, prefilled and saved to the update endpoint. */}
+            <OfferFormDialog
+                open={!!offerToEdit}
+                offer={offerToEdit}
+                onOpenChange={(open) => !open && setOfferToEdit(null)}
+            />
+
+            <OfferPreviewDialog
+                offer={offerToPreview}
+                onOpenChange={(open) => !open && setOfferToPreview(null)}
+            />
 
             <ConfirmDeleteModal
                 isOpen={!!offerToDelete}

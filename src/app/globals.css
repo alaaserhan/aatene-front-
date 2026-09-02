@@ -67,6 +67,8 @@
   /* breadcrumb: current page (700) vs. ancestor links (500) */
   --c2-neutral-700: #414141;
   --c2-neutral-500: #7b7b7b;
+  /* tinted slate surface — sample / preview blocks that stand in for a screenshot */
+  --c2-slate-50: #f9fbfc;
   /* muted slate — inactive tab / segmented-control labels */
   --c2-slate-500: #64748b;
   /* secondary body copy — page subtitles, helper lines under a heading */
@@ -178,6 +180,7 @@
   --color-c2-neutral-600: var(--c2-neutral-600);
   --color-c2-neutral-700: var(--c2-neutral-700);
   --color-c2-neutral-500: var(--c2-neutral-500);
+  --color-c2-slate-50: var(--c2-slate-50);
   --color-c2-slate-500: var(--c2-slate-500);
   --color-c2-slate-600: var(--c2-slate-600);
   --color-c2-neutral-800: var(--c2-neutral-800);

@@ -34,11 +34,11 @@ export const useCrossSellingOffers = (params?: CrossSellingOffersParams) =>
         queryFn: () => getCrossSellingOffers(params),
     });
 
-export const useCrossSellingOffer = (productId?: number | string) =>
+export const useCrossSellingOffer = (offerId?: number | string) =>
     useApiQuery({
-        queryKey: [OFFER_KEY, productId],
-        queryFn: () => getCrossSellingOffer(productId!),
-        enabled: !!productId,
+        queryKey: [OFFER_KEY, offerId],
+        queryFn: () => getCrossSellingOffer(offerId!),
+        enabled: !!offerId,
     });
 
 export const useCreateCrossSellingOffer = () => {
@@ -58,16 +58,16 @@ export const useUpdateCrossSellingOffer = () => {
 
     return useMutation({
         mutationFn: ({
-            productId,
+            offerId,
             payload,
         }: {
-            productId: number | string;
+            offerId: number | string;
             payload: CrossSellingOfferUpdatePayload;
-        }) => updateCrossSellingOffer(productId, payload),
-        onSuccess: (data, { productId }) => {
+        }) => updateCrossSellingOffer(offerId, payload),
+        onSuccess: (data, { offerId }) => {
             toast.success(data.message || "تم تحديث العرض بنجاح");
             queryClient.invalidateQueries({ queryKey: [OFFERS_KEY] });
-            queryClient.invalidateQueries({ queryKey: [OFFER_KEY, productId] });
+            queryClient.invalidateQueries({ queryKey: [OFFER_KEY, offerId] });
         },
     });
 };
@@ -76,7 +76,7 @@ export const useDeleteCrossSellingOffer = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (productId: number | string) => deleteCrossSellingOffer(productId),
+        mutationFn: (offerId: number | string) => deleteCrossSellingOffer(offerId),
         onSuccess: (data) => {
             toast.success(data.message || "تم حذف العرض بنجاح");
             queryClient.invalidateQueries({ queryKey: [OFFERS_KEY] });
@@ -89,15 +89,15 @@ export const useUpdateCrossSellingOfferStatus = () => {
 
     return useMutation({
         mutationFn: ({
-            productId,
+            offerId,
             status,
         }: {
-            productId: number;
+            offerId: number;
             status: CrossSellingStatus;
-        }) => updateCrossSellingOfferStatus(productId, status),
+        }) => updateCrossSellingOfferStatus(offerId, status),
 
         // Flip the switch immediately, roll back if the request fails.
-        onMutate: async ({ productId, status }) => {
+        onMutate: async ({ offerId, status }) => {
             await queryClient.cancelQueries({ queryKey: [OFFERS_KEY] });
             const snapshot = queryClient.getQueriesData<CrossSellingOffersResponse>({
                 queryKey: [OFFERS_KEY],
@@ -108,8 +108,8 @@ export const useUpdateCrossSellingOfferStatus = () => {
                 (current) =>
                     current && {
                         ...current,
-                        data: current.data.map((offer) =>
-                            offer.id === productId ? { ...offer, cross_sells_status: status } : offer
+                        items: current.items.map((offer) =>
+                            offer.id === offerId ? { ...offer, offer__status: status } : offer
                         ),
                     }
             );
@@ -122,9 +122,9 @@ export const useUpdateCrossSellingOfferStatus = () => {
         onSuccess: (data) => {
             toast.success(data.message || "تم تحديث حالة العرض بنجاح");
         },
-        onSettled: (_data, _error, { productId }) => {
+        onSettled: (_data, _error, { offerId }) => {
             queryClient.invalidateQueries({ queryKey: [OFFERS_KEY] });
-            queryClient.invalidateQueries({ queryKey: [OFFER_KEY, productId] });
+            queryClient.invalidateQueries({ queryKey: [OFFER_KEY, offerId] });
         },
     });
 };
