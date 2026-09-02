@@ -9,17 +9,24 @@ import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
 
-// --- Interfaces ---
+// --- Shared ---
 
 export interface BaseResponse {
     status: boolean;
     message: string;
 }
 
+const getHeaders = (storeId?: number | string) => {
+    const currentStoreId = storeId || Cookies.get("current_store_id");
+    return currentStoreId ? { storeId: String(currentStoreId) } : undefined;
+};
+
+// --- Store Coins ---
+
 export interface CoinPackage {
     id: number;
-    coins_count: string; // "100" in JSON
-    price: string;       // "50.00" in JSON
+    coins_count: string;
+    price: string;
     is_active: boolean;
     created_at: string | null;
     updated_at: string | null;
@@ -40,24 +47,20 @@ export interface CoinTransaction {
     package?: CoinPackage;
 }
 
-// 1. Get Store Balance Response
 export interface StoreBalanceResponse extends BaseResponse {
     balance: string;
 }
 
-// 2. List Transactions Response
 export interface TransactionsListResponse extends BaseResponse {
     recordsTotal: number;
     recordsFiltered: number;
     transactions: CoinTransaction[];
 }
 
-// 3. Purchase Response
 export interface PurchasePackageResponse extends BaseResponse {
     transaction: CoinTransaction;
 }
 
-// 4. List Packages Response (NEW)
 export interface CoinsPackagesResponse extends BaseResponse {
     packages: CoinPackage[];
 }
@@ -67,12 +70,20 @@ export interface PurchasePackageRequest {
     callback_url?: string;
 }
 
-// --- Helpers ---
+export interface CoinsGrowthResponse extends BaseResponse {
+    period: string;
+    growth_chart: {
+        date: string;
+        gained_coins: number;
+        spent_coins: number;
+    }[];
+}
 
-const getHeaders = (storeId?: number | string) => {
-    const currentStoreId = storeId || Cookies.get("current_store_id");
-    return currentStoreId ? { storeId: String(currentStoreId) } : undefined;
-};
+export interface CoinsGeneralResponse extends BaseResponse {
+    total_bought_coins: number;
+    total_spent_coins: number;
+    current_balance: number;
+}
 
 // --- API Functions ---
 
@@ -102,7 +113,6 @@ export const getCoinsPackages = async (
     return data;
 };
 
-// 3. List Transactions
 export const getCoinsTransactions = async (
     params?: URLSearchParams,
     storeId?: number | string
@@ -116,7 +126,6 @@ export const getCoinsTransactions = async (
     return data;
 };
 
-// 4. Purchase Package
 export const purchaseCoinsPackage = async (
     body: PurchasePackageRequest,
     storeId?: number | string

@@ -49,7 +49,7 @@ export function usePurchaseCoinsPackage() {
             queryClient.invalidateQueries({ queryKey: ["coins", "balance"] });
             queryClient.invalidateQueries({ queryKey: ["coins", "transactions"] });
         },
-        onError: (error) => {
+        onError: () => {
             toast.error("حدث خطأ أثناء عملية الشراء");
         },
     });

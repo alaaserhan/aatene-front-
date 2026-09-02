@@ -1,6 +1,14 @@
 import { create } from "zustand";
 import type { User } from "../auth/types";
 
+/** نفس المسار لكل الطلبات؛ يمنع كوكيز تُرفَق لصفحة فقط وتختفي على مسارات أخرى */
+const AUTH_COOKIE_OPTS = {
+  expires: 365,
+  path: "/" as const,
+  sameSite: "lax" as const,
+  secure: process.env.NODE_ENV === "production",
+};
+
 interface AuthState {
   user: User | null;
   isLoggedIn: boolean;

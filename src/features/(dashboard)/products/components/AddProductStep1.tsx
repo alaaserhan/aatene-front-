@@ -35,6 +35,7 @@ export function AddProductStep1({
   onStep1Sync,
   showSaveDraft = true,
 }: AddProductStep1Props) {
+  type PriceVisibilityMode = "show" | "hide";
   const [formData, setFormData] = useState<Step1FormData>({
     category_id: initialData?.category_id || 0,
     category_name: initialData?.category_name || "",
@@ -49,6 +50,12 @@ export function AddProductStep1({
     short_description: initialData?.short_description || "",
     description: initialData?.description || "",
   });
+  const [priceVisibilityMode, setPriceVisibilityMode] = useState<PriceVisibilityMode>(
+    initialData?.ask_for_price ? "hide" : "show"
+  );
+  const [lastVisiblePrice, setLastVisiblePrice] = useState<number>(
+    Number(initialData?.price || 0)
+  );
 
   /** الأخطاء تظهر بعد أول محاولة انتقال، ثم تختفي تلقائياً عند إصلاح الحقل */
   const [showErrors, setShowErrors] = useState(false);

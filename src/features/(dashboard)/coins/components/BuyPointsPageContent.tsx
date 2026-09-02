@@ -12,8 +12,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useGetCoinsPackages, usePurchaseCoinsPackage, useGetStoreBalance } from "../hooks";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -55,7 +53,7 @@ export function BuyPointsPageContent() {
             return;
         }
 
-        const callbackUrl = window.location.href.split('?')[0];
+        const callbackUrl = window.location.href.split("?")[0];
 
         purchasePackage(
             { package_id: activePackage.id, callback_url: callbackUrl },
@@ -73,7 +71,7 @@ export function BuyPointsPageContent() {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 onError: (err: any) => {
                     toast.error(err?.response?.data?.message || err?.message || "حدث خطأ، حاول مرة أخرى");
-                }
+                },
             }
         );
     };

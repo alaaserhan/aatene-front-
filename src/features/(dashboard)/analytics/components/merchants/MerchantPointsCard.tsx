@@ -6,7 +6,7 @@
 
 "use client";
 
-import { Info, Coins, Loader2 } from "lucide-react";
+import { Coins, Loader2 } from "lucide-react";
 import { useGetStoreBalance } from "../../../coins/hooks";
 import Link from "next/link";
 

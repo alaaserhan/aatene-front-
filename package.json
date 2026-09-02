@@ -8,8 +8,8 @@
     "pnpm": ">=11.6.0"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "production": "next build && next start",

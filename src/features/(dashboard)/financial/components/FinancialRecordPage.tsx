@@ -23,7 +23,7 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
         const params = new URLSearchParams();
         params.set("page", String(currentPage));
         return params;
-    }, [currentPage, storeId, createdAtFrom, createdAtTo, transactionType, searchQuery]);
+    }, [currentPage, createdAtFrom, createdAtTo, transactionType, searchQuery]);
 
     // const { data: transactionsData, isLoading: isLoadingTransactions, isFetching } = useGetCoinsTransactions(transactionsParams, storeId);
     const transactions: never[] = [];
