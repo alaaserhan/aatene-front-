@@ -158,43 +158,43 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
 
                 <div className="h-px bg-gray-200 w-full mb-2" />
 
-                <div className="flex items-center gap-2">
-                    <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden shadow-sm ring-1 ring-gray-100 flex items-center justify-center bg-gray-50">
-                        {serviceLogoSrc && !logoError ? (
-                            <Image
-                                src={serviceLogoSrc}
-                                alt={providerName}
-                                fill
-                                className="object-cover"
-                                onError={() => setLogoError(true)}
-                            />
-                        ) : (
-                            <User className="w-6 h-6 text-gray-400" />
-                        )}
-                    </div>
+                {/* Store info and rating share one row, wrapping to two lines when the card is narrow. */}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <div className="flex items-center gap-2 min-w-0 flex-1 basis-37.5">
+                        <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden shadow-sm ring-1 ring-gray-100 flex items-center justify-center bg-gray-50">
+                            {serviceLogoSrc && !logoError ? (
+                                <Image
+                                    src={serviceLogoSrc}
+                                    alt={providerName}
+                                    fill
+                                    className="object-cover"
+                                    onError={() => setLogoError(true)}
+                                />
+                            ) : (
+                                <User className="w-6 h-6 text-gray-400" />
+                            )}
+                        </div>
 
-                    <div className={"flex flex-col min-w-0 flex-1"}>
-                        <p className="text-sm font-medium truncate">{providerName}</p>
-                        <div className="flex items-center justify-between mt-1">
-                            <div className="flex items-center gap-1 text-[10px] text-gray-500">
-                                <MapPin className="w-3 h-3 text-[#3D5E83] mb-px" />
-                                <span className="truncate max-w-[60px] pt-0.5">{cityName}</span>
-                            </div>
-                            <div
-                                className={cn("flex items-center gap-1 text-xs", {
-                                hidden: !storeReviewCount,
-                                })}
-                            >
-                                <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
-                                <span className="font-medium text-[#FB923C] pt-1">
-                                    {storeReviewRate.toFixed(1)}
-                                </span>
-                                <span className="whitespace-nowrap pt-1 text-gray-400">
-                                    ({storeReviewCount})
-                                </span>
+                        <div className="flex flex-col min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate">{providerName}</p>
+                            <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-1">
+                                <MapPin className="w-3 h-3 shrink-0 text-[#3D5E83] mb-px" />
+                                <span className="truncate pt-0.5">{cityName}</span>
                             </div>
                         </div>
                     </div>
+
+                    {storeReviewCount ? (
+                        <div className="flex items-center gap-1 text-xs shrink-0">
+                            <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
+                            <span className="font-medium text-[#FB923C] pt-1">
+                                {storeReviewRate.toFixed(1)}
+                            </span>
+                            <span className="whitespace-nowrap pt-1 text-gray-400">
+                                ({storeReviewCount})
+                            </span>
+                        </div>
+                    ) : null}
                 </div>
             </div>
         </div>
