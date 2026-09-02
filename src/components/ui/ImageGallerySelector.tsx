@@ -51,7 +51,7 @@ export function ImageGallerySelector({
     subLabel,
     emptyStateText,
     emptyStateSubText,
-    mainImageLabel = "الصورة الاساسية",
+    mainImageLabel = "الصورة الأساسية",
     galleryItemLabel = "المعرض",
     showMainSelector = true,
     showDragHint = false,

@@ -171,7 +171,7 @@ export function RejectStoreModal({
           <Button
             onClick={handleConfirm}
             disabled={isLoading || isAddingReason}
-            className="w-full h-11 bg-[#EF4444] hover:bg-[#d93a3a] text-white font-bold rounded-md mt-2"
+            className="w-full h-11 bg-c2-danger hover:bg-c2-danger/90 text-white font-bold rounded-md mt-2"
           >
             {isLoading ? <Loader2 className="animate-spin" /> : "رفض المتجر"}
           </Button>

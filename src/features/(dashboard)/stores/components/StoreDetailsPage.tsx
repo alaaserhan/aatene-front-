@@ -4,20 +4,14 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { CheckCircle2, Loader2, Minus, PauseCircle, Plus, X, XCircle } from "lucide-react";
-import {
-  useGetSingleStore,
-  useUpdateStoreShown,
-  useUpdateStoreStatus,
-} from "../hooks";
+import { useGetSingleStore, useUpdateStoreShown } from "../hooks";
 import { useStoreDeleteConfirm } from "../use-store-delete-confirm";
-import { Button } from "@/src/components/ui/button";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
-import { cn, isVideoFile } from "@/src/lib/utils";
+import { isVideoFile } from "@/src/lib/utils";
 import { WorkingTime, StoreManager } from "../api";
-import { RejectStoreModal } from "./RejectStoreModal";
-import { ConfirmationDialog } from "@/src/components/ui/ConfirmationDialog";
+import { StoreReviewActionsCard } from "./StoreReviewActionsCard";
 import { formatDateArabic } from "@/src/lib/date-helper";
 import { useAuthStore } from "@/src/stores/auth-store";
 
@@ -41,8 +35,6 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
       : "/admin/stores";
   const [managersExpanded, setManagersExpanded] = useState(true);
   const [showAllDays, setShowAllDays] = useState(false);
-  const [rejectModalOpen, setRejectModalOpen] = useState(false);
-  const [approveModalOpen, setApproveModalOpen] = useState(false);
   const [dismissedStoreStatus, setDismissedStoreStatus] = useState<string | null>(null);
   const user = useAuthStore((state) => state.user);
 
@@ -64,9 +56,8 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   const { data: storeData, isLoading } = useGetSingleStore(storeId, {
     enabled: !isDeleteConfirmed,
   });
-  const { mutate: updateShownMutation } = useUpdateStoreShown();
-  const { mutate: updateStatusMutation, isPending: isUpdatingStatus } =
-    useUpdateStoreStatus();
+  const { mutate: updateShownMutation, isPending: isUpdatingShown } =
+    useUpdateStoreShown();
 
   const store = storeData?.record;
 
@@ -83,38 +74,6 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
       id: storeId,
       payload: { shown: value === "1" },
     });
-  };
-
-  const handleApproveClick = () => {
-    setApproveModalOpen(true);
-  };
-
-  const reviewRedirectUrl = `${storesBasePath}?status=pending`;
-
-  const handleConfirmApprove = () => {
-    const wasInReview = store?.status === "pending";
-    updateStatusMutation(
-      { id: storeId, payload: { status: "approved" } },
-      {
-        onSuccess: () => {
-          if (wasInReview) router.push(reviewRedirectUrl);
-        },
-      }
-    );
-  };
-
-  const confirmReject = (reasonText: string, details: string) => {
-    const wasInReview = store?.status === "pending";
-    const fullReason = details ? `${reasonText} - ${details}` : reasonText;
-    updateStatusMutation(
-      { id: storeId, payload: { status: "rejected", reject_reason: fullReason } },
-      {
-        onSuccess: () => {
-          setRejectModalOpen(false);
-          if (wasInReview) router.push(reviewRedirectUrl);
-        },
-      }
-    );
   };
 
   if (isLoading) {
@@ -172,65 +131,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
           />
         )}
 
-        {showReviewActions && (
-          <div className="w-full">
-            <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-gray-100 bg-white rounded-lg">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-base sm:text-lg font-bold">اختر الإجراء المناسب للمتجر</h2>
-                <span
-                  className={cn(
-                    "w-fit rounded-full px-3 py-1 text-xs font-bold",
-                    currentStatus === "approved" && "bg-emerald-50 text-emerald-600",
-                    currentStatus === "pending" && "bg-amber-50 text-amber-600",
-                    currentStatus === "rejected" && "bg-red-50 text-red-600"
-                  )}
-                >
-                  {currentStatus === "approved" ? "تمت الموافقة عليه" : currentStatus === "rejected" ? "مرفوض" : "قيد المراجعة"}
-                </span>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                {currentStatus !== "approved" && (
-                  <Button
-                    type="button"
-                    onClick={handleApproveClick}
-                    disabled={isUpdatingStatus}
-                    className="w-full sm:w-auto bg-[#34D399] hover:bg-[#2cb683] text-white px-6 sm:px-8 h-10 font-bold rounded"
-                  >
-                    {isUpdatingStatus
-                      ? "جاري التحديث..."
-                      : currentStatus === "rejected"
-                        ? "قبول المتجر مرة أخرى"
-                        : "قبول المتجر"}
-                  </Button>
-                )}
-                {currentStatus !== "rejected" && (
-                  <Button
-                    type="button"
-                    onClick={() => setRejectModalOpen(true)}
-                    disabled={isUpdatingStatus}
-                    className="w-full sm:w-auto bg-[#EF4444] hover:bg-[#d93838] text-white px-6 sm:px-8 h-10 font-bold rounded"
-                  >
-                    رفض المتجر
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        <RejectStoreModal
-          isOpen={rejectModalOpen}
-          onClose={() => setRejectModalOpen(false)}
-          onConfirm={confirmReject}
-          isLoading={isUpdatingStatus}
-        />
-
-        <ConfirmationDialog
-          isOpen={approveModalOpen}
-          onClose={() => setApproveModalOpen(false)}
-          onConfirm={handleConfirmApprove}
-          title={`هل أنت متأكد من قبول متجر "${store.name}"؟`}
-        />
+        {showReviewActions && <StoreReviewActionsCard store={store} />}
 
         <div className="grid grid-cols-12 gap-6">
           <aside className="col-span-12 lg:col-span-4 order-1 lg:order-2">
@@ -261,7 +162,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
                                   payload: { shown: newShown },
                               });
                           }}
-                          disabled={isUpdatingStatus}
+                          disabled={isUpdatingShown}
                           role="switch"
                           aria-checked={store.shown !== false}
                           style={{
@@ -274,7 +175,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
                               cursor: "pointer",
                               transition: "background-color 0.2s",
                               flexShrink: 0,
-                              opacity: isUpdatingStatus ? 0.6 : 1,
+                              opacity: isUpdatingShown ? 0.6 : 1,
                           }}
                       >
                           <span

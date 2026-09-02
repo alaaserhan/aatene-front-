@@ -46,6 +46,7 @@ Order for safety: `lint` → `typecheck` → `build`. No test framework exists i
 
 - **Arabic-first**: Default locale is `ar`. All UI text is in Arabic. JSON translation files: `ar.json`, `en.json`, `he.json`.
 - **Code comments in English only**: Write every code comment (`//`, `/* */`, JSDoc, JSX `{/* */}`) in English. Only user-facing strings (labels, placeholders, toasts, copy) are Arabic — never comments.
+- **Images — prefer `next/image`**: use `<Image />` from `next/image` instead of a raw `<img>` in every new or edited component (logos, avatars, covers, remote media included). Pass `width`/`height`, or `fill` with a sized parent. For hosts missing from `images.remotePatterns` in `next.config.ts`, add `unoptimized` rather than falling back to `<img>`. Existing `<img>` tags stay until that screen is touched.
 - **CSS**: Tailwind v4 with `@tailwindcss/postcss`. Dark mode via `class` strategy (`darkMode: "class"`).
 - **Font**: Custom local font via CSS variable `--font-ping-ar`.
 - **No test files** — no Jest, Vitest, Playwright, or Cypress config detected.

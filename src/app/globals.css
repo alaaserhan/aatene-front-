@@ -77,6 +77,10 @@
   --c2-slate-600: #6a7282;
   --c2-neutral-800: #2d2d2d;
   --c2-neutral-900: #222222;
+  /* near-black body copy — detail-row values */
+  --c2-neutral-950: #1c1c1c;
+  /* pure black — detail-row icons and similar flat glyphs */
+  --c2-neutral-1000: #000000;
 
   /* navy (brand blue family, incl. primary) */
   --c2-navy-1000: #010b38;
@@ -106,6 +110,8 @@
   /* status accents */
   --c2-warning-500: #ffc220;
   --c2-success-500: #35c21ee5;
+  /* deeper green — approve/accept action buttons */
+  --c2-green-600: #07b131;
   --c2-amber-400: #fb923c;
 
   /* semantic aliases */
@@ -188,6 +194,8 @@
   --color-c2-slate-600: var(--c2-slate-600);
   --color-c2-neutral-800: var(--c2-neutral-800);
   --color-c2-neutral-900: var(--c2-neutral-900);
+  --color-c2-neutral-950: var(--c2-neutral-950);
+  --color-c2-neutral-1000: var(--c2-neutral-1000);
   --color-c2-navy-1000: var(--c2-navy-1000);
   --color-c2-navy-950: var(--c2-navy-950);
   --color-c2-navy-900: var(--c2-navy-900);
@@ -206,6 +214,7 @@
   --color-c2-red-500-a10: var(--c2-red-500-a10);
   --color-c2-warning-500: var(--c2-warning-500);
   --color-c2-success-500: var(--c2-success-500);
+  --color-c2-green-600: var(--c2-green-600);
   --color-c2-amber-400: var(--c2-amber-400);
   --color-c2-primary: var(--c2-primary);
   --color-c2-danger: var(--c2-danger);

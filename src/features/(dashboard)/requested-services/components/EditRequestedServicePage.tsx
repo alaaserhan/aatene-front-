@@ -155,7 +155,7 @@ export function EditRequestedServicePage({ id }: EditRequestedServicePageProps) 
             maxFiles={10}
             error={imageError}
             showMainSelector={true}
-            mainImageLabel="الصورة الاساسية"
+            mainImageLabel="الصورة الأساسية"
             showDragHint={true}
             allowedMediaTypes={[ "gallery"]}
           />

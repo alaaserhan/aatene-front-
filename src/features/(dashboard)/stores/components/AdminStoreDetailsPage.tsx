@@ -2,11 +2,16 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { useSession } from "@/src/auth/session";
 import { StoreDetailsPage } from "./StoreDetailsPage";
+import { StoreAdminPreviewPage } from "./StoreAdminPreviewPage";
 
 export function AdminStoreDetailsPage({ storeId }: { storeId: number }) {
   const { locale, type } = useParams<{ locale: string; type: string }>();
   const router = useRouter();
+  const { user, isPending: isSessionPending } = useSession();
+  const isAdmin = user?.user_type === "admin";
   const listHref = `/${locale}/${type}/stores`;
 
   return (
@@ -20,12 +25,21 @@ export function AdminStoreDetailsPage({ storeId }: { storeId: number }) {
         </Link>
       </header>
       <div className="flex-1 p-4 sm:p-6">
-        <StoreDetailsPage
-          storeId={storeId}
-          onDeleteSuccess={() => {
-            router.push(listHref);
-          }}
-        />
+        {/* Wait for the session so the admin preview never flashes the merchant page */}
+        {isSessionPending ? (
+          <div className="flex items-center justify-center min-h-100 bg-white rounded-lg">
+            <Loader2 className="w-6 h-6 animate-spin text-c2-primary" />
+          </div>
+        ) : isAdmin ? (
+          <StoreAdminPreviewPage storeId={storeId} />
+        ) : (
+          <StoreDetailsPage
+            storeId={storeId}
+            onDeleteSuccess={() => {
+              router.push(listHref);
+            }}
+          />
+        )}
       </div>
     </div>
   );

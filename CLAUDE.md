@@ -12,6 +12,21 @@ comments**. Many older files are; matching their style is the mistake, not the
 fix. Leave the existing Arabic comments alone unless asked, but everything you
 add is English.
 
+## Images — reach for `next/image` first
+
+Use `<Image />` from `next/image` instead of a raw `<img>` for every image you
+add or touch: store logos, avatars, covers, banners, remote backend media.
+Give each one explicit `width`/`height`, or `fill` inside a sized, positioned
+parent. Keep `alt` meaningful; `alt=""` only for purely decorative art.
+
+When the source host isn't listed in `images.remotePatterns` in
+[next.config.ts](next.config.ts) — and can't be added — pass `unoptimized`
+rather than dropping back to `<img>`. A plain `<img>` is a last resort, not a
+shortcut around sizing props.
+
+Existing `<img>` tags in older files are fine where they are; convert them when
+you're already reworking that screen, not as a standalone cleanup.
+
 ## Colors / design tokens
 
 All colors live in [src/app/globals.css](src/app/globals.css) as CSS custom properties, mirrored into Tailwind's `@theme inline` block so both `var(--token)` and Tailwind utilities (`bg-c2-navy-900`, `text-c2-danger`, ...) work.
