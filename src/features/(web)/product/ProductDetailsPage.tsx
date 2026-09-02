@@ -9,7 +9,6 @@ import ProductHero from "./components/ProductHero";
 import ProductsChooseForYou from "./components/ProductsChooseForYou";
 import ProductTabs from "./components/ProductTabs";
 import ShippingPolicies from "./components/ShippingPolicies";
-import StoresYouMayLike from "./components/StoresYouMayLike";
 import { useGetProductBySlug, useGetProductPageDataBySlug } from "./hooks";
 
 function firstStringField(source: Record<string, unknown>, keys: string[]) {
@@ -103,12 +102,6 @@ export default function ProductDetailsPage() {
             {pageData?.productsChooseForYou && pageData.productsChooseForYou.length > 0 && (
                 <Section className="bg-c2-neutral-50 pt-8 pb-6 lg:pb-8">
                     <ProductsChooseForYou products={pageData.productsChooseForYou} />
-                </Section>
-            )}
-
-            {pageData?.storesYouMayLike && pageData.storesYouMayLike.length > 0 && (
-                <Section className="bg-c2-neutral-50 pt-8 pb-6 lg:pb-8">
-                    <StoresYouMayLike stores={pageData.storesYouMayLike} />
                 </Section>
             )}
         </div>

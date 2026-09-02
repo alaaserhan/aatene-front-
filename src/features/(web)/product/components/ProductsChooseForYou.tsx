@@ -12,7 +12,7 @@ export default function ProductsChooseForYou({ products }: ProductsChooseForYouP
 
     return (
         <div className="my-8">
-            <h2 className="heading-lg">تم اختياره لأجلك</h2>
+            <h2 className="heading-lg">المنتجات الأعلى تقييما</h2>
 
             {/* Products Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
