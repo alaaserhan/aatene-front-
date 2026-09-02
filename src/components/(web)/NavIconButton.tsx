@@ -15,9 +15,47 @@ export const navIconButtonClass =
 export function NavIconBadge({ count }: { count: number }) {
   if (count <= 0) return null;
 
+  const label = count > 99 ? "99+" : String(count);
+
+  // The circle grows with the digit count instead of the digits overflowing a
+  // fixed box — a wider label in a too-small circle is what read as off-centre.
+  const sizeClass =
+    label.length > 2
+      ? "size-[19px]"
+      : label.length > 1
+        ? "size-[17px]"
+        : "size-[15px]";
+
   return (
-    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-c2-danger px-1 text-[10px] leading-none font-medium text-white">
-      {count > 99 ? "+99" : count}
+    // Square box (aspect-square + shrink-0) so the badge stays a perfect circle
+    // and is never squashed by the button's flex layout.
+    <span
+      className={cn(
+        "pointer-events-none absolute -top-0.5 -right-0.5 grid shrink-0 aspect-square place-items-center rounded-full bg-c2-danger font-semibold text-white tabular-nums",
+        sizeClass
+      )}
+    >
+      {/*
+        The app font (PingAR) is an Arabic face whose Latin digits sit off-centre
+        in the em box, which is what threw the number off vertically. Digits are
+        rendered in a plain Latin UI stack instead, where the line box and the
+        glyphs agree, so `leading-none` centres them exactly. `dir="ltr"` plus
+        `w-full text-center` centres them horizontally without depending on how
+        the surrounding RTL layout sizes the text node.
+      */}
+      <span
+        dir="ltr"
+        style={{
+          fontFamily:
+            "'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif",
+        }}
+        className={cn(
+          "block w-full text-center leading-none",
+          label.length > 2 ? "text-[8px]" : "text-[9px]"
+        )}
+      >
+        {label}
+      </span>
     </span>
   );
 }
