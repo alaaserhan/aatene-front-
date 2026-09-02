@@ -15,6 +15,7 @@ export interface CrossSellItem {
     sku?: string | null;
     price?: string | number | null;
     cover_url?: string | null;
+    category_name?: string | null;
 }
 
 export interface CrossSellingOffer {

@@ -11,10 +11,41 @@ export interface StepItem {
   completed?: boolean;
 }
 
+/** "sm" is the compact scale for tight containers such as dialogs. */
+type StepperSize = "sm" | "md";
+
+const SIZE_STYLES: Record<StepperSize, {
+  wrapper: string;
+  circle: string;
+  number: string;
+  check: string;
+  label: string;
+  /** Offsets the connector to the vertical center of the circle. */
+  connector: string;
+}> = {
+  md: {
+    wrapper: "py-8",
+    circle: "w-12 h-12",
+    number: "text-lg",
+    check: "w-6 h-6",
+    label: "mt-3 text-sm",
+    connector: "pt-6",
+  },
+  sm: {
+    wrapper: "py-4",
+    circle: "w-9 h-9",
+    number: "text-sm",
+    check: "w-4 h-4",
+    label: "mt-2 text-xs",
+    connector: "pt-4.5",
+  },
+};
+
 interface StepperProps {
   currentStep: number;
   steps: StepItem[];
   onStepClick?: (step: number) => void;
+  size?: StepperSize;
   className?: string;
   containerClassName?: string;
 }
@@ -23,11 +54,14 @@ export function Stepper({
   currentStep,
   steps,
   onStepClick,
+  size = "md",
   className,
   containerClassName,
 }: StepperProps) {
+  const sizeStyles = SIZE_STYLES[size];
+
   return (
-    <div className={cn("hidden md:block w-full py-8", className)} dir="rtl">
+    <div className={cn("hidden md:block w-full", sizeStyles.wrapper, className)} dir="rtl">
       <div className="container mx-auto px-4">
         <div
           className={cn(
@@ -52,7 +86,8 @@ export function Stepper({
                 >
                   <div
                     className={cn(
-                      "w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-200",
+                      "rounded-full flex items-center justify-center border-2 transition-all duration-200",
+                      sizeStyles.circle,
                       isCompleted
                         ? "bg-blue-4 border-blue-4"
                         : isActive
@@ -61,14 +96,9 @@ export function Stepper({
                     )}
                   >
                     {isCompleted ? (
-                      <Check className="w-6 h-6 text-white" strokeWidth={3} />
+                      <Check className={cn(sizeStyles.check, "text-white")} strokeWidth={3} />
                     ) : (
-                      <span
-                        className={cn(
-                          "text-lg font-bold",
-                          "text-blue-4"
-                        )}
-                      >
+                      <span className={cn("font-bold text-blue-4", sizeStyles.number)}>
                         {step.number}
                       </span>
                     )}
@@ -76,7 +106,8 @@ export function Stepper({
 
                   <p
                     className={cn(
-                      "mt-3 text-sm font-medium whitespace-nowrap transition-colors",
+                      "font-medium whitespace-nowrap transition-colors",
+                      sizeStyles.label,
                       isActive
                         ? "text-blue-4"
                         : isCompleted
@@ -90,7 +121,7 @@ export function Stepper({
 
                 {/* Connector Line */}
                 {index < steps.length - 1 && (
-                  <div className="flex-1 flex items-center self-start pt-6 px-2">
+                  <div className={cn("flex-1 flex items-center self-start px-2", sizeStyles.connector)}>
                     <div
                       className={cn(
                         "w-full h-[2px] transition-colors duration-300",

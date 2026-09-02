@@ -11,6 +11,7 @@ import { Tooltip } from "@/src/components/ui/Tooltip";
 import { useDebounce } from "@/src/hooks/use-debounce";
 import { useCrossSellingOffers, useDeleteCrossSellingOffer, useUpdateCrossSellingOfferStatus } from "../hooks";
 import type { CrossSellingOffer } from "../types";
+import { CreateOfferDialog } from "./create/CreateOfferDialog";
 import { RelatedProductsEmptyState } from "./RelatedProductsEmptyState";
 import { RelatedProductsTable } from "./RelatedProductsTable";
 
@@ -28,6 +29,7 @@ export function RelatedProductsPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     const [offerToDelete, setOfferToDelete] = useState<CrossSellingOffer | null>(null);
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
 
     const debouncedSearch = useDebounce(searchQuery, 400);
 
@@ -93,7 +95,7 @@ export function RelatedProductsPage() {
                     <Button
                         size="lg"
                         className="mt-6 gap-2 bg-c2-primary text-white"
-                        onClick={() => router.push(`${featureBase}/create`)}
+                        onClick={() => setIsCreateOpen(true)}
                     >
                         <Plus className="size-5" />
                         <span className="pt-1">اختر منتجات</span>
@@ -130,6 +132,8 @@ export function RelatedProductsPage() {
                     </>
                 )}
             </main>
+
+            <CreateOfferDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
 
             <ConfirmDeleteModal
                 isOpen={!!offerToDelete}
