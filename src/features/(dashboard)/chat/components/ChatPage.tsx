@@ -458,6 +458,10 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         context,
     };
 
+    /** On mobile there is no side-by-side pane, so the empty state replaces the list itself. */
+    const showMobileEmptyState =
+        !isLoading && !isError && !searchQuery && filteredConversations.length === 0;
+
     /** Shown instead of the conversation list as soon as a "chat now" target arrives. */
     const openingConversationState = (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 text-gray-500 text-sm">
@@ -512,10 +516,19 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     <div className="flex flex-col flex-1 min-h-0 gap-0">
                         {mobileTypeFilter}
                         <div className="flex-1 min-h-0 flex flex-col relative isolate">
-                            <ConversationListSidebar
-                                {...conversationListProps}
-                                className="flex-1 min-h-0 max-h-full rounded-b-lg border border-t-0 border-gray-200"
-                            />
+                            {showMobileEmptyState ? (
+                                <div className="flex-1 min-h-0 flex flex-col overflow-y-auto bg-white rounded-b-lg border border-t-0 border-gray-200">
+                                    <ChatEmptyState
+                                        isGroupsFilter={activeFilter === "group"}
+                                        onCreateGroup={() => setShowCreateGroupModal(true)}
+                                    />
+                                </div>
+                            ) : (
+                                <ConversationListSidebar
+                                    {...conversationListProps}
+                                    className="flex-1 min-h-0 max-h-full rounded-b-lg border border-t-0 border-gray-200"
+                                />
+                            )}
                         </div>
                     </div>
                 ) : (
