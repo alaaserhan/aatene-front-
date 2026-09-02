@@ -38,6 +38,7 @@ import {
   ExternalLink,
   MessageCircleMore,
   Workflow,
+  Tags,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -220,6 +221,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: hasAdminPerm("/productProviders") },
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: activeStoreId ? `/serviceProviders/${activeStoreId}` : "/serviceProviders", show: isMerchant && (storeType === "services") && !!activeStoreId && isAllowedByRole("/serviceProviders") },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: hasAdminPerm("/serviceProviders"), desc: "إدارة ومتابعة مقدمي الخدمات" },
+    { label: "تخصصات المتجر", icon: Tags, href: "/store-specialties", show: hasAdminPerm("/store-specialties"), desc: "عرض ومتابعة تخصصات المتاجر", alwaysMore: true },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: hasAdminPerm("/cities"), desc: "اختر وجهات الشحن المتاحة" },
     { label: "الفئات", icon: Boxes, href: "/categories", show: hasAdminPerm("/categories"), desc: "إدارة وعرض الفئات" },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: hasAdminPerm("/banners"), desc: "ادارة ومتابعة البنرات الإعلانية" },

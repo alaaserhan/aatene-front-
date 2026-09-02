@@ -208,6 +208,10 @@ export const PAGE_SEO: Record<string, PageSEO> = {
         title: "المدن",
         description: "إدارة المدن والمناطق على منصة أعطيني.",
     },
+    dashboardStoreSpecialties: {
+        title: "تخصصات المتجر",
+        description: "عرض ومتابعة تخصصات المتاجر في لوحة تحكم أعطيني.",
+    },
     dashboardContentManagement: {
         title: "إدارة المحتوى",
         description: "إدارة المحتوى النصي والصفحات الثابتة في أعطيني.",
