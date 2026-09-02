@@ -82,7 +82,8 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const serviceImage = sanitizeMediaUrl(
         service.image_url || service.images_urls?.[0] || ""
     );
-    const serviceLogoSrc = sanitizeMediaUrl(service.store?.logo || "");
+    // `logo` is the raw storage path; `logo_url` is the absolute one the API exposes.
+    const serviceLogoSrc = sanitizeMediaUrl(service.store?.logo_url || "");
 
     return (
         <div
