@@ -123,10 +123,16 @@ function useSearchController(defaultType: SearchType, onSearch?: () => void) {
    * `setSelectedType` runs optimistically so the active indicator moves on click
    * rather than after the router settles (50–400 ms). An earlier version disabled
    * the tabs during that window, which read as a UI freeze — hence no pending state.
+   *
+   * Picking a tab is itself a search, so `onSearch` fires here too — it closes the
+   * mobile drawer, which would otherwise stay over the results we just navigated to.
    */
   const selectType = useCallback(
     (type: SearchType) => {
-      if (isSearchPage && type === selectedType) return;
+      if (isSearchPage && type === selectedType) {
+        onSearch?.();
+        return;
+      }
 
       setSelectedType(type);
 
@@ -142,8 +148,10 @@ function useSearchController(defaultType: SearchType, onSearch?: () => void) {
       // locale prefix and trigger a next-international redirect loop.
       if (isSearchPage) router.replace(`${pathname}?${params.toString()}`, { scroll: false });
       else router.push(`/${locale}/search?${params.toString()}`);
+
+      onSearch?.();
     },
-    [isSearchPage, selectedType, searchParams, query, pathname, router, locale]
+    [isSearchPage, selectedType, searchParams, query, pathname, router, locale, onSearch]
   );
 
   return {
