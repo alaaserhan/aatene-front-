@@ -4,20 +4,12 @@ import { Section } from "@/src/components/shared/Container";
 import { Loader2 } from "lucide-react";
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import CrossSellsSection from "./components/CrossSellsSection";
+import CrossSellsSection, { resolveCrossSellsCopy } from "./components/CrossSellsSection";
 import ProductHero from "./components/ProductHero";
 import ProductsChooseForYou from "./components/ProductsChooseForYou";
 import ProductTabs from "./components/ProductTabs";
 import ShippingPolicies from "./components/ShippingPolicies";
 import { useGetProductBySlug, useGetProductPageDataBySlug } from "./hooks";
-
-function firstStringField(source: Record<string, unknown>, keys: string[]) {
-    for (const key of keys) {
-        const value = source[key];
-        if (typeof value === "string" && value.trim()) return value;
-    }
-    return undefined;
-}
 
 export default function ProductDetailsPage() {
     const params = useParams();
@@ -53,16 +45,7 @@ export default function ProductDetailsPage() {
     }
 
     const { product, store, attributes } = data;
-    const productRecord = product as unknown as Record<string, unknown>;
-    const crossSellsName = firstStringField(productRecord, [
-        "cross_sells_name",
-        "cross_sells_title",
-        "cross_sells_offer_name",
-    ]);
-    const crossSellsDescription = firstStringField(productRecord, [
-        "cross_sells_description",
-        "cross_sells_offer_description",
-    ]);
+    const crossSellsCopy = resolveCrossSellsCopy(product);
 
     return (
         <div dir="rtl" className="bg-white">
@@ -79,8 +62,14 @@ export default function ProductDetailsPage() {
                             <CrossSellsSection
                                 crossSells={product.crossSells}
                                 crossSellsPrice={product.cross_sells_price}
-                                crossSellsName={crossSellsName}
-                                crossSellsDescription={crossSellsDescription}
+                                crossSellsName={crossSellsCopy.name}
+                                crossSellsDescription={crossSellsCopy.description}
+                                orderTarget={{
+                                    type: "store",
+                                    id: store.id,
+                                    productId: product.id,
+                                    bundleProductId: product.id,
+                                }}
                                 className="white-card mb-6"
                             />
                         )

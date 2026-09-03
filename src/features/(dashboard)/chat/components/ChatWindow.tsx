@@ -20,7 +20,7 @@ import { format } from "date-fns";
 import { ar, arSA } from "date-fns/locale";
 import { toast } from "sonner";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AxiosError } from "axios";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { BlockUserModal } from "./BlockUserModal";
@@ -28,6 +28,8 @@ import { AddMemberModal } from "./AddMemberModal";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ConversationInfoPanel } from "./ConversationInfoPanel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
+import { CHAT_BUNDLE_PARAM } from "@/src/lib/chat-links";
+import { ChatBundleOffer } from "./ChatBundleOffer";
 
 interface ChatWindowProps {
     conversation: Conversation;
@@ -85,6 +87,7 @@ function ChatMessagePriceLine({ price }: { price: string | number | null | undef
 
 export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindowProps) {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const user = useAuthStore((state) => state.user);
     const isDashboard = context === "dashboard";
     const ignoreCookie = !isDashboard;
@@ -510,7 +513,16 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                     }
 
                     if (linkedProduct) {
+                        /**
+                         * "اطلب الآن" carries the product id it was pressed on,
+                         * so the offer only shows on that conversation and not
+                         * on whichever one the user opens next.
+                         */
+                        const showsBundle =
+                            searchParams.get(CHAT_BUNDLE_PARAM) === String(linkedProduct.id);
+
                         return (
+                            <>
                             <div className="px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
                                 <div className="flex gap-4 items-center">
                                     <img
@@ -532,6 +544,11 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                     </div>
                                 </div>
                             </div>
+
+                            {showsBundle && linkedProduct.slug && (
+                                <ChatBundleOffer slug={linkedProduct.slug} />
+                            )}
+                            </>
                         );
                     }
 

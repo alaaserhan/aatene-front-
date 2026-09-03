@@ -23,6 +23,11 @@ export interface ChatNowButtonProps
   /** Classes applied to the icon and to the spinner that replaces it. */
   iconClassName?: string;
   /**
+   * Spins over the label instead of beside it, with the label kept in place but
+   * hidden — for buttons whose width must not move while the chat opens.
+   */
+  loadingReplacesLabel?: boolean;
+  /**
    * Renders a bare `<button>` carrying only `className`, for the screens whose
    * chat button is styled from scratch rather than on the shared `<Button>`.
    */
@@ -43,6 +48,7 @@ export function ChatNowButton({
   icon,
   iconPosition = "start",
   iconClassName = "w-5 h-5 shrink-0",
+  loadingReplacesLabel = false,
   unstyled,
   onBeforeOpen,
   className,
@@ -68,13 +74,29 @@ export function ChatNowButton({
     idleIcon
   );
 
-  const content = (
-    <>
-      {iconPosition === "start" && iconNode}
-      {typeof label === "string" ? <span className="shrink-0">{label}</span> : label}
-      {iconPosition === "end" && iconNode}
-    </>
-  );
+  const labelNode =
+    typeof label === "string" ? <span className="shrink-0">{label}</span> : label;
+
+  /**
+   * The label still takes its space, so the button is exactly as wide spinning
+   * as it is idle — `visibility` is what keeps a box while hiding its ink.
+   */
+  const content =
+    loadingReplacesLabel && isOpening ? (
+      <span className="relative inline-flex items-center justify-center">
+        <span className="invisible">{labelNode}</span>
+        <Loader2
+          className={cn(iconClassName, "absolute animate-spin")}
+          aria-hidden="true"
+        />
+      </span>
+    ) : (
+      <>
+        {iconPosition === "start" && iconNode}
+        {labelNode}
+        {iconPosition === "end" && iconNode}
+      </>
+    );
 
   if (unstyled) {
     return (

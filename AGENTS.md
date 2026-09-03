@@ -64,6 +64,8 @@ new bundle preview.
     relatedLabel="المنتجات المرتبطة"
     visibleCount={3}                               // cards before it slides, md+
     variant="default"                              // or "compact"
+    showTotals                                     // false drops the "= price" block
+    action={<OrderButton />}                       // CTA under the prices
 />
 ```
 
@@ -78,8 +80,17 @@ not the API's `cover_url`/`cover`.
   Arrows are pointer-only; touch gets swipe plus dot indicators.
 - **`variant="compact"`** for tight columns (the product page's info card): no dashed
   frame, 100px cards each outlined in `--c2-primary`, arrows beside the track instead
-  of over it, and the totals stacked as price / "بدلاً من" / old price. It is uncapped —
-  the track takes the row's leftover width, so `visibleCount` does not apply.
+  of over it, tighter card separators, and the totals stacked as price / "بدلاً من" /
+  old price. It is uncapped — the track takes the row's leftover width, so
+  `visibleCount` does not apply.
+- **`action` renders under the prices, inside their column** — never as a `w-full` child
+  of the totals row. A wrapping flex container's intrinsic width is the sum of all its
+  children laid end to end, as if nothing wrapped, so a button that *paints* on its own
+  line still *claims* its width beside the prices. In compact that width comes straight
+  out of the track (`flex-1`), which silently loses a card and leaves dead space between
+  the slider and the `=`. Same reason it is centred on the prices, not on the equation.
+- **`showTotals={false}`** where the host already prices the offer (the chat header's
+  collapsible), so the equation is not spelled out twice.
 - **`visibleCount` is a cap, not a fixed width** — inside a narrow container the box
   shrinks and starts sliding sooner.
 - **Never put a margin on the outer cards.** The track is `snap-mandatory`, and a card's
@@ -91,6 +102,37 @@ not the API's `cover_url`/`cover`.
   but its container has to as well. `DialogContent` is `display: grid`, and a grid item
   defaults to `min-width: auto`, so it grows past the dialog unless you add `min-w-0` to
   the wrapper you render it in.
+
+### `ChatNowButton`
+
+`src/components/shared/ChatNowButton.tsx` — the single "chat now" entry point (stores,
+users, products, services, blogs). It builds the URL through `buildChatHref` in
+`src/lib/chat-links.ts`, so every screen hands `ChatPage` the same query shape; guests
+are redirected to login first. Reuse it instead of pushing a chat URL by hand.
+
+```tsx
+<ChatNowButton
+    target={{ type: "store", id: store.id, productId: product.id }}
+    label="اطلب الآن"
+    icon={null}                 // undefined keeps the default message icon
+    unstyled                    // bare <button> carrying only className
+    loadingReplacesLabel        // spinner over the label, so the width never moves
+/>
+```
+
+- **`ChatTarget.productId` / `serviceId`** seed the conversation with that item —
+  `ChatPage` posts a message instead of just creating the conversation, and `ChatWindow`
+  pins the item as a card above the thread.
+- **`ChatTarget.bundleProductId`** additionally pins the product's cross-sell offer under
+  that card, read-only ([`ChatBundleOffer`](src/features/(dashboard)/chat/components/ChatBundleOffer.tsx),
+  collapsed to one line so the header does not eat a phone screen). It travels as the
+  `bundle` query param, deliberately **not** listed in `CHAT_TARGET_PARAMS`: those are
+  stripped once the conversation exists and the URL becomes `?chat=…`, and this one has
+  to outlive them. It carries the product id rather than a flag so the offer only shows
+  on the conversation it belongs to.
+- **`loadingReplacesLabel`** keeps the label in place but `invisible` and spins over it —
+  for buttons whose box must not move while the chat opens. Without it the spinner is
+  added beside the label and the button grows.
 
 ## Conventions
 

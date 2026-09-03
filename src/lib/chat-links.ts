@@ -20,7 +20,16 @@ export interface ChatTarget {
   serviceId?: number | string | null;
   /** Marks the conversation as a price inquiry. */
   askPrice?: boolean;
+  /**
+   * Opens the conversation with the product's bundle offer pinned under the
+   * product card, read-only. Carries the product id rather than a flag so the
+   * card only shows on the conversation the offer belongs to.
+   */
+  bundleProductId?: number | string | null;
 }
+
+/** Query param carrying `ChatTarget.bundleProductId`. */
+export const CHAT_BUNDLE_PARAM = "bundle";
 
 /** Query params that describe a pending "open conversation with X" request. */
 export const CHAT_TARGET_PARAMS = [
@@ -67,6 +76,11 @@ export function buildChatHref(
   if (serviceId) params.set("serviceId", serviceId);
   if (productId) params.set("productId", productId);
   if (target.askPrice) params.set("askPrice", "1");
+
+  // Not one of CHAT_TARGET_PARAMS on purpose: the target params are stripped
+  // once the conversation is created, and this one has to outlive them.
+  const bundleProductId = normalizeId(target.bundleProductId);
+  if (bundleProductId) params.set(CHAT_BUNDLE_PARAM, bundleProductId);
 
   const base = basePath?.replace(/\/+$/, "") || `/${lang}/chat`;
   return `${base}?${params.toString()}`;

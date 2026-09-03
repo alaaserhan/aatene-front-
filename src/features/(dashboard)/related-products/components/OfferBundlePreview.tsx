@@ -109,6 +109,13 @@ interface OfferBundlePreviewProps {
     visibleCount?: number;
     /** Layout size. Defaults to the framed `default` one. */
     variant?: BundleVariant;
+    /**
+     * Drops the "= price" block — for the screens that price the offer
+     * themselves, so the equation isn't spelled out twice.
+     */
+    showTotals?: boolean;
+    /** Call to action, laid out on its own line under the prices. */
+    action?: ReactNode;
     className?: string;
 }
 
@@ -271,6 +278,8 @@ export function OfferBundlePreview({
     relatedLabel,
     visibleCount = 3,
     variant = "default",
+    showTotals = true,
+    action,
     className,
 }: OfferBundlePreviewProps) {
     const savings = Number(originalPrice) - Number(offerPrice);
@@ -407,12 +416,23 @@ export function OfferBundlePreview({
                             <div
                                 ref={scrollerRef}
                                 onScroll={syncScroll}
-                                className="flex h-full snap-x snap-mandatory items-center gap-2 overflow-x-auto no-scrollbar"
+                                className={cn(
+                                    "flex h-full snap-x snap-mandatory items-center overflow-x-auto no-scrollbar",
+                                    // Every pixel between two cards is a pixel
+                                    // the next card can't use, and compact has
+                                    // none to give away.
+                                    isCompact ? "gap-1" : "gap-2"
+                                )}
                             >
                                 {relatedProducts.map((product, index) => (
                                     <Fragment key={product.id ?? product.name}>
                                         {index > 0 && (
-                                            <span className="w-4 shrink-0 self-center text-center text-lg font-bold text-c2-primary">
+                                            <span
+                                                className={cn(
+                                                    "shrink-0 self-center text-center font-bold text-c2-primary",
+                                                    isCompact ? "w-2.5 text-sm" : "w-4 text-lg"
+                                                )}
+                                            >
                                                 +
                                             </span>
                                         )}
@@ -474,8 +494,7 @@ export function OfferBundlePreview({
                 </div>
             </div>
 
-            {/* Wrapping, not nowrap: when the row runs short the struck-through
-                price drops under the offer price instead of off the dialog. */}
+            {showTotals && (
             <div
                 className={cn(
                     "flex min-w-0 shrink flex-wrap items-center justify-center gap-x-3 gap-y-1",
@@ -487,32 +506,43 @@ export function OfferBundlePreview({
             >
                 <span className="text-xl font-bold text-c2-primary">=</span>
 
-                {/* Compact stacks the two prices with a "بدلاً من" between them;
-                    the default variant keeps them side by side. */}
-                <div
-                    className={cn(
-                        "flex min-w-0 flex-wrap items-center justify-center gap-x-3 gap-y-1",
-                        isCompact && "flex-col gap-x-0 gap-y-0.5"
-                    )}
-                >
-                    <span className="text-xl font-bold whitespace-nowrap text-c2-navy-900 md:text-2xl">
-                        {formatPrice(offerPrice)} ₪
-                    </span>
-                    {isCompact && (
-                        <span className="text-xs whitespace-nowrap text-c2-neutral-500">
-                            بدلاً من
+                {/* The action stacks under the prices themselves, not under the
+                    whole equation — centred on the "=" it would read as pushed
+                    off to one side. Nesting it in a column also keeps it out of
+                    the intrinsic width: a wrapping flex row is as wide as all of
+                    its children laid end to end, so a button beside the prices
+                    would claim width the track is the one paying for. */}
+                <div className="flex min-w-0 flex-col items-center gap-2">
+                    {/* Compact stacks the two prices with a "بدلاً من" between
+                        them; the default variant keeps them side by side. */}
+                    <div
+                        className={cn(
+                            "flex min-w-0 flex-wrap items-center justify-center gap-x-3 gap-y-1",
+                            isCompact && "flex-col gap-x-0 gap-y-0.5"
+                        )}
+                    >
+                        <span className="text-xl font-bold whitespace-nowrap text-c2-navy-900 md:text-2xl">
+                            {formatPrice(offerPrice)} ₪
                         </span>
-                    )}
-                    <span className="text-sm whitespace-nowrap text-c2-danger line-through">
-                        {formatPrice(originalPrice)} ₪
-                    </span>
-                    {hasSavings && (
-                        <span className="text-xs font-semibold whitespace-nowrap text-c2-danger">
-                            وفّر {formatPrice(savings)} ₪
+                        {isCompact && (
+                            <span className="text-xs whitespace-nowrap text-c2-neutral-500">
+                                بدلاً من
+                            </span>
+                        )}
+                        <span className="text-sm whitespace-nowrap text-c2-danger line-through">
+                            {formatPrice(originalPrice)} ₪
                         </span>
-                    )}
+                        {hasSavings && (
+                            <span className="text-xs font-semibold whitespace-nowrap text-c2-danger">
+                                وفّر {formatPrice(savings)} ₪
+                            </span>
+                        )}
+                    </div>
+
+                    {action}
                 </div>
             </div>
+            )}
         </div>
     );
 }
