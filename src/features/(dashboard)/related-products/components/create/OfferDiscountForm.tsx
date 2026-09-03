@@ -1,12 +1,11 @@
 // src/features/(dashboard)/related-products/components/create/OfferDiscountForm.tsx
 "use client";
 
-import { ImageOff } from "lucide-react";
 import { DatePicker } from "@/src/components/ui/DatePicker";
 import { FormInput } from "@/src/components/ui/FormInput";
-import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { formatPrice } from "@/src/lib/format-price";
 import type { CrossSellItem } from "../../types";
+import { OfferBundlePreview, type BundleProduct } from "../OfferBundlePreview";
 import {
     OFFER_DESCRIPTION_MAX_CHARS,
     OFFER_NAME_MAX_CHARS,
@@ -31,8 +30,13 @@ export function OfferDiscountForm({
     onChange,
 }: OfferDiscountFormProps) {
     const discountedPrice = Number(draft.price) || 0;
-    const savings = originalTotal - discountedPrice;
-    const showSavings = discountedPrice > 0 && savings > 0;
+
+    const bundleProducts: BundleProduct[] = relatedProducts.map((product) => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: product.cover_url,
+    }));
 
     return (
         <div className="space-y-4">
@@ -70,7 +74,9 @@ export function OfferDiscountForm({
                 />
             </div>
 
-            {/* The character-counter row already adds trailing space — trim the stacked gap. */}
+            {/* The character-counter row already adds trailing space — trim the stacked gap.
+                Keep the full gap when an error replaces the counter, so the message
+                doesn't collide with the next block. */}
             <FormInput
                 label="اسم العرض"
                 required
@@ -80,7 +86,7 @@ export function OfferDiscountForm({
                 onChange={(event) => onChange({ name: event.target.value })}
                 placeholder="ادخل اسم العرض"
                 error={errors.name}
-                containerClassName="-mb-3"
+                containerClassName={errors.name ? undefined : "-mb-3"}
                 className="h-12 bg-white shadow-none focus:ring-0"
             />
 
@@ -95,50 +101,21 @@ export function OfferDiscountForm({
                 onChange={(event) => onChange({ description: event.target.value })}
                 placeholder="ادخل وصف العرض"
                 error={errors.description}
-                containerClassName="-mb-3"
+                containerClassName={errors.description ? undefined : "-mb-3"}
                 className="resize-y bg-white shadow-none focus:ring-0"
             />
 
+            {/* The same bundle preview the offers table shows, minus the main
+                product — it was picked back in step one and named in the footer. */}
             <div className="space-y-2">
                 <p className="text-sm text-c2-neutral-800">معاينة العرض</p>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-3 rounded-lg border border-c2-neutral-200 bg-c2-neutral-50 p-4">
-                    {relatedProducts.map((product, index) => (
-                        <div key={product.id} className="flex items-center gap-2">
-                            <div className="flex w-12 flex-col items-center gap-1">
-                                <div className="relative size-12 overflow-hidden rounded-md border border-c2-neutral-200 bg-white">
-                                    {product.cover_url ? (
-                                        <VideoOrImage src={product.cover_url} alt={product.name} fill thumb />
-                                    ) : (
-                                        <div className="flex h-full items-center justify-center">
-                                            <ImageOff className="size-4 text-c2-neutral-500" />
-                                        </div>
-                                    )}
-                                </div>
-                                <p className="line-clamp-1 w-full text-center text-[10px] text-c2-slate-600">
-                                    {product.name}
-                                </p>
-                            </div>
-                            {index < relatedProducts.length - 1 && (
-                                <span className="pb-4 text-sm font-bold text-c2-neutral-500">+</span>
-                            )}
-                        </div>
-                    ))}
-
-                    <span className="pb-4 text-sm font-bold text-c2-neutral-500">=</span>
-
-                    <div className="flex items-baseline gap-2 pb-4">
-                        <span className="text-lg font-bold text-c2-neutral-800">
-                            {formatPrice(discountedPrice)} ₪
-                        </span>
-                        <span className="text-xs text-c2-slate-600 line-through">
-                            {formatPrice(originalTotal)} ₪
-                        </span>
-                        {showSavings && (
-                            <span className="text-xs font-semibold text-c2-danger">
-                                وفّر {formatPrice(savings)} ₪
-                            </span>
-                        )}
-                    </div>
+                <div className="min-w-0 rounded-lg border border-c2-neutral-200 bg-c2-neutral-50 p-4">
+                    <OfferBundlePreview
+                        relatedProducts={bundleProducts}
+                        originalPrice={originalTotal}
+                        offerPrice={discountedPrice}
+                        showSavings
+                    />
                 </div>
             </div>
         </div>

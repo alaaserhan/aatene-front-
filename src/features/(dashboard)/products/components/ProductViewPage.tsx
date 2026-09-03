@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Pen, Phone, Send, CheckCircle2, XCircle, PauseCircle, Trash2, Play } from "lucide-react";
+import { Loader2, Pen, Phone, Send, CheckCircle2, XCircle, PauseCircle, Trash2 } from "lucide-react";
 import Cookies from "js-cookie";
 import { useDeleteProduct, useGetSingleProduct, useUpdateProductStatus, useUpdateProductShown } from "../hooks";
 import { formatPrice } from "@/src/lib/format-price";
@@ -20,13 +20,14 @@ import { ShareModal } from "@/src/components/ui/ShareModal";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { Button } from "@/src/components/ui/button";
 import { Switch } from "@/src/components/ui/switch";
-import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
+import { cn } from "@/src/lib/utils";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import { OfferBundlePreview, type BundleProduct } from "@/src/features/(dashboard)/related-products/components/OfferBundlePreview";
 
 export default function ProductViewPage() {
     const params = useParams();
@@ -241,6 +242,19 @@ export default function ProductViewPage() {
         })
     );
 
+    // The offer bundles the cross-sold products only — the main product is the
+    // anchor, so its price stays out of the "before" total.
+    const bundleProducts: BundleProduct[] = (raw.crossSells || []).map((crossSell) => ({
+        id: crossSell.id,
+        name: crossSell.name,
+        price: crossSell.price,
+        imageUrl: crossSell.cover_url,
+    }));
+    const bundleOriginalPrice = bundleProducts.reduce(
+        (total, product) => total + (Number(product.price) || 0),
+        0
+    );
+
     const conditionLabel: Record<string, string> = {
         new: "جديد",
         used: "مستعمل",
@@ -257,7 +271,7 @@ export default function ProductViewPage() {
 
             {/* ── Header & Breadcrumb ── */}
             <div>
-                <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
+                <Breadcrumb items={breadcrumbItems} withContainer className="mb-0"/>
 
                 {isOwner && (currentStatus === "pending" || currentStatus === "rejected") && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
@@ -351,7 +365,7 @@ export default function ProductViewPage() {
                     {/* Main Content Area */}
                     <div className="col-span-12 lg:col-span-8 flex flex-col gap-6 order-2 lg:order-1">
                         <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
-                            
+
                             {/* Title & Actions */}
                             <div className="flex justify-between items-center mb-6">
                                 <h1 className="text-2xl font-bold leading-tight max-w-[70%] text-[#1e3a52]">
@@ -383,7 +397,7 @@ export default function ProductViewPage() {
                                 />
                                 {imagesList.length > 1 && (
                                     <>
-                                        <button 
+                                        <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 const currentIndex = imagesList.indexOf(displayImage);
@@ -394,7 +408,7 @@ export default function ProductViewPage() {
                                         >
                                             <span className="text-gray-600 text-lg font-bold">&#10094;</span>
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 const currentIndex = imagesList.indexOf(displayImage);
@@ -454,7 +468,7 @@ export default function ProductViewPage() {
                                 <div className="border-b border-blue-4 bg-[#F7F4FF] py-3 text-center text-sm font-medium text-blue-4 mb-4 rounded-t-sm">
                                     وصف المنتج
                                 </div>
-                                <div className="prose prose-sm max-w-none leading-relaxed text-gray-700 px-2 min-h-[150px]">
+                                <div className="prose prose-sm max-w-none leading-relaxed text-gray-700 px-2">
                                     {raw.short_description && (
                                         <p className="mb-4 font-medium whitespace-pre-line">{raw.short_description}</p>
                                     )}
@@ -465,87 +479,33 @@ export default function ProductViewPage() {
                                     )}
                                 </div>
                             </div>
-                            
-                            {/* Related Products / Cross-Sells placeholder */}
-                            {raw.crossSells && raw.crossSells.length > 0 && (
-                                <div className="mt-10 pt-8">
-                                    <h3 className="text-lg font-bold mb-4 text-[#1e3a52]">المنتجات المرتبطة</h3>
-                                    <div className="space-y-4">
-                                        {raw.crossSells.map((cs) => (
-                                            <div key={cs.id} className="flex items-center gap-6 bg-[#FAFAFA] rounded-xl p-4">
-                                                <div className="w-16 h-16 rounded-lg bg-white overflow-hidden shrink-0 shadow-sm border border-gray-100">
-                                                    <DashboardProductMedia src={cs.cover_url} alt={cs.name} />
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="font-bold text-sm text-gray-900">{cs.name}</p>
-                                                    <p className="text-xs text-gray-500 mt-1">{cs.price} ₪</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
 
-                            {/* Offers & Discounts */}
-                            {(raw.cross_sells_price || raw.cross_sells_name || (raw.crossSells && raw.crossSells.length > 0)) && (
+                            {/* Offers & Discounts — the cross-selling bundle as the customer meets it */}
+                            {bundleProducts.length > 0 && (
                                 <div className="mt-10 pt-8">
                                     <h3 className="text-lg font-bold mb-6 text-[#1e3a52] text-right">العروض والتخفيضات</h3>
-                                    <h4 className="font-bold text-center mb-2 text-lg">عرض الصيف</h4>
-                                    <p className="text-sm text-center mb-8 text-gray-500">عرض مميز جداً من {(raw.crossSells?.length || 1) + 1} منتجات يمكنك استعمالها مع بعضها البعض</p>
-                                    
-                                    <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-                                        
-                                        {/* Main product */}
-                                        <div className="flex flex-col items-center gap-3">
-                                            <div className="w-24 h-24 sm:w-32 sm:h-32 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                                                 <DashboardProductMedia src={displayImage} alt={raw.name} />
-                                            </div>
-                                            <span className="text-sm text-gray-700 font-medium max-w-[120px] text-center truncate">{raw.name}</span>
-                                        </div>
-
-                                        <span className="font-black text-2xl text-gray-800 mb-6">+</span>
-
-                                        {/* First Cross sell */}
-                                        <div className="flex flex-col items-center gap-3">
-                                            <div className="w-24 h-24 sm:w-32 sm:h-32 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                                                 {raw.cross_sells_image_url ? (
-                                                     <DashboardProductMedia src={raw.cross_sells_image_url} alt={raw.cross_sells_name || "Cross"} />
-                                                 ) : (raw.crossSells && raw.crossSells.length > 0 && raw.crossSells[0].cover_url) ? (
-                                                     <DashboardProductMedia src={raw.crossSells[0].cover_url} alt={raw.crossSells[0].name} />
-                                                 ) : (
-                                                     <div className="w-full h-full bg-gray-50 flex items-center justify-center text-xs text-gray-400">منتج</div>
-                                                 )}
-                                            </div>
-                                            <span className="text-sm text-gray-700 font-medium max-w-[120px] text-center truncate">{raw.cross_sells_name || (raw.crossSells && raw.crossSells.length > 0 ? raw.crossSells[0].name : "المنتج المضاف")}</span>
-                                        </div>
-
-                                        {/* Second Cross sell (if available) */}
-                                        {raw.crossSells && raw.crossSells.length > 1 && (
-                                            <>
-                                                <span className="font-black text-2xl text-gray-800 mb-6">+</span>
-                                                <div className="flex flex-col items-center gap-3">
-                                                    <div className="w-24 h-24 sm:w-32 sm:h-32 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                                                         <DashboardProductMedia src={raw.crossSells[1].cover_url} alt={raw.crossSells[1].name} />
-                                                    </div>
-                                                    <span className="text-sm text-gray-700 font-medium max-w-[120px] text-center truncate">{raw.crossSells[1].name}</span>
-                                                </div>
-                                            </>
-                                        )}
-
-                                        <span className="text-3xl font-black text-gray-800 mx-2 mb-6">=</span>
-
-                                        {/* Total Price block */}
-                                        <div className="text-center md:text-right flex flex-col justify-center mb-6 pl-4">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <span className="font-black text-2xl whitespace-nowrap">₪ {raw.cross_sells_price || 0}</span>
-                                            </div>
-                                            <p className="text-sm text-gray-500 line-through mt-2 text-center md:text-right">بدلاً من ₪ {Number(raw.price) + (Number(raw.cross_sells_price) || 0) + 50}</p>
-                                            <p className="text-xs text-red-500 font-bold mt-1 text-center md:text-right">وفر ₪ {(Number(raw.price) + (Number(raw.cross_sells_price) || 0) + 50) - (Number(raw.cross_sells_price) || 0)}!</p>
-                                        </div>
+                                    {raw.cross_sells_name && (
+                                        <h4 className="mb-6 text-center text-lg font-bold wrap-break-word text-c2-neutral-900">
+                                            {raw.cross_sells_name}
+                                        </h4>
+                                    )}
+                                    {/* min-w-0 so the bundle box, not the card, absorbs any
+                                        shortfall; w-fit from md up because the preview's own
+                                        row would otherwise stretch to the card's full width
+                                        and strand the total far from the capped bundle box. */}
+                                    <div className="min-w-0 md:mx-auto md:w-fit">
+                                        {/* No mainProduct: this is that product's own page. */}
+                                        <OfferBundlePreview
+                                            relatedProducts={bundleProducts}
+                                            originalPrice={bundleOriginalPrice}
+                                            offerPrice={raw.cross_sells_price}
+                                            showSavings
+                                            relatedLabel="المنتجات المرتبطة"
+                                        />
                                     </div>
                                 </div>
                             )}
-                            
+
 
 
                         </div>
@@ -712,30 +672,6 @@ export default function ProductViewPage() {
 }
 
 // ── Reviews Section ──────────────────────────────────────────────────
-function DashboardProductMedia({ src, alt }: { src?: string | null; alt: string }) {
-    const mediaSrc = sanitizeMediaUrl(src) || "/placeholder.png";
-    const isVideo = isVideoFile(mediaSrc);
-
-    return (
-        <div className="relative h-full w-full">
-            <VideoOrImage
-                src={mediaSrc}
-                alt={alt}
-                fill
-                thumb
-                className="object-cover"
-            />
-            {isVideo && (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
-                        <Play className="h-3.5 w-3.5 fill-gray-700 text-gray-700" />
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
-
 function ProductReviewsSection({ slug, summary }: { slug: string; summary: { count: number; rate: number } }) {
     const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
     const [mediaViewerState, setMediaViewerState] = useState<{ isOpen: boolean; media: string[]; index: number }>({

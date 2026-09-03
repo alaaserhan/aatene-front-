@@ -61,7 +61,7 @@ export const updateCrossSellingOffer = async (
     offerId: number | string,
     payload: CrossSellingOfferUpdatePayload
 ): Promise<SingleCrossSellingOfferResponse> => {
-    const { data } = await api.post<SingleCrossSellingOfferResponse>(
+    const { data } = await api.put<SingleCrossSellingOfferResponse>(
         `${BASE_URL}/${offerId}`,
         payload,
         { headers: storeHeaders() }

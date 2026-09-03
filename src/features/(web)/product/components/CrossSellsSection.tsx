@@ -1,158 +1,118 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import { OfferBundlePreview } from "@/src/features/(dashboard)/related-products/components/OfferBundlePreview";
+import type { ChatTarget } from "@/src/lib/chat-links";
+import { sanitizeMediaUrl } from "@/src/lib/utils";
 import { Product } from "../api";
-import Link from "next/link";
-import { formatPrice } from "@/src/lib/format-price";
-import { isVideoFile, resolveImageSrc, sanitizeMediaUrl } from "@/src/lib/utils";
-import { HoverPlayVideo } from "@/src/components/ui/HoverPlayVideo";
+
+function firstStringField(source: Record<string, unknown>, keys: string[]) {
+    for (const key of keys) {
+        const value = source[key];
+        if (typeof value === "string" && value.trim()) return value;
+    }
+    return undefined;
+}
+
+/**
+ * The offer's own title and blurb. The backend has shipped these under a few
+ * different names, so every known spelling is tried before falling back to the
+ * generic copy in the section itself.
+ */
+export function resolveCrossSellsCopy(product: Product) {
+    const record = product as unknown as Record<string, unknown>;
+    return {
+        name: firstStringField(record, [
+            "cross_sells_name",
+            "cross_sells_title",
+            "cross_sells_offer_name",
+        ]),
+        description: firstStringField(record, [
+            "cross_sells_description",
+            "cross_sells_offer_description",
+        ]),
+    };
+}
 
 interface CrossSellsSectionProps {
     crossSells: Product[];
     crossSellsPrice: string;
     crossSellsName?: string;
     crossSellsDescription?: string;
+    /**
+     * Shows the "اطلب الآن" action, which opens a conversation with the store
+     * about the anchor product — the same thing the hero's chat button does —
+     * with this offer pinned under the product card, read-only.
+     */
+    orderTarget?: ChatTarget;
+    className?: string;
 }
 
+/**
+ * The bundle offer as one of the product info cards beside the gallery. The
+ * anchor product is the page itself, so the preview is rendered without its
+ * main product — only the bundled ones and the discounted total.
+ */
 export default function CrossSellsSection({
     crossSells,
     crossSellsPrice,
     crossSellsName,
-    crossSellsDescription
+    crossSellsDescription,
+    orderTarget,
+    className,
 }: CrossSellsSectionProps) {
-    const originalTotal = crossSells.reduce((sum, p) => sum + parseFloat(p.price || "0"), 0);
-
-    // دائماً 3 منتجات في كل صفحة على كل الشاشات
-    const PAGE_SIZE = 3;
-    const totalPages = Math.ceil(crossSells.length / PAGE_SIZE);
-    const [page, setPage] = useState(0);
-
-    const visibleProducts = crossSells.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-
     if (crossSells.length === 0 || !crossSellsPrice || parseFloat(crossSellsPrice) <= 0) {
         return null;
     }
 
-    const savings = originalTotal - parseFloat(crossSellsPrice);
+    const originalTotal = crossSells.reduce((sum, p) => sum + parseFloat(p.price || "0"), 0);
 
     return (
-        <div className="white-card mt-8 p-4 lg:p-8">
-            {/* العنوان والأسهم */}
-            <div className="flex flex-col items-center gap-4 border-b border-gray-100 pb-5 mb-6 px-2 text-center">
-                <div className="min-w-0 space-y-2 text-center">
-                    <p className="text-xs font-semibold text-blue-4">عرض مجمع</p>
-                    <h3 className="text-xl font-bold text-gray-900 md:text-2xl">
-                        {crossSellsName || "اشترِ المنتجات معاً بسعر أفضل"}
-                    </h3>
-                    {crossSellsDescription && (
-                        <p className="mx-auto max-w-3xl break-words text-sm leading-7 text-gray-500 md:text-base">
-                            {crossSellsDescription}
-                        </p>
-                    )}
-                </div>
-            </div>
-
-         
-            <div className="flex flex-col items-center gap-3 md:gap-6">
-
-                {/* الصف الرئيسي — كل شيء في سطر واحد بلا كسر */}
-                <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-3 w-full overflow-x-auto py-1 no-scrollbar">
-
-                    {/* سهم يمين */}
-                    {totalPages > 1 && (
-                        <button
-                            type="button"
-                            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                            disabled={page === totalPages - 1}
-                            className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 cursor-pointer rounded-full bg-blue-3 flex items-center justify-center hover:bg-blue-4 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                            aria-label="التالي"
-                        >
-                            <ChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
-                        </button>
-                    )}
-
-                    {/* المنتجات */}
-                    <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0">
-                        {visibleProducts.map((product, index) => (
-                            <div key={product.id} className="flex items-center gap-1 sm:gap-2 md:gap-3">
-                                <Link
-                                    href={`/product/${product.slug}`}
-                                    className="flex flex-col items-center gap-0.5 sm:gap-1 w-[70px] sm:w-[110px] md:w-[155px] shrink-0 group/item"
-                                >
-                                    <CrossSellProductMedia product={product} />
-                                    <p className="text-[9px] sm:text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors w-full">
-                                        {product.name}
-                                    </p>
-                                </Link>
-                                {index < visibleProducts.length - 1 && (
-                                    <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-400 shrink-0">+</span>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* سهم يسار (قبل =) */}
-                    {totalPages > 1 && (
-                        <button
-                            type="button"
-                            onClick={() => setPage((p) => Math.max(0, p - 1))}
-                            disabled={page === 0}
-                            className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 cursor-pointer rounded-full bg-blue-3 flex items-center justify-center hover:bg-blue-4 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                            aria-label="السابق"
-                        >
-                            <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
-                        </button>
-                    )}
-
-                    {/* = والسعر */}
-                    <div className="flex items-center gap-1 sm:gap-3 md:gap-4 shrink-0">
-                        <span className="text-base sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
-                        <div className="flex flex-col items-center gap-0.5 shrink-0">
-                            <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-800 whitespace-nowrap">
-                                {formatPrice(crossSellsPrice)}{" "}
-                                <span className="text-[9px] sm:text-base font-medium">₪</span>
-                            </span>
-                            <span className="text-[7px] sm:text-xs text-black whitespace-nowrap">بدلاً من</span>
-                            <span className="text-[8px] sm:text-sm text-black line-through whitespace-nowrap">
-                                {formatPrice(originalTotal)} ₪
-                            </span>
-                            {savings > 0 && (
-                                <span className="mt-0.5 text-[7px] sm:text-xs font-semibold text-red-1 whitespace-nowrap">
-                                    وفّر {formatPrice(savings)} ₪
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    );
-}
-
-function CrossSellProductMedia({ product }: { product: Product }) {
-    const normalizedCover = sanitizeMediaUrl(product.cover);
-    const [failedCoverUrl, setFailedCoverUrl] = useState<string | null>(null);
-    const mediaSrc = resolveImageSrc(normalizedCover, failedCoverUrl, "product");
-    const showVideo = isVideoFile(normalizedCover) && failedCoverUrl !== normalizedCover;
-
-    return (
-        <div className="relative w-full aspect-square rounded-md overflow-hidden bg-white border border-gray-200 shadow-sm">
-            {showVideo ? (
-                <HoverPlayVideo
-                    src={mediaSrc}
-                    className="absolute inset-0"
-                    videoClassName="group-hover/item:scale-105 transition-transform duration-300"
-                />
-            ) : (
-                <img
-                    src={mediaSrc}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
-                    onError={() => setFailedCoverUrl(normalizedCover || null)}
-                />
+        <div className={className}>
+            <h3 className="text-center text-base font-bold text-c2-neutral-800 md:text-lg">
+                {crossSellsName || "اشترِ المنتجات معاً بسعر أفضل"}
+            </h3>
+            {crossSellsDescription && (
+                <p className="mt-1 text-center text-sm leading-6 wrap-break-word text-c2-neutral-500">
+                    {crossSellsDescription}
+                </p>
             )}
+
+            {/* min-w-0 so the bundle box, not the card, absorbs any shortfall. */}
+            <div className="mt-4 min-w-0">
+                <OfferBundlePreview
+                    relatedProducts={crossSells.map((product) => ({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        imageUrl: sanitizeMediaUrl(product.cover),
+                    }))}
+                    originalPrice={originalTotal}
+                    offerPrice={crossSellsPrice}
+                    showSavings
+                    visibleCount={3}
+                    variant="compact"
+                    action={
+                        orderTarget && (
+                            <ChatNowButton
+                                unstyled
+                                target={orderTarget}
+                                label="اطلب الآن"
+                                icon={null}
+                                loadingReplacesLabel
+                                // A 16px spinner inside a 20px line box, so the
+                                // button keeps its height too.
+                                iconClassName="size-4"
+                                // Hugs its label, down to a 70px floor: the
+                                // totals column is what the row has left over,
+                                // and every pixel the button takes is one the
+                                // bundle track loses.
+                                className="inline-flex min-w-17.5 cursor-pointer items-center justify-center rounded-full bg-c2-primary px-3 py-1.5 text-xs leading-5 font-medium whitespace-nowrap text-white transition-colors hover:bg-c2-navy-600 disabled:opacity-60"
+                            />
+                        )
+                    }
+                />
+            </div>
         </div>
     );
 }
