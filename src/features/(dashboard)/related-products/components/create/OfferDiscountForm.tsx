@@ -70,7 +70,9 @@ export function OfferDiscountForm({
                 />
             </div>
 
-            {/* The character-counter row already adds trailing space — trim the stacked gap. */}
+            {/* The character-counter row already adds trailing space — trim the stacked gap.
+                Keep the full gap when an error replaces the counter, so the message
+                doesn't collide with the next block. */}
             <FormInput
                 label="اسم العرض"
                 required
@@ -80,7 +82,7 @@ export function OfferDiscountForm({
                 onChange={(event) => onChange({ name: event.target.value })}
                 placeholder="ادخل اسم العرض"
                 error={errors.name}
-                containerClassName="-mb-3"
+                containerClassName={errors.name ? undefined : "-mb-3"}
                 className="h-12 bg-white shadow-none focus:ring-0"
             />
 
@@ -95,7 +97,7 @@ export function OfferDiscountForm({
                 onChange={(event) => onChange({ description: event.target.value })}
                 placeholder="ادخل وصف العرض"
                 error={errors.description}
-                containerClassName="-mb-3"
+                containerClassName={errors.description ? undefined : "-mb-3"}
                 className="resize-y bg-white shadow-none focus:ring-0"
             />
 
