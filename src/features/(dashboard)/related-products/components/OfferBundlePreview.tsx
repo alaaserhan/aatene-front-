@@ -76,10 +76,17 @@ export interface BundleProduct {
 }
 
 interface OfferBundlePreviewProps {
-    mainProduct: BundleProduct;
+    /**
+     * The product the offer hangs on. Optional: screens that already name it
+     * elsewhere — the offer form, where it was picked two steps earlier — show
+     * the bundle and its price on their own.
+     */
+    mainProduct?: BundleProduct | null;
     relatedProducts: BundleProduct[];
     originalPrice?: string | number | null;
     offerPrice?: string | number | null;
+    /** Adds a "وفّر ..." chip next to the total whenever the offer saves money. */
+    showSavings?: boolean;
     /** Optional captions over each group — the help sample labels them with its steps instead. */
     mainLabel?: string;
     relatedLabel?: string;
@@ -229,11 +236,15 @@ export function OfferBundlePreview({
     relatedProducts,
     originalPrice,
     offerPrice,
+    showSavings = false,
     mainLabel,
     relatedLabel,
     visibleCount = 3,
     className,
 }: OfferBundlePreviewProps) {
+    const savings = Number(originalPrice) - Number(offerPrice);
+    const hasSavings = showSavings && Number.isFinite(savings) && savings > 0;
+
     const scrollerRef = useRef<HTMLDivElement>(null);
     const [isScrollable, setIsScrollable] = useState(false);
     const [atStart, setAtStart] = useState(true);
@@ -288,15 +299,16 @@ export function OfferBundlePreview({
         >
             {/* min-w-0 so the bundle box, not the page, absorbs any shortfall. */}
             <div className="flex min-w-0 flex-col gap-3 md:flex-1 md:flex-row md:items-stretch md:gap-6">
-                <div className="flex min-w-0 flex-col md:shrink-0">
-                    {mainLabel && <GroupLabel>{mainLabel}</GroupLabel>}
-                    {/* Top-aligned: both labels are the same height, so the photo
-                        below starts level with the dashed box's own top edge. */}
-                    <MainProductCard product={mainProduct} />
-                </div>
-
                 {/* No "+" joins the main product to the box: the offer prices the
                     bundled products only, the main one is just the anchor. */}
+                {mainProduct && (
+                    <div className="flex min-w-0 flex-col md:shrink-0">
+                        {mainLabel && <GroupLabel>{mainLabel}</GroupLabel>}
+                        {/* Top-aligned: both labels are the same height, so the photo
+                            below starts level with the dashed box's own top edge. */}
+                        <MainProductCard product={mainProduct} />
+                    </div>
+                )}
 
                 {/* Capped at `visibleCount` cards from md up, so the fourth product
                     slides even when the row has space to spare. */}
@@ -389,6 +401,11 @@ export function OfferBundlePreview({
                 <span className="text-sm whitespace-nowrap text-c2-danger line-through">
                     {formatPrice(originalPrice)} ₪
                 </span>
+                {hasSavings && (
+                    <span className="text-xs font-semibold whitespace-nowrap text-c2-danger">
+                        وفّر {formatPrice(savings)} ₪
+                    </span>
+                )}
             </div>
         </div>
     );
