@@ -20,7 +20,10 @@ export function StoreTypeSelectPage() {
   const [selectedType, setSelectedType] = useState<StoreType>("products");
 
   return (
-    <div>
+    // Fill the viewport below the sticky navbar (h-16 + p-2 = 80px) so the
+    // submit bar's `sticky bottom-0` always lands on the screen bottom, while
+    // still taking up layout space instead of covering the content.
+    <div className="flex min-h-[calc(100svh-80px)] flex-col">
       <Breadcrumb items={breadcrumbItems} withContainer />
 
       <div className="heading-card">
@@ -35,9 +38,7 @@ export function StoreTypeSelectPage() {
         </RadioCardGroup>
       </div>
 
-      <div className="container fixed bottom-0">
-        <StoreSubmitBar className="" submitLabel="التالي" onSubmit={() => router.push(`/admin/stores/add/${selectedType}`)} onCancel={() => router.push("/admin/stores")} />
-      </div>
+      <StoreSubmitBar className="mt-auto" submitLabel="التالي" onSubmit={() => router.push(`/admin/stores/add/${selectedType}`)} onCancel={() => router.push("/admin/stores")} />
     </div>
   );
 }
