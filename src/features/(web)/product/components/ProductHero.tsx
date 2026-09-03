@@ -47,6 +47,8 @@ interface ProductHeroProps {
   attributes: Attribute[];
   /** Shipping card, rendered under the actions and above the store card. */
   shipping?: ReactNode;
+  /** Bundle offer card, rendered as the second card of the details column. */
+  crossSells?: ReactNode;
 }
 
 export default function ProductHero({
@@ -54,6 +56,7 @@ export default function ProductHero({
   store,
   attributes,
   shipping,
+  crossSells,
 }: ProductHeroProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
@@ -232,8 +235,8 @@ export default function ProductHero({
           </div>
         </div>
 
-        {/* Details */}
-        <div className="flex-1">
+        {/* Details — min-w-0 so the bundle card's slider can shrink here. */}
+        <div className="flex-1 min-w-0">
           <div className="white-card mb-6">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               {shouldAskForPrice ? (
@@ -294,6 +297,8 @@ export default function ProductHero({
               </div>
             </div>
           </div>
+
+          {crossSells}
 
           {hasOptions && (
             <div className="flex flex-col gap-3 white-card mb-6">

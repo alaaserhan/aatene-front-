@@ -73,6 +73,18 @@ export default function ProductDetailsPage() {
                     product={product}
                     store={store}
                     attributes={attributes}
+                    crossSells={
+                        product.crossSells &&
+                        product.crossSells.length > 0 && (
+                            <CrossSellsSection
+                                crossSells={product.crossSells}
+                                crossSellsPrice={product.cross_sells_price}
+                                crossSellsName={crossSellsName}
+                                crossSellsDescription={crossSellsDescription}
+                                className="white-card mb-6"
+                            />
+                        )
+                    }
                     shipping={
                         <ShippingPolicies
                             product={product}
@@ -86,15 +98,6 @@ export default function ProductDetailsPage() {
                         />
                     }
                 />
-
-                {product.crossSells && product.crossSells.length > 0 && (
-                    <CrossSellsSection
-                        crossSells={product.crossSells}
-                        crossSellsPrice={product.cross_sells_price}
-                        crossSellsName={crossSellsName}
-                        crossSellsDescription={crossSellsDescription}
-                    />
-                )}
             </Section>
 
             <ProductTabs product={product} store={store} />

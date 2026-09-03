@@ -63,6 +63,7 @@ new bundle preview.
     mainLabel="المنتج"                              // optional captions
     relatedLabel="المنتجات المرتبطة"
     visibleCount={3}                               // cards before it slides, md+
+    variant="default"                              // or "compact"
 />
 ```
 
@@ -75,8 +76,17 @@ not the API's `cover_url`/`cover`.
 - **Responsive by itself.** One row from `md` up (main + box + total), stacked below it
   (main as a wide row, box full-width with exactly 2 cards per view, total last).
   Arrows are pointer-only; touch gets swipe plus dot indicators.
+- **`variant="compact"`** for tight columns (the product page's info card): no dashed
+  frame, 100px cards each outlined in `--c2-primary`, arrows beside the track instead
+  of over it, and the totals stacked as price / "بدلاً من" / old price. It is uncapped —
+  the track takes the row's leftover width, so `visibleCount` does not apply.
 - **`visibleCount` is a cap, not a fixed width** — inside a narrow container the box
   shrinks and starts sliding sooner.
+- **Never put a margin on the outer cards.** The track is `snap-mandatory`, and a card's
+  margin shifts its snap position, so it rests a few pixels past the start for good and
+  the "previous" arrow never disables. Space the cards off the edges with padding on the
+  frame around the scroller instead — a scroller's own inline-end padding collapses once
+  the content overflows, which is why it lives on the frame and not on the track.
 - **The host must not block shrinking.** The component keeps `min-w-0` at every level,
   but its container has to as well. `DialogContent` is `display: grid`, and a grid item
   defaults to `min-width: auto`, so it grows past the dialog unless you add `min-w-0` to

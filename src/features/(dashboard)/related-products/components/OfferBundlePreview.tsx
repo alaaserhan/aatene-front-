@@ -44,6 +44,7 @@ const PLUS_REM = 1;
 const GAP_REM = 0.5;
 const BOX_PADDING_REM = 1.25;
 
+
 /**
  * The bundled photos are 92px (`h-23`). On the desktop row the main product
  * sits outside the box, so its photo starts at the dashed border itself and is
@@ -74,6 +75,14 @@ function trackWidth(visible: number): string {
     return `calc(${rem}rem + 2px)`;
 }
 
+/**
+ * `default` is the framed equation; `compact` drops the dashed frame, narrows
+ * the cards to 100px, outlines each one instead, moves the arrows out beside
+ * the track and stacks the totals. Being borderless, it is also uncapped — the
+ * track takes whatever width the row has left, so `visibleCount` is ignored.
+ */
+export type BundleVariant = "default" | "compact";
+
 export interface BundleProduct {
     id?: number | string;
     name: string;
@@ -98,6 +107,8 @@ interface OfferBundlePreviewProps {
     relatedLabel?: string;
     /** How many bundled cards the box shows before it starts sliding, from md up. */
     visibleCount?: number;
+    /** Layout size. Defaults to the framed `default` one. */
+    variant?: BundleVariant;
     className?: string;
 }
 
@@ -144,8 +155,10 @@ function ProductCaption({ product, className }: { product: BundleProduct; classN
  */
 const MOBILE_CARD_WIDTH = "w-[calc((100%_-_2rem)/2)]";
 
-/** One bundled product inside the dashed box: a 92px photo over its name and price. */
-function BundleCard({ product }: { product: BundleProduct }) {
+/** One bundled product inside the box: a photo over its name and price. */
+function BundleCard({ product, variant }: { product: BundleProduct; variant: BundleVariant }) {
+    const isCompact = variant === "compact";
+
     return (
         <figure
             data-bundle-card
@@ -153,12 +166,17 @@ function BundleCard({ product }: { product: BundleProduct }) {
             // start leaves the final resting point short of the real scroll
             // end, so the track would never report itself as finished.
             className={cn(
-                "flex shrink-0 snap-start flex-col overflow-hidden rounded-lg border border-c2-neutral-200 bg-white last:snap-end sm:w-32 md:w-36",
-                MOBILE_CARD_WIDTH
+                "flex shrink-0 snap-start flex-col overflow-hidden rounded-lg border bg-white last:snap-end",
+                isCompact
+                    ? "w-25 border-c2-primary"
+                    : cn("border-c2-neutral-200 sm:w-32 md:w-36", MOBILE_CARD_WIDTH)
             )}
         >
-            <ProductPhoto product={product} className="h-23 w-full" />
-            <ProductCaption product={product} className="px-2 pt-1.5 pb-2" />
+            <ProductPhoto product={product} className={isCompact ? "h-20 w-full" : "h-23 w-full"} />
+            <ProductCaption
+                product={product}
+                className={isCompact ? "px-1.5 pt-1 pb-1.5" : "px-2 pt-1.5 pb-2"}
+            />
         </figure>
     );
 }
@@ -198,12 +216,15 @@ function SliderArrow({
     disabled,
     onClick,
     side,
+    inline = false,
     children,
 }: {
     label: string;
     disabled: boolean;
     onClick: () => void;
     side: "start" | "end";
+    /** Sits beside the track as a flex item instead of floating over its edge. */
+    inline?: boolean;
     children: ReactNode;
 }) {
     return (
@@ -213,11 +234,14 @@ function SliderArrow({
             disabled={disabled}
             onClick={onClick}
             className={cn(
-                "absolute top-1/2 hidden size-7 -translate-y-1/2 items-center justify-center rounded-full bg-c2-primary text-white shadow-sm transition-opacity md:flex",
+                "hidden size-7 shrink-0 items-center justify-center rounded-full bg-c2-primary text-white shadow-sm transition-opacity md:flex",
                 disabled
                     ? "cursor-not-allowed opacity-30"
                     : "cursor-pointer opacity-100 hover:bg-c2-navy-600",
-                side === "start" ? "-inset-s-3" : "-inset-e-3"
+                !inline && [
+                    "absolute top-1/2 -translate-y-1/2",
+                    side === "start" ? "-inset-s-3" : "-inset-e-3",
+                ]
             )}
         >
             {children}
@@ -246,11 +270,13 @@ export function OfferBundlePreview({
     mainLabel,
     relatedLabel,
     visibleCount = 3,
+    variant = "default",
     className,
 }: OfferBundlePreviewProps) {
     const savings = Number(originalPrice) - Number(offerPrice);
     const hasSavings = showSavings && Number.isFinite(savings) && savings > 0;
     const hasLabels = Boolean(mainLabel || relatedLabel);
+    const isCompact = variant === "compact";
 
     const scrollerRef = useRef<HTMLDivElement>(null);
     const [isScrollable, setIsScrollable] = useState(false);
@@ -294,19 +320,30 @@ export function OfferBundlePreview({
 
         // scrollLeft runs the other way in RTL, so ask the box which way it reads.
         const sign = getComputedStyle(scroller).direction === "rtl" ? -1 : 1;
-        scroller.scrollBy({ left: sign * steps * cardStep(scroller), behavior: "smooth" });
+        // Scrolling to an absolute offset, not by a delta: a step back from the
+        // second card has to land on 0 exactly, or snapping can leave the track
+        // a pixel short of its start and the arrow never reports itself done.
+        const target = Math.max(0, Math.abs(scroller.scrollLeft) + steps * cardStep(scroller));
+        scroller.scrollTo({ left: sign * target, behavior: "smooth" });
     };
 
     return (
         <div
             style={{ "--bundle-label-height": LABEL_HEIGHT } as CSSProperties}
             className={cn(
-                "flex w-full max-w-full min-w-0 flex-col gap-3 md:flex-row md:items-stretch md:gap-6",
+                "flex w-full max-w-full min-w-0 flex-col gap-3 md:flex-row md:items-stretch",
+                // Compact keeps every gap tight so the cards get the width.
+                isCompact ? "md:gap-2" : "md:gap-6",
                 className
             )}
         >
             {/* min-w-0 so the bundle box, not the page, absorbs any shortfall. */}
-            <div className="flex min-w-0 flex-col gap-3 md:flex-1 md:flex-row md:items-stretch md:gap-6">
+            <div
+                className={cn(
+                    "flex min-w-0 flex-col gap-3 md:flex-1 md:flex-row md:items-stretch",
+                    isCompact ? "md:gap-2" : "md:gap-6"
+                )}
+            >
                 {/* No "+" joins the main product to the box: the offer prices the
                     bundled products only, the main one is just the anchor. */}
                 {mainProduct && (
@@ -322,16 +359,51 @@ export function OfferBundlePreview({
                     slides even when the row has space to spare. */}
                 <div
                     style={{ "--bundle-track": trackWidth(visibleCount) } as CSSProperties}
-                    className="flex min-w-0 flex-col md:max-w-(--bundle-track) md:flex-1"
+                    className={cn(
+                        "flex min-w-0 flex-col md:flex-1",
+                        // Compact is uncapped: inside a card the leftover width
+                        // belongs to the track, not to the row's trailing edge.
+                        !isCompact && "md:max-w-(--bundle-track)"
+                    )}
                 >
                     {relatedLabel && <GroupLabel>{relatedLabel}</GroupLabel>}
 
-                    <div className="relative min-w-0 flex-1">
+                    {/* Compact lays the arrows beside the track as flex items;
+                        the framed variant floats them over the box's edges. */}
+                    <div
+                        className={cn(
+                            "relative min-w-0 flex-1",
+                            isCompact && "flex items-center gap-1"
+                        )}
+                    >
+                        {isCompact && isScrollable && (
+                            <SliderArrow
+                                inline
+                                side="start"
+                                label="السابق"
+                                disabled={atStart}
+                                onClick={() => scrollByCards(-1)}
+                            >
+                                <ChevronRight className="size-4" />
+                            </SliderArrow>
+                        )}
+
                         {/* The padding lives on the frame, not on the scroller: a
                             scroller's own inline-end padding collapses once the
                             content overflows, which left the last card flush
                             against the border. Inset like this both sides hold. */}
-                        <div className="h-full rounded-xl border border-dashed border-c2-primary px-4 py-3 md:px-5">
+                        <div
+                            className={cn(
+                                "h-full rounded-xl",
+                                isCompact
+                                    // Padding on the frame, never a margin on the
+                                    // outer cards: a card's own margin shifts its
+                                    // snap position, and the track then rests a
+                                    // few pixels past its start for good.
+                                    ? "min-w-0 flex-1 px-1"
+                                    : "border border-dashed border-c2-primary px-4 py-3 md:px-5"
+                            )}
+                        >
                             <div
                                 ref={scrollerRef}
                                 onScroll={syncScroll}
@@ -344,7 +416,7 @@ export function OfferBundlePreview({
                                                 +
                                             </span>
                                         )}
-                                        <BundleCard product={product} />
+                                        <BundleCard product={product} variant={variant} />
                                     </Fragment>
                                 ))}
                             </div>
@@ -354,15 +426,18 @@ export function OfferBundlePreview({
                             only cover a card there. */}
                         {isScrollable && (
                             <>
+                                {!isCompact && (
+                                    <SliderArrow
+                                        side="start"
+                                        label="السابق"
+                                        disabled={atStart}
+                                        onClick={() => scrollByCards(-1)}
+                                    >
+                                        <ChevronRight className="size-4" />
+                                    </SliderArrow>
+                                )}
                                 <SliderArrow
-                                    side="start"
-                                    label="السابق"
-                                    disabled={atStart}
-                                    onClick={() => scrollByCards(-1)}
-                                >
-                                    <ChevronRight className="size-4" />
-                                </SliderArrow>
-                                <SliderArrow
+                                    inline={isCompact}
                                     side="end"
                                     label="التالي"
                                     disabled={atEnd}
@@ -411,17 +486,32 @@ export function OfferBundlePreview({
                 )}
             >
                 <span className="text-xl font-bold text-c2-primary">=</span>
-                <span className="text-xl font-bold whitespace-nowrap text-c2-navy-900 md:text-2xl">
-                    {formatPrice(offerPrice)} ₪
-                </span>
-                <span className="text-sm whitespace-nowrap text-c2-danger line-through">
-                    {formatPrice(originalPrice)} ₪
-                </span>
-                {hasSavings && (
-                    <span className="text-xs font-semibold whitespace-nowrap text-c2-danger">
-                        وفّر {formatPrice(savings)} ₪
+
+                {/* Compact stacks the two prices with a "بدلاً من" between them;
+                    the default variant keeps them side by side. */}
+                <div
+                    className={cn(
+                        "flex min-w-0 flex-wrap items-center justify-center gap-x-3 gap-y-1",
+                        isCompact && "flex-col gap-x-0 gap-y-0.5"
+                    )}
+                >
+                    <span className="text-xl font-bold whitespace-nowrap text-c2-navy-900 md:text-2xl">
+                        {formatPrice(offerPrice)} ₪
                     </span>
-                )}
+                    {isCompact && (
+                        <span className="text-xs whitespace-nowrap text-c2-neutral-500">
+                            بدلاً من
+                        </span>
+                    )}
+                    <span className="text-sm whitespace-nowrap text-c2-danger line-through">
+                        {formatPrice(originalPrice)} ₪
+                    </span>
+                    {hasSavings && (
+                        <span className="text-xs font-semibold whitespace-nowrap text-c2-danger">
+                            وفّر {formatPrice(savings)} ₪
+                        </span>
+                    )}
+                </div>
             </div>
         </div>
     );
