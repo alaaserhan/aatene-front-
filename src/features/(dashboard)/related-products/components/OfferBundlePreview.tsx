@@ -33,6 +33,12 @@ const EDGE_TOLERANCE = 2;
  * They only govern the desktop row — on mobile the box takes the full width it
  * is given and is swiped instead.
  */
+/**
+ * A group caption's own height — the `text-sm` line box plus its `mb-2` — so
+ * the totals can be pushed down by exactly what a caption adds above the box.
+ */
+const LABEL_HEIGHT = "1.75rem";
+
 const CARD_REM = 9;
 const PLUS_REM = 1;
 const GAP_REM = 0.5;
@@ -244,6 +250,7 @@ export function OfferBundlePreview({
 }: OfferBundlePreviewProps) {
     const savings = Number(originalPrice) - Number(offerPrice);
     const hasSavings = showSavings && Number.isFinite(savings) && savings > 0;
+    const hasLabels = Boolean(mainLabel || relatedLabel);
 
     const scrollerRef = useRef<HTMLDivElement>(null);
     const [isScrollable, setIsScrollable] = useState(false);
@@ -292,6 +299,7 @@ export function OfferBundlePreview({
 
     return (
         <div
+            style={{ "--bundle-label-height": LABEL_HEIGHT } as CSSProperties}
             className={cn(
                 "flex w-full max-w-full min-w-0 flex-col gap-3 md:flex-row md:items-stretch md:gap-6",
                 className
@@ -393,7 +401,15 @@ export function OfferBundlePreview({
 
             {/* Wrapping, not nowrap: when the row runs short the struck-through
                 price drops under the offer price instead of off the dialog. */}
-            <div className="flex min-w-0 shrink flex-wrap items-center justify-center gap-x-3 gap-y-1">
+            <div
+                className={cn(
+                    "flex min-w-0 shrink flex-wrap items-center justify-center gap-x-3 gap-y-1",
+                    // The totals sit level with the box itself, not with the
+                    // column that carries a caption above it — otherwise the "="
+                    // lands half a caption higher than the slider arrows.
+                    hasLabels && "md:mt-(--bundle-label-height)"
+                )}
+            >
                 <span className="text-xl font-bold text-c2-primary">=</span>
                 <span className="text-xl font-bold whitespace-nowrap text-c2-navy-900 md:text-2xl">
                     {formatPrice(offerPrice)} ₪
