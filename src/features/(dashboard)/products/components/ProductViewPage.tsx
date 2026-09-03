@@ -271,7 +271,7 @@ export default function ProductViewPage() {
 
             {/* ── Header & Breadcrumb ── */}
             <div>
-                <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
+                <Breadcrumb items={breadcrumbItems} withContainer className="mb-0"/>
 
                 {isOwner && (currentStatus === "pending" || currentStatus === "rejected") && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
@@ -365,7 +365,7 @@ export default function ProductViewPage() {
                     {/* Main Content Area */}
                     <div className="col-span-12 lg:col-span-8 flex flex-col gap-6 order-2 lg:order-1">
                         <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
-                            
+
                             {/* Title & Actions */}
                             <div className="flex justify-between items-center mb-6">
                                 <h1 className="text-2xl font-bold leading-tight max-w-[70%] text-[#1e3a52]">
@@ -397,7 +397,7 @@ export default function ProductViewPage() {
                                 />
                                 {imagesList.length > 1 && (
                                     <>
-                                        <button 
+                                        <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 const currentIndex = imagesList.indexOf(displayImage);
@@ -408,7 +408,7 @@ export default function ProductViewPage() {
                                         >
                                             <span className="text-gray-600 text-lg font-bold">&#10094;</span>
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 const currentIndex = imagesList.indexOf(displayImage);
@@ -479,7 +479,7 @@ export default function ProductViewPage() {
                                     )}
                                 </div>
                             </div>
-                            
+
                             {/* Offers & Discounts — the cross-selling bundle as the customer meets it */}
                             {bundleProducts.length > 0 && (
                                 <div className="mt-10 pt-8">
