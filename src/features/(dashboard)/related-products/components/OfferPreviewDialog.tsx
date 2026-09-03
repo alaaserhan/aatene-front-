@@ -8,6 +8,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/src/components/ui/dialog";
+import { useGetSingleProduct } from "@/src/features/(dashboard)/products/hooks";
 import { useCrossSellingOffer } from "../hooks";
 import { toOfferDetails } from "../offer-details";
 import type { CrossSellingOffer } from "../types";
@@ -23,6 +24,12 @@ interface OfferPreviewDialogProps {
 export function OfferPreviewDialog({ offer, onOpenChange }: OfferPreviewDialogProps) {
     const { data, isLoading } = useCrossSellingOffer(offer?.id);
 
+    // The offer endpoints describe the main product without a price of its own,
+    // and `offer_original_price` only sums the bundled ones — so the product's
+    // own record is where the preview gets it from. An offer's id is that
+    // product's id, see `CrossSellingOffer.id`.
+    const { data: product } = useGetSingleProduct(offer?.id);
+
     // The row already carries the offer's own fields, so the header fills in
     // while the bundled products are still loading.
     const details = toOfferDetails(data, offer);
@@ -30,7 +37,7 @@ export function OfferPreviewDialog({ offer, onOpenChange }: OfferPreviewDialogPr
     const mainProduct: BundleProduct = {
         id: details?.mainProduct?.id,
         name: details?.mainProduct?.name || offer?.product_name || "",
-        price: details?.mainProduct?.price,
+        price: details?.mainProduct?.price ?? product?.data?.price,
         imageUrl: details?.mainProduct?.cover_url || offer?.product_cover_url,
     };
 
@@ -55,8 +62,11 @@ export function OfferPreviewDialog({ offer, onOpenChange }: OfferPreviewDialogPr
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="p-4 md:p-6">
-                    <h3 className="text-center text-xl font-bold text-c2-neutral-900">
+                {/* min-w-0: DialogContent is a grid, and a grid item defaults to
+                    min-width:auto — it refuses to shrink under its content's
+                    min-content width and pushes past the dialog instead. */}
+                <div className="min-w-0 p-4 md:p-6">
+                    <h3 className="text-center text-xl font-bold wrap-break-word text-c2-neutral-900">
                         {details?.name || "—"}
                     </h3>
 

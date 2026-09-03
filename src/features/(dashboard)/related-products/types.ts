@@ -47,6 +47,13 @@ export interface CrossSellingOffer {
     product_sku?: string | null;
     product_cover?: string | null;
     product_cover_url?: string | null;
+    /**
+     * The main product's own price. It is not part of `offer_original_price`,
+     * which sums the bundled products only, and older responses may omit it —
+     * the preview then shows the product without a price.
+     */
+    product_price?: string | number | null;
+    product_price_after_discount?: string | number | null;
 
     cross_sell_products_count?: number | null;
 }

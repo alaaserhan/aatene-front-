@@ -35,9 +35,15 @@ const toBundleItem = (product: OfferProduct): CrossSellItem => ({
     cover_url: product.cover ?? null,
 });
 
+/** First value that is actually filled in — `0` and `"0"` still count. */
+const firstFilled = (
+    ...values: (string | number | null | undefined)[]
+): string | number | null => values.find((value) => value != null && value !== "") ?? null;
+
 /**
- * The main product. The endpoint describes it with the `product_*` fields and
- * no price of its own, so the preview card shows it without one.
+ * The main product, described by the `product_*` fields. Its price is what the
+ * customer would pay for it on its own, so the discounted one wins when both
+ * are sent; a response without either leaves the card priceless.
  */
 const toMainProduct = (source: CrossSellingOfferDetails): CrossSellItem | null => {
     if (!source.id) return null;
@@ -46,7 +52,7 @@ const toMainProduct = (source: CrossSellingOfferDetails): CrossSellItem | null =
         id: source.id,
         name: source.product_name || "",
         sku: source.product_sku ?? null,
-        price: null,
+        price: firstFilled(source.product_price_after_discount, source.product_price),
         cover_url: source.product_cover_url ?? null,
     };
 };
