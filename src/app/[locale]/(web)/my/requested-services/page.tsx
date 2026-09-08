@@ -3,7 +3,7 @@ import MyRequestedServicesPage from "@/src/features/(web)/requested-services/com
 import { generatePageMetadata } from "@/src/lib/seo.config";
 
 export const metadata: Metadata = generatePageMetadata("dashboardRequestedServices", {
-    title: "طلباتي الخاصة",
+    title: "طلباتي للخدمات الغير موجودة",
     description: "إدارة طلبات الخدمات الخاصة بك",
 });
 
