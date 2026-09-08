@@ -171,12 +171,13 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                     </div>
 
                     {/* Column 2: User Personal Information & Action Buttons */}
-                    <div className="flex w-full min-w-0 max-w-full flex-col px-1 py-2 sm:px-0">
+                    <div className="flex w-full min-w-0 max-w-full flex-col px-1 py-2 sm:px-0 md:self-stretch">
                         <h1 className="text-xl lg:text-2xl font-medium pt-2">{user.fullname}</h1>
                         <p className="text-gray-500 text-sm  font-medium mb-3">{user.city?.name}</p>
 
                         {/* الجوال: صف واحد مضغوط | الديسكتوب: كما كان سابقاً */}
-                        <div className="flex w-full max-w-full flex-1 flex-row flex-nowrap items-stretch justify-center gap-1.5 max-md:max-w-full md:max-w-none md:items-center md:justify-start md:gap-3">
+                        {/* On desktop the row is pushed to the bottom so it lines up with the followers row in column 1 */}
+                        <div className="flex w-full max-w-full flex-1 flex-row flex-nowrap items-stretch justify-center gap-1.5 max-md:max-w-full md:mt-auto md:max-w-none md:flex-none md:items-center md:justify-start md:gap-3">
                             {isOwnProfile ? (
                                 <button
                                     onClick={() => router.push("/settings")}
