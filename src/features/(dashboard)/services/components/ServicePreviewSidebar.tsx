@@ -17,7 +17,8 @@ interface ServicePreviewSidebarProps {
   storeInfo?: {
     name: string;
     avatar: string;
-    address?: string;
+    /** Store service cities, already joined for display. */
+    cities?: string;
   };
 }
 
@@ -101,10 +102,12 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
                 <span className="text-sm font-bold ">
                   {storeInfo?.name || "اسم مقدم الخدمة"}
                 </span>
-                <div className="flex items-center gap-1 text-xs text-gray-2">
-                  <MapPin className="w-3 h-3" />
-                  <span>{storeInfo?.address || "فلسطين، الخليل"}</span>
-                </div>
+                {storeInfo?.cities && (
+                  <div className="flex items-center gap-1 text-xs text-gray-2">
+                    <MapPin className="w-3 h-3" />
+                    <span>{storeInfo.cities}</span>
+                  </div>
+                )}
               </div>
             </div>
 
