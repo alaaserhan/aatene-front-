@@ -68,6 +68,7 @@ export function KeywordsSection({
       value="keywords"
       isSaving={mutation.isPending}
       onSave={() => mutation.mutate({ tags })}
+      onCancel={() => setTags(initialValues.tags)}
     >
       <div className="space-y-4">
         {/* <button

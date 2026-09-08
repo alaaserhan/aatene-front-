@@ -37,6 +37,11 @@ const SIDEBAR_TABS = [
 
 type ActionType = "delete-comment" | "block-user" | "send-alert" | "delete-word" | null;
 
+// Abusive words are never rendered in plain text in the list, not even in
+// search results; searching only confirms whether a word is already stored.
+const maskWord = (word: string) =>
+    word.trim().replace(/\S/g, "*") || "***";
+
 interface PendingAction {
     type: ActionType;
     id: number;
@@ -439,7 +444,10 @@ export function AbusiveWordsPage() {
                                     </div>
 
                                     <div className="p-6">
-                                        <h3 className="text-lg font-bold text-blue-3 mb-6 text-center">عرض جميع الكلمات المضافة</h3>
+                                        <h3 className="text-lg font-bold text-blue-3 mb-2 text-center">عرض جميع الكلمات المضافة</h3>
+                                        <p className="text-gray-2 text-sm mb-6 text-center">
+                                            الكلمات مخفية، ابحث عن الكلمة للتأكد من وجودها
+                                        </p>
                                         {isWordsLoading ? (
                                             <div className="text-center text-gray-2 py-8">جاري التحميل...</div>
                                         ) : words.length === 0 ? (
@@ -449,7 +457,7 @@ export function AbusiveWordsPage() {
                                                 {words.map((word) => (
                                                     <OptionTag
                                                         key={word.id}
-                                                        label={word.word}
+                                                        label={maskWord(word.word)}
                                                         onRemove={() => handleDeleteWord(word.id)}
                                                         showRemoveButton={true}
                                                     />

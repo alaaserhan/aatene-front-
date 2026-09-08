@@ -12,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useLanguage } from "@/src/hooks/use-language";
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
+import { getStoreCityNames, formatStoreCityNames } from "@/src/lib/storeCities";
 
 interface StoreCardProps {
     store: Store;
@@ -51,10 +52,13 @@ const StoreCard = memo(({
     const router = useRouter();
     const lang = useLanguage();
     const storePath = `/${lang}/store/${store.slug}`;
-    const cityNames = [...(store.location_cities || []), ...(store.service_cities || [])]
-        .map((city) => city?.name)
-        .filter(Boolean);
-    const cityLabel = cityNames.length > 0 ? [...new Set(cityNames)].slice(0, 2).join("، ") : store.address || "المدينة غير محددة";
+    const cityNames = getStoreCityNames(store);
+    // The card is narrow and clamps to one line, so name two and count the rest
+    const cityLabel =
+        formatStoreCityNames(cityNames, 2) ||
+        store.city?.name ||
+        store.address ||
+        "المدينة غير محددة";
 
     const invalidateStoreQueries = () => {
         queryClient.invalidateQueries({ queryKey: ["stores", "search"] });
@@ -125,7 +129,9 @@ const StoreCard = memo(({
 
                 <div className="mb-1 flex w-full items-center justify-center gap-1 text-xs text-gray-500 sm:mb-1.5 sm:gap-1.5 sm:text-sm md:mb-2" dir="rtl">
                     <MapPin className="size-3.5 shrink-0 text-blue-4 sm:size-4" />
-                    <span className="line-clamp-1">{store.city?.name || "--"}</span>
+                    <span className="line-clamp-1" title={cityNames.join("، ")}>
+                        {cityLabel}
+                    </span>
                 </div>
 
                 <div className="inline-flex items-center justify-center gap-1 text-xs leading-4 text-gray-400 sm:gap-1.5 sm:text-sm" dir="rtl">

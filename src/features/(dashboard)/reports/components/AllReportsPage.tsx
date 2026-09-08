@@ -41,7 +41,7 @@ export function AllReportsPage() {
 
     const getReportTitle = (type: ReportType) => {
         switch (type) {
-            case "store": return "بلاغات المتاجر";
+            case "store": return "بلاغات الزبائن";
             case "requested_service": return "بلاغات التجار";
             case "product": return "بلاغات المنتجات";
             case "service": return "بلاغات الخدمات";

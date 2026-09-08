@@ -176,7 +176,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               <div className={menuIconClass(isActive(`/${lang}/my/requested-services`))}>
                 <MessageSquarePlus size={16} />
               </div>
-              <span className="font-medium">طلباتي</span>
+              <span className="font-medium">طلبات الخدمات الغير موجودة</span>
             </Link>
 
             <Link href={`/${lang}/settings`} className={menuLinkClass(isActive(`/${lang}/settings`))} onClick={handleLinkClick}>
@@ -342,7 +342,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               <div className={menuIconClass(isActive(`/${lang}/my/requested-services`))}>
                 <MessageSquarePlus size={16} />
               </div>
-              <span className="font-medium">طلباتي</span>
+              <span className="font-medium">طلبات الخدمات الغير موجودة</span>
             </Link>
 
             <Link href={`/${lang}/settings`} className={menuLinkClass(isActive(`/${lang}/settings`))} onClick={handleLinkClick}>

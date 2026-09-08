@@ -211,14 +211,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المستخدمين", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: hasAdminPerm("/users") },
     { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: hasAdminPerm("/stores") || isMerchant },
     { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: isMerchant && (storeType === "products") && isAllowedByRole("/products") },
-    {
-      label: "إعدادات المتجر",
-      icon: Settings,
-      href: activeStoreId ? `/stores/${activeStoreId}/settings` : "/stores",
-      show: isMerchant && !!activeStoreId && isAllowedByRole("/stores"),
-      desc: "أكمل بيانات متجرك: الاتصال، أوقات العمل، الشحن والكلمات المفتاحية",
-      alwaysMore: true,
-    },
+
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: hasAdminPerm("/productProviders") },
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: activeStoreId ? `/serviceProviders/${activeStoreId}` : "/serviceProviders", show: isMerchant && (storeType === "services") && !!activeStoreId && isAllowedByRole("/serviceProviders") },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: hasAdminPerm("/serviceProviders"), desc: "إدارة ومتابعة مقدمي الخدمات" },
@@ -229,7 +222,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: hasAdminPerm("/banners"), desc: "ادارة ومتابعة البنرات الإعلانية" },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: hasAdminPerm("/mosa3edy"), desc: "إدارة التشات بوت والإحصائيات" },
     { label: "القصص", icon: ImageIcon, href: "/stories", show: isMerchant && isAllowedByRole("/stories"), desc: "إضافة وإدارة القصص" },
-    { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services", show: hasAdminPerm("/requested-services"), desc: "الطلبات الغير موجودة والمخصصة" },
+    { label: "الطلبات غير الموجودة", icon: Wand2Icon, href: "/requested-services", show: hasAdminPerm("/requested-services"), desc: "الطلبات الغير موجودة والمخصصة" },
     { label: "المدونات", icon: Newspaper, href: "/blogs", show: hasAdminPerm("/blogs"), desc: "إضافة وإدارة المدونات والمقالات" },
     { label: "المتابعات", icon: Users, href: "/following", show: isMerchant && isAllowedByRole("/following"), desc: "إدارة واحصائيات المتابعات" },
     { label: "المفضلة", icon: Heart, href: "/favorites", show: hasAdminPerm("/favorites"), desc: "ادارة ومتابعة المفضلة" },
@@ -238,9 +231,16 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: hasAdminPerm("/all-reports"), desc: "متابعة الشكاوى والبلاغات" },
     { label: "رسائل التواصل", icon: Mail, href: "/contacts", show: hasAdminPerm("/contacts"), desc: "رسائل المستخدمين من صفحة من نحن" },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: hasAdminPerm("/notifications"), desc: "إدارة ومتابعة سجل الاشعارات" },
-    { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant && (storeType === "products") && isAllowedByRole("/coupons"), desc: "إدارة ومتابعة الخصومات" },
     { label: "المنتجات المرتبطة", icon: Workflow, href: "/related-products", show: isMerchant && (storeType === "products") && isAllowedByRole("/related-products"), desc: "إدارة ومتابعة المنتجات المرتبطة" },
-
+    { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant && (storeType === "products") && isAllowedByRole("/coupons"), desc: "إدارة ومتابعة الخصومات" },
+    {
+      label: "إعدادات المتجر",
+      icon: Settings,
+      href: activeStoreId ? `/stores/${activeStoreId}/settings` : "/stores",
+      show: isMerchant && !!activeStoreId && isAllowedByRole("/stores"),
+      desc: "إدارة إعدادات متجرك",
+      alwaysMore: true,
+    },
     { label: "المحذوفات", icon: Trash2, href: "/trash", show: hasAdminPerm("/trash"), desc: "إدارة ومتابعة المحذوفات" },
     { label: "دليل الاستخدام", icon: Video, href: "/user-guide", show: hasAdminPerm("/user-guide"), desc: "إضافة فيديوهات لمساعدة المستخدمين" },
   ];
@@ -389,17 +389,24 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                               style={active ? { backgroundColor: '#F9FAFB' } : {}}
                             >
                               <div className="w-10 h-10 rounded-md bg-blue-5 flex items-center justify-center group-hover:bg-[#DBEAFE] transition-colors shrink-0">
-                                {renderIcon(item.icon, false, "w-5 h-5 text-blue-4 group-hover:text-blue-600")}
+                                {renderIcon(
+                                  item.icon,
+                                  false,
+                                  cn(
+                                    "w-5 h-5 transition-colors group-hover:text-c2-blue-500",
+                                    active ? "text-c2-blue-500" : "text-c2-primary"
+                                  )
+                                )}
                               </div>
                               <div className="flex flex-col flex-1 justify-center">
                                 <span className={cn(
-                                  "text-sm font-medium group-hover:text-blue-700",
-                                  active ? "text-blue-3" : "text-blue-4"
+                                  "text-base font-bold transition-colors group-hover:text-c2-blue-500",
+                                  active ? "text-c2-blue-500" : "text-c2-primary"
                                 )}>
                                   {item.label}
                                 </span>
                                 {item.desc && (
-                                  <span className="text-[10px] text-gray-2 mt-0.5 whitespace-normal leading-tight">
+                                  <span className="text-sm font-medium text-c2-neutral-450 mt-0.5 whitespace-normal leading-tight">
                                     {item.desc}
                                   </span>
                                 )}

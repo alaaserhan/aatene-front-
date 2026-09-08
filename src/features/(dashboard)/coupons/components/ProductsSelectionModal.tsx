@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
@@ -12,11 +12,19 @@ import { useDebounce } from "@/src/hooks/use-debounce";
 import { cn } from "@/src/lib/utils";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 
+interface SelectedProduct {
+    id: string;
+    name: string;
+    image?: string;
+}
+
 interface ProductsSelectionModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (selectedProducts: { id: string; name: string; image?: string }[]) => void;
+    onSave: (selectedProducts: SelectedProduct[]) => void;
     initialSelectedIds?: string[];
+    /** Already-picked products, so reopening the modal keeps them (name + cover) selected */
+    initialSelectedProducts?: SelectedProduct[];
     sectionIds?: string[];
 }
 
@@ -25,13 +33,24 @@ export function ProductsSelectionModal({
     onClose,
     onSave,
     initialSelectedIds = [],
+    initialSelectedProducts = [],
     sectionIds = [],
 }: ProductsSelectionModalProps) {
     const [search, setSearch] = useState("");
     const debouncedSearch = useDebounce(search, 500);
     const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds);
     // Maintain a map of selected product details to pass back on save
-    const [selectedProductsMap, setSelectedProductsMap] = useState<Map<string, { id: string; name: string; image?: string }>>(new Map());
+    const [selectedProductsMap, setSelectedProductsMap] = useState<Map<string, SelectedProduct>>(new Map());
+
+    // Re-seed the selection from the parent every time the modal opens, so previously
+    // picked products stay selected (and are not dropped when saving again).
+    const initialSelectionKey = JSON.stringify(initialSelectedProducts);
+    useEffect(() => {
+        if (!isOpen) return;
+        const seeded: SelectedProduct[] = JSON.parse(initialSelectionKey);
+        setSelectedProductsMap(new Map(seeded.map((p) => [p.id, p])));
+        setSelectedIds(seeded.map((p) => p.id));
+    }, [isOpen, initialSelectionKey]);
 
     const params = new URLSearchParams();
     params.set("page", "1");
@@ -63,7 +82,7 @@ export function ProductsSelectionModal({
 
 
     // Toggle selection
-    const handleToggle = (product: { id: number; name: string; cover?: string | null }) => {
+    const handleToggle = (product: { id: number; name: string; cover?: string | null; cover_url?: string | null }) => {
         const strId = String(product.id);
         setSelectedIds((prev) => {
             if (prev.includes(strId)) {
@@ -73,7 +92,7 @@ export function ProductsSelectionModal({
                 return prev.filter((id) => id !== strId);
             } else {
                 const newMap = new Map(selectedProductsMap);
-                newMap.set(strId, { id: strId, name: product.name, image: product.cover || "" });
+                newMap.set(strId, { id: strId, name: product.name, image: product.cover_url || product.cover || "" });
                 setSelectedProductsMap(newMap);
                 return [...prev, strId];
             }
@@ -91,7 +110,7 @@ export function ProductsSelectionModal({
             setSelectedIds(newIds);
             const newMap = new Map();
             products.forEach(p => {
-                newMap.set(String(p.id), { id: String(p.id), name: p.name, image: p.cover || "" });
+                newMap.set(String(p.id), { id: String(p.id), name: p.name, image: p.cover_url || p.cover || "" });
             });
             setSelectedProductsMap(newMap);
         }

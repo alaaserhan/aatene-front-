@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Pen, Phone, Send, CheckCircle2, XCircle, PauseCircle, Trash2 } from "lucide-react";
 import Cookies from "js-cookie";
+import { toast } from "sonner";
 import { useDeleteProduct, useGetSingleProduct, useUpdateProductStatus, useUpdateProductShown } from "../hooks";
 import { formatPrice } from "@/src/lib/format-price";
 import { useGetSingleStore } from "@/src/features/(dashboard)/stores/hooks";
@@ -19,7 +20,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { Button } from "@/src/components/ui/button";
-import { Switch } from "@/src/components/ui/switch";
+import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { cn } from "@/src/lib/utils";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { useQueryClient } from "@tanstack/react-query";
@@ -125,6 +126,7 @@ export default function ProductViewPage() {
             {
                 onSuccess: () => {
                     refetch();
+                    toast.success(checked ? "تم تفعيل المنتج بنجاح" : "تم إلغاء تفعيل المنتج بنجاح");
                 },
             }
         );
@@ -515,15 +517,14 @@ export default function ProductViewPage() {
                     <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2 lg:sticky lg:top-6">
                         <div className="bg-white rounded-lg border border-[#DDE5EC] h-fit overflow-hidden shadow-sm">
                             <div className="p-4">
-                                {/* Toggle Shown (Merchant Only & Approved) */}
-                                {isOwner && currentStatus === "approved" && (
-                                    <div className="mb-3 flex justify-between items-center bg-[#F4F7FA] p-3 rounded-md border border-[#DDE5EC]">
-                                        <span className="font-bold text-sm text-[#1e3a52]">تفعيل المنتج</span>
-                                        <Switch
-                                            checked={raw.shown}
-                                            onCheckedChange={handleToggleShown}
+                                {/* Toggle Shown — owning merchant and admins, approved products only */}
+                                {(isOwner || isAdmin) && currentStatus === "approved" && (
+                                    <div className="mb-3 flex justify-between items-center bg-c2-navy-100 px-4 py-2.5 rounded-md">
+                                        <span className="font-bold text-[22px] text-c2-navy-1000">تفعيل المنتج</span>
+                                        <ToggleSwitch
+                                            enabled={raw.shown}
+                                            onChange={handleToggleShown}
                                             disabled={isUpdatingShown}
-                                            className="data-[state=checked]:bg-[#34C759]"
                                         />
                                     </div>
                                 )}
@@ -666,6 +667,10 @@ export default function ProductViewPage() {
                 onConfirm={handleDelete}
                 title="هل أنت متأكد من حذف هذا المنتج؟"
                 description="سيتم حذف المنتج نهائياً. لا يمكن التراجع عن هذا الإجراء."
+                confirmText={isDeleting ? "جاري الحذف..." : "نعم، قم بالحذف"}
+                confirmPosition="start"
+                isLoading={isDeleting}
+                autoCloseOnConfirm={false}
             />
         </div>
     );

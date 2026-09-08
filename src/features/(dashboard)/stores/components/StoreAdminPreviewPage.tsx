@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { useGetSingleStore } from "../hooks";
+import { getStoreCityNames, formatStoreCityNames } from "@/src/lib/storeCities";
 import { StoreReviewActionsCard } from "./StoreReviewActionsCard";
 
 interface StoreAdminPreviewPageProps {
@@ -41,6 +42,11 @@ export function StoreAdminPreviewPage({ storeId }: StoreAdminPreviewPageProps) {
     : "";
   const email = store.email || store.owner?.email;
   const phone = store.owner?.phone || store.phone;
+  // A store can sit in several cities, so list them all rather than the single
+  // city relation. Service cities are a separate field, so they stay out here.
+  const cityNames = formatStoreCityNames(
+    getStoreCityNames(store, { includeServiceCities: false })
+  );
 
   return (
     <div dir="rtl" className="space-y-6">
@@ -116,7 +122,12 @@ export function StoreAdminPreviewPage({ storeId }: StoreAdminPreviewPageProps) {
             <PreviewField
               icon="/icons/dashboard/mark.svg"
               label="مدينة المتجر"
-              value={store.city?.name}
+              value={cityNames || store.city?.name}
+            />
+            <PreviewField
+              icon="/icons/dashboard/mark.svg"
+              label="عنوان المتجر"
+              value={store.address}
             />
           </div>
         </div>

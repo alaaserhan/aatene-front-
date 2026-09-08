@@ -43,6 +43,7 @@ export function ShippingSection({
       value="shipping"
       isSaving={mutation.isPending}
       onSave={handleSave}
+      onCancel={() => setValues(initialValues)}
     >
       <StoreShippingFields values={values} onChange={setValues} />
     </SettingsSection>

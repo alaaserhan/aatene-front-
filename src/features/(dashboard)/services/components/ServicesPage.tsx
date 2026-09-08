@@ -5,6 +5,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search, CircleQuestionMark } from "lucide-react";
+import { toast } from "sonner";
 import {
     useGetServices,
     useDeleteService,
@@ -155,15 +156,19 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     const services = servicesData?.data || [];
     const totalPages = Math.ceil((servicesData?.recordsFiltered || 0) / 10);
 
-    const { mutate: deleteService } = useDeleteService();
+    const { mutate: deleteService, isPending: isDeleting } = useDeleteService();
     const { mutate: updateShown } = useUpdateServiceShown();
 
     const handleToggleShown = (service: Service) => {
-        updateShown({
-            id: service.id,
-            shown: !service.shown,
-            storeId
-        });
+        const newShown = !service.shown;
+        updateShown(
+            { id: service.id, shown: newShown, storeId },
+            {
+                onSuccess: () => {
+                    toast.success(newShown ? "تم تفعيل الخدمة بنجاح" : "تم إلغاء تفعيل الخدمة بنجاح");
+                },
+            }
+        );
     };
 
     const handleDeleteClick = (service: Service) => {
@@ -173,9 +178,12 @@ export function ServicesPage({ storeId }: { storeId: number }) {
 
     const handleConfirmDelete = () => {
         if (serviceToDelete) {
-            deleteService({ id: serviceToDelete, storeId });
-            setDeleteModalOpen(false);
-            setServiceToDelete(null);
+            deleteService({ id: serviceToDelete, storeId }, {
+                onSuccess: () => {
+                    setDeleteModalOpen(false);
+                    setServiceToDelete(null);
+                },
+            });
         }
     };
 
@@ -378,6 +386,9 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                 onConfirm={handleConfirmDelete}
                 title="هل أنت متأكد من حذف الخدمة؟"
                 description="سيتم حذف الخدمة نهائياً. لا يمكن التراجع عن هذا الإجراء."
+                confirmPosition="start"
+                isLoading={isDeleting}
+                autoCloseOnConfirm={false}
             />
 
             <SectionModal

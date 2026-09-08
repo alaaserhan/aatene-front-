@@ -334,6 +334,9 @@ export interface Store {
     updated_at: string;
     location_cities: City[];
     service_cities: City[];
+    /** camelCase aliases: some endpoints return the store resource with the relation names unconverted */
+    locationCities?: City[];
+    serviceCities?: City[];
     description: string;
     city: City | null;
 }

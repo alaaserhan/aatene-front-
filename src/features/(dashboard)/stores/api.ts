@@ -176,7 +176,7 @@ export interface Store {
   workingtimes: WorkingTime[];
   managers: StoreManager[];
   shippingCompanies?: ShippingCompany[];
-  locationCities?: number[];
+  locationCities?: (number | Cities)[];
   serviceCities?: Cities[];
   tags?: string[];
   delivery_type?: DeliveryType;
