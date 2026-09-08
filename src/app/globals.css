@@ -67,6 +67,8 @@
   /* breadcrumb: current page (700) vs. ancestor links (500) */
   --c2-neutral-700: #414141;
   --c2-neutral-500: #7b7b7b;
+  /* muted descriptions under a nav/menu link label */
+  --c2-neutral-450: #8e8e8e;
   /* store header action icons (phone, chat) */
   --c2-neutral-550: #717171;
   /* store header review counter */
@@ -94,6 +96,8 @@
   --c2-navy-300: #8b96a5;
   /* palest navy tint — table header rows and similar flat surfaces */
   --c2-navy-50: #eef2f6;
+  /* vivid blue accent — active/hovered nav links */
+  --c2-blue-500: #3076ff;
   /* navy at low alpha — tinted surfaces (unread rows, icon chips) */
   --c2-navy-700-a08: #2d496a14;
 
@@ -190,6 +194,7 @@
   --color-c2-neutral-600: var(--c2-neutral-600);
   --color-c2-neutral-700: var(--c2-neutral-700);
   --color-c2-neutral-500: var(--c2-neutral-500);
+  --color-c2-neutral-450: var(--c2-neutral-450);
   --color-c2-neutral-550: var(--c2-neutral-550);
   --color-c2-neutral-560: var(--c2-neutral-560);
   --color-c2-slate-50: var(--c2-slate-50);
@@ -207,6 +212,7 @@
   --color-c2-navy-500: var(--c2-navy-500);
   --color-c2-navy-300: var(--c2-navy-300);
   --color-c2-navy-50: var(--c2-navy-50);
+  --color-c2-blue-500: var(--c2-blue-500);
   --color-c2-navy-700-a08: var(--c2-navy-700-a08);
   --color-c2-ink-900: var(--c2-ink-900);
   --color-c2-red-800: var(--c2-red-800);
