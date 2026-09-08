@@ -366,43 +366,12 @@ export function useDeleteStore() {
   return useMutation({
     mutationFn: (id: string | number) => api.deleteStore(id),
 
-    onMutate: async (id) => {
-      await qc.cancelQueries({ queryKey: StoresQK.listAny });
-
-      qc.setQueriesData<PaginatedStoresResponse | InfiniteData<PaginatedStoresResponse>>(
-        { queryKey: StoresQK.listAny },
-        (old) => {
-          if (!old) return undefined;
-
-          if ("pages" in old) {
-            return {
-              ...old,
-              pages: old.pages.map((page) => ({
-                ...page,
-                data: page.data.filter((s) => s.id !== Number(id)),
-              })),
-            };
-          }
-
-          if ("data" in old && Array.isArray(old.data)) {
-            return {
-              ...old,
-              data: old.data.filter((s) => s.id !== Number(id)),
-            };
-          }
-
-          return old;
-        }
-      );
-    },
-
     onSuccess: (data) => {
       toast.success(data.message || "تم حذف المتجر بنجاح");
     },
 
-    onError: (_err, id, ctx) => {
+    onError: () => {
       toast.error("حدث خطأ أثناء الحذف");
-      qc.invalidateQueries({ queryKey: StoresQK.listAny });
     },
 
     onSettled: () => {

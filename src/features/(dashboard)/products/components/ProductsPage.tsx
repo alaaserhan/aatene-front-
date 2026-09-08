@@ -4,6 +4,7 @@
 import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
+import { toast } from "sonner";
 import { Plus, Loader2, ChevronRight, Search, HelpCircle } from "lucide-react";
 import {
   useGetProducts,
@@ -185,7 +186,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   // --- Mutations ---
   const { mutate: updateStatusMutation } = useUpdateProductStatus();
   const { mutate: updateShown } = useUpdateProductShown();
-  const { mutate: deleteProduct } = useDeleteProduct();
+  const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct();
   const createSection = useCreateSection();
 
   const handleToggleStatus = (product: Product) => {
@@ -194,7 +195,15 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   };
 
   const handleToggleShown = (product: Product) => {
-    updateShown({ id: product.id, payload: { shown: !product.shown } });
+    const newShown = !product.shown;
+    updateShown(
+      { id: product.id, payload: { shown: newShown } },
+      {
+        onSuccess: () => {
+          toast.success(newShown ? "تم تفعيل المنتج بنجاح" : "تم إلغاء تفعيل المنتج بنجاح");
+        },
+      }
+    );
   };
 
   const handleDeleteClick = (product: Product) => {
@@ -204,9 +213,12 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
 
   const handleConfirmDelete = () => {
     if (productToDelete) {
-      deleteProduct(productToDelete);
-      setDeleteModalOpen(false);
-      setProductToDelete(null);
+      deleteProduct(productToDelete, {
+        onSuccess: () => {
+          setDeleteModalOpen(false);
+          setProductToDelete(null);
+        },
+      });
     }
   };
 
@@ -479,6 +491,9 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
             onConfirm={handleConfirmDelete}
             title="هل أنت متأكد من حذف هذا المنتج؟"
             description="لا يمكن التراجع عن هذا الإجراء"
+            confirmPosition="start"
+            isLoading={isDeleting}
+            autoCloseOnConfirm={false}
           />
 
           <SectionModal

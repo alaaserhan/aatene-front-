@@ -26,10 +26,11 @@ import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAl
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { Badge } from "@/src/components/ui/badge";
-import { Switch } from "@/src/components/ui/switch";
+import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { cn } from "@/src/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie"; // ✅ للتحقق من الصلاحيات
+import { toast } from "sonner";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 interface ServiceDetailsPageProps {
@@ -433,20 +434,20 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                     <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2 lg:sticky lg:top-22">
                         <div className="bg-white p-4 lg:p-7 rounded-lg border border-[#CCCED7] h-fit overflow-hidden shadow-sm">
 
-                            {/* Activate Toggle Row — يظهر فقط للتاجر وفقط إذا كان الخدمه مقبولاً */}
-                            {isOwner && currentStatus === "approved" && (
-                                <div className="flex items-center justify-between px-4 py-3 rounded-md bg-[#DCE8F2]">
-                                    <span className="font-bold text-xl text-blue-7">تفعيل الخدمة</span>
-                                    <Switch
-                                        checked={isShown}
-                                        onClick={() => {
-                                            const newShown = isShown === false ? true : false;
+                            {/* Activate Toggle Row — shown to the owning merchant and to admins, approved services only */}
+                            {(isOwner || isAdmin) && currentStatus === "approved" && (
+                                <div className="flex items-center justify-between px-4 py-2.5 rounded-md bg-c2-navy-100">
+                                    <span className="font-bold text-[22px] text-c2-navy-1000">تفعيل الخدمة</span>
+                                    <ToggleSwitch
+                                        enabled={isShown || false}
+                                        onChange={(newShown) => {
                                             updateShown(
                                                 { id: serviceId, shown: newShown ? 1 : 0, storeId: storeId },
                                                 {
                                                     onSuccess: () => {
                                                         queryClient.invalidateQueries({ queryKey: ["services", serviceId] });
                                                         if (!newShown) setShownAlertDismissed(false);
+                                                        toast.success(newShown ? "تم تفعيل الخدمة بنجاح" : "تم إلغاء تفعيل الخدمة بنجاح");
                                                     }
                                                 }
                                             );

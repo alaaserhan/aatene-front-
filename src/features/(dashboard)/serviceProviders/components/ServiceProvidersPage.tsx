@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Search, Filter } from "lucide-react";
+import { toast } from "sonner";
 import { useGetStores, useDeleteStore } from "../../stores/hooks";
 import { Store } from "../../stores/api";
 import { ServiceProvidersTable } from "./ServiceProvidersTable";
@@ -89,7 +90,7 @@ function AllServicesSection() {
     const services = servicesData?.data || [];
     const totalPages = Math.ceil((servicesData?.recordsFiltered || 0) / 10);
 
-    const { mutate: deleteService } = useDeleteService();
+    const { mutate: deleteService, isPending: isDeletingService } = useDeleteService();
     const { mutate: updateShown } = useUpdateServiceShown();
 
     const getCountForStatus = (key: ServiceStatus) => {
@@ -105,14 +106,25 @@ function AllServicesSection() {
 
     const handleConfirmDelete = () => {
         if (serviceToDelete) {
-            deleteService({ id: serviceToDelete.id, storeId: serviceToDelete.store_id });
-            setDeleteModalOpen(false);
-            setServiceToDelete(null);
+            deleteService({ id: serviceToDelete.id, storeId: serviceToDelete.store_id }, {
+                onSuccess: () => {
+                    setDeleteModalOpen(false);
+                    setServiceToDelete(null);
+                },
+            });
         }
     };
 
     const handleToggleShown = (service: Service) => {
-        updateShown({ id: service.id, shown: !service.shown, storeId: service.store_id });
+        const newShown = !service.shown;
+        updateShown(
+            { id: service.id, shown: newShown, storeId: service.store_id },
+            {
+                onSuccess: () => {
+                    toast.success(newShown ? "تم تفعيل الخدمة بنجاح" : "تم إلغاء تفعيل الخدمة بنجاح");
+                },
+            }
+        );
     };
 
     return (
@@ -175,6 +187,9 @@ function AllServicesSection() {
                 onConfirm={handleConfirmDelete}
                 title="هل أنت متأكد من حذف هذه الخدمة؟"
                 description="لا يمكن التراجع عن هذا الإجراء"
+                confirmPosition="start"
+                isLoading={isDeletingService}
+                autoCloseOnConfirm={false}
             />
         </>
     );
@@ -210,7 +225,7 @@ function ProvidersSection() {
     const stores = data?.data || [];
     const totalPages = Math.ceil((data?.recordsFiltered || 0) / 10);
 
-    const { mutate: deleteStore } = useDeleteStore();
+    const { mutate: deleteStore, isPending: isDeletingStore } = useDeleteStore();
 
     const handleDeleteClick = (store: Store) => {
         setStoreToDelete(store.id);
@@ -219,9 +234,12 @@ function ProvidersSection() {
 
     const handleConfirmDelete = () => {
         if (storeToDelete) {
-            deleteStore(storeToDelete);
-            setDeleteModalOpen(false);
-            setStoreToDelete(null);
+            deleteStore(storeToDelete, {
+                onSuccess: () => {
+                    setDeleteModalOpen(false);
+                    setStoreToDelete(null);
+                },
+            });
         }
     };
 
@@ -290,6 +308,9 @@ function ProvidersSection() {
                 onConfirm={handleConfirmDelete}
                 title="هل أنت متأكد من حذف مقدم الخدمة؟"
                 description="سيتم حذف المتجر وجميع الخدمات المرتبطة به. لا يمكن التراجع عن هذا الإجراء."
+                confirmPosition="start"
+                isLoading={isDeletingStore}
+                autoCloseOnConfirm={false}
             />
         </>
     );

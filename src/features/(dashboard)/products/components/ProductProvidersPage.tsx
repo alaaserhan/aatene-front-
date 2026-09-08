@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Filter, Plus } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { useGetStores, useDeleteStore } from "../../stores/hooks";
 import { Store } from "../../stores/api";
 import { ProductProvidersTable } from "./ProductProvidersTable";
@@ -77,18 +78,33 @@ function AllProductsSection() {
 
     const { mutate: updateStatusMutation } = useUpdateProductStatus();
     const { mutate: updateShown } = useUpdateProductShown();
-    const { mutate: deleteProduct } = useDeleteProduct();
+    const { mutate: deleteProduct, isPending: isDeletingProduct } = useDeleteProduct();
 
     const handleToggleStatus = (product: Product) => {
         const newStatus = product.status === "approved" ? "pending" : "approved";
         updateStatusMutation({ id: product.id, payload: { status: newStatus } });
     };
     const handleToggleShown = (product: Product) => {
-        updateShown({ id: product.id, payload: { shown: !product.shown } });
+        const newShown = !product.shown;
+        updateShown(
+            { id: product.id, payload: { shown: newShown } },
+            {
+                onSuccess: () => {
+                    toast.success(newShown ? "تم تفعيل المنتج بنجاح" : "تم إلغاء تفعيل المنتج بنجاح");
+                },
+            }
+        );
     };
     const handleDeleteClick = (product: Product) => { setProductToDelete(product.id); setDeleteModalOpen(true); };
     const handleConfirmDelete = () => {
-        if (productToDelete) { deleteProduct(productToDelete); setDeleteModalOpen(false); setProductToDelete(null); }
+        if (productToDelete) {
+            deleteProduct(productToDelete, {
+                onSuccess: () => {
+                    setDeleteModalOpen(false);
+                    setProductToDelete(null);
+                },
+            });
+        }
     };
     const handleEditClick = (product: Product) => { router.push(`/admin/products/${product.id}/edit`); };
     const handleViewClick = (product: Product) => { router.push(`/admin/products/${product.id}/view?from=${encodeURIComponent("/admin/productProviders")}`); };
@@ -154,6 +170,9 @@ function AllProductsSection() {
                 onConfirm={handleConfirmDelete}
                 title="هل أنت متأكد من حذف هذا المنتج؟"
                 description="لا يمكن التراجع عن هذا الإجراء"
+                confirmPosition="start"
+                isLoading={isDeletingProduct}
+                autoCloseOnConfirm={false}
             />
         </>
     );
@@ -183,11 +202,18 @@ function ProvidersSection() {
     const stores = data?.data || [];
     const totalPages = Math.ceil((data?.recordsFiltered || 0) / 10);
 
-    const { mutate: deleteStore } = useDeleteStore();
+    const { mutate: deleteStore, isPending: isDeletingStore } = useDeleteStore();
 
     const handleDeleteClick = (store: Store) => { setStoreToDelete(store.id); setDeleteModalOpen(true); };
     const handleConfirmDelete = () => {
-        if (storeToDelete) { deleteStore(storeToDelete); setDeleteModalOpen(false); setStoreToDelete(null); }
+        if (storeToDelete) {
+            deleteStore(storeToDelete, {
+                onSuccess: () => {
+                    setDeleteModalOpen(false);
+                    setStoreToDelete(null);
+                },
+            });
+        }
     };
     const handlePreviewClick = (store: Store) => { router.push(`/admin/stores/${store.id}`); };
     const handleManageProductsClick = (store: Store) => { router.push(`/admin/productProviders/${store.id}`); };
@@ -240,6 +266,9 @@ function ProvidersSection() {
                 onConfirm={handleConfirmDelete}
                 title="هل أنت متأكد من حذف مقدم المنتجات؟"
                 description="سيتم حذف المتجر وجميع المنتجات المرتبطة به. لا يمكن التراجع عن هذا الإجراء."
+                confirmPosition="start"
+                isLoading={isDeletingStore}
+                autoCloseOnConfirm={false}
             />
         </>
     );

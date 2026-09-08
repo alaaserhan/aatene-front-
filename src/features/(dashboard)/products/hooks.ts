@@ -9,6 +9,7 @@ import {
   InfiniteData,
   UseQueryOptions,
 } from "@tanstack/react-query";
+import { toast } from "sonner";
 import * as api from "./api";
 import {
   ProductCreatePayload,
@@ -172,52 +173,11 @@ export const useDeleteProduct = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string | number) => api.deleteProduct(id),
-    onMutate: async (id) => {
-      await qc.cancelQueries({ queryKey: ProductsQK.listAny });
-
-      const prevLists = qc.getQueriesData<
-        PaginatedProductsResponse | InfiniteData<PaginatedProductsResponse>
-      >({
-        queryKey: ProductsQK.listAny,
-      });
-
-      qc.setQueriesData<
-        PaginatedProductsResponse | InfiniteData<PaginatedProductsResponse>
-      >(
-        { queryKey: ProductsQK.listAny },
-        (old) => {
-          if (!old) return undefined;
-          // 1. Infinite
-          if ("pages" in old) {
-            return {
-              ...old,
-              pages: old.pages.map((page) => ({
-                ...page,
-                data: page.data.filter((item) => item.id !== Number(id)),
-              })),
-            };
-          }
-          // 2. Standard
-          if ("data" in old) {
-            return {
-              ...old,
-              data: old.data.filter((item) => item.id !== Number(id)),
-            };
-          }
-          return old;
-        }
-      );
-
-      return { prevLists };
-    },
     onSuccess: (data) => {
+      toast.success(data?.message || "تم حذف المنتج بنجاح");
     },
-    onError: (_err, _id, ctx) => {
-      if (ctx?.prevLists) {
-        ctx.prevLists.forEach(([key, data]) => {
-          qc.setQueryData(key, data);
-        });
-      }
+    onError: () => {
+      toast.error("حدث خطأ أثناء الحذف");
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: ProductsQK.listAny });

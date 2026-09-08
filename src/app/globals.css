@@ -94,6 +94,8 @@
   --c2-navy-600: #3d5e83;
   --c2-navy-500: #406896;
   --c2-navy-300: #8b96a5;
+  /* light navy tint — highlighted panel rows (activation toggle strip) */
+  --c2-navy-100: #c8d7e8;
   /* palest navy tint — table header rows and similar flat surfaces */
   --c2-navy-50: #eef2f6;
   /* vivid blue accent — active/hovered nav links */
@@ -211,6 +213,7 @@
   --color-c2-navy-600: var(--c2-navy-600);
   --color-c2-navy-500: var(--c2-navy-500);
   --color-c2-navy-300: var(--c2-navy-300);
+  --color-c2-navy-100: var(--c2-navy-100);
   --color-c2-navy-50: var(--c2-navy-50);
   --color-c2-blue-500: var(--c2-blue-500);
   --color-c2-navy-700-a08: var(--c2-navy-700-a08);
