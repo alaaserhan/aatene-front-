@@ -50,7 +50,7 @@ interface CouponFormData {
 
     // Step 2: Included
     sections: { id: string; name: string }[];
-    products: { id: string; name: string }[]; // Placeholder for now
+    products: { id: string; name: string; image?: string }[];
 }
 
 
@@ -308,7 +308,9 @@ export function CreateCouponModal({
                         typeof c === 'object' ? { id: String(c.id), name: c.name } : { id: String(c), name: '' }
                     ) || [],
                     products: record.products?.map(p =>
-                        typeof p === 'object' ? { id: String(p.id), name: p.name } : { id: String(p), name: '' }
+                        typeof p === 'object'
+                            ? { id: String(p.id), name: p.name, image: p.cover || undefined }
+                            : { id: String(p), name: '' }
                     ) || [],
                 }));
             }, 0);
@@ -321,7 +323,7 @@ export function CreateCouponModal({
         setFormData((prev) => ({ ...prev, ...updates }));
     };
 
-    const handleProductsSave = (selectedProducts: { id: string; name: string }[]) => {
+    const handleProductsSave = (selectedProducts: { id: string; name: string; image?: string }[]) => {
         updateFormData({ products: selectedProducts });
         if (selectedProducts.length > 0 || formData.sections.length > 0) {
             setShowStep2Error(false);
@@ -525,6 +527,7 @@ export function CreateCouponModal({
                                 <OptionTag
                                     key={p.id}
                                     label={p.name}
+                                    image={p.image}
                                     onRemove={() => removeProduct(p.id)}
                                 />
                             ))}
@@ -557,6 +560,7 @@ export function CreateCouponModal({
                     onClose={() => setIsProductModalOpen(false)}
                     onSave={handleProductsSave}
                     initialSelectedIds={formData.products.map(p => p.id)}
+                    initialSelectedProducts={formData.products}
                     sectionIds={formData.sections.map(s => s.id)}
                 />
             </div>
