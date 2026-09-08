@@ -76,7 +76,7 @@ export function ServiceForm({
       <div className="container mx-auto flex-1 px-4 py-4">
         <Breadcrumb items={breadcrumbItems} withContainer />
 
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-12 gap-6 pb-8">
           <div className="col-span-12 lg:col-span-8 space-y-6">
             <ServiceFormTabs activeStep={activeStep} onStepChange={goToStep} />
 

@@ -1,7 +1,7 @@
 // src/features/(dashboard)/services/components/AddServicePage.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCreateService } from "../hooks";
@@ -20,6 +20,8 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
 
   const createService = useCreateService();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  /** Bumped to remount the form with empty fields when adding another service */
+  const [formKey, setFormKey] = useState(0);
 
   const storeServicesUrl = `${dashboardBase}/serviceProviders/${storeId}?status=pending`;
 
@@ -27,7 +29,7 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
       { label: "الخدمات", href: storeServicesUrl },
       { label: "إنشاء خدمة جديدة" },
   ];
-  
+
   const handleSubmit = async (values: ServiceFormValues) => {
     try {
       await createService.mutateAsync({
@@ -41,9 +43,17 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
     }
   };
 
+  /** Clears the form so the user can create another service right away */
+  const handleAddAnother = () => {
+    setShowSuccessModal(false);
+    setFormKey((key) => key + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <>
       <ServiceForm
+        key={formKey}
         storeId={storeId}
         breadcrumbItems={breadcrumbItems}
         submitLabel="نشر الخدمة"
@@ -56,7 +66,10 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
         onClose={() => router.push(storeServicesUrl)}
         title="تم رفع الخدمة بنجاح"
         message="تم رفع الخدمة بنجاح، وهي الآن قيد المراجعة من قبل الفريق المختص. سنوافيك بالرد قريباً."
-        buttonText="قائمة الخدمات"
+        buttonText="أضف خدمة"
+        onButtonClick={handleAddAnother}
+        secondaryButtonText="عرض الخدمات"
+        onSecondaryButtonClick={() => router.push(storeServicesUrl)}
       />
     </>
   );
