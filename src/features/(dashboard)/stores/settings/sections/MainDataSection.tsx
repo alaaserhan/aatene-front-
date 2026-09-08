@@ -94,6 +94,12 @@ export function MainDataSection({
     mutation.mutate(payload);
   };
 
+  const handleCancel = () => {
+    setValues(initialValues);
+    setErrors({});
+    setServiceCitySearch("");
+  };
+
   const availableServiceCities = cities
     .filter((city) => !values.serviceCities.includes(city.id))
     .filter((city) =>
@@ -106,6 +112,7 @@ export function MainDataSection({
       value="mainData"
       isSaving={mutation.isPending}
       onSave={handleSave}
+      onCancel={handleCancel}
     >
       <div className="space-y-6">
         <FormInput

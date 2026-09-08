@@ -35,11 +35,17 @@ export function WorkingHoursSection({
     });
   };
 
+  const handleCancel = () => {
+    setOpenStatus(initialValues.open_status);
+    setWorkingTimes(initialValues.workingtimes);
+  };
+
   return (
     <SettingsSection
       value="workingHours"
       isSaving={mutation.isPending}
       onSave={handleSave}
+      onCancel={handleCancel}
     >
       <StoreWorkingHoursFields
         openStatus={openStatus}

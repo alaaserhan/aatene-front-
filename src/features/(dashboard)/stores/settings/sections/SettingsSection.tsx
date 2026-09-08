@@ -3,6 +3,7 @@
 
 import { ReactNode } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   AccordionContent,
   AccordionItem,
@@ -20,6 +21,8 @@ interface SettingsSectionProps {
    * panel), which hides the shared save footer.
    */
   onSave?: () => void;
+  /** Resets the panel back to the values it was opened with. */
+  onCancel?: () => void;
   children: ReactNode;
 }
 
@@ -32,9 +35,15 @@ export function SettingsSection({
   value,
   isSaving = false,
   onSave,
+  onCancel,
   children,
 }: SettingsSectionProps) {
   const { label, description, icon: Icon } = getStoreSettingsSection(value);
+
+  const handleCancel = () => {
+    onCancel?.();
+    toast.info(`تم التراجع عن تعديلات "${label}" غير المحفوظة`);
+  };
 
   return (
     <AccordionItem
@@ -70,22 +79,36 @@ export function SettingsSection({
             <p className="text-xs text-gray-2">
               يُحفظ هذا القسم بشكل مستقل عن باقي الأقسام.
             </p>
-            <Button
-              type="button"
-              onClick={onSave}
-              disabled={isSaving}
-              className="min-w-40 cursor-pointer rounded-sm py-5 text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ backgroundColor: "var(--blue-3)" }}
-            >
-              {isSaving ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  جاري الحفظ...
-                </span>
-              ) : (
-                "حفظ التعديلات"
+            <div className="flex flex-wrap items-center gap-3">
+              {onCancel && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={isSaving}
+                  className="min-w-32 cursor-pointer rounded-sm border-c2-neutral-200 bg-white py-5 text-c2-neutral-800 transition-colors hover:bg-c2-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  إلغاء
+                </Button>
               )}
-            </Button>
+
+              <Button
+                type="button"
+                onClick={onSave}
+                disabled={isSaving}
+                className="min-w-40 cursor-pointer rounded-sm py-5 text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ backgroundColor: "var(--blue-3)" }}
+              >
+                {isSaving ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    جاري الحفظ...
+                  </span>
+                ) : (
+                  "حفظ التعديلات"
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </AccordionContent>

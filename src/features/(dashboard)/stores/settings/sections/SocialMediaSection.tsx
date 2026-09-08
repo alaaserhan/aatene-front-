@@ -48,11 +48,17 @@ export function SocialMediaSection({
     });
   };
 
+  const handleCancel = () => {
+    setValues(initialValues);
+    setErrors({});
+  };
+
   return (
     <SettingsSection
       value="socialMedia"
       isSaving={mutation.isPending}
       onSave={handleSave}
+      onCancel={handleCancel}
     >
       <div className="space-y-6">
         <StorePhoneField
