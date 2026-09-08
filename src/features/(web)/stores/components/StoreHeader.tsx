@@ -37,7 +37,6 @@ import { ReportAbuseModal } from "@/src/features/(web)/reports/components/Report
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 import { useLanguage } from "@/src/hooks/use-language";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
-import { getStoreCityNames, formatStoreCityNames } from "@/src/lib/storeCities";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -289,11 +288,6 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const covers = store.cover_urls || [];
-    // A store can cover several cities; fall back to the single city, then the
-    // free-text address, for stores that have no cities attached
-    const cityNames = getStoreCityNames(store);
-    const locationLabel =
-        formatStoreCityNames(cityNames) || store.city?.name || store.address;
     const currentCoverUrl = covers[currentImageIndex] || "";
     const currentCoverIsVideo = Boolean(
         currentCoverUrl && isStoreBannerVideoUrl(currentCoverUrl)
@@ -456,13 +450,13 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                 <h1 className="text-2xl font-bold text-c2-neutral-1000 leading-tight wrap-break-words">
                                     {store.name}
                                 </h1>
-                                {locationLabel && (
+                                {store.address && (
                                     <p className="flex items-center justify-center gap-1.5 text-c2-neutral-500 text-sm mt-1.5 lg:justify-start">
                                         <MapPin
                                             className="w-4 h-4 shrink-0 text-c2-neutral-1000"
                                             strokeWidth={2}
                                         />
-                                        <span>{locationLabel}</span>
+                                        <span>{store.address}</span>
                                     </p>
                                 )}
                             </div>

@@ -124,6 +124,11 @@ export function StoreAdminPreviewPage({ storeId }: StoreAdminPreviewPageProps) {
               label="مدينة المتجر"
               value={cityNames || store.city?.name}
             />
+            <PreviewField
+              icon="/icons/dashboard/mark.svg"
+              label="عنوان المتجر"
+              value={store.address}
+            />
           </div>
         </div>
       </section>

@@ -24,12 +24,6 @@ export interface Owner {
     slug: string;
 }
 
-export interface StoreCity {
-    id: number;
-    name: string;
-    is_active: boolean;
-}
-
 export interface StoreProfile {
     id: number;
     slug: string;
@@ -77,13 +71,6 @@ export interface StoreProfile {
     pinterest: string | null;
     open_status: string;
     workingtimes: WorkingTime[];
-    /** The cities relations: camelCase on the store resource, snake_case on the search endpoint */
-    locationCities?: StoreCity[];
-    location_cities?: StoreCity[];
-    serviceCities?: StoreCity[];
-    service_cities?: StoreCity[];
-    /** Resolved `city_id`, when the endpoint sends the relation */
-    city?: StoreCity | null;
 }
 
 export interface StoreHighlight {
