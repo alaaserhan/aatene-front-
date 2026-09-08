@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { toast } from "sonner";
 import * as api from "./api";
 
 
@@ -67,6 +68,7 @@ export function useDeleteService() {
       api.deleteService(id, storeId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
+      toast.success("تم حذف الخدمة بنجاح");
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
     },

@@ -155,7 +155,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     const services = servicesData?.data || [];
     const totalPages = Math.ceil((servicesData?.recordsFiltered || 0) / 10);
 
-    const { mutate: deleteService } = useDeleteService();
+    const { mutate: deleteService, isPending: isDeleting } = useDeleteService();
     const { mutate: updateShown } = useUpdateServiceShown();
 
     const handleToggleShown = (service: Service) => {
@@ -173,9 +173,12 @@ export function ServicesPage({ storeId }: { storeId: number }) {
 
     const handleConfirmDelete = () => {
         if (serviceToDelete) {
-            deleteService({ id: serviceToDelete, storeId });
-            setDeleteModalOpen(false);
-            setServiceToDelete(null);
+            deleteService({ id: serviceToDelete, storeId }, {
+                onSuccess: () => {
+                    setDeleteModalOpen(false);
+                    setServiceToDelete(null);
+                },
+            });
         }
     };
 
@@ -378,6 +381,9 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                 onConfirm={handleConfirmDelete}
                 title="هل أنت متأكد من حذف الخدمة؟"
                 description="سيتم حذف الخدمة نهائياً. لا يمكن التراجع عن هذا الإجراء."
+                confirmPosition="start"
+                isLoading={isDeleting}
+                autoCloseOnConfirm={false}
             />
 
             <SectionModal

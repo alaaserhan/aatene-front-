@@ -602,6 +602,9 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 description="سيتم حذف الخدمة نهائياً. لا يمكن التراجع عن هذا الإجراء."
                 confirmText={isDeleting ? "جاري الحذف..." : "نعم، قم بالحذف"}
                 cancelText="إلغاء"
+                confirmPosition="start"
+                isLoading={isDeleting}
+                autoCloseOnConfirm={false}
             />
 
             <ShareModal

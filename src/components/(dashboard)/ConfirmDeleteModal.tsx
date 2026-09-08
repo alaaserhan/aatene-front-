@@ -1,7 +1,7 @@
 // src/features/(dashboard)/cities/components/ConfirmDeleteModal.tsx
 "use client";
 
-import { X, AlertTriangle } from "lucide-react";
+import { X, AlertTriangle, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,15 @@ interface ConfirmDeleteModalProps {
   confirmText?: string;
   cancelText?: string;
   variant?: "delete" | "restore"; // نوع العملية
+  /** Where the confirm button sits in the footer row. Defaults to "end". */
+  confirmPosition?: "start" | "end";
+  /** Keeps the modal open and both buttons disabled while the action runs. */
+  isLoading?: boolean;
+  /**
+   * Close the modal as soon as onConfirm is called. Set to false when the
+   * caller closes it itself once the request resolves.
+   */
+  autoCloseOnConfirm?: boolean;
 }
 
 export function ConfirmDeleteModal({
@@ -32,12 +41,15 @@ export function ConfirmDeleteModal({
   confirmText = "نعم، قم بالحذف",
   cancelText = "إلغاء",
   variant = "delete",
+  confirmPosition = "end",
+  isLoading = false,
+  autoCloseOnConfirm = true,
 }: ConfirmDeleteModalProps) {
   if (!isOpen) return null;
 
   const handleConfirm = () => {
     onConfirm();
-    onClose();
+    if (autoCloseOnConfirm) onClose();
   };
 
   // تحديد الألوان حسب نوع العملية
@@ -56,7 +68,7 @@ export function ConfirmDeleteModal({
       };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={() => { if (!isLoading) onClose(); }}>
       <DialogContent className="sm:max-w-md" dir="rtl">
         <DialogHeader className="flex flex-col items-center pt-4">
           <div className={`w-24 h-24 rounded-full ${colors.bg} flex items-center justify-center mb-6`}>
@@ -72,7 +84,11 @@ export function ConfirmDeleteModal({
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="flex-col sm:flex-row-reverse gap-2 sm:justify-start pt-4">
+        <DialogFooter
+          className={`flex-col gap-2 sm:justify-start pt-4 ${
+            confirmPosition === "start" ? "sm:flex-row" : "sm:flex-row-reverse"
+          }`}
+        >
           <Button
             type="button"
             variant={variant === "delete" ? "destructive" : "default"}
@@ -80,7 +96,9 @@ export function ConfirmDeleteModal({
               variant === "restore" ? "bg-emerald-500 hover:bg-emerald-600 text-white" : ""
             }`}
             onClick={handleConfirm}
+            disabled={isLoading}
           >
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
             {confirmText}
           </Button>
           <Button
@@ -88,6 +106,7 @@ export function ConfirmDeleteModal({
             variant="outline"
             className="flex-1 cursor-pointer"
             onClick={onClose}
+            disabled={isLoading}
           >
             {cancelText}
           </Button>
