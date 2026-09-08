@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { GuideVideoCard } from "@/src/features/(dashboard)/user-guide/components/GuideVideoCard";
 import { useGetSingleStore } from "@/src/features/(dashboard)/stores/hooks";
+import { formatStoreCityNames, getStoreCityNames } from "@/src/lib/storeCities";
 import { ServicePreviewSidebar } from "../ServicePreviewSidebar";
 import { ServiceFormTabs, ServiceStep } from "./ServiceFormTabs";
 import { ServiceFormActions } from "./ServiceFormActions";
@@ -99,7 +100,7 @@ export function ServiceForm({
                 storeInfo={{
                   name: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "",
                   avatar: store?.owner?.avatar_url || "",
-                  address: store?.address || "",
+                  cities: store ? formatStoreCityNames(getStoreCityNames(store)) : "",
                 }}
               />
               <GuideVideoCard location="add-service" />

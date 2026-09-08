@@ -7,6 +7,7 @@ import { MapPin, Flag, Plus, Star, ShieldCheck, ShoppingCart, AlarmClock } from 
 import { cn } from "@/src/lib/utils";
 import { Store } from "@/src/features/(dashboard)/stores/api";
 import { useLanguage } from "@/src/hooks/use-language";
+import { formatStoreCityNames, getStoreCityNames } from "@/src/lib/storeCities";
 import Link from "next/link";
 
 export interface ProviderData {
@@ -41,7 +42,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
         id: store.id,
         name: `${store.owner?.first_name} ${store.owner?.last_name}`,
         avatar: store.owner?.avatar_url || "",
-        location: store.serviceCities?.[0]?.name || "فلسطين، الخليل",
+        location: formatStoreCityNames(getStoreCityNames(store)),
         memberSince: store.owner?.created_at ? new Date(store.owner.created_at).toLocaleDateString("en-GB") : "N/A",
         rating: store.review_rate || "5.0",
         ordersCount: store.conversations_count || 0,
@@ -74,10 +75,12 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
             <Link href={`/${lang}/store/${data.slug}`}>
               <h3 className=" font-medium  mb-1">{data.name}</h3>
             </Link>
-            <div className="flex items-center  gap-1 text-gray-2 text-sm">
-              <MapPin className="size-5 text-blue-3" />
-              <span>{data.location}</span>
-            </div>
+            {data.location && (
+              <div className="flex items-center  gap-1 text-gray-2 text-sm">
+                <MapPin className="size-5 text-blue-3" />
+                <span>{data.location}</span>
+              </div>
+            )}
           </div>
         </div>
 
