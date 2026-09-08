@@ -467,9 +467,9 @@ export function CreateCouponModal({
                     onChange={(e) => updateFormData({ value: e.target.value })}
                     placeholder={formData.type === "percentage" ? "20" : "100"}
                 />
-                <div className="absolute left-3 top-[40px] text-gray-2">
-                    {formData.type === "percentage" ? "%" : ""}
-                </div>
+                <span className="absolute left-3 top-10 text-gray-1 font-sans text-lg pointer-events-none">
+                    {formData.type === "percentage" ? "%" : "₪"}
+                </span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
