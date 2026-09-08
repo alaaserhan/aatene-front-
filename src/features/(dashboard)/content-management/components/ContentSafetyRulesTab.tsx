@@ -105,21 +105,21 @@ const SimpleItemCard = ({
     onRemove: () => void;
 }) => {
     return (
-        <div className="bg-white rounded-lg p-4 border border-gray-100 flex items-center justify-between group transition-all">
-            <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 text-gray-2 relative">
+        <div className="bg-white rounded-lg p-4 border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group transition-all">
+            <div className="flex items-center gap-4 min-w-0">
+                <div className="w-12 h-12 shrink-0 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 text-gray-2 relative">
                     {item?.image_url ? (
                         <Image src={item.image_url} alt="" fill className="object-cover" />
                     ) : (
                         <GripHorizontal className="w-5 h-5" />
                     )}
                 </div>
-                <div>
-                    <h4 className="font-bold text-sm mb-1">{item?.title || "بدون عنوان"}</h4>
+                <div className="min-w-0">
+                    <h4 className="font-bold text-sm mb-1 truncate">{item?.title || "بدون عنوان"}</h4>
                 </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
                 <button
                     type="button"
                     onClick={onEdit}
@@ -237,22 +237,22 @@ const ComplexItemCard = ({
     onRemove: () => void;
 }) => {
     return (
-        <div className="bg-white rounded-lg p-4 border border-gray-100 flex items-center justify-between group transition-all">
-            <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 text-gray-2 relative">
+        <div className="bg-white rounded-lg p-4 border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group transition-all">
+            <div className="flex items-center gap-4 min-w-0">
+                <div className="w-12 h-12 shrink-0 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 text-gray-2 relative">
                     {item?.image_url ? (
                         <Image src={item.image_url} alt="" fill className="object-cover" />
                     ) : (
                         <GripHorizontal className="w-5 h-5" />
                     )}
                 </div>
-                <div>
-                    <h4 className="font-bold text-sm mb-1">{item?.title || "بدون عنوان"}</h4>
-                    <p className="text-xs text-gray-2 max-w-[300px] truncate">{item?.content || "لا يوجد وصف"}</p>
+                <div className="min-w-0">
+                    <h4 className="font-bold text-sm mb-1 truncate">{item?.title || "بدون عنوان"}</h4>
+                    <p className="text-xs text-gray-2 sm:max-w-[300px] truncate">{item?.content || "لا يوجد وصف"}</p>
                 </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
                 <button
                     type="button"
                     onClick={onEdit}

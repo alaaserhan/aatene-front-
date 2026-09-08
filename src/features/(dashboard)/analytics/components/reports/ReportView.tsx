@@ -246,7 +246,7 @@ export function ReportView({ type }: ReportViewProps) {
                 ],
                 chartLines: [
                     { key: "total_count", color: COLORS[0], name: "اجمالي التجار" },
-                    { key: "active_count", color: COLORS[1], name: "التجار الموثوقين" },
+                    { key: "active_count", color: COLORS[1], name: "التجار الجدد" },
                     { key: "inactive_count", color: COLORS[2], name: "التجار تم حظرهم" },
                 ],
                 chartData: (data as MerchantsAnalyticsResponse)?.merchantsGrowthChart || [],
@@ -271,13 +271,13 @@ export function ReportView({ type }: ReportViewProps) {
                 icon: <img src="/icons/dashboard/nav_stores.svg" alt="" className="w-full h-full" />,
                 cards: [
                     { title: "اجمالي المتاجر", value: (data as StoresAnalyticsResponse)?.totalStores || 0, icon: <img src="/icons/dashboard/store1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
-                    { title: "المتاجر الموثوقة", value: (data as StoresAnalyticsResponse)?.totalActiveStores || 0, icon: <img src="/icons/dashboard/store3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
-                    { title: "المتاجر المحظورة", value: (data as StoresAnalyticsResponse)?.totalNotActiveStores || 0, icon: <img src="/icons/dashboard/store4.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
+                    { title: "متاجر قيد المراجعة", value: (data as StoresAnalyticsResponse)?.totalActiveStores || 0, icon: <img src="/icons/dashboard/store3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "المتاجر المرفوضة", value: (data as StoresAnalyticsResponse)?.totalNotActiveStores || 0, icon: <img src="/icons/dashboard/store4.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
                     { key: "total_count", color: COLORS[0], name: "اجمالي المتاجر" },
-                    { key: "active_count", color: COLORS[1], name: "المتاجر الموثوقة" },
-                    { key: "not_active_count", color: COLORS[2], name: "المتاجر المحظورة" },
+                    { key: "active_count", color: COLORS[1], name: "متاجر قيد المراجعة" },
+                    { key: "not_active_count", color: COLORS[2], name: "المتاجر المرفوضة" },
                 ],
                 chartData: (data as StoresAnalyticsResponse)?.storesGrowthChart || [],
                 topListName: "المتاجر الأعلى تقييماً",

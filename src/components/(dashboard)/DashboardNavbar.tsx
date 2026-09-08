@@ -222,7 +222,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: hasAdminPerm("/banners"), desc: "ادارة ومتابعة البنرات الإعلانية" },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: hasAdminPerm("/mosa3edy"), desc: "إدارة التشات بوت والإحصائيات" },
     { label: "القصص", icon: ImageIcon, href: "/stories", show: isMerchant && isAllowedByRole("/stories"), desc: "إضافة وإدارة القصص" },
-    { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services", show: hasAdminPerm("/requested-services"), desc: "الطلبات الغير موجودة والمخصصة" },
+    { label: "الطلبات غير الموجودة", icon: Wand2Icon, href: "/requested-services", show: hasAdminPerm("/requested-services"), desc: "الطلبات الغير موجودة والمخصصة" },
     { label: "المدونات", icon: Newspaper, href: "/blogs", show: hasAdminPerm("/blogs"), desc: "إضافة وإدارة المدونات والمقالات" },
     { label: "المتابعات", icon: Users, href: "/following", show: isMerchant && isAllowedByRole("/following"), desc: "إدارة واحصائيات المتابعات" },
     { label: "المفضلة", icon: Heart, href: "/favorites", show: hasAdminPerm("/favorites"), desc: "ادارة ومتابعة المفضلة" },
