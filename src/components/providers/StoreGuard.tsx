@@ -99,7 +99,11 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                         // Only nag about creating a store when the merchant
                         // truly owns none; a store awaiting review is a store.
                         if (stores.length === 0) setShowModal(true);
+                        // Keep the gate closed until the navigation lands:
+                        // releasing children now lets the current page render a
+                        // frame without a store context and flash its empty state.
                         router.push(`/${locale}/${dashboardType}/stores`);
+                        return;
                     }
                     setIsReady(true);
                 }
