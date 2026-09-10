@@ -7,6 +7,7 @@ import { ScrollArea } from "@/src/components/ui/scroll-area";
 import Link from "next/link";
 import { useState } from "react";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
+import { ParticipantAvatar } from "./ParticipantAvatar";
 
 interface ConversationInfoPanelProps {
     conversation: Conversation;
@@ -108,15 +109,18 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
                                             href={getProfileLink(pData)}
                                             className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-colors group"
                                         >
-                                            <div className="w-10 h-10 rounded-full bg-blue-5 text-blue-3 font-medium text-sm flex items-center justify-center overflow-hidden border border-gray-100 shrink-0">
-                                                {pData.avatar ? (
-                                                    <img src={pData.avatar} alt="" className="w-full h-full object-cover" />
-                                                ) : pData.type === "store" ? (
-                                                    <Store className="w-5 h-5 text-blue-3" />
-                                                ) : (
-                                                    <User className="w-5 h-5 text-blue-3" />
-                                                )}
-                                            </div>
+                                            <ParticipantAvatar
+                                                src={pData.avatar}
+                                                size={40}
+                                                className="bg-blue-5 border border-gray-100 shrink-0"
+                                                fallback={
+                                                    pData.type === "store" ? (
+                                                        <Store className="w-5 h-5 text-blue-3" aria-hidden="true" />
+                                                    ) : (
+                                                        <User className="w-5 h-5 text-blue-3" aria-hidden="true" />
+                                                    )
+                                                }
+                                            />
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-medium  truncate group-hover:text-blue-3 transition-colors">
                                                     {pData.name || (pData.type === "store" ? "متجر" : "مستخدم")}

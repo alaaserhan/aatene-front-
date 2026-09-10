@@ -456,11 +456,19 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         onSearchChange: setSearchQuery,
         totalUnreadCount: unreadData?.unread_conversations_count || 0,
         context,
+        onCreateGroup: () => setShowCreateGroupModal(true),
     };
 
     /** On mobile there is no side-by-side pane, so the empty state replaces the list itself. */
     const showMobileEmptyState =
         !isLoading && !isError && !searchQuery && filteredConversations.length === 0;
+
+    /**
+     * "No groups yet" + create CTA belongs only to an actually empty group list.
+     * With the group filter on and groups present, no selected conversation just
+     * means nothing is open yet, so the generic tips pane is the right fallback.
+     */
+    const showGroupsEmptyState = activeFilter === "group" && groupsCount === 0;
 
     /** Shown instead of the conversation list as soon as a "chat now" target arrives. */
     const openingConversationState = (
@@ -583,7 +591,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                         openingConversationState
                     ) : (
                         <ChatEmptyState
-                            isGroupsFilter={activeFilter === "group"}
+                            isGroupsFilter={showGroupsEmptyState}
                             onCreateGroup={() => setShowCreateGroupModal(true)}
                         />
                     )}

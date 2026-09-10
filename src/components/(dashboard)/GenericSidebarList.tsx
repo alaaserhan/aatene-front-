@@ -27,6 +27,8 @@ interface GenericSidebarListProps<T> {
   triggerIcon?: ReactNode;
   selectedId?: number | string | null;
   extraHeaderContent?: ReactNode;
+  /** Action rendered next to the search input — a persistent primary action for the list. */
+  headerAction?: ReactNode;
   // --- Props الخاصة بالـ Infinite Scroll ---
   onLoadMore?: () => void;
   hasNextPage?: boolean;
@@ -50,6 +52,7 @@ export function GenericSidebarList<T extends { id: number | string }>({
   hasNextPage,
   isFetchingNextPage,
   extraHeaderContent,
+  headerAction,
 }: GenericSidebarListProps<T>) {
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -112,6 +115,8 @@ export function GenericSidebarList<T extends { id: number | string }>({
             className="w-[120px]"
           />
         )}
+
+        {headerAction}
       </div>
 
       {extraHeaderContent}

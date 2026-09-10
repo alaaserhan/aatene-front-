@@ -3,12 +3,13 @@
 import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { Conversation, Message } from "../api";
+import { ParticipantAvatar } from "./ParticipantAvatar";
 import { cn } from "@/src/lib/utils";
 import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
 import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
-import { User, Store, Users } from "lucide-react";
+import { User, Store, Users, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 
@@ -25,6 +26,72 @@ interface ConversationListSidebarProps {
     className?: string;
     totalUnreadCount?: number;
     context?: "web" | "dashboard";
+    /** When set, the list header gets a persistent "new group" button. */
+    onCreateGroup?: () => void;
+}
+
+/** Face diameter in the group stack — smaller than a direct 56px avatar so three still fit the row. */
+const GROUP_AVATAR_SIZE = 40;
+
+/**
+ * Group row avatar: up to three member photos fanned out as overlapping
+ * ringed circles, matching the stack in the chat header. Anything past the
+ * third collapses into a "+N" circle at the tail of the fan.
+ */
+function GroupAvatar({ conversation }: { conversation: Conversation }) {
+    const members = conversation.participants;
+    const total = conversation.participants_count || members.length;
+
+    if (members.length === 0) {
+        return (
+            <div className="w-14 h-14 rounded-full bg-c2-navy-50 border border-c2-navy-100 flex items-center justify-center shrink-0">
+                <Users className="w-6 h-6 text-c2-primary" aria-hidden="true" />
+            </div>
+        );
+    }
+
+    /** Three faces is the most that stays legible at this size; the rest become a count. */
+    const visible = members.slice(0, 3);
+    const overflow = Math.max(0, total - visible.length);
+
+    /**
+     * Logical margin rather than `-space-x-* rtl:space-x-reverse`: it pulls each
+     * circle back onto the previous one in both directions, so the fan reads the
+     * same way in RTL and LTR.
+     */
+    const overlap = { marginInlineStart: -GROUP_AVATAR_SIZE * 0.4 };
+
+    return (
+        <div className="h-14 flex items-center shrink-0" aria-hidden="true">
+            <div className="flex items-center">
+                {visible.map((p, i) => (
+                    <ParticipantAvatar
+                        key={p.id}
+                        src={p.participant_data.avatar}
+                        size={GROUP_AVATAR_SIZE}
+                        /* Leading face on top, each following one tucked behind it. */
+                        style={{ zIndex: visible.length - i, ...(i > 0 ? overlap : null) }}
+                        className="bg-c2-navy-50 ring-2 ring-white"
+                        fallback={<User className="w-5 h-5 text-c2-primary" aria-hidden="true" />}
+                    />
+                ))}
+
+                {overflow > 0 && (
+                    <div
+                        className="rounded-full ring-2 ring-white bg-c2-navy-100 text-c2-primary text-xs font-medium flex items-center justify-center relative shrink-0"
+                        style={{
+                            width: GROUP_AVATAR_SIZE,
+                            height: GROUP_AVATAR_SIZE,
+                            zIndex: 0,
+                            ...(visible.length > 0 ? overlap : null),
+                        }}
+                    >
+                        +{overflow}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 }
 
 export function ConversationListSidebar({
@@ -39,6 +106,7 @@ export function ConversationListSidebar({
     className,
     totalUnreadCount = 0,
     context = "web",
+    onCreateGroup,
 }: ConversationListSidebarProps) {
     const authUser = useAuthStore(state => state.user);
 
@@ -169,6 +237,20 @@ export function ConversationListSidebar({
             isLoading={isLoading}
             isError={isError}
             searchQuery={searchQuery}
+            headerAction={
+                onCreateGroup ? (
+                    <button
+                        type="button"
+                        onClick={onCreateGroup}
+                        title="إنشاء مجموعة"
+                        aria-label="إنشاء مجموعة"
+                        className="shrink-0 h-10 w-10 rounded-sm bg-c2-primary text-white flex items-center justify-center transition-colors hover:bg-c2-navy-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-c2-primary focus-visible:ring-offset-2 cursor-pointer"
+                    >
+                        <Users className="w-4 h-4" aria-hidden="true" />
+                        <Plus className="w-3 h-3 -ms-1 -mt-2" aria-hidden="true" />
+                    </button>
+                ) : undefined
+            }
             extraHeaderContent={
                 <div className="flex items-center px-4 mt-2 border-b border-gray-100 gap-6 text-sm font-medium">
                     <button
@@ -244,22 +326,7 @@ export function ConversationListSidebar({
                     <>
                         <div className="shrink-0 relative">
                             {conversation.type === "group" ? (
-                                <div className="w-14 h-14 rounded-full bg-blue-4 flex items-center justify-center border-2 border-blue-3 relative">
-                                    <div className="flex items-center -space-x-2 rtl:space-x-reverse">
-                                        {conversation.participants.slice(0, 2).map((p, i) => (
-                                            <div key={p.id} className="w-6 h-6 rounded-full border border-white overflow-hidden bg-blue-5" style={{ zIndex: 2 - i }}>
-                                                {p.participant_data.avatar ? (
-                                                    <img src={p.participant_data.avatar} alt="" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <User className="w-3 h-3 m-auto mt-1.5 text-blue-3" />
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-blue-3 flex items-center justify-center border border-white">
-                                        <Users className="w-2.5 h-2.5 text-white" />
-                                    </div>
-                                </div>
+                                <GroupAvatar conversation={conversation} />
                             ) : (
                                 <Avatar className="w-14 h-14 border border-gray-100">
                                     {avatarUrl ? (
