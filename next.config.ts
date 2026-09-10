@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   /**
+   * jsdom (pulled in by isomorphic-dompurify) loads data files such as
+   * default-stylesheet.css relative to its own directory. Bundling it breaks
+   * those reads (ENOENT under .next/), so require it from node_modules instead.
+   */
+  serverExternalPackages: ["isomorphic-dompurify", "jsdom"],
+  /**
    * الصفحات تحت `app/[locale]/(dashboard)/[type]/...` تحتاج `/ar/admin/...` أو `/en/admin/...`.
    * كثير من الروابط في المشروع تستخدم `/admin/...` بدون locale → 404 بدون هذا التوجيه الداخلي.
    */

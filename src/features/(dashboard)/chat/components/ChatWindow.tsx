@@ -30,6 +30,7 @@ import { ConversationInfoPanel } from "./ConversationInfoPanel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { CHAT_BUNDLE_PARAM } from "@/src/lib/chat-links";
 import { ChatBundleOffer } from "./ChatBundleOffer";
+import { ParticipantAvatar } from "./ParticipantAvatar";
 
 interface ChatWindowProps {
     conversation: Conversation;
@@ -582,13 +583,12 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                     {/* Sender name & avatar for group messages */}
                                     {conversation.type === "group" && !isMe && senderName && (
                                         <div className="flex items-center gap-1.5 mb-1 px-1">
-                                            <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-200 shrink-0">
-                                                {senderAvatar ? (
-                                                    <img src={senderAvatar} alt="" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <User className="w-3 h-3 m-auto mt-1 text-gray-400" />
-                                                )}
-                                            </div>
+                                            <ParticipantAvatar
+                                                src={senderAvatar}
+                                                size={20}
+                                                className="bg-gray-200 shrink-0"
+                                                fallback={<User className="w-3 h-3 text-gray-400" aria-hidden="true" />}
+                                            />
                                             <span className="text-xs font-medium text-blue-4">{senderName}</span>
                                         </div>
                                     )}

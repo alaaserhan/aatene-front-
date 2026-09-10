@@ -1,6 +1,6 @@
 "use client";
 
-import { Users } from "lucide-react";
+import { Users, Plus } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 
 interface ChatEmptyStateProps {
@@ -47,6 +47,18 @@ export function ChatEmptyState({ isGroupsFilter, onCreateGroup }: ChatEmptyState
                         <span>قم بتفقد المنتج جيداً قبل شرائه.</span>
                     </p>
                 </div>
+
+                {/* Secondary path to group creation — the header button is hidden on the mobile empty list. */}
+                {onCreateGroup && (
+                    <Button
+                        variant="outline"
+                        onClick={onCreateGroup}
+                        className="gap-2 border-c2-primary text-c2-primary hover:bg-c2-primary hover:text-white"
+                    >
+                        <Plus className="w-4 h-4" aria-hidden="true" />
+                        إنشاء مجموعة جديدة
+                    </Button>
+                )}
             </div>
         </div>
     );

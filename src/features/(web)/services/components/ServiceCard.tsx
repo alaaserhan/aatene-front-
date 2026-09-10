@@ -43,9 +43,14 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const shouldAskForPrice = shouldShowAskForPrice(service.ask_for_price, service.price);
     const cityName = service.store?.city?.name || "فلسطين";
     const providerName = service.store?.name || "مقدم الخدمة";
-    // The rating in the provider row belongs to the store, not the service.
+    // The rating in the provider row belongs to the store. Some payloads (favorites
+    // rows, for one) ship the service without store review fields, so fall back to
+    // the service's own rating instead of leaving the row blank.
     const storeReviewCount = Number(service.store?.review_count || 0);
     const storeReviewRate = parseFloat(service.store?.review_rate || "0");
+    const hasStoreRating = storeReviewCount > 0 && storeReviewRate > 0;
+    const reviewCount = hasStoreRating ? storeReviewCount : Number(service.review_count || 0);
+    const reviewRate = hasStoreRating ? storeReviewRate : parseFloat(service.review_rate || "0");
 
     const handleClick = () => {
         if (onClick) {
@@ -185,17 +190,27 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                         </div>
                     </div>
 
-                    {storeReviewCount ? (
-                        <div className="flex items-center gap-1 text-xs shrink-0">
-                            <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
-                            <span className="font-medium text-[#FB923C] pt-1">
-                                {storeReviewRate.toFixed(1)}
-                            </span>
-                            <span className="whitespace-nowrap pt-1 text-gray-400">
-                                ({storeReviewCount})
-                            </span>
-                        </div>
-                    ) : null}
+                    <div className="flex items-center gap-1 text-xs shrink-0">
+                        <Star
+                            className={cn(
+                                "w-3 h-3",
+                                reviewCount
+                                    ? "fill-[#FFC220] text-[#FFC220]"
+                                    : "fill-gray-200 text-gray-200"
+                            )}
+                        />
+                        <span
+                            className={cn(
+                                "font-medium pt-1",
+                                reviewCount ? "text-[#FB923C]" : "text-gray-400"
+                            )}
+                        >
+                            {reviewRate.toFixed(1)}
+                        </span>
+                        <span className="whitespace-nowrap pt-1 text-gray-400">
+                            ({reviewCount})
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

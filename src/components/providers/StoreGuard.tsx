@@ -81,14 +81,21 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                 storeListParams.set("per_page", "100");
                 const response = await getStores(storeListParams);
                 const stores = response.data ?? [];
-                const approvedStores = stores.filter((s) => s.status === "approved");
-                if (approvedStores.length > 0) {
-                    const store = approvedStores[0];
+                // A store awaiting review is still a store the merchant owns,
+                // so it opens the dashboard just like an approved one. Prefer
+                // an approved store when there is one, then fall back to a
+                // pending store; a rejected store selects nothing, since that
+                // merchant has to act on the rejection in the stores page.
+                const activeStore =
+                    stores.find((s) => s.status === "approved") ??
+                    stores.find((s) => s.status === "pending");
+
+                if (activeStore) {
                     setStoreContext({
-                        storeId: store.id.toString(),
-                        storeType: store.type,
-                        storeSlug: store.slug ?? null,
-                        storeRole: store.role_in_store ?? null,
+                        storeId: activeStore.id.toString(),
+                        storeType: activeStore.type,
+                        storeSlug: activeStore.slug ?? null,
+                        storeRole: activeStore.role_in_store ?? null,
                     });
                     setIsReady(true);
                 } else {
@@ -97,9 +104,13 @@ export function StoreGuard({ children }: { children: ReactNode }) {
 
                     if (!isStoresPage) {
                         // Only nag about creating a store when the merchant
-                        // truly owns none; a store awaiting review is a store.
+                        // truly owns none; a rejected store is still a store.
                         if (stores.length === 0) setShowModal(true);
+                        // Keep the gate closed until the navigation lands:
+                        // releasing children now lets the current page render a
+                        // frame without a store context and flash its empty state.
                         router.push(`/${locale}/${dashboardType}/stores`);
+                        return;
                     }
                     setIsReady(true);
                 }
