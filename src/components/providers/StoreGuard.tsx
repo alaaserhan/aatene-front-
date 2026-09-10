@@ -74,11 +74,14 @@ export function StoreGuard({ children }: { children: ReactNode }) {
             }
 
             try {
+                // Fetch every store, not just approved ones: a merchant whose
+                // store is still pending review owns a store and must not be
+                // told to create one.
                 const storeListParams = new URLSearchParams();
-                storeListParams.set("status", "approved");
                 storeListParams.set("per_page", "100");
                 const response = await getStores(storeListParams);
-                const approvedStores = (response.data ?? []).filter((s) => s.status === "approved");
+                const stores = response.data ?? [];
+                const approvedStores = stores.filter((s) => s.status === "approved");
                 if (approvedStores.length > 0) {
                     const store = approvedStores[0];
                     setStoreContext({
@@ -93,7 +96,9 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                     const isStoresPage = pathname?.includes("/stores");
 
                     if (!isStoresPage) {
-                        setShowModal(true);
+                        // Only nag about creating a store when the merchant
+                        // truly owns none; a store awaiting review is a store.
+                        if (stores.length === 0) setShowModal(true);
                         router.push(`/${locale}/${dashboardType}/stores`);
                     }
                     setIsReady(true);
@@ -121,17 +126,17 @@ export function StoreGuard({ children }: { children: ReactNode }) {
             <Dialog open={showModal} onOpenChange={setShowModal}>
                 <DialogContent className="sm:max-w-md" dir="rtl">
                     <DialogHeader className="flex flex-col items-center pt-4">
-                        <div className="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center mb-6">
-                            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-                                <Store className="w-10 h-10 text-blue-4" strokeWidth={2} />
+                        <div className="w-24 h-24 rounded-full bg-c2-navy-50 flex items-center justify-center mb-6">
+                            <div className="w-16 h-16 rounded-full bg-c2-navy-100 flex items-center justify-center">
+                                <Store className="w-10 h-10 text-c2-navy-700" strokeWidth={2} />
                             </div>
                         </div>
 
-                        <DialogTitle className="text-xl font-bold text-center text-brand-black-1">
+                        <DialogTitle className="text-xl font-bold text-center text-c2-neutral-900">
                             تنبيه
                         </DialogTitle>
 
-                        <DialogDescription className="text-center text-gray-2 pt-2">
+                        <DialogDescription className="text-center text-c2-neutral-600 pt-2">
                             يجب عليك إنشاء متجر أولاً للمتابعة
                         </DialogDescription>
                     </DialogHeader>
@@ -139,7 +144,7 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                     <DialogFooter className="flex-col sm:justify-center pt-4">
                         <Button
                             type="button"
-                            className="w-full cursor-pointer bg-blue-4 "
+                            className="w-full cursor-pointer bg-c2-navy-700 hover:bg-c2-navy-600"
                             onClick={() => setShowModal(false)}
                         >
                             حسناً
