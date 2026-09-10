@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Loader2, UserPlus, UserMinus, User as UserIcon, Search, ShoppingBag, Store as StoreIcon, Wrench } from "lucide-react";
+import { Loader2, UserPlus, UserMinus, User as UserIcon, Search, ShoppingBag, Store as StoreIcon, Wrench, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -32,6 +32,13 @@ const PER_PAGE = 12;
 // -----------------------------------------------
 function ServiceCardMini({ service }: { service: any }) {
     const imageUrl = service.image_url || service.images_urls?.[0] || "/placeholder.png";
+    // Prefer the store rating (what the shared ServiceCard shows), fall back to the
+    // service's own reviews when the payload has no store review fields.
+    const storeCount = Number(service.store?.review_count || 0);
+    const storeRate = parseFloat(service.store?.review_rate || "0");
+    const hasStoreRating = storeCount > 0 && storeRate > 0;
+    const reviewCount = hasStoreRating ? storeCount : Number(service.review_count || 0);
+    const reviewRate = hasStoreRating ? storeRate : parseFloat(service.review_rate || "0");
     return (
         <Link
             href={`/service/${service.slug}`}
@@ -51,6 +58,18 @@ function ServiceCardMini({ service }: { service: any }) {
                 {service.store?.name && (
                     <p className="text-xs text-gray-400 truncate">{service.store.name}</p>
                 )}
+                <div className="flex items-center gap-1 text-xs">
+                    <Star
+                        className={cn(
+                            "w-3 h-3",
+                            reviewCount ? "fill-[#FFC220] text-[#FFC220]" : "fill-gray-200 text-gray-200"
+                        )}
+                    />
+                    <span className={cn("font-medium pt-1", reviewCount ? "text-[#FB923C]" : "text-gray-400")}>
+                        {reviewRate.toFixed(1)}
+                    </span>
+                    <span className="whitespace-nowrap pt-1 text-gray-400">({reviewCount})</span>
+                </div>
                 <p className="text-blue-4 font-semibold text-sm mt-1">{formatPrice(service.price)} ₪</p>
             </div>
         </Link>
