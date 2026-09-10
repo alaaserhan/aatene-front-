@@ -21,6 +21,7 @@ import {
     CheckCircle,
     Calendar,
     Megaphone,
+    ChartArea,
     LucideIcon,
 } from "lucide-react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -164,17 +165,6 @@ export function MerchantContentAnalytics() {
                         countClass={"text-[#1FC16B]"}
                     />)}
 
-                <StatCard
-                    title="الدردشات"
-                    count={data?.converSation || 0}
-                    icon={<img src={"/icons/dashboard/chat2.svg"} />}
-                    bgClass="bg-[#F3F4F6]"
-                    iconClass="text-[#4B5563]"
-                    countClass="text-[#4B5563]"
-                />
-
-
-
             </div>
 
             {/* Chart Section */}
@@ -182,6 +172,23 @@ export function MerchantContentAnalytics() {
                 <h4 className="text-sm font-medium text-gray-700 px-2">
                     {isServiceStore ? "نمو الخدمات" : "نمو المنتجات"}
                 </h4>
+                {chartData.length === 0 ? (
+                    <div className="h-[250px] w-full flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-c2-neutral-200 bg-c2-neutral-50">
+                        <div className="w-12 h-12 rounded-full bg-c2-navy-50 flex items-center justify-center">
+                            <ChartArea className="w-6 h-6 text-c2-navy-300" />
+                        </div>
+                        <div className="flex flex-col items-center gap-1 text-center px-4">
+                            <span className="text-sm font-semibold text-c2-neutral-700">
+                                {isServiceStore ? "لا توجد بيانات نمو للخدمات" : "لا توجد بيانات نمو للمنتجات"}
+                            </span>
+                            <span className="text-xs text-c2-neutral-500">
+                                {isServiceStore
+                                    ? "لم تتم إضافة خدمات خلال هذه الفترة، جرّب اختيار فترة زمنية أخرى"
+                                    : "لم تتم إضافة منتجات خلال هذه الفترة، جرّب اختيار فترة زمنية أخرى"}
+                            </span>
+                        </div>
+                    </div>
+                ) : (
                 <div className="h-[250px] w-full dir-ltr">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -40, bottom: 0 }}>
@@ -226,6 +233,7 @@ export function MerchantContentAnalytics() {
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
+                )}
             </div>
         </div>
     );

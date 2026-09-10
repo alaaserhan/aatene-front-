@@ -89,6 +89,9 @@ interface NavItem {
   alwaysMore?: boolean;
 }
 
+/** Top-level segments a merchant sees directly in the nav bar; everything else lives in "المزيد" */
+const MERCHANT_BAR_SEGMENTS = ["home", "stores", "products", "serviceProviders"];
+
 interface IconProps {
   className?: string;
   [key: string]: unknown;
@@ -221,10 +224,10 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الكلمات المفتاحية", icon: Hash, href: "/keywords", show: hasAdminPerm("/keywords"), desc: "إدارة كلمات البحث للمنتجات والخدمات", alwaysMore: true },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: hasAdminPerm("/banners"), desc: "ادارة ومتابعة البنرات الإعلانية" },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: hasAdminPerm("/mosa3edy"), desc: "إدارة التشات بوت والإحصائيات" },
-    { label: "القصص", icon: ImageIcon, href: "/stories", show: isMerchant && isAllowedByRole("/stories"), desc: "إضافة وإدارة القصص" },
+    { label: "القصص", icon: ImageIcon, href: "/stories", show: isMerchant && isAllowedByRole("/stories"), desc: "إضافة وإدارة القصص", alwaysMore: true },
     { label: "الطلبات غير الموجودة", icon: Wand2Icon, href: "/requested-services", show: hasAdminPerm("/requested-services"), desc: "الطلبات الغير موجودة والمخصصة" },
     { label: "المدونات", icon: Newspaper, href: "/blogs", show: hasAdminPerm("/blogs"), desc: "إضافة وإدارة المدونات والمقالات" },
-    { label: "المتابعات", icon: Users, href: "/following", show: isMerchant && isAllowedByRole("/following"), desc: "إدارة واحصائيات المتابعات" },
+    { label: "المتابعات", icon: Users, href: "/following", show: isMerchant && isAllowedByRole("/following"), desc: "إدارة واحصائيات المتابعات", alwaysMore: true },
     { label: "المفضلة", icon: Heart, href: "/favorites", show: hasAdminPerm("/favorites"), desc: "ادارة ومتابعة المفضلة" },
     { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: hasAdminPerm("/content-management"), desc: "تحكم بالمحتوى الأساسي للموقع" },
     { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: hasAdminPerm("/abusive-words"), desc: "إدارة الكلمات والعبارات المسيئة" },
@@ -246,7 +249,12 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   ];
 
   const visibleNavItems = allNavItems.filter((item) => item.show);
-  const barNavItems = visibleNavItems.filter((item) => !item.alwaysMore);
+  const barNavItems = visibleNavItems.filter((item) => {
+    if (item.alwaysMore) return false;
+    // Merchants keep only home, products/services and stores in the bar; the rest goes to "المزيد"
+    if (isMerchant) return MERCHANT_BAR_SEGMENTS.includes(getSegmentFromHref(item.href));
+    return true;
+  });
   const mainNavItems = barNavItems.slice(0, 5);
   const moreMenuItems = visibleNavItems.filter(
     (item) => item.alwaysMore || !mainNavItems.includes(item)
