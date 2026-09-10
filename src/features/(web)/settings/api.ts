@@ -222,27 +222,17 @@ export interface UpdatePasswordPayload {
 }
 
 export interface DeviceSettings {
-    id: number;
-    notification_status: boolean;
-    device_token: string;
-    notify_activity: boolean;
-    notify_platform_trends: boolean;
-    notify_messages: boolean;
-    notify_following: boolean;
-    notify_recommendations: boolean;
-    device_name: string;
+    /** Backend sends 1/0 (it may also come back as a boolean or a string). */
+    active: boolean | number | string;
 }
 
 export interface DeviceSettingsResponse extends BaseResponse {
-    device: DeviceSettings;
+    device: DeviceSettings | null;
 }
 
 export interface UpdateDevicePreferencesPayload {
-    notify_activity?: boolean;
-    notify_platform_trends?: boolean;
-    notify_messages?: boolean;
-    notify_following?: boolean;
-    notify_recommendations?: boolean;
+    /** The API only accepts 1 (enabled) or 0 (disabled). */
+    active: 0 | 1;
 }
 
 // 6. Followings

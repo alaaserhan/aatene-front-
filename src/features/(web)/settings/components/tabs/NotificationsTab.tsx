@@ -12,18 +12,11 @@ export default function NotificationsTab() {
 
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
 
-    // Load initial data
+    // Load initial data — the API only exposes a single `active` flag (1/0)
     useEffect(() => {
-        if (settingsData?.device) {
-            // Consider notifications enabled if any specific setting is true
-            const anyEnabled =
-                settingsData.device.notify_activity ||
-                settingsData.device.notify_platform_trends ||
-                settingsData.device.notify_messages ||
-                settingsData.device.notify_following ||
-                settingsData.device.notify_recommendations;
-
-            setIsNotificationsEnabled(anyEnabled);
+        const active = settingsData?.device?.active;
+        if (active !== undefined) {
+            setIsNotificationsEnabled(active === true || active === 1 || active === "1");
         }
     }, [settingsData]);
 
@@ -32,13 +25,7 @@ export default function NotificationsTab() {
     };
 
     const handleSave = () => {
-        updateSettings({
-            notify_activity: isNotificationsEnabled,
-            notify_platform_trends: isNotificationsEnabled,
-            notify_messages: isNotificationsEnabled,
-            notify_following: isNotificationsEnabled,
-            notify_recommendations: isNotificationsEnabled,
-        });
+        updateSettings({ active: isNotificationsEnabled ? 1 : 0 });
     };
 
     if (isLoading) {
