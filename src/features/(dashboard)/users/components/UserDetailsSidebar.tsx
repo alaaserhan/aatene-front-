@@ -15,6 +15,7 @@ import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown"; // استخدام ReusableDropdown
 import {
+  Ban,
   Loader2,
   Trash2,
   Pencil,
@@ -25,6 +26,12 @@ import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { cn, isVideoFile } from "@/src/lib/utils";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { UserUpdatePayload } from "../api";
+import { isUserBanned } from "../utils";
+import {
+  DEFAULT_COUNTRY_CODE,
+  joinPhoneCountryCode,
+  splitPhoneCountryCode,
+} from "@/src/lib/phone";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
@@ -101,7 +108,7 @@ export function UserDetailsSidebar({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
-  const [countryCode, setCountryCode] = useState("+972");
+  const [countryCode, setCountryCode] = useState(DEFAULT_COUNTRY_CODE);
 
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [showMediaCenter, setShowMediaCenter] = useState(false);
@@ -172,11 +179,17 @@ export function UserDetailsSidebar({
   useEffect(() => {
     if (userData?.record) {
       const user = userData.record;
+      // The dial code lives in PhoneNumberInput's badge, so keep it out of the
+      // field value to avoid showing it twice.
+      const { countryCode: storedCode, nationalNumber } = splitPhoneCountryCode(
+        user.phone
+      );
+      setCountryCode(storedCode);
       reset({
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
-        phone: user.phone,
+        phone: nationalNumber,
         roles: user.roles?.[0]?.id ? String(user.roles[0].id) : "",
         is_active: user.is_active === "1" || user.is_active === true,
       });
@@ -185,6 +198,7 @@ export function UserDetailsSidebar({
       setNewCoverFileName(user.cover || null);
       setCurrentCoverUrl(user.cover_url || null);
     } else {
+      setCountryCode(DEFAULT_COUNTRY_CODE);
       reset({
         first_name: "",
         last_name: "",
@@ -254,7 +268,7 @@ export function UserDetailsSidebar({
       first_name: data.first_name,
       last_name: data.last_name,
       email: data.email,
-      phone: data.phone,
+      phone: joinPhoneCountryCode(countryCode, data.phone),
       is_active: data.is_active ? "1" : "0",
       roles: data.roles ? [Number(data.roles)] : [],
     };
@@ -341,6 +355,7 @@ export function UserDetailsSidebar({
     user.roles?.map((r) => r.name).join(", ") || "مستخدم عادي";
 
   const avatarUrl = currentAvatarUrl;
+  const banned = isUserBanned(user);
 
   return (
     <div className={cn("space-y-4 max-h-[calc(100vh-193px)] overflow-y-auto", className)}>
@@ -349,9 +364,17 @@ export function UserDetailsSidebar({
 
           {/* --- Profile Picture & Cover Area --- */}
           <div className="flex flex-col gap-4 mb-6">
-            <h3 className="text-lg font-medium text-blue-4">
-              بيانات المستخدم
-            </h3>
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <h3 className="text-lg font-medium text-blue-4">
+                بيانات المستخدم
+              </h3>
+              {banned && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-c2-red-500-a10 text-c2-red-800 text-xs font-medium">
+                  <Ban className="w-4 h-4" />
+                  حساب محظور
+                </span>
+              )}
+            </div>
 
             {/* Cover Image Area */}
             <div className="relative w-full h-32 md:h-40 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 mt-2">
@@ -498,6 +521,11 @@ export function UserDetailsSidebar({
                 />
                 <span className="text-xs text-gray-2">مفعل</span>
               </div>
+              {banned && (
+                <p className="text-xs text-c2-red-800">
+                  هذا الحساب محظور، ولن يتمكن المستخدم من الدخول حتى لو كان مفعلاً.
+                </p>
+              )}
             </div>
 
             <div className="flex items-center gap-3 mt-6 flex-wrap">

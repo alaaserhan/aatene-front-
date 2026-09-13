@@ -20,6 +20,7 @@ import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 import { Badge } from "@/src/components/ui/badge";
 import { cn } from "@/src/lib/utils";
+import { DEFAULT_COUNTRY_CODE, joinPhoneCountryCode } from "@/src/lib/phone";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 
 const userFormSchema = z.object({
@@ -38,7 +39,7 @@ type UserFormData = z.infer<typeof userFormSchema>;
 
 export function UserFormPage() {
   const router = useRouter();
-  const [countryCode, setCountryCode] = useState("+972");
+  const [countryCode, setCountryCode] = useState(DEFAULT_COUNTRY_CODE);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const { data: rolesData } = useGetRoles(new URLSearchParams());
@@ -85,7 +86,7 @@ export function UserFormPage() {
   const onSubmit = (data: UserFormData) => {
     const payload: UserCreatePayload = {
       ...data,
-      phone: `${countryCode}${data.phone}`,
+      phone: joinPhoneCountryCode(countryCode, data.phone),
       is_active: data.is_active ? "1" : "0",
       roles: data.roles ? [Number(data.roles)] : [],
     };
