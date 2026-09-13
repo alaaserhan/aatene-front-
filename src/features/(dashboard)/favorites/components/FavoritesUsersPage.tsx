@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Eye, Loader2, Search, User } from "lucide-react";
 import { useGetUsersWithFavorites } from "../hooks";
 import { Pagination } from "@/src/components/ui/Pagination";
@@ -14,7 +15,6 @@ const ITEMS_PER_PAGE = 10;
 export function FavoritesUsersPage() {
     const params = useParams();
     const type = params?.type as string || "admin";
-    const searchParams = useSearchParams();
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
 
@@ -60,15 +60,15 @@ export function FavoritesUsersPage() {
 
                 {/* Table */}
                 <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="w-full min-w-[760px]">
                         <thead className=" border-b bg-[#FAFAFA] border-gray-100">
                             <tr>
-                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-xs font-medium">المستخدم</th>
-                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium hidden sm:table-cell">عدد المجموعات</th>
-                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium">عدد المنتجات المفضلة</th>
-                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium">عدد المتاجر المفضلة</th>
-                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium hidden sm:table-cell">عدد الخدمات المفضلة</th>
-                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium">العمليات</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-xs font-medium whitespace-nowrap">المستخدم</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium whitespace-nowrap">عدد المجموعات</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium whitespace-nowrap">عدد المنتجات المفضلة</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium whitespace-nowrap">عدد المتاجر المفضلة</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium whitespace-nowrap">عدد الخدمات المفضلة</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium whitespace-nowrap">العمليات</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -95,19 +95,25 @@ export function FavoritesUsersPage() {
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 flex items-center justify-center">
                                                     {user.avatar_url ? (
-                                                        <img src={user.avatar_url} className="w-full h-full object-cover" alt={user.name} />
+                                                        <Image
+                                                            src={user.avatar_url}
+                                                            alt={user.name}
+                                                            width={40}
+                                                            height={40}
+                                                            className="w-full h-full object-cover"
+                                                        />
                                                     ) : (
                                                         <User className="w-6 h-6 text-gray-400" />
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-medium ">{user.name}</span>
+                                                    <span className="text-sm font-medium whitespace-nowrap">{user.name}</span>
                                                 </div>
                                             </div>
                                         </td>
 
                                         {/* Total Collections */}
-                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center hidden sm:table-cell">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center">
                                             <span className="text-sm font-medium ">
                                                 {user.favs_count.total}
                                             </span>
@@ -134,7 +140,7 @@ export function FavoritesUsersPage() {
                                         </td>
 
                                         {/* Services Count - Clickable */}
-                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center hidden sm:table-cell">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center">
                                             <Link
                                                 href={`/${type}/favorites/${user.id}?type=service`}
                                                 className="text-sm font-medium hover:text-blue-800 transition-colors"

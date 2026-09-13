@@ -2,7 +2,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, HelpCircle, Loader2, Eye, Pencil, Circle, Plus } from "lucide-react";
+import Image from "next/image";
+import { Search, Loader2, Eye, Pencil, Plus } from "lucide-react";
 import { Banner } from "../api";
 import { formatDate } from "@/src/lib/date-helper";
 import { isVideoFile } from "@/src/lib/utils";
@@ -192,29 +193,29 @@ export function BannersPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[900px]">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">#</th>
-                  <th className="hidden sm:table-cell px-3 sm:px-4 py-4 text-center text-xs sm:text-sm font-medium text-gray-1 w-48">
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1 whitespace-nowrap">#</th>
+                  <th className="px-3 sm:px-4 py-4 text-center text-xs sm:text-sm font-medium text-gray-1 whitespace-nowrap w-48">
                     صورة الإعلان
                   </th>
-                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1 whitespace-nowrap">
                     المكان
                   </th>
-                  <th className="hidden md:table-cell px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1 whitespace-nowrap">
                     الرابط
                   </th>
-                  <th className="hidden lg:table-cell px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1 whitespace-nowrap">
                     تاريخ البدء والانتهاء
                   </th>
-                  <th className="hidden sm:table-cell px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1 whitespace-nowrap">
                     الترتيب
                   </th>
-                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1 whitespace-nowrap">
                     فعال
                   </th>
-                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1 min-w-32 sm:min-w-40">
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1 whitespace-nowrap min-w-32 sm:min-w-40">
                     عمليات
                   </th>
                 </tr>
@@ -222,7 +223,7 @@ export function BannersPage() {
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={9} className="text-center p-8">
+                    <td colSpan={8} className="text-center p-8">
                       <div className="flex justify-center items-center gap-2">
                         <Loader2 className="w-5 h-5 animate-spin text-brand-blue-3" />
                         <span className="text-gray-2">
@@ -233,13 +234,13 @@ export function BannersPage() {
                   </tr>
                 ) : isError ? (
                   <tr>
-                    <td colSpan={9} className="text-center p-8 text-red-500">
+                    <td colSpan={8} className="text-center p-8 text-c2-danger">
                       حدث خطأ أثناء جلب البيانات.
                     </td>
                   </tr>
                 ) : banners.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="text-center p-8 text-gray-2">
+                    <td colSpan={8} className="text-center p-8 text-gray-2">
                       لا توجد بيانات لعرضها.
                     </td>
                   </tr>
@@ -255,39 +256,43 @@ export function BannersPage() {
                         </span>
                       </td>
 
-                      <td className="hidden sm:table-cell px-3 sm:px-4 py-4 text-center">
-                        <div className="flex justify-center">
-                          {isVideoFile(banner.labtop_banner_url || "") ? (
+                      <td className="px-3 sm:px-4 py-4 text-center">
+                        <div className="relative mx-auto h-16 w-28 sm:h-24 sm:w-44 overflow-hidden rounded bg-gray-50">
+                          {!banner.labtop_banner_url ? null : isVideoFile(
+                              banner.labtop_banner_url
+                            ) ? (
                             <video
                               src={banner.labtop_banner_url}
-                              className="max-h-16 sm:max-h-24 max-w-28 sm:max-w-44 object-cover rounded pointer-events-none"
+                              className="absolute inset-0 h-full w-full object-cover pointer-events-none"
                               autoPlay
                               muted
                               loop
                               playsInline
                             />
                           ) : (
-                            <img
+                            <Image
                               src={banner.labtop_banner_url}
-                              alt={banner.title}
-                              className="max-h-16 sm:max-h-24 max-w-28 sm:max-w-44 object-cover rounded"
+                              alt={banner.title || ""}
+                              fill
+                              sizes="176px"
+                              className="object-cover"
                             />
                           )}
                         </div>
                       </td>
 
                       <td className="px-3 sm:px-4 py-4">
-                        <span className="text-xs sm:text-sm">
+                        <span className="text-xs sm:text-sm whitespace-nowrap">
                           {banner.place}
                         </span>
                       </td>
 
-                      <td className="hidden md:table-cell px-3 sm:px-4 py-4">
+                      <td className="px-3 sm:px-4 py-4">
                         <a
                           href={banner.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs sm:text-sm hover:underline truncate block max-w-[120px] sm:max-w-xs"
+                          className="text-xs sm:text-sm hover:underline truncate block max-w-[200px]"
                           title={banner.url}
                         >
                           {banner.url}
@@ -295,7 +300,7 @@ export function BannersPage() {
                       </td>
 
 
-                      <td className="hidden lg:table-cell px-3 sm:px-4 py-4">
+                      <td className="px-3 sm:px-4 py-4">
                         <div className="text-xs sm:text-sm">
                           <div className="whitespace-nowrap">
                             {formatDate(banner.start_date)} - {formatDate(banner.end_date)}
@@ -304,8 +309,8 @@ export function BannersPage() {
                       </td>
 
 
-                      <td className="hidden sm:table-cell px-3 sm:px-4 py-4">
-                        <span className="text-xs sm:text-sm text-center block">
+                      <td className="px-3 sm:px-4 py-4">
+                        <span className="text-xs sm:text-sm text-center block whitespace-nowrap">
                           {banner.priority}
                         </span>
                       </td>
@@ -321,7 +326,7 @@ export function BannersPage() {
                       </td>
 
                       <td className="px-3 sm:px-4 py-4">
-                        <div className="flex items-center gap-1 sm:gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2 whitespace-nowrap">
                           <button
                             onClick={() => handleViewBanner(banner.id)}
                             className="p-2.5 bg-blue-5 cursor-pointer rounded transition-colors group"
@@ -340,12 +345,14 @@ export function BannersPage() {
 
                           <button
                             onClick={() => handleDeleteClick(banner.id)}
-                            className="p-2.5 bg-[#FB37481A] rounded cursor-pointer transition-colors group"
+                            className="p-2.5 bg-c2-red-500-a10 rounded cursor-pointer transition-colors group"
                             title="حذف"
                           >
-                            <img
+                            <Image
                               src="/icons/dashboard/trash.svg"
-                              alt="Delete"
+                              alt="حذف"
+                              width={16}
+                              height={16}
                               className="w-4 h-4"
                             />
                           </button>
@@ -379,6 +386,9 @@ export function BannersPage() {
         description="لا يمكن استرجاع البنر بعد حذفه"
         confirmText="نعم، قم بالحذف"
         cancelText="إلغاء"
+        confirmPosition="start"
+        isLoading={isDeleting}
+        autoCloseOnConfirm={false}
       />
 
       <SuccessModal
