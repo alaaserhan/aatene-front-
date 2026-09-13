@@ -40,6 +40,7 @@ import {
   Workflow,
   Tags,
   Hash,
+  Star,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -231,6 +232,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المفضلة", icon: Heart, href: "/favorites", show: hasAdminPerm("/favorites"), desc: "ادارة ومتابعة المفضلة" },
     { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: hasAdminPerm("/content-management"), desc: "تحكم بالمحتوى الأساسي للموقع" },
     { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: hasAdminPerm("/abusive-words"), desc: "إدارة الكلمات والعبارات المسيئة" },
+    { label: "التقييمات", icon: Star, href: "/reviews?type=product", show: hasAdminPerm("/reviews"), desc: "مراجعة وحذف تقييمات وتعليقات المستخدمين" },
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: hasAdminPerm("/all-reports"), desc: "متابعة الشكاوى والبلاغات" },
     { label: "رسائل التواصل", icon: Mail, href: "/contacts", show: hasAdminPerm("/contacts"), desc: "رسائل المستخدمين من صفحة من نحن" },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: hasAdminPerm("/notifications"), desc: "إدارة ومتابعة سجل الاشعارات" },

@@ -46,7 +46,9 @@ const ADMIN_PERMISSION_TO_SEGMENTS: Record<string, string[]> = {
     "blogs": ["blogs"],
     "favs": ["favorites"],
     "content": ["content-management", "keywords"],
-    "abusive-words": ["abusive-words"],
+    // The backend has no dedicated "reviews" permission, so review moderation
+    // rides along with the abusive-words permission.
+    "abusive-words": ["abusive-words", "reviews"],
     "notifications": ["notifications"],
     "trash": ["trash"],
     "reports": ["all-reports", "reports"],
