@@ -9,31 +9,12 @@ import { useUploadKnowledge } from "../hooks";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { cn } from "@/src/lib/utils";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
-import { knowledgeBankPlatformFromSearchParam } from "../api";
+import {
+  KNOWLEDGE_BANK_ACCEPT_INPUT,
+  knowledgeBankPlatformFromSearchParam,
+  validateKnowledgeBankFile,
+} from "../api";
 import { toast } from "sonner";
-
-/** يطابق Laravel `StoreKnowledgeRequest` max:10240 (KB) ≈ 10MB */
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
-
-function isTxtFile(file: File): boolean {
-  const name = file.name.toLowerCase();
-  if (name.endsWith(".txt")) return true;
-  const mime = (file.type || "").toLowerCase();
-  return mime === "text/plain" || mime === "text/txt";
-}
-
-function validateTxtFile(file: File): string | null {
-  if (!isTxtFile(file)) {
-    return "يُقبل ملفات .txt فقط";
-  }
-  if (file.size > MAX_FILE_BYTES) {
-    return "حجم الملف يجب ألا يتجاوز 10 ميغابايت";
-  }
-  if (file.size === 0) {
-    return "الملف فارغ";
-  }
-  return null;
-}
 
 export function AddKnowledgePage() {
   const router = useRouter();
@@ -53,7 +34,7 @@ export function AddKnowledgePage() {
 
   const pickFile = (file: File | undefined, input?: HTMLInputElement | null) => {
     if (!file) return;
-    const error = validateTxtFile(file);
+    const error = validateKnowledgeBankFile(file);
     if (error) {
       toast.error(error);
       if (input) input.value = "";
@@ -75,7 +56,7 @@ export function AddKnowledgePage() {
 
   const handleUpload = () => {
     if (!selectedFile) return;
-    const error = validateTxtFile(selectedFile);
+    const error = validateKnowledgeBankFile(selectedFile);
     if (error) {
       toast.error(error);
       setSelectedFile(null);
@@ -128,12 +109,12 @@ export function AddKnowledgePage() {
                   type="file"
                   className="hidden"
                   onChange={handleChange}
-                  accept=".txt,text/plain"
+                  accept={KNOWLEDGE_BANK_ACCEPT_INPUT}
                 />
                 <Upload className="w-7 h-7 text-[#3A5779] mb-4" />
                 <p className="text-base font-medium mb-1">تصفح أو اسحب وأسقط الملف هنا</p>
                 <p className="text-gray-400 text-sm">
-                  ملفات نصية بصيغة .txt فقط — حتى 10 ميغابايت
+                  ملفات بصيغة .txt أو .doc أو .docx — حتى 10 ميغابايت
                 </p>
               </div>
             ) : (

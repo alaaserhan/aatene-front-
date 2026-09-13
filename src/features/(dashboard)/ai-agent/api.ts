@@ -677,7 +677,23 @@ export const getWebAnalytics = async (): Promise<WebAnalyticsResponse> => {
 export type KnowledgeBankPlatform = "web" | "mobile";
 
 /** يطابق واجهة الإضافة و Laravel `StoreKnowledgeRequest` */
-export const KNOWLEDGE_BANK_ACCEPT_INPUT = ".txt,text/plain";
+export const KNOWLEDGE_BANK_ACCEPT_INPUT =
+    ".txt,.doc,.docx,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+// Accepted extensions mapped to the MIME type we send, so Laravel never sees
+// application/octet-stream (which some browsers report for .doc/.docx).
+const KNOWLEDGE_BANK_MIME_BY_EXTENSION: Record<string, string> = {
+    ".txt": "text/plain",
+    ".doc": "application/msword",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+};
+
+function knowledgeBankExtension(fileName: string): string | null {
+    const lower = fileName.toLowerCase();
+    return (
+        Object.keys(KNOWLEDGE_BANK_MIME_BY_EXTENSION).find((ext) => lower.endsWith(ext)) ?? null
+    );
+}
 
 /** يطابق `max:10240` (كيلوبايت) في لارافيل = 10 ميجابايت */
 export const KNOWLEDGE_BANK_MAX_FILE_BYTES = 10240 * 1024;
@@ -686,23 +702,23 @@ export function knowledgeBankPlatformFromSearchParam(value: string | null): Know
     return value === "mobile" ? "mobile" : "web";
 }
 
-/** يضمن امتداد .txt و MIME text/plain قبل الإرسال (يتجنب رفض Laravel لـ application/octet-stream) */
-export function prepareTxtUploadFile(file: File): File {
-    const name = file.name.toLowerCase().endsWith(".txt")
-        ? file.name
-        : `${file.name.replace(/\.[^.]+$/, "") || "document"}.txt`;
-    return new File([file], name, { type: "text/plain", lastModified: file.lastModified });
+// Normalizes the MIME type from the extension before sending; the name is kept
+// as-is because validation already rejected anything but .txt/.doc/.docx.
+export function prepareKnowledgeUploadFile(file: File): File {
+    const ext = knowledgeBankExtension(file.name);
+    if (!ext) return file;
+    return new File([file], file.name, {
+        type: KNOWLEDGE_BANK_MIME_BY_EXTENSION[ext],
+        lastModified: file.lastModified,
+    });
 }
 
 /** رسالة خطأ عربية أو null إن كان الملف مقبولاً للرفع */
 export function validateKnowledgeBankFile(file: File): string | null {
-    const lower = file.name.toLowerCase();
-    if (!lower.endsWith(".txt")) {
-        return "يُقبل ملفات .txt فقط";
-    }
-    const mime = (file.type || "").toLowerCase();
-    if (mime && mime !== "text/plain" && mime !== "text/txt") {
-        return "يُقبل ملفات نصية بصيغة .txt فقط";
+    // Extension only: browsers report .doc/.docx inconsistently (octet-stream,
+    // application/zip), and prepareKnowledgeUploadFile rewrites the MIME anyway.
+    if (!knowledgeBankExtension(file.name)) {
+        return "يُقبل ملفات .txt أو .doc أو .docx فقط";
     }
     if (file.size > KNOWLEDGE_BANK_MAX_FILE_BYTES) {
         return "حجم الملف يتجاوز 10 ميجابايت";
@@ -755,7 +771,7 @@ export const uploadKnowledge = async (
     platform: KnowledgeBankPlatform = "web"
 ): Promise<KnowledgeBankUploadResponse> => {
     const formData = new FormData();
-    formData.append("file", prepareTxtUploadFile(file));
+    formData.append("file", prepareKnowledgeUploadFile(file));
     formData.append("platform", platform);
     const { data } = await mainApi.post<KnowledgeBankUploadResponse>(
         `${WEB_ADMIN_BASE}/knowledge-bank`,
