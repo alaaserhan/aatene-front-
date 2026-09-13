@@ -59,8 +59,8 @@ export function KnowledgeBasePage() {
           <div className="bg-white rounded-lg border border-gray-200 flex-1 flex flex-col">
 
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5">
-              <div className="text-right flex-1">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between px-4 lg:px-6 py-5">
+              <div className="text-right lg:flex-1 min-w-0">
                 <h1 className="text-xl lg:text-2xl font-bold mb-1">
                   {platform === "mobile" ? "إضافة قاعدة المعرفة للتطبيق" : "إضافة قاعدة المعرفة للمنصة"}
                 </h1>
@@ -70,12 +70,12 @@ export function KnowledgeBasePage() {
               </div>
 
               {/* Toggle Switch - iOS Style */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between lg:justify-end gap-2 lg:gap-3">
                 {/* Label: web */}
                 <span
                   onClick={() => applyPlatform("web")}
                   className={cn(
-                    "text-sm cursor-pointer transition-all duration-200 whitespace-nowrap px-3 py-1 rounded-md",
+                    "text-xs lg:text-sm cursor-pointer transition-all duration-200 whitespace-nowrap px-2 lg:px-3 py-1 rounded-md",
                     platform === "web"
                       ? "font-semibold text-[#3A5779] bg-gray-100"
                       : "font-medium text-gray-400"
@@ -105,7 +105,7 @@ export function KnowledgeBasePage() {
                 <span
                   onClick={() => applyPlatform("mobile")}
                   className={cn(
-                    "text-sm cursor-pointer transition-all duration-200 whitespace-nowrap px-3 py-1 rounded-md",
+                    "text-xs lg:text-sm cursor-pointer transition-all duration-200 whitespace-nowrap px-2 lg:px-3 py-1 rounded-md",
                     platform === "mobile"
                       ? "font-semibold text-[#3A5779] bg-gray-100"
                       : "font-medium text-gray-400"
@@ -137,9 +137,9 @@ export function KnowledgeBasePage() {
               </div>
             ) : (
               /* Files State */
-              <div className="p-5 space-y-4">
+              <div className="p-3 lg:p-5 space-y-4">
                 {/* Search + Add Button */}
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="relative flex-1">
                     <Input
                       placeholder="بحث..."
@@ -152,7 +152,7 @@ export function KnowledgeBasePage() {
                   </div>
                   <Button
                     onClick={() => router.push(`${pathname}/add?platform=${platform}`)}
-                    className="bg-[#3A5779] hover:bg-[#2c4460] text-white rounded-full px-6 h-10 text-sm font-medium whitespace-nowrap"
+                    className="bg-[#3A5779] hover:bg-[#2c4460] text-white rounded-full px-6 h-10 text-sm font-medium whitespace-nowrap w-full sm:w-auto"
                   >
                     إضافة الوثائق
                   </Button>
@@ -183,12 +183,13 @@ export function KnowledgeBasePage() {
 
                 {/* Table */}
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
-                  <table className="w-full" dir="rtl">
+                  <div className="overflow-x-auto">
+                  <table className="w-full min-w-[640px]" dir="rtl">
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
                         <th className="px-5 py-3.5 text-right text-sm font-semibold text-gray-600">الملف</th>
                         <th className="px-5 py-3.5 text-center text-sm font-semibold text-gray-600">الحالة</th>
-                        <th className="px-5 py-3.5 text-center text-sm font-semibold text-gray-600">أخر وقت تم تدريب البوت فيه</th>
+                        <th className="px-5 py-3.5 text-center text-sm font-semibold text-gray-600 whitespace-nowrap">أخر وقت تم تدريب البوت فيه</th>
                         <th className="px-5 py-3.5 text-center text-sm font-semibold text-gray-600">إجراء</th>
                       </tr>
                     </thead>
@@ -210,27 +211,27 @@ export function KnowledgeBasePage() {
 
                         return (
                           <tr key={file.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-5 py-4 text-sm text-gray-900">{file.file_name}</td>
+                            <td className="px-5 py-4 text-sm text-gray-900 break-all">{file.file_name}</td>
                             <td className="px-5 py-4 text-center">
                               {isFailed ? (
-                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-red-100 text-red-600">
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold whitespace-nowrap bg-red-100 text-red-600">
                                   فشل التدريب
                                 </span>
                               ) : isProcessing ? (
-                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-yellow-100 text-yellow-700">
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold whitespace-nowrap bg-yellow-100 text-yellow-700">
                                   جاري المعالجة
                                 </span>
                               ) : isTrained ? (
-                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-green-100 text-green-700">
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold whitespace-nowrap bg-green-100 text-green-700">
                                   تم التدريب
                                 </span>
                               ) : (
-                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600">
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold whitespace-nowrap bg-gray-100 text-gray-600">
                                   {file.status ?? "غير معروف"}
                                 </span>
                               )}
                             </td>
-                            <td className="px-5 py-4 text-sm text-gray-500 text-center">
+                            <td className="px-5 py-4 text-sm text-gray-500 text-center whitespace-nowrap">
                               {formattedDate}
                             </td>
                             <td className="px-5 py-4 text-center">
@@ -248,6 +249,7 @@ export function KnowledgeBasePage() {
                       })}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               </div>
             )}

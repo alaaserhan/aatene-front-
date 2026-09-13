@@ -241,7 +241,7 @@ export function ReportView({ type }: ReportViewProps) {
                 icon: <img src="/icons/dashboard/merchant1.svg" alt="" className="w-full h-full" />,
                 cards: [
                     { title: "إجمالي التجار", value: (data as MerchantsAnalyticsResponse)?.totalMerchants || 0, icon: <img src="/icons/dashboard/merchant1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
-                    { title: "التجار  الموثوقين", value: (data as MerchantsAnalyticsResponse)?.activeMerchants || 0, icon: <img src="/icons/dashboard/merchant2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "التجار  الجدد", value: (data as MerchantsAnalyticsResponse)?.activeMerchants || 0, icon: <img src="/icons/dashboard/merchant2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
                     { title: "التجار  تم حظرهم", value: (data as MerchantsAnalyticsResponse)?.inactiveMerchants || 0, icon: <img src="/icons/dashboard/merchant3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
