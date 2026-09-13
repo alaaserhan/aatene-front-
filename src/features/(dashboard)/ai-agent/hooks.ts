@@ -549,7 +549,7 @@ export function useUploadKnowledge() {
                 /system error|try again later|خطأ في النظام|حاول لاحقاً/i.test(msg);
             if (isBackendSystemError) {
                 toast.error(
-                    "الملف صحيح لكن الخادم فشل في حفظه — يلزم تعديل الباكند (إضافة txt في MediaCenter)."
+                    "الملف صحيح لكن الخادم فشل في حفظه — يلزم تعديل الباكند (إضافة صيغة الملف في MediaCenter)."
                 );
                 return;
             }

@@ -20,6 +20,9 @@ export interface User {
   phone: string;
   roles: Role[];
   is_active: "1" | "0" | boolean;
+  // The backend sends this as a boolean, but tolerate the "1"/"0" shape it uses
+  // for is_active, and treat a missing value as "not banned".
+  is_banned?: boolean | "1" | "0" | 1 | 0 | null;
   city_id: string | null;
   district_id: string | null;
   date_of_birth: string | null;

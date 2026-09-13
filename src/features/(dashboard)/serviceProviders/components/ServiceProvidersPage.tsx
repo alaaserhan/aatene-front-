@@ -145,7 +145,7 @@ function AllServicesSection() {
             </div>
 
             <div className="col-span-12 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
-                    <div className="flex items-center gap-8 px-4 sm:px-6 pt-4 border-b border-gray-100 overflow-x-auto">
+                    <div className="flex items-center gap-4 sm:gap-8 px-4 sm:px-6 pt-4 border-b border-gray-100 overflow-x-auto no-scrollbar">
                         {serviceStatusTabs.map((tab) => (
                             <button
                                 key={tab.key}
@@ -153,7 +153,7 @@ function AllServicesSection() {
                                     setActiveStatus(tab.key);
                                     setCurrentPage(1);
                                 }}
-                                className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${
+                                className={`flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap pb-3 border-b-[3px] transition-all duration-200 ${
                                     activeStatus === tab.key ? tab.activeClass : "border-transparent text-gray-2 hover:text-gray-2"
                                 }`}
                             >
@@ -323,13 +323,13 @@ export function ServiceProvidersPage() {
 
     return (
         <div className="space-y-6">
-            <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
-                <div className="flex items-center justify-between h-16 px-4 sm:px-6">
-                    <div className="flex items-center gap-1">
+            <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-10">
+                <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:h-16 sm:py-0 sm:px-6">
+                    <div className="flex items-center gap-1 overflow-x-auto no-scrollbar -mx-1 px-1">
                         <button
                             onClick={() => setActiveTab("services")}
                             className={cn(
-                                "px-4 py-2 rounded-lg text-sm font-semibold transition-all",
+                                "shrink-0 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold transition-all",
                                 activeTab === "services" ? "bg-blue-3 text-white" : "text-blue-4 hover:bg-blue-50"
                             )}
                         >
@@ -338,7 +338,7 @@ export function ServiceProvidersPage() {
                         <button
                             onClick={() => setActiveTab("providers")}
                             className={cn(
-                                "px-4 py-2 rounded-lg text-sm font-semibold transition-all",
+                                "shrink-0 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold transition-all",
                                 activeTab === "providers" ? "bg-blue-3 text-white" : "text-blue-4 hover:bg-blue-50"
                             )}
                         >
@@ -347,8 +347,8 @@ export function ServiceProvidersPage() {
                     </div>
 
                     {activeTab === "providers" && (
-                        <Link href="/admin/users/add">
-                            <button className="flex items-center gap-2 bg-blue-3 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-4 transition-colors">
+                        <Link href="/admin/users/add" className="w-full sm:w-auto">
+                            <button className="flex w-full sm:w-auto items-center justify-center gap-2 bg-blue-3 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-4 transition-colors">
                                 <Plus className="w-4 h-4" />
                                 إضافة مقدم خدمة جديد
                             </button>

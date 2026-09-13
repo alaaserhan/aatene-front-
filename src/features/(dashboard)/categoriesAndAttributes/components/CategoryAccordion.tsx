@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { ChevronUp, ChevronDown, Loader2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { Category, Attribute, AttributeOption } from "../api";
@@ -28,25 +29,27 @@ function AttributeOptionRow({
 
   return (
     <div
-      className="flex items-center gap-1 p-2 border border-input rounded mb-2"
-      style={{ marginInlineEnd: `${level * 3.5}rem` }}
+      className="flex items-center gap-1 p-2 border border-input rounded mb-2 me-[calc(var(--indent)*0.75rem)] sm:me-[calc(var(--indent)*3.5rem)]"
+      style={{ "--indent": level } as React.CSSProperties}
     >
       {/* ✅ إخفاء زر الحذف لغير الأدمن */}
       {isAdmin && (
         <button
           onClick={onDelete}
-          className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer shrink-0"
+          className="p-2 sm:p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer shrink-0"
         >
-          <img
+          <Image
             src="/icons/dashboard/trash.svg"
             alt="Delete"
+            width={16}
+            height={16}
             className="w-4 h-4"
           />
         </button>
       )}
 
-      <div className="flex-1 ms-4">
-        <span className="text-sm font-medium pe-2 flex justify-end">
+      <div className="flex-1 min-w-0 ms-2 sm:ms-4">
+        <span className="text-sm font-medium pe-2 flex justify-end truncate">
           {option.title}
         </span>
       </div>
@@ -102,18 +105,20 @@ function AttributeAccordionContent(props: AttributeProps) {
   return (
     <div className="group">
       <div
-        className="flex items-center gap-1 p-2 border border-input rounded mb-2 hover:bg-gray-50 transition-colors"
-        style={{ marginInlineEnd: `${level * 3.5}rem` }}
+        className="flex items-center gap-1 p-2 border border-input rounded mb-2 hover:bg-gray-50 transition-colors me-[calc(var(--indent)*0.75rem)] sm:me-[calc(var(--indent)*3.5rem)]"
+        style={{ "--indent": level } as React.CSSProperties}
       >
         {/* ✅ إخفاء زر الحذف */}
         {isAdmin && (
           <button
             onClick={() => onDelete(attribute.id)}
-            className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer shrink-0"
+            className="p-2 sm:p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer shrink-0"
           >
-            <img
+            <Image
               src="/icons/dashboard/trash.svg"
               alt="Delete"
+              width={16}
+              height={16}
               className="w-4 h-4"
             />
           </button>
@@ -123,14 +128,22 @@ function AttributeAccordionContent(props: AttributeProps) {
         {isAdmin && (
           <button
             onClick={() => onEdit(attribute)}
-            className="p-3 bg-blue-5 hover:bg-blue-50 transition-colors cursor-pointer shrink-0"
+            className="p-2 sm:p-3 bg-blue-5 hover:bg-blue-50 transition-colors cursor-pointer shrink-0"
           >
-            <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
+            <Image
+              src="/icons/dashboard/edit3.svg"
+              alt="Edit"
+              width={16}
+              height={16}
+              className="w-4 h-4"
+            />
           </button>
         )}
 
-        <div className={cn("flex items-center gap-0 flex-1 ms-4 justify-end")}>
-          <span className="text-sm font-medium pe-2">{attribute.title}</span>
+        <div className={cn("flex items-center gap-0 flex-1 min-w-0 ms-2 sm:ms-4 justify-end")}>
+          <span className="text-sm font-medium pe-2 truncate">
+            {attribute.title}
+          </span>
 
           {hasOptions && (
             <button
@@ -243,13 +256,21 @@ function CategoryAccordionContent(props: CategoryProps) {
     <div className="group">
       <div
         className={cn(
-          "flex items-center gap-1 p-2 border rounded mb-2 transition-colors",
+          "grid grid-cols-1 gap-2 sm:flex sm:items-center sm:gap-1 p-2 border rounded mb-2 transition-colors",
+          "me-[calc(var(--indent)*0.75rem)] sm:me-[calc(var(--indent)*3.5rem)]",
           isSelected
             ? "bg-blue-50 border-blue-3"
             : "border-input hover:bg-gray-50"
         )}
-        style={{ marginInlineEnd: level === 0 ? "0rem" : `${level * 3.5}rem` }}
+        style={{ "--indent": level } as React.CSSProperties}
       >
+        {/* Actions + thumbnails: second line on mobile, leading side on desktop */}
+        <div
+          className={cn(
+            "row-start-2 flex items-center gap-1 min-w-0 sm:row-auto",
+            category.type === "product" && "sm:flex-1"
+          )}
+        >
         {/* Depth indicator bar */}
         {level > 0 && (
           <div
@@ -262,11 +283,13 @@ function CategoryAccordionContent(props: CategoryProps) {
         {isAdmin && (
           <button
             onClick={() => onDelete(category.id)}
-            className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer shrink-0"
+            className="p-2 sm:p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer shrink-0"
           >
-            <img
+            <Image
               src="/icons/dashboard/trash.svg"
               alt="Delete"
+              width={16}
+              height={16}
               className="w-4 h-4"
             />
           </button>
@@ -276,9 +299,15 @@ function CategoryAccordionContent(props: CategoryProps) {
         {isAdmin && (
           <button
             onClick={() => onEdit(category)}
-            className="p-3 bg-blue-5 hover:bg-blue-50 transition-colors cursor-pointer shrink-0"
+            className="p-2 sm:p-3 bg-blue-5 hover:bg-blue-50 transition-colors cursor-pointer shrink-0"
           >
-            <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
+            <Image
+              src="/icons/dashboard/edit3.svg"
+              alt="Edit"
+              width={16}
+              height={16}
+              className="w-4 h-4"
+            />
           </button>
         )}
 
@@ -286,7 +315,7 @@ function CategoryAccordionContent(props: CategoryProps) {
         {isAdmin && (
           <button
             onClick={() => onAddSubCategory(category.id, category?.name)}
-            className="p-3 bg-[#00D9C01A] hover:bg-[#00D9C030] transition-colors cursor-pointer shrink-0"
+            className="p-2 sm:p-3 bg-[#00D9C01A] hover:bg-[#00D9C030] transition-colors cursor-pointer shrink-0"
           >
             <svg
               width="16"
@@ -306,44 +335,52 @@ function CategoryAccordionContent(props: CategoryProps) {
           </button>
         )}
 
-        {category.type === "product" && (
-          <div className="flex gap-2 flex-1 overflow-x-auto ms-4">
+        {category.type === "product" && images.length > 0 && (
+          <div className="flex gap-2 flex-1 min-w-0 overflow-x-auto ms-2 sm:ms-4">
             {images.slice(0, 4).map((img, idx) => (
               <button
                 key={idx}
                 onClick={() => onViewImages(images)}
-                className="shrink-0 w-10 h-10 rounded overflow-hidden hover:border-blue-3 transition-colors cursor-pointer"
+                className="relative shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded overflow-hidden hover:border-blue-3 transition-colors cursor-pointer"
               >
-                <img
+                <Image
                   src={img}
                   alt={`${category.name} ${idx + 1}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="40px"
+                  className="object-cover"
                 />
               </button>
             ))}
             {images.length > 4 && (
-              <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center text-sm font-medium text-gray-2 bg-gray-50">
+              <div className="shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded flex items-center justify-center text-sm font-medium text-gray-2 bg-gray-50">
                 +{images.length - 4}
               </div>
             )}
           </div>
         )}
+        </div>
 
+        {/* Name + status: first line on mobile */}
         <div
           className={cn(
-            "flex items-center gap-0 shrink-0",
-            category.type === "service" && "flex-1 ms-4 justify-end"
+            "row-start-1 flex items-center gap-0 min-w-0 justify-end sm:row-auto sm:shrink-0",
+            category.type === "service" && "sm:flex-1 sm:ms-4"
           )}
         >
+          {/* Name hugs the reading start on every breakpoint; the status box trails it */}
+          <div className="flex items-center min-w-0 flex-1 sm:flex-none justify-end">
           {level > 0 && (
             <span
-              className="w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-white shrink-0 ms-1"
+              className="min-w-5 h-5 px-1 inline-flex items-center justify-center self-center rounded-full text-[10px] leading-none font-bold text-white shrink-0 ms-1 me-2"
               style={{ backgroundColor: LEVEL_COLORS[(level - 1) % LEVEL_COLORS.length] }}
             >
               {level}
             </span>
           )}
-          <span className="text-sm font-medium pe-2">{category?.name}</span>
+          <span className="text-sm font-medium pe-2 truncate">
+            {category?.name}
+          </span>
 
           {hasSubCategories && (
             <button
@@ -357,7 +394,7 @@ function CategoryAccordionContent(props: CategoryProps) {
               )}
             </button>
           )}
-        </div>
+          </div>
 
         {/* ✅ تعطيل زر تغيير الحالة لغير الأدمن */}
         <button
@@ -390,6 +427,7 @@ function CategoryAccordionContent(props: CategoryProps) {
             </svg>
           )}
         </button>
+        </div>
       </div>
 
       {hasSubCategories && isExpanded && (

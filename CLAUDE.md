@@ -27,6 +27,30 @@ shortcut around sizing props.
 Existing `<img>` tags in older files are fine where they are; convert them when
 you're already reworking that screen, not as a standalone cleanup.
 
+## Tabs and delete dialogs — use the shared ones
+
+Two patterns get hand-rolled over and over. Don't. Both already exist, and a
+screen that rolls its own drifts out of sync with every other screen.
+
+**Tabs** — [src/components/ui/tabs.tsx](src/components/ui/tabs.tsx). A pill row:
+`TabsList` is a `rounded-full` white bar with a light border, and the active
+`TabsTrigger` is a filled `--c2-navy-700` pill with white text. Reach for it for
+any tab strip, including one that only swaps a query param and has no
+`TabsContent` — see `ReviewsTypeTabs` in
+[src/features/(dashboard)/reviews/components/](src/features/(dashboard)/reviews/components/)
+for that shape, and `ServiceTabs` in
+[src/features/(web)/services/components/ServiceTabs.tsx](src/features/(web)/services/components/ServiceTabs.tsx)
+for the full version with panels. The underlined-tab style in the older reports
+screens is legacy — don't copy it into new work.
+
+**Delete confirmation** — [src/components/(dashboard)/ConfirmDeleteModal.tsx](src/components/(dashboard)/ConfirmDeleteModal.tsx),
+*not* the plainer `ConfirmationDialog`. It brings the concentric red warning
+circle and `نعم، قم بالحذف` / `إلغاء`. Pass `confirmPosition="start"`, plus
+`isLoading` and `autoCloseOnConfirm={false}` so the modal holds with disabled
+buttons and a spinner until the request resolves — then close it yourself in the
+mutation's `onSuccess`. Leaving it open on failure is deliberate: the admin can
+retry without hunting for the row again. Toasts stay in the mutation hook.
+
 ## Colors / design tokens
 
 All colors live in [src/app/globals.css](src/app/globals.css) as CSS custom properties, mirrored into Tailwind's `@theme inline` block so both `var(--token)` and Tailwind utilities (`bg-c2-navy-900`, `text-c2-danger`, ...) work.

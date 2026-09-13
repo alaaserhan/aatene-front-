@@ -2,9 +2,10 @@
 "use client";
 
 import { User } from "../api";
+import { isUserBanned } from "../utils";
 import { cn } from "@/src/lib/utils";
 import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
-import { User as UserIcon } from "lucide-react";
+import { Ban, User as UserIcon } from "lucide-react";
 
 interface UserListSidebarProps {
   users: User[]; // نستقبل المصفوفة مباشرة الآن
@@ -48,6 +49,15 @@ export function UserListSidebar({
   const getStatusProps = (user: User) => {
     const isActive = user.is_active === "1" || user.is_active === true;
 
+    // A ban outranks the active flag: a banned account can still be is_active.
+    if (isUserBanned(user)) {
+      return {
+        text: "محظور",
+        color: "text-c2-red-800",
+        dot: "bg-c2-red-800",
+      };
+    }
+
     if (isActive) {
       return {
         text: "مفعل",
@@ -88,6 +98,7 @@ export function UserListSidebar({
 
         const roleName = user.roles?.[0]?.name || "مستخدم";
         const status = getStatusProps(user);
+        const banned = isUserBanned(user);
 
         return (
           <div
@@ -116,7 +127,15 @@ export function UserListSidebar({
               <p className="text-sm font-semibold truncate mb-1.5">
                 {fullName}
               </p>
-              <p className="text-xs text-gray-2 truncate">{roleName}</p>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <p className="text-xs text-gray-2 truncate">{roleName}</p>
+                {banned && (
+                  <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm bg-c2-red-500-a10 text-c2-red-800 text-[10px] font-medium">
+                    <Ban className="w-3 h-3" />
+                    محظور
+                  </span>
+                )}
+              </div>
             </div>
 
             <div

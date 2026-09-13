@@ -2,6 +2,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery, InfiniteData, UseQueryOptions } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
 import * as api from "./api";
 import {
   UserCreatePayload,
@@ -157,8 +159,16 @@ export const useUpdateUser = () => {
       return { prevLists, prevSingle };
     },
 
-    onError: () => {
+    onSuccess: () => {
+      // Our own copy, not the API's: that one is English and would land
+      // untranslated in an Arabic toast.
+      toast.success("تم حفظ التعديلات بنجاح");
+    },
 
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(
+        error.response?.data?.message || "تعذر حفظ التعديلات"
+      );
       qc.invalidateQueries({ queryKey: QK.listAny });
     },
 

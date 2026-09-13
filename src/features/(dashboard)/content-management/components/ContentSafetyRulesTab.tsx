@@ -180,9 +180,9 @@ const SimpleItemDialog = ({
 
     return (
         <Dialog open={open} onOpenChange={onCheckChange}>
-            <DialogContent className="sm:max-w-[600px] w-full max-h-[90vh] overflow-y-auto" dir="rtl">
+            <DialogContent className="sm:max-w-[600px] max-h-[90svh] overflow-y-auto p-4 sm:p-6" dir="rtl">
                 <DialogHeader>
-                    <DialogTitle>{defaultValues ? "تعديل القاعدة" : "إضافة قاعدة جديدة"}</DialogTitle>
+                    <DialogTitle className="pe-8 text-base sm:text-lg">{defaultValues ? "تعديل القاعدة" : "إضافة قاعدة جديدة"}</DialogTitle>
                 </DialogHeader>
 
                 <form
@@ -315,9 +315,9 @@ const ComplexItemDialog = ({
 
     return (
         <Dialog open={open} onOpenChange={onCheckChange}>
-            <DialogContent className="sm:max-w-[600px] w-full max-h-[90vh] overflow-y-auto" dir="rtl">
+            <DialogContent className="sm:max-w-[600px] max-h-[90svh] overflow-y-auto p-4 sm:p-6" dir="rtl">
                 <DialogHeader>
-                    <DialogTitle>{defaultValues ? "تعديل القسم" : "إضافة قسم جديد"}</DialogTitle>
+                    <DialogTitle className="pe-8 text-base sm:text-lg">{defaultValues ? "تعديل القسم" : "إضافة قسم جديد"}</DialogTitle>
                 </DialogHeader>
 
                 <form
