@@ -678,14 +678,15 @@ export type KnowledgeBankPlatform = "web" | "mobile";
 
 /** يطابق واجهة الإضافة و Laravel `StoreKnowledgeRequest` */
 export const KNOWLEDGE_BANK_ACCEPT_INPUT =
-    ".txt,.doc,.docx,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    ".txt,.doc,.docx,.csv,text/plain,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 // Accepted extensions mapped to the MIME type we send, so Laravel never sees
-// application/octet-stream (which some browsers report for .doc/.docx).
+// application/octet-stream (which some browsers report for .doc/.docx/.csv).
 const KNOWLEDGE_BANK_MIME_BY_EXTENSION: Record<string, string> = {
     ".txt": "text/plain",
     ".doc": "application/msword",
     ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".csv": "text/csv",
 };
 
 function knowledgeBankExtension(fileName: string): string | null {
@@ -703,7 +704,7 @@ export function knowledgeBankPlatformFromSearchParam(value: string | null): Know
 }
 
 // Normalizes the MIME type from the extension before sending; the name is kept
-// as-is because validation already rejected anything but .txt/.doc/.docx.
+// as-is because validation already rejected anything but .txt/.doc/.docx/.csv.
 export function prepareKnowledgeUploadFile(file: File): File {
     const ext = knowledgeBankExtension(file.name);
     if (!ext) return file;
@@ -715,10 +716,11 @@ export function prepareKnowledgeUploadFile(file: File): File {
 
 /** رسالة خطأ عربية أو null إن كان الملف مقبولاً للرفع */
 export function validateKnowledgeBankFile(file: File): string | null {
-    // Extension only: browsers report .doc/.docx inconsistently (octet-stream,
-    // application/zip), and prepareKnowledgeUploadFile rewrites the MIME anyway.
+    // Extension only: browsers report .doc/.docx/.csv inconsistently (octet-stream,
+    // application/zip, application/vnd.ms-excel), and prepareKnowledgeUploadFile
+    // rewrites the MIME anyway.
     if (!knowledgeBankExtension(file.name)) {
-        return "يُقبل ملفات .txt أو .doc أو .docx فقط";
+        return "يُقبل ملفات .txt أو .doc أو .docx أو .csv فقط";
     }
     if (file.size > KNOWLEDGE_BANK_MAX_FILE_BYTES) {
         return "حجم الملف يتجاوز 10 ميجابايت";

@@ -114,7 +114,7 @@ export function AddKnowledgePage() {
                 <Upload className="w-7 h-7 text-[#3A5779] mb-4" />
                 <p className="text-base font-medium mb-1">تصفح أو اسحب وأسقط الملف هنا</p>
                 <p className="text-gray-400 text-sm">
-                  ملفات بصيغة .txt أو .doc أو .docx — حتى 10 ميغابايت
+                  ملفات بصيغة .txt أو .doc أو .docx أو .csv — حتى 10 ميغابايت
                 </p>
               </div>
             ) : (
