@@ -66,7 +66,7 @@ export function BlogsPage() {
         user?.user_type !== "merchant"
     );
 
-    const { mutate: deleteBlogMutation } = useDeleteBlog();
+    const { mutate: deleteBlogMutation, isPending: isDeleting } = useDeleteBlog();
 
     const blogs = blogsData?.records || [];
     const totalPages = Math.ceil((blogsData?.recordsFiltered || 0) / 10);
@@ -99,17 +99,19 @@ export function BlogsPage() {
     };
 
     const handleConfirmDelete = () => {
-        if (blogToDelete && selectedStoreId) {
-            deleteBlogMutation(
-                { id: blogToDelete, storeId: selectedStoreId },
-                {
-                    onSuccess: () => {
-                        setDeleteModalOpen(false);
-                        setBlogToDelete(null);
-                    },
-                }
-            );
-        }
+        if (!blogToDelete) return;
+
+        // Admins have no current_store_id cookie: send null so no storeId
+        // header is attached, matching how the list is fetched above.
+        deleteBlogMutation(
+            { id: blogToDelete, storeId: !isMerchant ? null : selectedStoreId },
+            {
+                onSuccess: () => {
+                    setDeleteModalOpen(false);
+                    setBlogToDelete(null);
+                },
+            }
+        );
     };
 
     if (user?.user_type === "merchant") {
@@ -219,6 +221,9 @@ export function BlogsPage() {
                 isOpen={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
+                confirmPosition="start"
+                isLoading={isDeleting}
+                autoCloseOnConfirm={false}
                 title="حذف المدونة"
                 description="هل أنت متأكد من رغبتك في حذف هذه المدونة؟ لا يمكن التراجع عن هذا الإجراء."
             />
