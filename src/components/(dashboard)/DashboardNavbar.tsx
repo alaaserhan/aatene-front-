@@ -35,6 +35,7 @@ import {
   TicketPercent,
   Trash2,
   Mail,
+  MailPlus,
   ExternalLink,
   MessageCircleMore,
   Workflow,
@@ -236,6 +237,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: hasAdminPerm("/all-reports"), desc: "متابعة الشكاوى والبلاغات" },
     { label: "رسائل التواصل", icon: Mail, href: "/contacts", show: hasAdminPerm("/contacts"), desc: "رسائل المستخدمين من صفحة من نحن" },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: hasAdminPerm("/notifications"), desc: "إدارة ومتابعة سجل الاشعارات" },
+    { label: "النشرة البريدية", icon: MailPlus, href: "/newsletters", show: hasAdminPerm("/newsletters"), desc: "المشتركون في النشرة البريدية", alwaysMore: true },
     { label: "المنتجات المرتبطة", icon: Workflow, href: "/related-products", show: isMerchant && (storeType === "products") && isAllowedByRole("/related-products"), desc: "إدارة ومتابعة المنتجات المرتبطة" },
     { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant && (storeType === "products") && isAllowedByRole("/coupons"), desc: "إدارة ومتابعة الخصومات" },
     {

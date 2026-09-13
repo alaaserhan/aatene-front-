@@ -49,7 +49,9 @@ const ADMIN_PERMISSION_TO_SEGMENTS: Record<string, string[]> = {
     // The backend has no dedicated "reviews" permission, so review moderation
     // rides along with the abusive-words permission.
     "abusive-words": ["abusive-words", "reviews"],
-    "notifications": ["notifications"],
+    // Newsletters have no permission of their own on the backend; they ride
+    // along with notifications, the other outbound-messaging screen.
+    "notifications": ["notifications", "newsletters"],
     "trash": ["trash"],
     "reports": ["all-reports", "reports"],
     "settings": ["settings", "user-guide"],

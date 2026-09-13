@@ -79,6 +79,10 @@
   --c2-slate-500: #64748b;
   /* secondary body copy — page subtitles, helper lines under a heading */
   --c2-slate-600: #6a7282;
+  /* darkest slate — modal/dialog headings */
+  --c2-slate-950: #0f172b;
+  /* page-subtitle copy — the helper line under a screen title */
+  --c2-neutral-680: #444444;
   --c2-neutral-800: #2d2d2d;
   --c2-neutral-900: #222222;
   /* near-black body copy — detail-row values */
@@ -102,6 +106,8 @@
   --c2-blue-500: #3076ff;
   /* navy at low alpha — tinted surfaces (unread rows, icon chips) */
   --c2-navy-700-a08: #2d496a14;
+  /* 10% tint of navy-500 — bulk-action / selection bars above a table */
+  --c2-navy-500-a10: #4068961a;
 
   /* ink (distinct dark purple-navy surface, not part of the navy scale) */
   --c2-ink-900: #200e32;
@@ -118,6 +124,8 @@
   /* status accents */
   --c2-warning-500: #ffc220;
   --c2-success-500: #35c21ee5;
+  /* softer green — positive bulk actions (send newsletter e-mail) */
+  --c2-green-500: #22c55e;
   /* deeper green — approve/accept action buttons */
   --c2-green-600: #07b131;
   --c2-amber-400: #fb923c;
@@ -202,6 +210,8 @@
   --color-c2-slate-50: var(--c2-slate-50);
   --color-c2-slate-500: var(--c2-slate-500);
   --color-c2-slate-600: var(--c2-slate-600);
+  --color-c2-slate-950: var(--c2-slate-950);
+  --color-c2-neutral-680: var(--c2-neutral-680);
   --color-c2-neutral-800: var(--c2-neutral-800);
   --color-c2-neutral-900: var(--c2-neutral-900);
   --color-c2-neutral-950: var(--c2-neutral-950);
@@ -217,6 +227,7 @@
   --color-c2-navy-50: var(--c2-navy-50);
   --color-c2-blue-500: var(--c2-blue-500);
   --color-c2-navy-700-a08: var(--c2-navy-700-a08);
+  --color-c2-navy-500-a10: var(--c2-navy-500-a10);
   --color-c2-ink-900: var(--c2-ink-900);
   --color-c2-red-800: var(--c2-red-800);
   --color-c2-red-700: var(--c2-red-700);
@@ -226,6 +237,7 @@
   --color-c2-red-500-a10: var(--c2-red-500-a10);
   --color-c2-warning-500: var(--c2-warning-500);
   --color-c2-success-500: var(--c2-success-500);
+  --color-c2-green-500: var(--c2-green-500);
   --color-c2-green-600: var(--c2-green-600);
   --color-c2-amber-400: var(--c2-amber-400);
   --color-c2-primary: var(--c2-primary);
