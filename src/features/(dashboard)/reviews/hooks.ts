@@ -25,8 +25,10 @@ export function useDeleteReview() {
 
     return useMutation({
         mutationFn: api.deleteReview,
-        onSuccess: (data) => {
-            toast.success(data.message || "تم حذف التقييم بنجاح");
+        onSuccess: () => {
+            // Our own copy, not the API's: that one is English ("Review deleted
+            // successfully") and would land untranslated in an Arabic toast.
+            toast.success("تم حذف التقييم بنجاح");
             queryClient.invalidateQueries({ queryKey: ["reviews"] });
         },
         onError: (error: AxiosError<{ message: string }>) => {
