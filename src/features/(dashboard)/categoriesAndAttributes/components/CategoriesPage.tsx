@@ -373,9 +373,9 @@ export function CategoriesPage() {
   return (
     <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col">
       <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
-        <div className="flex items-center justify-between h-16 px-6">
+        <div className="flex items-center justify-between h-16 px-4 sm:px-6">
           <nav className="flex items-center h-full">
-            <ul className="flex items-center gap-8 h-full">
+            <ul className="flex items-center gap-6 sm:gap-8 h-full">
               {(isAdmin || isProductStore) && (
                 <li className="h-full flex items-center">
                   <button
@@ -411,10 +411,10 @@ export function CategoriesPage() {
         </div>
       </header>
 
-      <main className="flex-1 p-2 sm:p-6 h-[calc(100vh-65px)]">
-        <div className="grid grid-cols-12 gap-6 h-full">
+      <main className="flex-1 p-2 sm:p-6 lg:h-[calc(100vh-65px)]">
+        <div className="grid grid-cols-12 gap-3 lg:gap-6 h-full">
           {pageMode === "product" && (
-            <div className="col-span-12 lg:col-span-3 h-full">
+            <div className="col-span-12 lg:col-span-3 lg:h-full">
               <SidebarFilterPanel
                 options={filterOptions}
                 activeValue={productSubMode}
@@ -423,14 +423,14 @@ export function CategoriesPage() {
                   setCurrentPage(1);
                   setSearchQuery("");
                 }}
-                className="h-full"
+                className="h-auto lg:h-full"
               />
             </div>
           )}
 
           <div
             className={cn(
-              "h-full flex flex-col gap-6",
+              "min-h-0 lg:h-full flex flex-col gap-4 lg:gap-6",
               pageMode === "product"
                 ? "col-span-12 lg:col-span-9"
                 : "col-span-12"
