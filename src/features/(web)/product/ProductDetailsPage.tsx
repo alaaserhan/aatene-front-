@@ -83,7 +83,7 @@ export default function ProductDetailsPage() {
                             allShippingCompanies={pageData?.allShippingCompanies}
                             deliveryType={pageData?.delivery_type ?? store.delivery_type}
                             onCityChange={(city) => setSelectedDeliveryCityId(city.id)}
-                            className="mt-6"
+                            className="mt-6 max-md:mt-4 max-md:rounded-none max-md:border-0 max-md:p-0 max-md:shadow-none"
                         />
                     }
                 />
