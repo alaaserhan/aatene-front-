@@ -40,8 +40,8 @@ function parseReviewsResponse(res: UserAnalyticsReviewsResponse | undefined) {
 
 const sortOptions = [
     { value: "newest", label: "أحدث التقييمات" },
-    { value: "highest", label: "الأعلى تقييماً" },
-    { value: "lowest", label: "الأقل تقييماً" },
+    { value: "highest", label: "الأعلى تقييمًا" },
+    { value: "lowest", label: "الأقل تقييمًا" },
 ];
 
 const ratingOptions = [
