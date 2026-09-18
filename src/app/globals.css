@@ -77,6 +77,8 @@
   --c2-slate-50: #f9fbfc;
   /* muted slate — inactive tab / segmented-control labels */
   --c2-slate-500: #64748b;
+  /* product price copy — preview card / product card price line */
+  --c2-slate-550: #667085;
   /* secondary body copy — page subtitles, helper lines under a heading */
   --c2-slate-600: #6a7282;
   /* darkest slate — modal/dialog headings */
@@ -209,6 +211,7 @@
   --color-c2-neutral-560: var(--c2-neutral-560);
   --color-c2-slate-50: var(--c2-slate-50);
   --color-c2-slate-500: var(--c2-slate-500);
+  --color-c2-slate-550: var(--c2-slate-550);
   --color-c2-slate-600: var(--c2-slate-600);
   --color-c2-slate-950: var(--c2-slate-950);
   --color-c2-neutral-680: var(--c2-neutral-680);

@@ -4,7 +4,7 @@ import { cn } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
-import { Heart, Star } from "lucide-react";
+import { Heart } from "lucide-react";
 
 interface ProductPreviewSidebarProps {
     data: {
@@ -82,15 +82,6 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                                 {data.name || "اسم المنتج"}
                             </h2>
 
-                            <div className="flex items-center gap-1.5">
-                                <div className="flex gap-0.5">
-                                    {[1, 2, 3, 4, 5].map((i) => (
-                                        <Star key={i} className="h-3.5 w-3.5 fill-[#F6AD55] text-[#F6AD55]" />
-                                    ))}
-                                </div>
-                                <span className="text-sm text-[#F6AD55]">5.0</span>
-                            </div>
-
                             {shouldShowAskForPrice(data.ask_for_price, data.price) ? (
                                 <div className="mt-1">
                                     <button
@@ -102,7 +93,7 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                                 </div>
                             ) : (
                                 <div className="mt-1 flex items-center gap-3">
-                                    <span className="font-bold">
+                                    <span className="text-base font-bold text-c2-slate-550">
                                         {formattedPrice} <span>₪</span>
                                     </span>
                                 </div>
