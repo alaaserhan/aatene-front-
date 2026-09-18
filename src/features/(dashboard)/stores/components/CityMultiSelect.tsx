@@ -35,8 +35,8 @@ export function CityMultiSelect({
 }: CityMultiSelectProps) {
   const [citySearch, setCitySearch] = useState("");
 
+  // Keep selected cities in the list (checked) and float them to the top.
   const dropdownOptions = cities
-    .filter((city) => !selectedCityIds.includes(city.id))
     .filter(
       (city) =>
         !citySearch.trim() ||
@@ -45,14 +45,21 @@ export function CityMultiSelect({
     .map((city) => ({
       value: city.id.toString(),
       label: city.name,
-    }));
+    }))
+    .sort((a, b) => {
+      const aSelected = selectedCityIds.includes(Number(a.value));
+      const bSelected = selectedCityIds.includes(Number(b.value));
+      if (aSelected === bSelected) return 0;
+      return aSelected ? -1 : 1;
+    });
 
-  const handleSelect = (cityIdString: string) => {
-    // عند الاختيار نحول النص لرقم مرة أخرى
-    const cityId = parseInt(cityIdString, 10);
-    if (!isNaN(cityId)) {
-      onChange([...selectedCityIds, cityId]);
-    }
+  const selectedValues = selectedCityIds.map((id) => id.toString());
+
+  const handleSelect = (cityIdStrings: string[]) => {
+    const ids = cityIdStrings
+      .map((cityIdString) => parseInt(cityIdString, 10))
+      .filter((cityId) => !isNaN(cityId));
+    onChange(ids);
   };
 
   const handleRemove = (cityId: number) => {
@@ -80,7 +87,8 @@ export function CityMultiSelect({
         </div>
         <ReusableDropdown
           options={dropdownOptions}
-          value=""
+          multiple
+          value={selectedValues}
           onChange={handleSelect}
           placeholder={placeholder}
           error={error}

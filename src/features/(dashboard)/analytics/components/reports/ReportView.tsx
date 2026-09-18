@@ -196,7 +196,7 @@ export function ReportView({ type }: ReportViewProps) {
                     { key: "rejected_count", color: COLORS[2], name: "إجمالي الخدمات المرفوضة" },
                 ],
                 chartData: (data as ServicesAnalyticsResponse)?.servicesGrowthChart || [],
-                topListName: "الخدمات الأعلى تقييماً",
+                topListName: "الخدمات الأعلى تقييمًا",
                 topListItems: (data as ServicesAnalyticsResponse)?.topRatedServices?.map((item: AnalyticsService, i: number) => ({
                     id: item.id, title: item.title, subtitle: "التقيم", image: item.images_urls[0], rank: i + 1, badgeText: `${item.review_rate || 0} `, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
@@ -280,7 +280,7 @@ export function ReportView({ type }: ReportViewProps) {
                     { key: "not_active_count", color: COLORS[2], name: "المتاجر المرفوضة" },
                 ],
                 chartData: (data as StoresAnalyticsResponse)?.storesGrowthChart || [],
-                topListName: "المتاجر الأعلى تقييماً",
+                topListName: "المتاجر الأعلى تقييمًا",
                 topListItems: (data as StoresAnalyticsResponse)?.topRatedStores?.map((item: AnalyticsStore, i: number) => ({
                     id: item.id, title: item.name, subtitle: "التقيم", image: item.cover_url, rank: i + 1, badgeText: `${item.review_rate || 0} `, badgeColor: "bg-green-100 text-green-700"
                 })) || [],

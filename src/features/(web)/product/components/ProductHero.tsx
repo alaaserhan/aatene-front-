@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
+import MobileCollapsibleSection from "./MobileCollapsibleSection";
 import { Attribute, AttributeOption, Product, Store } from "../api";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import type { ChatTarget } from "@/src/lib/chat-links";
@@ -374,13 +375,17 @@ export default function ProductHero({
             </button>
           </div>
 
-          {shipping}
+          <MobileCollapsibleSection title="تفاصيل الشحن">
+            {shipping}
+          </MobileCollapsibleSection>
 
-          <StoreInfoCard
-            store={store}
-            hideReport={isProductOwner}
-            className="mt-6"
-          />
+          <MobileCollapsibleSection title="معلومات عن البائع">
+            <StoreInfoCard
+              store={store}
+              hideReport={isProductOwner}
+              className="mt-6 max-md:mt-4 max-md:rounded-none max-md:border-0 max-md:p-0 max-md:shadow-none"
+            />
+          </MobileCollapsibleSection>
         </div>
       </div>
 

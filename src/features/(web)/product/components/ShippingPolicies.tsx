@@ -153,7 +153,7 @@ export default function ShippingPolicies({
 
     return (
         <div className={cn("white-card", className)}>
-            <h2 className="mb-4 text-sm font-medium text-c2-navy-1000">تفاصيل الشحن</h2>
+            <h2 className="mb-4 text-sm font-medium text-c2-navy-1000 max-md:hidden">تفاصيل الشحن</h2>
 
             <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
                 {/* Carrier + destination */}

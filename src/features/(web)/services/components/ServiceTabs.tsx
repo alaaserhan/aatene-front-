@@ -424,7 +424,7 @@ function ServiceQASection({ service }: { service: Service }) {
   const sortOptions = [
     { value: "most_recent", label: "الأحدث" },
     { value: "oldest", label: "الأقدم" },
-    { value: "recently_answered", label: "تمت الإجابة حديثاً" },
+    { value: "recently_answered", label: "تمت الإجابة حديثًا" },
   ];
 
   const questions = data?.questions || [];

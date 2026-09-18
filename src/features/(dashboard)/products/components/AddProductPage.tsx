@@ -27,7 +27,7 @@ import {
   validateProductVariations,
 } from "./sections/ProductVariationsFields";
 
-type AccordionKey = "basic" | "variations" | null;
+type AccordionKey = "basic" | "variations";
 
 const EMPTY_BASIC: Step1FormData = {
   category_id: 0,
@@ -63,7 +63,8 @@ export function AddProductPage() {
   const createProductMutation = useCreateProduct();
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [openAccordion, setOpenAccordion] = useState<AccordionKey>("basic");
+  // Sections open independently — opening one never collapses the others.
+  const [openAccordions, setOpenAccordions] = useState<AccordionKey[]>(["basic"]);
 
   const [basic, setBasic] = useState<Step1FormData>(EMPTY_BASIC);
   const [storeId, setStoreId] = useState<number>(
@@ -153,7 +154,7 @@ export function AddProductPage() {
 
     const basicErrorKeys = Object.keys(basicErrors);
     if (basicErrorKeys.length > 0) {
-      setOpenAccordion("basic");
+      ensureAccordionOpen("basic");
       toast.error("يرجى إكمال حقول المعلومات الأساسية المطلوبة");
       // ننتظر فتح الأكورديون قبل التمرير للحقل
       setTimeout(() => scrollToFirstError(basicErrorKeys[0]), 100);
@@ -161,7 +162,7 @@ export function AddProductPage() {
     }
 
     if (variationsMessage) {
-      setOpenAccordion("variations");
+      ensureAccordionOpen("variations");
       toast.error(variationsMessage);
       return;
     }
@@ -206,8 +207,14 @@ export function AddProductPage() {
     }
   };
 
-  const toggleAccordion = (key: Exclude<AccordionKey, null>) => {
-    setOpenAccordion((prev) => (prev === key ? null : key));
+  const ensureAccordionOpen = (key: AccordionKey) => {
+    setOpenAccordions((prev) => (prev.includes(key) ? prev : [...prev, key]));
+  };
+
+  const toggleAccordion = (key: AccordionKey) => {
+    setOpenAccordions((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
   };
 
   const hasBasicErrors = Object.keys(errors).length > 0;
@@ -224,7 +231,7 @@ export function AddProductPage() {
             <ProductFormAccordion
               title="المعلومات الأساسية"
               subtitle="الصور، الاسم، السعر، الفئة، القسم، الوصف والكلمات المفتاحية"
-              isOpen={openAccordion === "basic"}
+              isOpen={openAccordions.includes("basic")}
               onToggle={() => toggleAccordion("basic")}
               hasError={hasBasicErrors}
               errorText="يوجد حقول مطلوبة غير مكتملة"
@@ -275,7 +282,7 @@ export function AddProductPage() {
             <ProductFormAccordion
               title="الاختلافات"
               subtitle="سمات المنتج مثل الحجم أو اللون وأسعارها"
-              isOpen={openAccordion === "variations"}
+              isOpen={openAccordions.includes("variations")}
               onToggle={() => toggleAccordion("variations")}
               hasError={!!variationsError}
               errorText={variationsError || undefined}

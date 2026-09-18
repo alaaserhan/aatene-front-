@@ -46,8 +46,8 @@ export function UserProfilePage() {
     const sortOptions = [
         { value: "newest", label: "أحدث التقييمات" },
         { value: "oldest", label: "أقدم التقييمات" },
-        { value: "highest", label: "الأعلى تقييماً" },
-        { value: "lowest", label: "الأقل تقييماً" },
+        { value: "highest", label: "الأعلى تقييمًا" },
+        { value: "lowest", label: "الأقل تقييمًا" },
     ];
 
     // Logic to process reviews (بدون useMemo - المترجم سيقوم بذلك تلقائياً)
