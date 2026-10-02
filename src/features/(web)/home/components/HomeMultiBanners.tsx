@@ -59,16 +59,18 @@ export default function HomeMultiBanners({ banners }: HomeMultiBannersProps) {
                 {/* Desktop Navigation Arrows */}
                 <div className="hidden md:block">
                     <button
-                        onClick={() => scroll("right")}
+                        onClick={() => scroll("left")}
+                        aria-label="التالي"
                         className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-lg rounded-full p-2 opacity-0 group-hover/section:opacity-100 transition-all hover:bg-gray-50 border border-gray-100"
                     >
                     <ChevronLeft className="w-6 h-6 text-black" />
                     </button>
                     <button
-                        onClick={() => scroll("left")}
+                        onClick={() => scroll("right")}
+                        aria-label="السابق"
                         className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-lg rounded-full p-2 opacity-0 group-hover/section:opacity-100 transition-all hover:bg-gray-50 border border-gray-100"
                     >
-                        <ChevronLeft className="w-6 h-6 text-black" />
+                        <ChevronRight className="w-6 h-6 text-black" />
                     </button>
                 </div>
 

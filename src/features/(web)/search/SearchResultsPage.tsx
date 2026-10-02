@@ -89,7 +89,6 @@ function SearchContent() {
     const { data: servicesPageData } = useServicesSearchPage(type === "services", filters.category_id);
     const { data: storesPageData } = useStoresSearchPage(type === "stores", filters.category_id);
     const { data: usersPageData } = useUsersSearchPage(type === "users", filters.category_id);
-
     // Current filter data based on type
     const filterData: { categories: Category[], cities: City[], tags: Tag[], attributes: Attribute[], priceRange?: PriceRange } = useMemo(() => {
         switch (type) {

@@ -426,7 +426,7 @@ export function ForgotPasswordForm() {
                         render={({ field }) => (
                             <FormItem className="space-y-3">
                                 <FormLabel className="block  text-[#555555] text-sm font-normal">
-                                    أدخل كلمة المرور
+                                    أدخل كلمة المرور <span className="text-c2-danger">*</span>
                                 </FormLabel>
                                 <FormControl>
                                     <div className="relative">
@@ -460,7 +460,7 @@ export function ForgotPasswordForm() {
                         render={({ field }) => (
                             <FormItem className="space-y-3">
                                 <FormLabel className="block  text-[#555555] text-sm font-normal">
-                                    تأكيد كلمة المرور
+                                    تأكيد كلمة المرور <span className="text-c2-danger">*</span>
                                 </FormLabel>
                                 <FormControl>
                                     <div className="relative">

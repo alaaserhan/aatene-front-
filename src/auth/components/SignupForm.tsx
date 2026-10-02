@@ -389,7 +389,7 @@ export function SignupForm() {
                     </button>
                   </FormControl>
                   <div className="space-y-0.5 leading-none">
-                    <FormLabel className="cursor-pointer text-xs text-[#6b7280]">
+                    <FormLabel className="block cursor-pointer text-xs leading-relaxed text-[#6b7280]">
                       لقد قرأت ووافقت على{" "}
                       <Link
                         href={`/${lang}/privacy-policy`}
@@ -398,6 +398,15 @@ export function SignupForm() {
                         className="text-[#3d5e83] underline-offset-2 hover:underline"
                       >
                         سياسة الخصوصية
+                      </Link>{" "}
+                      و{" "}
+                      <Link
+                        href={`/${lang}/terms-of-use`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#3d5e83] underline-offset-2 hover:underline"
+                      >
+                        شروط الاستخدام
                       </Link>
                     </FormLabel>
                     <FormMessage />

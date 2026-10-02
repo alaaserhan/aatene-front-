@@ -301,7 +301,7 @@ function MobileSearchBar({ controller }: { controller: Controller }) {
         </div>
         <SearchField
           controller={controller}
-          className="w-full rounded-md border border-c2-neutral-200 py-2 pr-12 pl-24"
+          className="w-full rounded-md border border-c2-navy-700 py-2 pr-12 pl-24"
           clearButtonClassName="left-20 top-1/2 -translate-y-1/2"
         />
         <SubmitButton
@@ -319,7 +319,7 @@ function MobileSearchBar({ controller }: { controller: Controller }) {
 function NavbarSearchBar({ controller }: { controller: Controller }) {
   return (
     <div
-      className="flex h-12 w-full items-center rounded-md border border-c2-neutral-200 bg-white"
+      className="flex h-12 w-full items-center rounded-md border border-c2-navy-700 bg-white"
       dir="rtl"
     >
       <div className="relative flex h-full flex-1 items-center">

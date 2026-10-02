@@ -31,7 +31,7 @@ export default function HomeServicesCarousel({
     if (!scrollContainerRef.current) return;
     const scrollAmount = 300;
     scrollContainerRef.current.scrollBy({
-      left: direction === "left" ? scrollAmount : -scrollAmount,
+      left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
     });
   };
@@ -54,7 +54,7 @@ export default function HomeServicesCarousel({
         </div>
 
         <div className="relative group/nav">
-          <HomeCarouselNav onPrev={() => scroll("left")} onNext={() => scroll("right")} />
+          <HomeCarouselNav onPrev={() => scroll("right")} onNext={() => scroll("left")} />
 
           <div
             ref={scrollContainerRef}

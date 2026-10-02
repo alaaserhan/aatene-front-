@@ -76,23 +76,25 @@ export default function PasswordTab() {
                         <label className="text-sm font-medium text-[#4B5563] text-right">
                             كلمة المرور
                         </label>
-                        <div className="relative flex flex-col gap-1">
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                className={cn(
-                                    "w-full px-6 py-3.5 border rounded-full focus:outline-none focus:border-gray-400 text-right bg-[#FFFFFF] transition-colors",
-                                    errors.password ? "border-red-500" : "border-gray-200"
-                                )}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-                            </button>
+                        <div className="flex flex-col gap-1">
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className={cn(
+                                        "w-full px-6 py-3.5 border rounded-full focus:outline-none focus:border-gray-400 text-right bg-[#FFFFFF] transition-colors",
+                                        errors.password ? "border-red-500" : "border-gray-200"
+                                    )}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                                >
+                                    {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                                </button>
+                            </div>
                             {errors.password && <p className="text-red-500 text-xs px-4">{errors.password}</p>}
                         </div>
                     </div>
@@ -102,23 +104,25 @@ export default function PasswordTab() {
                         <label className="text-sm font-medium text-[#4B5563] text-right">
                             تأكيد كلمة المرور
                         </label>
-                        <div className="relative flex flex-col gap-1">
-                            <input
-                                type={showConfirmPassword ? "text" : "password"}
-                                value={formData.password_confirmation}
-                                onChange={(e) => setFormData({ ...formData, password_confirmation: e.target.value })}
-                                className={cn(
-                                    "w-full px-6 py-3.5 border rounded-full focus:outline-none focus:border-gray-400 text-right bg-[#FFFFFF] transition-colors",
-                                    errors.password_confirmation ? "border-red-500" : "border-gray-200"
-                                )}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                            >
-                                {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-                            </button>
+                        <div className="flex flex-col gap-1">
+                            <div className="relative">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    value={formData.password_confirmation}
+                                    onChange={(e) => setFormData({ ...formData, password_confirmation: e.target.value })}
+                                    className={cn(
+                                        "w-full px-6 py-3.5 border rounded-full focus:outline-none focus:border-gray-400 text-right bg-[#FFFFFF] transition-colors",
+                                        errors.password_confirmation ? "border-red-500" : "border-gray-200"
+                                    )}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                                >
+                                    {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                                </button>
+                            </div>
                             {errors.password_confirmation && <p className="text-red-500 text-xs px-4">{errors.password_confirmation}</p>}
                         </div>
                     </div>
