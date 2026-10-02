@@ -170,7 +170,7 @@ export default function MobileNav() {
 
                 {/* Content Section */}
                 <div className="flex-1 overflow-y-auto">
-                  <div className="flex flex-col justify-between h-full">
+                  <div className="flex flex-col">
                     {/* Navigation Links */}
                     <motion.div
                       className="px-4 py-4 space-y-1"

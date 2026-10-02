@@ -32,6 +32,7 @@ import MobileCollapsibleSection from "./MobileCollapsibleSection";
 import { Attribute, AttributeOption, Product, Store } from "../api";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import type { ChatTarget } from "@/src/lib/chat-links";
+import { getAttributePlaceholder } from "@/src/lib/attribute-placeholder";
 
 const PRODUCT_CONDITION_LABELS: Record<string, string> = {
   new: "جديد",
@@ -317,7 +318,7 @@ export default function ProductHero({
               {attributes?.map((attr) => (
                 <ReusableDropdown
                   key={attr.id}
-                  placeholder={`اختر ${attr.title}`}
+                  placeholder={getAttributePlaceholder(attr.title)}
                   options={
                     attr.options?.map((option: AttributeOption) => ({
                       value: option.id.toString(),
