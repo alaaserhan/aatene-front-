@@ -122,6 +122,8 @@
   --c2-red-400: #b75959;
   /* 10% tint of red-500, for destructive icon-button surfaces */
   --c2-red-500-a10: #e400141a;
+  /* crimson — title of the rejected requested-service banner */
+  --c2-crimson-700: #d00739;
 
   /* status accents */
   --c2-warning-500: #ffc220;
@@ -238,6 +240,7 @@
   --color-c2-red-500: var(--c2-red-500);
   --color-c2-red-400: var(--c2-red-400);
   --color-c2-red-500-a10: var(--c2-red-500-a10);
+  --color-c2-crimson-700: var(--c2-crimson-700);
   --color-c2-warning-500: var(--c2-warning-500);
   --color-c2-success-500: var(--c2-success-500);
   --color-c2-green-500: var(--c2-green-500);

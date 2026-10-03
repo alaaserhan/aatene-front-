@@ -1,11 +1,11 @@
-import { CheckCircle2, PauseCircle, X, XCircle } from "lucide-react";
+import { PauseCircle, X, XCircle } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
 type StatusType = "approved" | "rejected" | "pending" | "deactivated" | string;
 
 interface PreviewStatusAlertProps {
   status: StatusType;
-  type: "store" | "service" | "product";
+  type: "store" | "service" | "product" | "requested_service";
   rejectReason?: string;
   isDismissed?: boolean;
   onDismiss?: () => void;
@@ -44,6 +44,13 @@ export function PreviewStatusAlert({
       pendingTitle: "المنتج قيد المراجعة من قبل فريق أعطيني",
       pendingBody: "سيتم نشر المنتج بعد الانتهاء من مراجعته واعتماده من قبل الإدارة.",
     },
+    requested_service: {
+      approvedTitle: "تم قبول خدمتك بنجاح",
+      approvedBody: "نحيطك علماً بأنه تم قبول طلب خدمتك، وهو الآن منشور ومتاح للزوار.",
+      rejectedTitle: "تم رفض خدمتك",
+      pendingTitle: "الخدمة قيد المراجعة من قبل فريق أعطيني",
+      pendingBody: "سيتم نشر الخدمة بعد الانتهاء من مراجعتها واعتمادها من قبل الإدارة.",
+    },
   };
 
   const labels = typeLabels[type];
@@ -58,6 +65,18 @@ export function PreviewStatusAlert({
       bodyClassName: "text-[#008A3A]",
       title: labels.approvedTitle,
       body: labels.approvedBody,
+    };
+  } else if (status === "rejected" && type === "requested_service") {
+    // Requested-service design: no icon, bigger title, and the reason shown as-is
+    alertConfig = {
+      icon: null,
+      className: "border-[#FF9999]/60 bg-[#FFF0F0]",
+      titleClassName: "text-c2-crimson-700 text-xl font-bold",
+      bodyClassName: "text-c2-red-700 text-xs font-medium mt-2",
+      title: labels.rejectedTitle,
+      body:
+        rejectReason ||
+        "نعتذر، لم يتم قبول طلب الخدمة في الوقت الحالي. يرجى مراجعة البيانات وإجراء التعديلات اللازمة، ثم إعادة الإرسال.",
     };
   } else if (status === "rejected") {
     alertConfig = {
@@ -85,7 +104,7 @@ export function PreviewStatusAlert({
       className: "border-gray-200 bg-gray-50",
       titleClassName: "text-gray-700",
       bodyClassName: "text-gray-500",
-      title: `لقد قمت بإلغاء تفعيل ${type === 'store' ? 'المتجر' : type === 'service' ? 'الخدمة' : 'المنتج'} مؤقتاً`,
+      title: `لقد قمت بإلغاء تفعيل ${type === 'store' ? 'المتجر' : type === 'service' || type === 'requested_service' ? 'الخدمة' : 'المنتج'} مؤقتاً`,
       body: `يمكنك إعادة التفعيل في أي وقت ليظهر للعملاء مرة أخرى.`,
     };
   }

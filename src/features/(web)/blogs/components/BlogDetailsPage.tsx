@@ -8,6 +8,7 @@ import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { useLanguage } from "@/src/hooks/use-language";
 import { useState, useRef, useEffect } from "react";
 import {
     Star,
@@ -76,7 +77,7 @@ const authorButtonClass =
     "flex w-full h-9 items-center justify-center gap-1.5 rounded-full border border-c2-navy-600 bg-c2-navy-700 text-sm font-medium text-white whitespace-nowrap transition-colors hover:bg-c2-navy-900 cursor-pointer disabled:opacity-50";
 
 function AuthorCard({ blog }: { blog: Blog }) {
-    const { lang } = useParams<{ lang: string }>();
+    const lang = useLanguage();
     const isStore = blog.owner_type === "store";
     const hasAuthor = isStore ? !!blog.store : !!blog.user;
 

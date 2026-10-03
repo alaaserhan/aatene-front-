@@ -14,6 +14,7 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
+import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
 
 function CommentCard({
     comment,
@@ -177,6 +178,7 @@ export default function RequestedServiceDetailsPage() {
     const slug = params?.slug as string;
     const { data: serviceData, isLoading, isError } = useRequestedServiceBySlug(slug);
     const { data: commentsData } = useRequestedServiceComments(slug);
+    const [isStatusAlertDismissed, setIsStatusAlertDismissed] = useState(false);
 
     const [mediaViewerState, setMediaViewerState] = useState<{
         isOpen: boolean;
@@ -224,6 +226,18 @@ export default function RequestedServiceDetailsPage() {
                     onClose={closeMedia}
                     media={mediaViewerState.media}
                     initialIndex={mediaViewerState.index}
+                />
+            )}
+
+            {/* Moderation status banner — only for services not yet published */}
+            {(service.status === "pending" || service.status === "rejected") && (
+                <PreviewStatusAlert
+                    status={service.status}
+                    type="requested_service"
+                    rejectReason={service.reject_reason ?? undefined}
+                    isDismissed={isStatusAlertDismissed}
+                    onDismiss={() => setIsStatusAlertDismissed(true)}
+                    className="mb-6"
                 />
             )}
 
