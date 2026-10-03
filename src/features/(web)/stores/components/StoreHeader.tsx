@@ -31,6 +31,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import { useStoreWhoFavorited } from "../hooks";
+import { useUser } from "@/src/auth/session";
 import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
@@ -85,10 +86,12 @@ function FollowerCard({
     user,
     onFollowToggle,
     isPending,
+    isSelf,
 }: {
     user: WhoFavoritedUser;
     onFollowToggle: (user: WhoFavoritedUser) => void;
     isPending: boolean;
+    isSelf: boolean;
 }) {
     const lang = useLanguage();
     const visibleFavs = user.favorites
@@ -126,7 +129,8 @@ function FollowerCard({
                     </div>
                 </div>
 
-                <div className="">
+                {/* Users can't follow themselves */}
+                {!isSelf && (
                     <button
                         onClick={() => onFollowToggle(user)}
                         disabled={isPending}
@@ -145,7 +149,7 @@ function FollowerCard({
                             "متابعة"
                         )}
                     </button>
-                </div>
+                )}
             </div>
 
             <div className="flex-1 w-full lg:w-auto max-w-[600px]">
@@ -212,6 +216,7 @@ function WhoFavoritedSection({
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const [pendingUserId, setPendingUserId] = useState<number | null>(null);
+    const currentUser = useUser();
 
     const users = data?.users || [];
 
@@ -288,6 +293,7 @@ function WhoFavoritedSection({
                                 user={user}
                                 onFollowToggle={handleFollowToggle}
                                 isPending={(isFollowing || isUnfollowing) && pendingUserId === user.id}
+                                isSelf={currentUser != null && Number(currentUser.id) === Number(user.id)}
                             />
                         ))}
                     </div>
