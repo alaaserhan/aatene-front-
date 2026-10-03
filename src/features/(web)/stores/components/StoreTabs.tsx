@@ -30,6 +30,7 @@ import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { Button } from "@/src/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/src/components/ui/dialog";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import MobileCollapsibleSection from "@/src/features/(web)/product/components/MobileCollapsibleSection";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -481,7 +482,7 @@ function ShortcutButton({
     className?: string;
 }) {
     const commonClasses = cn(
-        "w-10 h-10 sm:w-11 sm:h-11 lg:w-8 lg:h-8 rounded-sm border border-[#3C5D80] text-[#3C5D80] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
+        "size-[25px] md:w-11 md:h-11 lg:w-8 lg:h-8 rounded-sm border border-[#3C5D80] text-[#3C5D80] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
         className
     );
 
@@ -491,11 +492,11 @@ function ShortcutButton({
                 <img
                     src={Icon}
                     alt=""
-                    className="w-6 h-6 sm:w-7 sm:h-7 lg:w-4 lg:h-4 object-contain"
+                    className="size-[16px] md:w-7 md:h-7 lg:w-4 lg:h-4 object-contain"
                 />
             );
         }
-        return <Icon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-4 lg:h-4" />;
+        return <Icon className="size-[16px] md:w-7 md:h-7 lg:w-4 lg:h-4" />;
     };
 
     if (onClick) {
@@ -513,7 +514,7 @@ function ShortcutButton({
     );
 }
 
-function StoreShortcuts({ store }: { store: StoreProfile }) {
+function StoreShortcuts({ store, className }: { store: StoreProfile; className?: string }) {
 
     const shortcuts: {
         icon: React.ElementType | string;
@@ -566,9 +567,14 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
 
     return (
         <div
-            className="mb-2 bg-white border border-[#e0dfdc] justify-center rounded-[10px] px-3 py-2.5 sm:px-3.5 lg:px-2.5 lg:py-2 flex flex-row items-center gap-2 sm:gap-3 lg:gap-2 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]"
+            className={cn(
+                "mb-2 bg-white border border-[#e0dfdc] justify-center rounded-[10px] px-3 py-2.5 sm:px-3.5 lg:px-2.5 lg:py-2 flex flex-row items-center gap-2 sm:gap-3 lg:gap-2 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]",
+                // On mobile the row sits bare inside the accordion; only the title keeps a pill
+                "max-md:mb-0 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:shadow-none",
+                className
+            )}
         >
-            <h4 className="text-base sm:text-lg lg:text-sm font-bold text-[#3C5D80] shrink-0 whitespace-nowrap">
+            <h4 className="text-[14px] md:text-lg lg:text-sm font-bold text-c2-navy-610 shrink-0 whitespace-nowrap max-md:rounded-full max-md:bg-c2-navy-610-a5 max-md:px-[8px] max-md:py-[4px]">
                 اختصارات المتجر:
             </h4>
             <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-1 flex-wrap min-w-0">
@@ -603,10 +609,19 @@ function OverviewTab({ store }: { store: StoreProfile }) {
         <>
             <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8" dir="rtl">
                 {/* Shortcuts + seller: last on mobile, left column on desktop */}
-                <div className="w-full lg:w-[340px] shrink-0 order-2 flex flex-col gap-2">
-                    <StoreShortcuts store={store} />
-                    <StoreOwnerCard store={store} />
-                </div>
+                <MobileCollapsibleSection
+                    title="معلومات عن البائع"
+                    className="w-full lg:w-[340px] shrink-0 order-2 max-md:mt-0"
+                >
+                    {/* On mobile the card and shortcuts flatten into the accordion body, shortcuts last */}
+                    <div className="flex flex-col gap-2 max-md:mt-4 max-md:gap-[24px] max-md:border-t max-md:border-c2-neutral-200 max-md:pt-4">
+                        <StoreShortcuts store={store} className="max-md:order-2" />
+                        <StoreOwnerCard
+                            store={store}
+                            className="max-md:rounded-none max-md:border-0 max-md:p-0 max-md:shadow-none"
+                        />
+                    </div>
+                </MobileCollapsibleSection>
 
                 {/* Description + stats: first on mobile, right column on desktop */}
                 <div className="flex-1 min-w-0 w-full order-1 flex flex-col lg:flex-row items-start gap-6 lg:gap-8">
@@ -778,7 +793,7 @@ function WorkingStatusModal({
     );
 }
 
-function StoreOwnerCard({ store }: { store: StoreProfile }) {
+function StoreOwnerCard({ store, className }: { store: StoreProfile; className?: string }) {
     const params = useParams();
     const lang = params?.locale || params?.lang || "ar";
     const ownerName = store.owner
@@ -787,8 +802,8 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
     const ownerAvatar = store.owner?.avatar_url || store.logo_url;
 
     return (
-        <div className="bg-white border border-[#e0dfdc] rounded-lg p-4 flex flex-col items-center gap-4 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
-            <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
+        <div className={cn("bg-white border border-[#e0dfdc] rounded-lg p-4 flex flex-col items-center gap-4 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]", className)}>
+            <div className="relative size-[80px] md:w-[120px] md:h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
                 {ownerAvatar ? (
                     <Image
                         src={ownerAvatar}
@@ -798,12 +813,12 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                         onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.parentElement?.classList.add("flex", "items-center", "justify-center"); }}
                     />
                 ) : (
-                    <User size={50} className="text-gray-400" />
+                    <User className="size-[36px] md:size-[50px] text-gray-400" />
                 )}
             </div>
             <div className="flex flex-col items-center gap-1">
                 <Link href={`/${lang}/profile/${store.owner?.slug}`}>
-                    <h3 className="text-[17px] text-center font-medium text-[#4d4d4d] capitalize">
+                    <h3 className="text-[17px] text-center font-medium max-md:font-bold text-c2-neutral-620 capitalize">
                         {ownerName}
                     </h3>
                 </Link>
@@ -827,14 +842,14 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                     label={<span className="whitespace-nowrap">تواصل مع البائع</span>}
                     icon={<MessageSquare size={15} className="shrink-0" strokeWidth={2} />}
                     iconClassName="shrink-0 size-[15px]"
-                    className="rounded-full has-[>svg]:px-5 min-h-10"
+                    className="rounded-full has-[>svg]:px-5 min-h-10 w-full"
                 />
                 <div className="min-w-0">
                     <ReportAbuse type="store" id={store.id}>
                         <Button
                             type="button"
                             variant="outline"
-                            className="rounded-full has-[>svg]:px-5 min-h-10 text-c2-red-400 border-c2-red-400 border bg-transparent"
+                            className="rounded-full has-[>svg]:px-5 min-h-10 w-full text-c2-red-400 border-c2-red-400 border bg-transparent"
                         >
                             <Flag size={15} className="shrink-0" strokeWidth={2} />
                             <span className="whitespace-nowrap">ابلغ عن إساءة</span>

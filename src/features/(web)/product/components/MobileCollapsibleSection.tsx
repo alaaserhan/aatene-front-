@@ -37,7 +37,7 @@ export default function MobileCollapsibleSection({
                 aria-expanded={isOpen}
                 className="flex w-full cursor-pointer items-center justify-between gap-2 md:hidden"
             >
-                <span className="text-base font-medium text-c2-primary">{title}</span>
+                <span className="text-[16px] font-medium text-c2-primary">{title}</span>
                 <ChevronDown
                     aria-hidden="true"
                     className={cn(
