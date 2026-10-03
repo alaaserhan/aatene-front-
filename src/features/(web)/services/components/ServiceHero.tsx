@@ -257,6 +257,10 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
             </div>
           )}
 
+          {service.store && (
+            <StoreInfoCard store={service.store} className="mb-6" />
+          )}
+
           <div className="flex flex-col gap-3">
             {service.store?.phone && (
               <a
@@ -300,10 +304,6 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
               {isInCompare ? "إزالة من المقارنة" : "أضف الى المقارنة"}
             </button>
           </div>
-
-          {service.store && (
-            <StoreInfoCard store={service.store} className="mt-6" />
-          )}
         </div>
       </div>
 
