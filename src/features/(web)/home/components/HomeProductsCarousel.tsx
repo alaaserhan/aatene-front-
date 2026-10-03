@@ -34,7 +34,7 @@ export default function HomeProductsCarousel({
     // scroll by a full view so items land aligned with the 2/4-per-view sizing
     const scrollAmount = scrollContainerRef.current.clientWidth;
     scrollContainerRef.current.scrollBy({
-      left: direction === "left" ? scrollAmount : -scrollAmount,
+      left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
     });
   };
@@ -57,7 +57,7 @@ export default function HomeProductsCarousel({
         </div>
 
         <div className="relative group/nav">
-          <HomeCarouselNav onPrev={() => scroll("left")} onNext={() => scroll("right")} />
+          <HomeCarouselNav onPrev={() => scroll("right")} onNext={() => scroll("left")} />
 
           <div
             ref={scrollContainerRef}

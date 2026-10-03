@@ -56,7 +56,7 @@ export default function StoreProductsSection({ storeId, storeType, sections }: S
     if (!sections || sections.length === 0) return null;
 
     return (
-        <div className="my-8">
+        <div>
             <h2 className=" text-2xl font-medium mb-4 " dir="rtl">{isService ? "كل الخدمات" : "كل المنتجات"}</h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6" dir="rtl">

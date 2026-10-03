@@ -240,27 +240,33 @@ export const getStoreServices = async (params: { store_id: number; section_id?: 
 
 export interface WhoFavoritedFavorite {
     id: number;
+    /** "product" | "service" | "store" | "blog" — `favs` is shaped by this type. */
     favs_type: string;
     favs_id: string;
+    /**
+     * Null when the favorited item was deleted. Only the fields shared by every
+     * type are required; the label and image live under a different key per type:
+     *   product → name  + cover (full URL)
+     *   service → title + image_url
+     *   store   → name  + logo_url
+     *   blog    → title + thumbnail_url
+     * The bare `image` / `logo` keys are storage paths, not URLs — don't render them.
+     */
     favs: {
         id: number;
         slug: string;
-        name: string;
-        description: string;
-        short_description: string;
-        cover: string | null;
-        shown: boolean;
-        is_favorite: boolean;
-        in_compare: boolean;
-        price: string;
-        price_after_discount: string | null;
-        discount_present: number;
-        end_date: string | null;
-        review_rate: number | string;
-        review_count: number | string;
-        views_count: number;
-        share_url: string;
-    };
+        name?: string;
+        title?: string;
+        cover?: string | null;
+        image_url?: string | null;
+        logo_url?: string | null;
+        thumbnail_url?: string | null;
+        description?: string;
+        price?: string;
+        review_rate?: number | string;
+        review_count?: number | string;
+        share_url?: string;
+    } | null;
 }
 
 export interface WhoFavoritedUser {

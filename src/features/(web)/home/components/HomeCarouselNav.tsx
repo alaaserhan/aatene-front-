@@ -13,21 +13,22 @@ interface HomeCarouselNavProps {
 }
 
 /** أسهم التنقل — نفس متاجر مميزة */
+/* RTL: the right arrow goes back toward the start (prev), the left arrow moves forward (next). */
 export default function HomeCarouselNav({ onPrev, onNext, className }: HomeCarouselNavProps) {
   return (
     <>
       <button
         type="button"
-        onClick={onNext}
-        aria-label="التالي"
+        onClick={onPrev}
+        aria-label="السابق"
         className={cn(navBtnClass, "-right-4", className)}
       >
         <ChevronRight className="w-5 h-5" />
       </button>
       <button
         type="button"
-        onClick={onPrev}
-        aria-label="السابق"
+        onClick={onNext}
+        aria-label="التالي"
         className={cn(navBtnClass, "-left-4", className)}
       >
         <ChevronLeft className="w-5 h-5" />

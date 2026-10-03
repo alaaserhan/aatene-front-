@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, ChevronUp, Flag, Loader2, Pencil, PlayCircle, Reply, Trash2, User } from "lucide-react";
 import { StarRating } from "@/src/components/ui/StarRating";
-import { ConfirmationDialog } from "@/src/components/ui/ConfirmationDialog";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { cn, isVideoFile } from "@/src/lib/utils";
@@ -62,6 +62,7 @@ export function ReviewItem({
     const { remove, update } = useReviewMutations(review.id, {
         currentImages: review.images,
         onDeleted: () => {
+            setIsConfirmOpen(false);
             setIsDeleted(true);
             onDeleted?.(review.id);
         },
@@ -199,12 +200,15 @@ export function ReviewItem({
                 )}
             </div>
 
-            <ConfirmationDialog
+            <ConfirmDeleteModal
                 isOpen={isConfirmOpen}
                 onClose={() => setIsConfirmOpen(false)}
                 onConfirm={() => remove.mutate()}
-                title="حذف التقييم"
-                description="هل أنت متأكد من حذف هذا التقييم؟ لا يمكن التراجع عن هذا الإجراء."
+                title="هل أنت متأكد من حذف التعليق؟"
+                description="سيتم حذف التعليق نهائياً. لا يمكن التراجع عن هذا الإجراء."
+                confirmPosition="start"
+                isLoading={remove.isPending}
+                autoCloseOnConfirm={false}
             />
 
             {showReplies && (

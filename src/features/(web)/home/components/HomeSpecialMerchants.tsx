@@ -31,7 +31,7 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
     if (!scrollContainerRef.current) return;
     const scrollAmount = 350;
     scrollContainerRef.current.scrollBy({
-      left: direction === "left" ? scrollAmount : -scrollAmount,
+      left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
     });
   };
@@ -49,7 +49,7 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
         </div>
 
         <div className="relative group/nav">
-          <HomeCarouselNav onPrev={() => scroll("left")} onNext={() => scroll("right")} />
+          <HomeCarouselNav onPrev={() => scroll("right")} onNext={() => scroll("left")} />
 
           <div
             ref={scrollContainerRef}

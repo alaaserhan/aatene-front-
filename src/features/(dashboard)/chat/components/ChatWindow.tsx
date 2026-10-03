@@ -68,13 +68,13 @@ function chatNavLog(...args: unknown[]) {
 /** شريط المنتج/الخدمة العلوي — نص أبيض + شيكل */
 function ChatHeaderPriceBadge({ price }: { price: string | number | null | undefined }) {
     if (isAskForPricePrice(price)) {
-        return <span className="text-sm text-white font-medium whitespace-nowrap">اطلب السعر</span>;
+        return <span className="text-sm leading-none text-white font-medium whitespace-nowrap">اطلب السعر</span>;
     }
     const n = chatPriceNumeric(price);
     return (
-        <p className="text-sm text-white font-medium whitespace-nowrap">
-            {formatPrice(n)} <span className="text-lg">₪</span>
-        </p>
+        <span className="flex items-center gap-1 text-sm leading-none text-white font-medium whitespace-nowrap">
+            {formatPrice(n)} <span className="text-base leading-none">₪</span>
+        </span>
     );
 }
 
@@ -504,7 +504,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                             </Link>
                                             <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedService.description}</p>
                                         </div>
-                                        <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
+                                        <div className="bg-blue-4 flex h-7 items-center justify-center px-3 rounded-full shrink-0">
                                             <ChatHeaderPriceBadge price={linkedService.price} />
                                         </div>
                                     </div>
@@ -539,7 +539,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                             </Link>
                                             <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedProduct.description}</p>
                                         </div>
-                                        <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
+                                        <div className="bg-blue-4 flex h-7 items-center justify-center px-3 rounded-full shrink-0">
                                             <ChatHeaderPriceBadge price={linkedProduct.price} />
                                         </div>
                                     </div>

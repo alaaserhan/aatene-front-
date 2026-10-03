@@ -82,9 +82,24 @@ export default function ServiceTabs({ service }: ServiceTabsProps) {
     >
       <div className="bg-c2-neutral-50">
         <Container className="pb-6 lg:pt-9">
-          <TabsList className="w-full max-w-full justify-start overflow-x-auto">
+          {/* On narrow screens the row scrolls sideways instead of squeezing:
+              triggers keep their natural width (flex-none) so long labels don't
+              spill into their neighbours, and the scrollbar is hidden so it
+              doesn't paint across the pill. From lg up they share the row. */}
+          <TabsList className="scrollbar-hide w-full max-w-full justify-start overflow-x-auto">
             {tabs.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id} className="min-w-30">
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="flex-none lg:min-w-30 lg:flex-1"
+                onClick={(e) =>
+                  e.currentTarget.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest",
+                    inline: "center",
+                  })
+                }
+              >
                 {tab.label}
               </TabsTrigger>
             ))}
@@ -345,7 +360,7 @@ function ServiceFAQ({ service }: { service: Service }) {
       id: 2,
       question: "ما نوع القضايا التي يمكنني الاستفسار عنها؟",
       answer:
-        "يمكنك طرح استفساراتك في قضايا مثل: الأحوال الشخصية (الطلاق، الحضانة)، العقود, القضايا العمالية، والمشاكل القانونية الطارئة.",
+        "يمكنك طرح استفساراتك في قضايا مثل: الأحوال الشخصية (الطلاق، الحضانة)، العقود، القضايا العمالية، والمشاكل القانونية الطارئة.",
     },
     {
       id: 3,
@@ -435,7 +450,7 @@ function ServiceQASection({ service }: { service: Service }) {
       <div className="mb-4">
         <h3 className="text-lg font-bold text-c2-navy-1000">أسئلة وأجوبة</h3>
         <p className="text-[#676D88] font-normal text-sm leading-relaxed">
-          جميع الإجابات المنشورة تمثل آراء وتجارب أصحابها فقط، ولا تعتبر
+          جميع الإجابات المنشورة تمثل آراء وتجارب أصحابها فقط، ولا تعبّر
           بالضرورة عن وجهة نظر منصة أعطني. لا تقوم المنصة بمراجعة أو التحقق من
           صحة هذه الإجابات، ولا تُعد مؤيدة لها بأي شكل من الأشكال.
         </p>
@@ -608,7 +623,7 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
               height={14}
               className="w-3.5 h-3.5"
             />
-            الاجابة
+            الإجابة
           </button>
         </div>
       </div>

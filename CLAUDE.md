@@ -9,8 +9,19 @@ placeholders, toasts, copy.
 
 This holds **even when the file you are editing is already full of Arabic
 comments**. Many older files are; matching their style is the mistake, not the
-fix. Leave the existing Arabic comments alone unless asked, but everything you
-add is English.
+fix. And don't leave them behind: in any file you edit, delete the Arabic
+comments that only restate the code, and translate the genuinely useful ones
+(non-obvious why, gotchas, workarounds) into English — across the whole file,
+not just the lines you changed.
+
+## Shared shadcn components over hand-rolled UI
+
+If the code your task touches builds its own version of something
+[src/components/ui/](src/components/ui/) already provides — a hand-made
+`fixed inset-0` overlay instead of `Dialog`, custom tabs, a home-made
+select/dropdown/popover/tooltip — replace it with the shared shadcn component as
+part of the task. Scope it to the part of the screen the task is about; don't
+refactor unrelated screens on the side.
 
 ## Images — reach for `next/image` first
 

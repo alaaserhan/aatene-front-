@@ -1,6 +1,12 @@
 "use client";
 
 import StoreInfoCard from "@/src/components/shared/StoreInfoCard";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/src/components/ui/accordion";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import { Price } from "@/src/components/ui/Price";
@@ -239,22 +245,15 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
           </div>
 
           {service.extras && service.extras.length > 0 && (
-            <div className="flex flex-col gap-3 white-card mb-6">
-              <h2 className="text-sm font-medium text-c2-navy-1000">
-                تطويرات اختيارية
-              </h2>
-              <ul className="flex flex-col gap-2 list-none">
-                {service.extras.map((extra) => (
-                  <li key={extra.id}>
-                    <ExtraOption
-                      extra={extra}
-                      isSelected={selectedExtras.includes(extra.id)}
-                      onToggle={() => toggleExtra(extra.id)}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ServiceExtras
+              extras={service.extras}
+              selectedExtras={selectedExtras}
+              onToggle={toggleExtra}
+            />
+          )}
+
+          {service.store && (
+            <StoreInfoCard store={service.store} className="mb-6" />
           )}
 
           <div className="flex flex-col gap-3">
@@ -300,10 +299,6 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
               {isInCompare ? "إزالة من المقارنة" : "أضف الى المقارنة"}
             </button>
           </div>
-
-          {service.store && (
-            <StoreInfoCard store={service.store} className="mt-6" />
-          )}
         </div>
       </div>
 
@@ -397,6 +392,58 @@ function GalleryArrow({
     >
       <Icon className="w-5 h-5 text-gray-700" aria-hidden="true" />
     </button>
+  );
+}
+
+const EXTRAS_TITLE = "تطويرات اختيارية";
+
+// Collapsible on mobile, always expanded on desktop.
+function ServiceExtras({
+  extras,
+  selectedExtras,
+  onToggle,
+}: {
+  extras: ServiceExtra[];
+  selectedExtras: number[];
+  onToggle: (id: number) => void;
+}) {
+  const list = (
+    <ul className="flex flex-col gap-2 list-none">
+      {extras.map((extra) => (
+        <li key={extra.id}>
+          <ExtraOption
+            extra={extra}
+            isSelected={selectedExtras.includes(extra.id)}
+            onToggle={() => onToggle(extra.id)}
+          />
+        </li>
+      ))}
+    </ul>
+  );
+
+  return (
+    <div className="white-card mb-6">
+      <Accordion type="single" collapsible className="lg:hidden">
+        <AccordionItem value="extras" className="border-b-0">
+          <AccordionTrigger className="py-0 hover:no-underline">
+            <span className="flex items-center gap-1.5 text-base font-medium text-c2-navy-1000">
+              {EXTRAS_TITLE}
+              <span className="flex size-[18px] shrink-0 items-center justify-center rounded-full bg-c2-navy-100 text-xs font-medium leading-none tabular-nums text-c2-navy-700 [text-box:trim-both_cap_alphabetic]">
+                {extras.length}
+              </span>
+            </span>
+          </AccordionTrigger>
+          <AccordionContent className="pt-3 pb-0">{list}</AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      <div className="hidden lg:flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-c2-navy-1000">
+          {EXTRAS_TITLE}
+        </h2>
+        {list}
+      </div>
+    </div>
   );
 }
 

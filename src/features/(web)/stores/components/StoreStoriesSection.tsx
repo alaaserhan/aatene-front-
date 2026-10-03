@@ -71,7 +71,7 @@ export default function StoreStoriesSection({
     };
 
     return (
-        <div className="mb-8 white-card">
+        <div className="white-card">
             <div className="flex gap-4 overflow-x-auto py-2 px-1 scrollbar-hide" dir="rtl">
                 {isOwnStore && onAddHighlight && (
                     <button

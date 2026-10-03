@@ -64,6 +64,8 @@
   --c2-neutral-200: #e3e3e3;
   --c2-neutral-300-a10: #aaaaaa1a;
   --c2-neutral-600: #555555;
+  /* store owner card name */
+  --c2-neutral-620: #4d4d4d;
   /* breadcrumb: current page (700) vs. ancestor links (500) */
   --c2-neutral-700: #414141;
   --c2-neutral-500: #7b7b7b;
@@ -97,6 +99,10 @@
   --c2-navy-950: #141f2c;
   --c2-navy-900: #203246;
   --c2-navy-700: #2d496a;
+  /* store shortcuts heading */
+  --c2-navy-610: #3c5d80;
+  /* store shortcuts heading pill (mobile) */
+  --c2-navy-610-a5: #3c5d800d;
   --c2-navy-600: #3d5e83;
   --c2-navy-500: #406896;
   --c2-navy-300: #8b96a5;
@@ -122,6 +128,8 @@
   --c2-red-400: #b75959;
   /* 10% tint of red-500, for destructive icon-button surfaces */
   --c2-red-500-a10: #e400141a;
+  /* crimson — title of the rejected requested-service banner */
+  --c2-crimson-700: #d00739;
 
   /* status accents */
   --c2-warning-500: #ffc220;
@@ -204,6 +212,7 @@
   --color-c2-neutral-200: var(--c2-neutral-200);
   --color-c2-neutral-300-a10: var(--c2-neutral-300-a10);
   --color-c2-neutral-600: var(--c2-neutral-600);
+  --color-c2-neutral-620: var(--c2-neutral-620);
   --color-c2-neutral-700: var(--c2-neutral-700);
   --color-c2-neutral-500: var(--c2-neutral-500);
   --color-c2-neutral-450: var(--c2-neutral-450);
@@ -223,6 +232,8 @@
   --color-c2-navy-950: var(--c2-navy-950);
   --color-c2-navy-900: var(--c2-navy-900);
   --color-c2-navy-700: var(--c2-navy-700);
+  --color-c2-navy-610: var(--c2-navy-610);
+  --color-c2-navy-610-a5: var(--c2-navy-610-a5);
   --color-c2-navy-600: var(--c2-navy-600);
   --color-c2-navy-500: var(--c2-navy-500);
   --color-c2-navy-300: var(--c2-navy-300);
@@ -238,6 +249,7 @@
   --color-c2-red-500: var(--c2-red-500);
   --color-c2-red-400: var(--c2-red-400);
   --color-c2-red-500-a10: var(--c2-red-500-a10);
+  --color-c2-crimson-700: var(--c2-crimson-700);
   --color-c2-warning-500: var(--c2-warning-500);
   --color-c2-success-500: var(--c2-success-500);
   --color-c2-green-500: var(--c2-green-500);
@@ -485,8 +497,9 @@ html body[data-scroll-locked] {
   }
 
   .card-shadow {
-    box-shadow: 0px 4px 6px 0px #0000001a;
-    box-shadow: 0px 10px 15px 0px #0000001a;
+    box-shadow:
+      0px 4px 6px 0px #0000001a,
+      0px 10px 15px 0px #0000001a;
   }
 }
 

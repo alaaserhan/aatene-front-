@@ -13,6 +13,7 @@ import {
 } from "@/src/features/(web)/search/utils/categoryTree";
 
 import type { FilterState, SearchType } from "../types";
+import { getAttributePlaceholder } from "@/src/lib/attribute-placeholder";
 
 interface SearchFiltersProps {
     type: SearchType;
@@ -25,6 +26,9 @@ interface SearchFiltersProps {
     priceRange?: PriceRange;
     className?: string;
 }
+
+// Attributes (matched by title) rendered as multi-select instead of a single dropdown.
+const MULTI_SELECT_ATTRIBUTES = ["اللون"];
 
 // ─── Custom Checkbox Rating UI ─────────────────────────────────────────────
 interface CustomRatingCheckboxProps {
@@ -150,6 +154,20 @@ export default function SearchFilters({
         ];
 
         onFilterChange({ ...filters, variation_options: newOptions });
+    };
+
+    // Multi-select variant: swap this attribute's selected option ids for the new set.
+    const handleAttributeMultiChange = (attributeId: number, optionIds: string[]) => {
+        const attribute = attributes.find(a => a.id === attributeId);
+        if (!attribute) return;
+
+        const optionIdsToRemove = attribute.options.map(o => o.id);
+        const newOptions = [
+            ...(filters.variation_options || []).filter(id => !optionIdsToRemove.includes(id)),
+            ...optionIds.map(Number).filter(id => !isNaN(id)),
+        ];
+
+        onFilterChange({ ...filters, variation_options: newOptions.length > 0 ? newOptions : undefined });
     };
 
     const cityOptions = cities
@@ -318,9 +336,26 @@ export default function SearchFilters({
                     attributes
                     .filter(attr => !["عدد الطوابق", "عدد الغرف", "صفة المعلن", "عدد الحمامات", "مفروش؟", "العمر"].includes(attr.title))
                     .map((attr) => {
+                    if (MULTI_SELECT_ATTRIBUTES.includes(attr.title)) {
+                        const selectedIds = attr.options
+                            .filter(opt => filters.variation_options?.includes(opt.id))
+                            .map(opt => opt.id.toString());
+                        return (
+                            <FilterSection key={attr.id} title={attr.title} defaultOpen={false}>
+                                <ReusableDropdown
+                                    multiple={true}
+                                    options={attr.options.map(opt => ({ value: opt.id.toString(), label: opt.title }))}
+                                    value={selectedIds}
+                                    onChange={(vals: string[]) => handleAttributeMultiChange(attr.id, vals)}
+                                    placeholder={getAttributePlaceholder(attr.title)}
+                                />
+                            </FilterSection>
+                        );
+                    }
+
                     const selectedOptionId = attr.options.find(opt => filters.variation_options?.includes(opt.id))?.id;
                     const options = [
-                        { value: "", label: `اختر ${attr.title}` },
+                        { value: "", label: getAttributePlaceholder(attr.title) },
                         ...attr.options.map(opt => ({ value: opt.id.toString(), label: opt.title }))
                     ];
                     return (
@@ -329,7 +364,7 @@ export default function SearchFilters({
                                 options={options}
                                 value={selectedOptionId?.toString() || ""}
                                 onChange={(val: string) => handleAttributeChange(attr.id, val)}
-                                placeholder={`اختر ${attr.title}`}
+                                placeholder={getAttributePlaceholder(attr.title)}
                             />
                         </FilterSection>
                     );

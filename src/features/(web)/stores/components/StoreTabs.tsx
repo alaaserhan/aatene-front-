@@ -16,7 +16,6 @@ import {
     User,
     ChevronLeft,
     ChevronRight,
-    X,
 } from "lucide-react";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../hooks";
 import { ReviewItem, ReviewsSection, type ReviewSubmitPayload, type SharedReview } from "@/src/components/(web)/reviews";
@@ -29,7 +28,9 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { Button } from "@/src/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/src/components/ui/dialog";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import MobileCollapsibleSection from "@/src/features/(web)/product/components/MobileCollapsibleSection";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -164,18 +165,24 @@ function resolveWorkingState(store: StoreProfile) {
 export default function StoreTabs({ store, pageData }: StoreTabsProps) {
     const [activeTab, setActiveTab] = useState<TabKey>("overview");
 
-    const tabs: { key: TabKey; label: string }[] = [
+    // Service stores have no offers/discounts, so they only get overview + reviews
+    const isService = store.type === "services" || store.type === "service";
+
+    const allTabs: { key: TabKey; label: string }[] = [
         { key: "overview", label: "نظره عامة" },
         { key: "reviews", label: "تقييمات المتجر" },
         { key: "discounts", label: "عروض" },
         { key: "offers", label: "تخفيضات" },
     ];
+    const tabs = isService
+        ? allTabs.filter((tab) => tab.key === "overview" || tab.key === "reviews")
+        : allTabs;
 
     const offersProducts = pageData?.offers || [];
     const couponsProducts = pageData?.coupons?.flatMap(c => c.products) || [];
 
     return (
-        <div className="mt-6 overflow-hidden bg-white rounded-lg border border-gray-100 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
+        <div className="overflow-hidden bg-white rounded-lg border border-gray-100 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
             <div className="flex items-center border-b border-gray-200 overflow-x-auto scrollbar-hide">
                 {tabs.map((tab) => (
                     <button
@@ -347,7 +354,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                 {hasCrossSells ? (
                     <div className="flex flex-col items-center gap-2">
 
-                        {/* صف واحد: سهم يمين + منتجات + سهم يسار + = + السعر */}
+                        {/* Single row: right arrow + products + left arrow + "=" + price */}
                         <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-1.5 md:gap-3 w-full justify-center py-1">
                             <div className="flex items-center gap-1.5 sm:gap-1.5 md:gap-3 justify-center overflow-x-auto no-scrollbar">
 
@@ -363,7 +370,6 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                                 </button>
                             )}
 
-                            {/* المنتجات */}
                             <div className="flex items-center gap-1 sm:gap-1.5 md:gap-4 shrink-0">
                                 {visibleProducts.map((item, index) => (
                                     <div key={item.id} className="flex items-center gap-1 sm:gap-1.5 md:gap-4">
@@ -389,7 +395,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                                 ))}
                             </div>
 
-                            {/* سهم يسار قبل = */}
+                            {/* Left arrow sits before the "=" */}
                             {totalPages > 1 && (
                                 <button
                                     type="button"
@@ -403,7 +409,6 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                             )}
                             </div>
 
-                            {/* = والسعر */}
                             <div className="flex items-center gap-1 sm:gap-2 md:gap-4 shrink-0">
                                 <span className="text-2xl sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
                                 <div className="flex flex-col items-center gap-0.5 shrink-0">
@@ -477,7 +482,7 @@ function ShortcutButton({
     className?: string;
 }) {
     const commonClasses = cn(
-        "w-10 h-10 sm:w-11 sm:h-11 lg:w-8 lg:h-8 rounded-sm border border-[#3C5D80] text-[#3C5D80] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
+        "size-[25px] md:w-11 md:h-11 lg:w-8 lg:h-8 rounded-sm border border-[#3C5D80] text-[#3C5D80] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
         className
     );
 
@@ -487,11 +492,11 @@ function ShortcutButton({
                 <img
                     src={Icon}
                     alt=""
-                    className="w-6 h-6 sm:w-7 sm:h-7 lg:w-4 lg:h-4 object-contain"
+                    className="size-[16px] md:w-7 md:h-7 lg:w-4 lg:h-4 object-contain"
                 />
             );
         }
-        return <Icon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-4 lg:h-4" />;
+        return <Icon className="size-[16px] md:w-7 md:h-7 lg:w-4 lg:h-4" />;
     };
 
     if (onClick) {
@@ -509,7 +514,7 @@ function ShortcutButton({
     );
 }
 
-function StoreShortcuts({ store }: { store: StoreProfile }) {
+function StoreShortcuts({ store, className }: { store: StoreProfile; className?: string }) {
 
     const shortcuts: {
         icon: React.ElementType | string;
@@ -562,9 +567,14 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
 
     return (
         <div
-            className="mb-2 bg-white border border-[#e0dfdc] justify-center rounded-[10px] px-3 py-2.5 sm:px-3.5 lg:px-2.5 lg:py-2 flex flex-row items-center gap-2 sm:gap-3 lg:gap-2 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]"
+            className={cn(
+                "mb-2 bg-white border border-[#e0dfdc] justify-center rounded-[10px] px-3 py-2.5 sm:px-3.5 lg:px-2.5 lg:py-2 flex flex-row items-center gap-2 sm:gap-3 lg:gap-2 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]",
+                // On mobile the row sits bare inside the accordion; only the title keeps a pill
+                "max-md:mb-0 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:shadow-none",
+                className
+            )}
         >
-            <h4 className="text-base sm:text-lg lg:text-sm font-bold text-[#3C5D80] shrink-0 whitespace-nowrap">
+            <h4 className="text-[14px] md:text-lg lg:text-sm font-bold text-c2-navy-610 shrink-0 whitespace-nowrap max-md:rounded-full max-md:bg-c2-navy-610-a5 max-md:px-[8px] max-md:py-[4px]">
                 اختصارات المتجر:
             </h4>
             <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-1 flex-wrap min-w-0">
@@ -598,13 +608,22 @@ function OverviewTab({ store }: { store: StoreProfile }) {
     return (
         <>
             <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8" dir="rtl">
-                {/* اختصارات + بائع: آخراً على الجوال | يسار الديسكتوب */}
-                <div className="w-full lg:w-[340px] shrink-0 order-2 flex flex-col gap-2">
-                    <StoreShortcuts store={store} />
-                    <StoreOwnerCard store={store} />
-                </div>
+                {/* Shortcuts + seller: last on mobile, left column on desktop */}
+                <MobileCollapsibleSection
+                    title="معلومات عن البائع"
+                    className="w-full lg:w-[340px] shrink-0 order-2 max-md:mt-0"
+                >
+                    {/* On mobile the card and shortcuts flatten into the accordion body, shortcuts last */}
+                    <div className="flex flex-col gap-2 max-md:mt-4 max-md:gap-[24px] max-md:border-t max-md:border-c2-neutral-200 max-md:pt-4">
+                        <StoreShortcuts store={store} className="max-md:order-2" />
+                        <StoreOwnerCard
+                            store={store}
+                            className="max-md:rounded-none max-md:border-0 max-md:p-0 max-md:shadow-none"
+                        />
+                    </div>
+                </MobileCollapsibleSection>
 
-                {/* الوصف + إحصائيات: أولاً على الجوال | يمين الديسكتوب */}
+                {/* Description + stats: first on mobile, right column on desktop */}
                 <div className="flex-1 min-w-0 w-full order-1 flex flex-col lg:flex-row items-start gap-6 lg:gap-8">
                     <div className="flex flex-row lg:flex-col flex-wrap justify-between w-full lg:w-auto lg:justify-start gap-6 lg:gap-8 shrink-0">
                         <StoreStatItem
@@ -652,7 +671,6 @@ function WorkingStatusModal({
     onClose: () => void;
     store: StoreProfile;
 }) {
-    if (!isOpen) return null;
     const state = resolveWorkingState(store);
     const currentDay = state.dayValue;
     const isScheduleModal = state.popupState === "schedule_open" || state.popupState === "schedule_closed";
@@ -662,198 +680,120 @@ function WorkingStatusModal({
             image: "/popup/1.svg",
             title: "المتجر يعمل",
             titleClass: "text-[#45C332]",
-            cardHeight: "h-[680px]",
             imageClass: "w-[130px]",
+            imageSize: 130,
         },
         schedule_closed: {
             image: "/popup/2.svg",
             title: "المتجر مغلق حالياً",
             titleClass: "text-[#C72D2D]",
-            cardHeight: "h-[680px]",
             // 2.svg appears visually smaller, so we render it larger.
             imageClass: "w-[165px]",
+            imageSize: 165,
         },
         open_without_hours: {
             image: "/popup/3.svg",
             title: "المتجر مفتوح بدون ساعات عمل معينة",
             titleClass: "text-[#3A5C84]",
-            cardHeight: "h-[350px]",
             imageClass: "w-[180px]",
+            imageSize: 180,
         },
         temporary_closed: {
             image: "/popup/4.svg",
             title: "المتجر مغلق مؤقتاً",
             titleClass: "text-[#E5B500]",
-            cardHeight: "h-[350px]",
             imageClass: "w-[180px]",
+            imageSize: 180,
         },
         closed: {
             image: "/popup/5.svg",
             title: "المتجر مغلق بشكل دائم",
             titleClass: "text-[#DF2E2E]",
-            cardHeight: "h-[310px]",
             imageClass: "w-[180px]",
+            imageSize: 180,
         },
     }[state.popupState];
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black/40 p-3 sm:p-5 flex items-center justify-center overflow-y-auto">
-            <div
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            {/* Content is a non-scrolling flex column so the built-in close button stays pinned while the body scrolls */}
+            <DialogContent
                 dir="rtl"
-                className={cn(
-                    "relative w-[min(92vw,780px)] rounded-[15px] bg-white px-5 pt-[30px] pb-5 overflow-hidden",
-                    "hidden sm:block",
-                    config.cardHeight
-                )}
+                className="flex max-h-[90dvh] w-[calc(100vw_-_24px)] max-w-[780px] flex-col gap-0 rounded-[15px] p-0 sm:w-full [&>button:last-child]:top-4 [&>button:last-child]:end-4 [&>button:last-child>svg]:h-6 [&>button:last-child>svg]:w-6 [&>button:last-child]:opacity-100 [&>button:last-child]:text-[#1F1F1F] [&>button:last-child]:bg-transparent"
             >
-                {/* زر الإغلاق */}
-                <div className="sticky top-0 z-20 flex justify-start" dir="ltr">
-                    <button
-                        onClick={onClose}
-                        className="text-[#1F1F1F] hover:opacity-60 cursor-pointer"
-                        aria-label="إغلاق"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
-
-                {/* الصورة + العنوان + الوصف */}
-                <div className="flex flex-col items-center text-center pt-1 pb-2">
-                    <img
-                        src={config.image}
-                        alt=""
-                        className={cn(
-                            "object-contain",
-                            config.imageClass
-                        )}
-                    />
-                    <h3 className={cn("mt-5 text-[28px] leading-tight font-bold", config.titleClass)}>
-                        {config.title}
-                    </h3>
-                    {/*
-                    <p className="mt-2 text-[#6B6B6B] text-[12px] sm:text-[13px] leading-[1.5] max-w-[560px]">
-                        ان كنت متابع لهذا المتجر ومفعل الاشعارات سيتم <br />
-                        اعلامك بكل الأنشطة الخاصة به
-                    </p>
-                    */}
-                </div>
-
-                {/* جدول مواعيد الأسبوع */}
-                {isScheduleModal && (
-                    <div>
-                        {WEEK_DAYS.map((d) => {
-                            const wt = store.workingtimes?.find((x) => x.day === d.key);
-                            const isDayClosed = !wt || wt.closed_always;
-                            const timeText = wt
-                                ? wt.open_always
-                                    ? "24 ساعة"
-                                    : wt.closed_always
-                                        ? "عطلة"
-                                        : `من ${formatTime(wt.from)} حتى ${formatTime(wt.to)}`
-                                : "عطلة";
-                            const isToday = d.key === currentDay;
-                            return (
-                                <div key={d.key} className="flex items-center gap-2 sm:gap-3 py-1.5 border-b border-[#EFEFEF] last:border-b-0">
-                                    {/* دائرة + خط timeline — أقصى اليمين */}
-                                    <div className="flex flex-col items-center shrink-0">
-                                        <div className={cn("w-1 flex-1 min-h-[14px]", isToday ? "bg-[#D0D0D0]" : "bg-[#E5E5E5]")} />
-                                        <div className={cn(
-                                            "w-4 h-4 rounded-full border-2",
-                                            isToday
-                                                ? (state.isOpenNow
-                                                    ? "bg-[#45C332] border-[#45C332]"
-                                                    : "bg-[#C72D2D] border-[#C72D2D]")
-                                                : "bg-[#D0D0D0] border-[#D0D0D0]"
-                                        )} />
-                                    </div>
-
-                                    {/* اسم اليوم + الوقت */}
-                                    <div className="flex-1 text-right">
-                                        <p className="text-[14px] sm:text-[16px] font-semibold text-[#2F2F2F] leading-tight">{d.label}</p>
-                                        <p className="text-[11px] sm:text-[12px] text-[#888] mt-0.5">{timeText}</p>
-                                    </div>
-
-                                    {/* حالة اليوم */}
-                                    <span className={cn(
-                                        "shrink-0 text-[12px] sm:text-[13px] font-medium",
-                                        isDayClosed ? "text-[#C64141]" : "text-[#45A24A]"
-                                    )}>
-                                        {isDayClosed ? "لا يعمل" : "يعمل"}
-                                    </span>
-                                </div>
-                            );
-                        })}
+                <DialogDescription className="sr-only">{config.title}</DialogDescription>
+                <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-12 pb-4 sm:px-5 sm:pt-12 sm:pb-5">
+                    <div className="flex flex-col items-center text-center pt-1 pb-3 sm:pb-2">
+                        <Image
+                            src={config.image}
+                            alt=""
+                            width={config.imageSize}
+                            height={config.imageSize}
+                            unoptimized
+                            className={cn("h-auto max-h-[25dvh] object-contain", config.imageClass)}
+                        />
+                        <DialogTitle className={cn("mt-4 sm:mt-5 text-[22px] sm:text-[28px] leading-tight font-bold tracking-normal", config.titleClass)}>
+                            {config.title}
+                        </DialogTitle>
+                        {/*
+                        <p className="mt-2 text-[#6B6B6B] text-[12px] sm:text-[13px] leading-[1.5] max-w-[560px]">
+                            ان كنت متابع لهذا المتجر ومفعل الاشعارات سيتم <br />
+                            اعلامك بكل الأنشطة الخاصة به
+                        </p>
+                        */}
                     </div>
-                )}
-            </div>
 
-            {/* Mobile fallback */}
-            <div
-                dir="rtl"
-                className="sm:hidden relative w-[min(92vw,780px)] rounded-[15px] bg-white px-4 pt-4 pb-4 overflow-y-auto max-h-[95vh]"
-            >
-                <div className="sticky top-0 z-20 flex justify-start" dir="ltr">
-                    <button
-                        onClick={onClose}
-                        className="text-[#1F1F1F] hover:opacity-60 cursor-pointer"
-                        aria-label="إغلاق"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
-                <div className="flex flex-col items-center text-center pt-1 pb-3">
-                    <img src={config.image} alt="" className={cn("object-contain", config.imageClass)} />
-                    <h3 className={cn("mt-4 text-[26px] leading-tight font-bold", config.titleClass)}>{config.title}</h3>
-                    {/*
-                    <p className="mt-2 text-[#6B6B6B] text-[13px] leading-relaxed max-w-[560px]">
-                        ان كنت متابع لهذا المتجر ومفعل الاشعارات سيتم
-                        <br />
-                        اعلامك بكل الأنشطة الخاصة به
-                    </p>
-                    */}
-                </div>
-                {isScheduleModal && (
-                    <div>
-                        {WEEK_DAYS.map((d) => {
-                            const wt = store.workingtimes?.find((x) => x.day === d.key);
-                            const isDayClosed = !wt || wt.closed_always;
-                            const timeText = wt
-                                ? wt.open_always
-                                    ? "24 ساعة"
-                                    : wt.closed_always
-                                        ? "عطلة"
-                                        : `من ${formatTime(wt.from)} حتى ${formatTime(wt.to)}`
-                                : "عطلة";
-                            const isToday = d.key === currentDay;
-                            return (
-                                <div key={d.key} className="flex items-center gap-2 py-2 border-b border-[#EFEFEF] last:border-b-0">
-                                    <div className="flex flex-col items-center shrink-0">
-                                        <div className="w-1 flex-1 min-h-[12px] bg-[#E5E5E5]" />
-                                        <div className={cn(
-                                            "w-3.5 h-3.5 rounded-full border-2",
-                                            isToday
-                                                ? (state.isOpenNow ? "bg-[#45C332] border-[#45C332]" : "bg-[#C72D2D] border-[#C72D2D]")
-                                                : "bg-[#D0D0D0] border-[#D0D0D0]"
-                                        )} />
+                    {isScheduleModal && (
+                        <div>
+                            {WEEK_DAYS.map((d) => {
+                                const wt = store.workingtimes?.find((x) => x.day === d.key);
+                                const isDayClosed = !wt || wt.closed_always;
+                                const timeText = wt
+                                    ? wt.open_always
+                                        ? "24 ساعة"
+                                        : wt.closed_always
+                                            ? "عطلة"
+                                            : `من ${formatTime(wt.from)} حتى ${formatTime(wt.to)}`
+                                    : "عطلة";
+                                const isToday = d.key === currentDay;
+                                return (
+                                    <div key={d.key} className="flex items-center gap-2 sm:gap-3 py-2 sm:py-1.5 border-b border-[#EFEFEF] last:border-b-0">
+                                        {/* Timeline dot + line */}
+                                        <div className="flex flex-col items-center shrink-0">
+                                            <div className={cn("w-1 flex-1 min-h-[12px] sm:min-h-[14px]", isToday ? "bg-[#D0D0D0]" : "bg-[#E5E5E5]")} />
+                                            <div className={cn(
+                                                "w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2",
+                                                isToday
+                                                    ? (state.isOpenNow
+                                                        ? "bg-[#45C332] border-[#45C332]"
+                                                        : "bg-[#C72D2D] border-[#C72D2D]")
+                                                    : "bg-[#D0D0D0] border-[#D0D0D0]"
+                                            )} />
+                                        </div>
+
+                                        <div className="flex-1 min-w-0 text-right">
+                                            <p className="text-[15px] sm:text-[16px] font-semibold text-[#2F2F2F] leading-tight">{d.label}</p>
+                                            <p className="text-[12px] text-[#888] mt-0.5">{timeText}</p>
+                                        </div>
+
+                                        <span className={cn(
+                                            "shrink-0 text-[13px] font-medium",
+                                            isDayClosed ? "text-[#C64141]" : "text-[#45A24A]"
+                                        )}>
+                                            {isDayClosed ? "لا يعمل" : "يعمل"}
+                                        </span>
                                     </div>
-                                    <div className="flex-1 text-right">
-                                        <p className="text-[15px] font-semibold text-[#2F2F2F] leading-tight">{d.label}</p>
-                                        <p className="text-[12px] text-[#888] mt-0.5">{timeText}</p>
-                                    </div>
-                                    <span className={cn("shrink-0 text-[13px] font-medium", isDayClosed ? "text-[#C64141]" : "text-[#45A24A]")}>
-                                        {isDayClosed ? "لا يعمل" : "يعمل"}
-                                    </span>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
-        </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            </DialogContent>
+        </Dialog>
     );
 }
 
-function StoreOwnerCard({ store }: { store: StoreProfile }) {
+function StoreOwnerCard({ store, className }: { store: StoreProfile; className?: string }) {
     const params = useParams();
     const lang = params?.locale || params?.lang || "ar";
     const ownerName = store.owner
@@ -862,8 +802,8 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
     const ownerAvatar = store.owner?.avatar_url || store.logo_url;
 
     return (
-        <div className="bg-white border border-[#e0dfdc] rounded-lg p-4 flex flex-col items-center gap-4 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
-            <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
+        <div className={cn("bg-white border border-[#e0dfdc] rounded-lg p-4 flex flex-col items-center gap-4 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]", className)}>
+            <div className="relative size-[80px] md:w-[120px] md:h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
                 {ownerAvatar ? (
                     <Image
                         src={ownerAvatar}
@@ -873,12 +813,12 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                         onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.parentElement?.classList.add("flex", "items-center", "justify-center"); }}
                     />
                 ) : (
-                    <User size={50} className="text-gray-400" />
+                    <User className="size-[36px] md:size-[50px] text-gray-400" />
                 )}
             </div>
             <div className="flex flex-col items-center gap-1">
                 <Link href={`/${lang}/profile/${store.owner?.slug}`}>
-                    <h3 className="text-[17px] text-center font-medium text-[#4d4d4d] capitalize">
+                    <h3 className="text-[17px] text-center font-medium max-md:font-bold text-c2-neutral-620 capitalize">
                         {ownerName}
                     </h3>
                 </Link>
@@ -902,14 +842,14 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                     label={<span className="whitespace-nowrap">تواصل مع البائع</span>}
                     icon={<MessageSquare size={15} className="shrink-0" strokeWidth={2} />}
                     iconClassName="shrink-0 size-[15px]"
-                    className="rounded-full has-[>svg]:px-5 min-h-10"
+                    className="rounded-full has-[>svg]:px-5 min-h-10 w-full"
                 />
                 <div className="min-w-0">
                     <ReportAbuse type="store" id={store.id}>
                         <Button
                             type="button"
                             variant="outline"
-                            className="rounded-full has-[>svg]:px-5 min-h-10 text-c2-red-400 border-c2-red-400 border bg-transparent"
+                            className="rounded-full has-[>svg]:px-5 min-h-10 w-full text-c2-red-400 border-c2-red-400 border bg-transparent"
                         >
                             <Flag size={15} className="shrink-0" strokeWidth={2} />
                             <span className="whitespace-nowrap">ابلغ عن إساءة</span>

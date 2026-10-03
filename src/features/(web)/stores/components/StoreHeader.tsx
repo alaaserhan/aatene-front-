@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { StoreProfile, WhoFavoritedUser } from "../api";
+import { StoreProfile, WhoFavoritedFavorite, WhoFavoritedUser } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
     MessageCircle,
@@ -31,12 +31,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import { useStoreWhoFavorited } from "../hooks";
+import { useUser } from "@/src/auth/session";
 import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 import { useLanguage } from "@/src/hooks/use-language";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import { StorePhoneDialog } from "./StorePhoneDialog";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -60,17 +62,42 @@ interface StoreHeaderProps {
     isOwnStore?: boolean;
 }
 
+// Detail-page route segment per favs_type. Favorites of any other type have no
+// page to link to, so they are left out of the preview row.
+const FAV_ROUTE_SEGMENT: Record<string, string> = {
+    product: "product",
+    service: "services",
+    store: "store",
+    blog: "blogs",
+};
+
+type LinkableFavorite = WhoFavoritedFavorite & {
+    favs: NonNullable<WhoFavoritedFavorite["favs"]>;
+    routeSegment: string;
+};
+
+function toLinkableFavorite(fav: WhoFavoritedFavorite): LinkableFavorite | null {
+    const routeSegment = FAV_ROUTE_SEGMENT[String(fav.favs_type || "").toLowerCase()];
+    if (!fav.favs || !routeSegment) return null;
+    return { ...fav, favs: fav.favs, routeSegment };
+}
+
 function FollowerCard({
     user,
     onFollowToggle,
     isPending,
+    isSelf,
 }: {
     user: WhoFavoritedUser;
     onFollowToggle: (user: WhoFavoritedUser) => void;
     isPending: boolean;
+    isSelf: boolean;
 }) {
     const lang = useLanguage();
-    const visibleFavs = user.favorites.slice(0, 5);
+    const visibleFavs = user.favorites
+        .map(toLinkableFavorite)
+        .filter((fav): fav is LinkableFavorite => fav !== null)
+        .slice(0, 5);
     const remainingCount = Math.max(0, Number(user.favorites_count) - visibleFavs.length);
     const hasFavorites = user.favorites.length > 0;
     const isPrivate = !hasFavorites && Number(user.favorites_count) > 0;
@@ -102,7 +129,8 @@ function FollowerCard({
                     </div>
                 </div>
 
-                <div className="">
+                {/* Users can't follow themselves */}
+                {!isSelf && (
                     <button
                         onClick={() => onFollowToggle(user)}
                         disabled={isPending}
@@ -121,7 +149,7 @@ function FollowerCard({
                             "متابعة"
                         )}
                     </button>
-                </div>
+                )}
             </div>
 
             <div className="flex-1 w-full lg:w-auto max-w-[600px]">
@@ -132,21 +160,28 @@ function FollowerCard({
                     </div>
                 ) : hasFavorites ? (
                     <div className="flex items-center gap-1.5 bg-blue-5 rounded-xl p-2 overflow-hidden">
-                        {visibleFavs.map((fav) => (
-                            <Link
-                                key={fav.id}
-                                href={`/${lang}/product/${fav.favs.slug}`}
-                                className="w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden bg-gray-200 shrink-0 relative"
-                            >
-                                {fav.favs.cover ? (
-                                    <Image src={fav.favs.cover} fill className="object-cover" alt={fav.favs.name} />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <ShoppingBag className="w-5 h-5 text-gray-400" />
-                                    </div>
-                                )}
-                            </Link>
-                        ))}
+                        {visibleFavs.map((fav) => {
+                            const { favs } = fav;
+                            const imageUrl = favs.cover || favs.image_url || favs.logo_url || favs.thumbnail_url;
+                            const label = favs.name || favs.title || "";
+                            const FallbackIcon = fav.routeSegment === "store" ? StoreIcon : ShoppingBag;
+                            return (
+                                <Link
+                                    key={fav.id}
+                                    href={`/${lang}/${fav.routeSegment}/${favs.slug}`}
+                                    title={label}
+                                    className="w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden bg-gray-200 shrink-0 relative"
+                                >
+                                    {imageUrl ? (
+                                        <Image src={imageUrl} fill className="object-cover" alt={label} />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                            <FallbackIcon className="w-5 h-5 text-gray-400" />
+                                        </div>
+                                    )}
+                                </Link>
+                            );
+                        })}
                         {remainingCount > 0 && (
                             <Link
                                 href={`/${lang}/profile/${profileId}/favorites`}
@@ -181,13 +216,14 @@ function WhoFavoritedSection({
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const [pendingUserId, setPendingUserId] = useState<number | null>(null);
+    const currentUser = useUser();
 
     const users = data?.users || [];
 
     const handleFollowToggle = (user: WhoFavoritedUser) => {
         setPendingUserId(user.id);
 
-        // قراءة الحالة الحقيقية من الـ cache قبل أي تعديل
+        // Read the real follow state from the cache before mutating it
         const currentCache = queryClient.getQueryData<any>(["storeWhoFavorited", slug]);
         const currentUser = currentCache?.users?.find((u: WhoFavoritedUser) => u.id === user.id);
         const isCurrentlyFollowing = currentUser ? currentUser.am_i_following : user.am_i_following;
@@ -228,9 +264,9 @@ function WhoFavoritedSection({
             <div className="container bg-white rounded-xl p-4 md:p-6 shadow-sm mt-6">
                 <div className="flex  justify-between mb-4 pt-4">
                     <div>
-                        <h2 className="text-xl md:text-2xl font-bold">من فضّل هذا المتجر؟</h2>
+                        <h2 className="text-xl md:text-2xl font-bold">من تابع هذا المتجر؟</h2>
                         <p className="text-sm text-gray-400 mt-1">
-                            {users.length} من الأشخاص فضّلوا المتجر
+                            {users.length} من الأشخاص تابعوا المتجر
                         </p>
                     </div>
                     <button
@@ -247,7 +283,7 @@ function WhoFavoritedSection({
                     </div>
                 ) : users.length === 0 ? (
                     <div className="flex items-center justify-center py-16 text-gray-400 text-sm">
-                        لا يوجد من فضّل هذا المتجر حتى الآن
+                        لا يوجد من تابع هذا المتجر حتى الآن
                     </div>
                 ) : (
                     <div className="">
@@ -257,6 +293,7 @@ function WhoFavoritedSection({
                                 user={user}
                                 onFollowToggle={handleFollowToggle}
                                 isPending={(isFollowing || isUnfollowing) && pendingUserId === user.id}
+                                isSelf={currentUser != null && Number(currentUser.id) === Number(user.id)}
                             />
                         ))}
                     </div>
@@ -285,6 +322,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     const [showShareModal, setShowShareModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
+    const [showPhoneDialog, setShowPhoneDialog] = useState(false);
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const covers = store.cover_urls || [];
@@ -326,7 +364,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
 
     return (
         <>
-            <div className="relative bg-white shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)] pb-4">
+            <div className="relative bg-white card-shadow pb-4">
                 <div className="relative h-60 md:h-[250px] lg:h-[300px] w-full overflow-hidden group">
                     {covers.length > 0 ? (
                         currentCoverIsVideo ? (
@@ -398,7 +436,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                             cover. From lg it turns into a 2x2 grid: logo + name on the
                             first row, rating & followers next to the actions on the second. */}
                         <div className="grid grid-cols-1 justify-items-center gap-3 lg:grid-cols-[150px_minmax(0,1fr)] lg:items-end lg:gap-x-6 lg:gap-y-4">
-                            {/* الشعار — same px widths as the logo below, so the cell
+                            {/* Logo — same px widths as the logo below, so the cell
                                 never clips it off-centre under the 85% root font-size */}
                             <div className="shrink-0 w-[100px] sm:w-[108px] lg:w-[150px] lg:col-start-1 lg:row-start-1">
                                 <div
@@ -445,7 +483,6 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                 </div>
                             </div>
 
-                            {/* اسم المتجر والعنوان */}
                             <div className="w-full text-center lg:col-start-2 lg:row-start-1 lg:self-end lg:text-right lg:pb-2">
                                 <h1 className="text-2xl font-bold text-c2-neutral-1000 leading-tight wrap-break-words">
                                     {store.name}
@@ -461,7 +498,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                 )}
                             </div>
 
-                            {/* التقييم والمتابعون: صف واحد على الموبايل، عمود أسفل الشعار على الشاشات الكبيرة */}
+                            {/* Rating and followers: one row on mobile, a column under the logo from lg */}
                             <div className="flex w-full flex-row-reverse items-center justify-center gap-4 lg:w-auto lg:flex-col lg:gap-2 lg:col-start-1 lg:row-start-2">
                                 <div className="flex items-center gap-2 lg:flex-col lg:gap-0">
                                     <div className="flex items-center gap-0.5 leading-none">
@@ -596,8 +633,9 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
 
                                 <div className="flex items-center gap-1.5 shrink-0 lg:gap-2">
                                     {showPhone && (
-                                        <a
-                                            href={`tel:${store.phone}`}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPhoneDialog(true)}
                                             aria-label="اتصال بالمتجر"
                                             title={store.phone}
                                             className="w-9 h-9 rounded-full border border-c2-neutral-200 flex items-center justify-center hover:bg-c2-neutral-50 transition-colors cursor-pointer shrink-0 lg:w-10 lg:h-10"
@@ -606,7 +644,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                                 className="w-4 h-4 text-c2-neutral-550 lg:w-5 lg:h-5"
                                                 strokeWidth={2}
                                             />
-                                        </a>
+                                        </button>
                                     )}
 
                                     <div className="w-9 h-9 rounded-full border border-c2-neutral-200 flex items-center justify-center hover:bg-c2-neutral-50 transition-colors cursor-pointer shrink-0 text-c2-neutral-550 lg:w-10 lg:h-10">
@@ -697,6 +735,14 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                 shareUrl={typeof window !== "undefined" ? window.location.href : `https://aatene.com/store/${store.slug}`}
                 title="مشاركة المتجر"
             />
+
+            {showPhone && (
+                <StorePhoneDialog
+                    phone={store.phone}
+                    open={showPhoneDialog}
+                    onOpenChange={setShowPhoneDialog}
+                />
+            )}
 
             <ReportAbuseModal
                 isOpen={showReportModal}

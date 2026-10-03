@@ -87,11 +87,11 @@ export default function FollowingsTab() {
             <div className="border-b border-gray-100 mb-8 w-full" />
 
             {/* Toggle Switcher */}
-            <div className="flex gap-4 mb-4">
+            <div className="flex gap-4 mb-4 md:mb-[30px]">
                 <button
                     onClick={() => setActiveTab("followings")}
                     className={cn(
-                        "flex-1 py-2 text-sm rounded-full font-medium transition-all cursor-pointer",
+                        "flex-1 min-h-10 py-2 text-sm rounded-full font-medium transition-all cursor-pointer",
                         activeTab === "followings"
                             ? "bg-blue-3 text-white shadow-md shadow-blue-900/10"
                             : "bg-[#F3F6F9] text-blue-4 hover:bg-gray-100"
@@ -102,7 +102,7 @@ export default function FollowingsTab() {
                 <button
                     onClick={() => setActiveTab("followers")}
                     className={cn(
-                        "flex-1 py-2 text-sm rounded-full font-medium transition-all cursor-pointer",
+                        "flex-1 min-h-10 py-2 text-sm rounded-full font-medium transition-all cursor-pointer",
                         activeTab === "followers"
                             ? "bg-blue-3 text-white shadow-md shadow-blue-900/10"
                             : "bg-[#F3F6F9] text-blue-4 hover:bg-gray-100"
@@ -122,7 +122,7 @@ export default function FollowingsTab() {
                     placeholder="بحث"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-white border border-blue-5 rounded-full py-3.5 pr-14 pl-6 focus:outline-none focus:border-blue-3 focus:ring-0 focus:ring-blue-3/10 transition-all text-right placeholder:text-[#92AFD0]"
+                    className="w-full bg-white border border-c2-navy-700 rounded-full py-3.5 pr-14 pl-6 focus:outline-none focus:border-c2-navy-700 focus:ring-0 focus:ring-blue-3/10 transition-all text-right placeholder:text-[#92AFD0]"
                 />
             </div>
 

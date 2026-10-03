@@ -8,20 +8,19 @@ import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { useLanguage } from "@/src/hooks/use-language";
 import { useState, useRef, useEffect } from "react";
 import {
     Star,
     MessageCircle,
     Heart,
     Link2,
-    Flag,
     MessageSquare,
     Store as StoreIcon,
     User as UserIcon,
     Facebook,
     Instagram,
 } from "lucide-react";
-import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
@@ -71,15 +70,47 @@ function StarRating({
 
 
 
+const PLATFORM_DESCRIPTION =
+    "أفضل منصة محلية للتسوق وللخدمات، نوفر مجموعة متنوعة تناسب أسلوب حياتك السريع والمتجدد، وبأسعار مناسبة للجميع.";
+
+const authorButtonClass =
+    "flex w-full h-9 items-center justify-center gap-1.5 rounded-full border border-c2-navy-600 bg-c2-navy-700 text-sm font-medium text-white whitespace-nowrap transition-colors hover:bg-c2-navy-900 cursor-pointer disabled:opacity-50";
+
 function AuthorCard({ blog }: { blog: Blog }) {
+    const lang = useLanguage();
     const isStore = blog.owner_type === "store";
+    const hasAuthor = isStore ? !!blog.store : !!blog.user;
+
+    // System-authored posts (no store/user) are presented as written by the platform itself.
+    if (!hasAuthor) {
+        return (
+            <div className="bg-white border border-[#e0dfdc] rounded-xl p-6 flex flex-col items-center gap-4">
+                <div className="w-[140px] h-[140px] rounded-full bg-c2-navy-600 flex items-center justify-center">
+                    <Image
+                        src="/black.svg"
+                        alt="Aatene"
+                        width={100}
+                        height={32}
+                        className="h-auto w-[100px] brightness-0 invert"
+                    />
+                </div>
+                <h3 className="text-xl font-medium text-[#4d4d4d]">Aatene</h3>
+                <p className="text-xs text-gray-2 leading-6 text-center">{PLATFORM_DESCRIPTION}</p>
+                <Link href={`/${lang}/contact-us`} className={authorButtonClass}>
+                    <MessageSquare size={15} className="shrink-0" />
+                    تواصل معنا
+                </Link>
+            </div>
+        );
+    }
+
     const authorName = isStore ? blog.store?.name : `${blog.user?.first_name || ""} ${blog.user?.last_name || ""}`.trim();
     const avatarUrl = isStore ? blog.store?.logo_url : blog.user?.avatar_url;
     const description = isStore ? blog.store?.description : blog.user?.bio;
 
     return (
         <div className="bg-white border border-[#e0dfdc] rounded-xl p-6 flex flex-col items-center gap-4">
-            <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
+            <div className="relative w-[140px] h-[140px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
                 {avatarUrl && avatarUrl !== "" ? (
                     <Image
                         src={avatarUrl}
@@ -94,40 +125,25 @@ function AuthorCard({ blog }: { blog: Blog }) {
                 )}
             </div>
             <div className="flex flex-col items-center gap-1">
-                <h3 className="text-[17px] font-medium text-[#4d4d4d] capitalize">
+                <h3 className="text-xl font-medium text-[#4d4d4d] capitalize">
                     {authorName || "مستخدم"}
                 </h3>
                 <StarRating rating={Number(blog.user?.review_rate)} size={11} />
             </div>
-            <p className="text-xs text-gray-2 leading-[17px] text-center">
+            <p className="text-xs text-gray-2 leading-6 text-center">
                 {description?.slice(0, 150) || "لا يوجد وصف"}
             </p>
-            <div className="flex items-center gap-2 w-full">
-                <ChatNowButton
-                    unstyled
-                    target={{
-                        type: isStore ? "store" : "user",
-                        id: isStore ? blog.store?.id : blog.user?.id,
-                    }}
-                    label="تواصل معي"
-                    icon={<MessageSquare size={13} />}
-                    iconClassName="size-[13px] shrink-0"
-                    className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer disabled:opacity-50"
-                />
-                {blog.store ? (
-                    <ReportAbuse type="store" id={blog.store.id}>
-                        <button className="flex cursor-pointer items-center justify-center gap-1 border border-[#b75959] text-[#b75959] rounded-full px-4 h-[25px] text-[11px] font-medium whitespace-nowrap">
-                            <Flag size={13} />
-                            ابلغ عن إساءة
-                        </button>
-                    </ReportAbuse>
-                ) : (
-                    <button className="flex items-center justify-center gap-1 border border-[#b75959] text-[#b75959] rounded-full px-4 h-[25px] text-[11px] font-medium whitespace-nowrap opacity-50 cursor-not-allowed">
-                        <Flag size={13} />
-                        ابلغ عن إساءة
-                    </button>
-                )}
-            </div>
+            <ChatNowButton
+                unstyled
+                target={{
+                    type: isStore ? "store" : "user",
+                    id: isStore ? blog.store?.id : blog.user?.id,
+                }}
+                label="تواصل معي"
+                icon={<MessageSquare size={15} />}
+                iconClassName="size-[15px] shrink-0"
+                className={authorButtonClass}
+            />
         </div>
     );
 }
@@ -426,18 +442,6 @@ export default function BlogDetailsPage() {
                         <div className="flex items-center gap-8">
                             <div
                                 className="relative right-2 cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() => {
-                                    formRef.current?.scrollToForm();
-                                    formRef.current?.focusTextarea();
-                                }}
-                            >
-                                <MessageCircle className="w-6 h-6 text-gray-700" strokeWidth={1.5} />
-                                <span className="absolute pt-1 -top-2 -right-3 bg-[#395a7d] text-white sm:text-[11px] text-[8px] font-normal px-1.5 py-0 rounded-full min-w-[25px] flex items-center justify-center border-2 border-white">
-                                    {blog.review_count || "0"}
-                                </span>
-                            </div>
-                            <div
-                                className="relative cursor-pointer hover:opacity-80 transition-opacity"
                                 onClick={handleToggleFavorite}
                             >
                                 <Heart
@@ -446,6 +450,18 @@ export default function BlogDetailsPage() {
                                 />
                                 <span className="absolute pt-1 -top-2 -right-4 bg-[#395a7d] text-white sm:text-[11px] text-[8px] font-normal px-1.5 py-0 rounded-full min-w-[25px] flex items-center justify-center border-2 border-white">
                                     {blog.favorites_count || "0"}
+                                </span>
+                            </div>
+                            <div
+                                className="relative cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => {
+                                    formRef.current?.scrollToForm();
+                                    formRef.current?.focusTextarea();
+                                }}
+                            >
+                                <MessageCircle className="w-6 h-6 text-gray-700" strokeWidth={1.5} />
+                                <span className="absolute pt-1 -top-2 -right-3 bg-[#395a7d] text-white sm:text-[11px] text-[8px] font-normal px-1.5 py-0 rounded-full min-w-[25px] flex items-center justify-center border-2 border-white">
+                                    {blog.review_count || "0"}
                                 </span>
                             </div>
                         </div>
