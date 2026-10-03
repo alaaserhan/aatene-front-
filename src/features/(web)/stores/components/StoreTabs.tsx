@@ -181,7 +181,7 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
     const couponsProducts = pageData?.coupons?.flatMap(c => c.products) || [];
 
     return (
-        <div className="mt-6 overflow-hidden bg-white rounded-lg border border-gray-100 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
+        <div className="overflow-hidden bg-white rounded-lg border border-gray-100 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
             <div className="flex items-center border-b border-gray-200 overflow-x-auto scrollbar-hide">
                 {tabs.map((tab) => (
                     <button

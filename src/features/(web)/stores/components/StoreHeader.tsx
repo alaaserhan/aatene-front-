@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { StoreProfile, WhoFavoritedUser } from "../api";
+import { StoreProfile, WhoFavoritedFavorite, WhoFavoritedUser } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
     MessageCircle,
@@ -60,6 +60,26 @@ interface StoreHeaderProps {
     isOwnStore?: boolean;
 }
 
+// Detail-page route segment per favs_type. Favorites of any other type have no
+// page to link to, so they are left out of the preview row.
+const FAV_ROUTE_SEGMENT: Record<string, string> = {
+    product: "product",
+    service: "services",
+    store: "store",
+    blog: "blogs",
+};
+
+type LinkableFavorite = WhoFavoritedFavorite & {
+    favs: NonNullable<WhoFavoritedFavorite["favs"]>;
+    routeSegment: string;
+};
+
+function toLinkableFavorite(fav: WhoFavoritedFavorite): LinkableFavorite | null {
+    const routeSegment = FAV_ROUTE_SEGMENT[String(fav.favs_type || "").toLowerCase()];
+    if (!fav.favs || !routeSegment) return null;
+    return { ...fav, favs: fav.favs, routeSegment };
+}
+
 function FollowerCard({
     user,
     onFollowToggle,
@@ -70,7 +90,10 @@ function FollowerCard({
     isPending: boolean;
 }) {
     const lang = useLanguage();
-    const visibleFavs = user.favorites.slice(0, 5);
+    const visibleFavs = user.favorites
+        .map(toLinkableFavorite)
+        .filter((fav): fav is LinkableFavorite => fav !== null)
+        .slice(0, 5);
     const remainingCount = Math.max(0, Number(user.favorites_count) - visibleFavs.length);
     const hasFavorites = user.favorites.length > 0;
     const isPrivate = !hasFavorites && Number(user.favorites_count) > 0;
@@ -132,21 +155,28 @@ function FollowerCard({
                     </div>
                 ) : hasFavorites ? (
                     <div className="flex items-center gap-1.5 bg-blue-5 rounded-xl p-2 overflow-hidden">
-                        {visibleFavs.map((fav) => (
-                            <Link
-                                key={fav.id}
-                                href={`/${lang}/product/${fav.favs.slug}`}
-                                className="w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden bg-gray-200 shrink-0 relative"
-                            >
-                                {fav.favs.cover ? (
-                                    <Image src={fav.favs.cover} fill className="object-cover" alt={fav.favs.name} />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <ShoppingBag className="w-5 h-5 text-gray-400" />
-                                    </div>
-                                )}
-                            </Link>
-                        ))}
+                        {visibleFavs.map((fav) => {
+                            const { favs } = fav;
+                            const imageUrl = favs.cover || favs.image_url || favs.logo_url || favs.thumbnail_url;
+                            const label = favs.name || favs.title || "";
+                            const FallbackIcon = fav.routeSegment === "store" ? StoreIcon : ShoppingBag;
+                            return (
+                                <Link
+                                    key={fav.id}
+                                    href={`/${lang}/${fav.routeSegment}/${favs.slug}`}
+                                    title={label}
+                                    className="w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden bg-gray-200 shrink-0 relative"
+                                >
+                                    {imageUrl ? (
+                                        <Image src={imageUrl} fill className="object-cover" alt={label} />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                            <FallbackIcon className="w-5 h-5 text-gray-400" />
+                                        </div>
+                                    )}
+                                </Link>
+                            );
+                        })}
                         {remainingCount > 0 && (
                             <Link
                                 href={`/${lang}/profile/${profileId}/favorites`}
@@ -230,7 +260,7 @@ function WhoFavoritedSection({
                     <div>
                         <h2 className="text-xl md:text-2xl font-bold">من تابع هذا المتجر؟</h2>
                         <p className="text-sm text-gray-400 mt-1">
-                            {users.length} من الأشخاص فضّلوا المتجر
+                            {users.length} من الأشخاص تابعوا المتجر
                         </p>
                     </div>
                     <button
@@ -326,7 +356,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
 
     return (
         <>
-            <div className="relative bg-white shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)] pb-4">
+            <div className="relative bg-white card-shadow pb-4">
                 <div className="relative h-60 md:h-[250px] lg:h-[300px] w-full overflow-hidden group">
                     {covers.length > 0 ? (
                         currentCoverIsVideo ? (

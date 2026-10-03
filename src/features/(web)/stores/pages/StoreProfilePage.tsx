@@ -90,8 +90,8 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
                 stories={pageData?.stories}
                 isOwnStore={isOwnStore}
             />
-            <MaxWidthWrapper className="mt-8 flex flex-col gap-6 lg:max-w-[70%] lg:mr-auto">
-                <div className="flex flex-col gap-6 w-full">
+            <MaxWidthWrapper className="mt-8 lg:mt-[50px] flex flex-col lg:max-w-[70%] lg:mr-auto">
+                <div className="flex flex-col gap-6 lg:gap-[18px] w-full">
                     <StoreStoriesSection
                         highlights={pageData?.highlights || []}
                         isOwnStore={isOwnStore}
