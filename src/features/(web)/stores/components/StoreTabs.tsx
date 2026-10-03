@@ -164,12 +164,18 @@ function resolveWorkingState(store: StoreProfile) {
 export default function StoreTabs({ store, pageData }: StoreTabsProps) {
     const [activeTab, setActiveTab] = useState<TabKey>("overview");
 
-    const tabs: { key: TabKey; label: string }[] = [
+    // Service stores have no offers/discounts, so they only get overview + reviews
+    const isService = store.type === "services" || store.type === "service";
+
+    const allTabs: { key: TabKey; label: string }[] = [
         { key: "overview", label: "نظره عامة" },
         { key: "reviews", label: "تقييمات المتجر" },
         { key: "discounts", label: "عروض" },
         { key: "offers", label: "تخفيضات" },
     ];
+    const tabs = isService
+        ? allTabs.filter((tab) => tab.key === "overview" || tab.key === "reviews")
+        : allTabs;
 
     const offersProducts = pageData?.offers || [];
     const couponsProducts = pageData?.coupons?.flatMap(c => c.products) || [];
