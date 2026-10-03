@@ -82,9 +82,24 @@ export default function ServiceTabs({ service }: ServiceTabsProps) {
     >
       <div className="bg-c2-neutral-50">
         <Container className="pb-6 lg:pt-9">
-          <TabsList className="w-full max-w-full justify-start overflow-x-auto">
+          {/* On narrow screens the row scrolls sideways instead of squeezing:
+              triggers keep their natural width (flex-none) so long labels don't
+              spill into their neighbours, and the scrollbar is hidden so it
+              doesn't paint across the pill. From lg up they share the row. */}
+          <TabsList className="scrollbar-hide w-full max-w-full justify-start overflow-x-auto">
             {tabs.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id} className="min-w-30">
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="flex-none lg:min-w-30 lg:flex-1"
+                onClick={(e) =>
+                  e.currentTarget.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest",
+                    inline: "center",
+                  })
+                }
+              >
                 {tab.label}
               </TabsTrigger>
             ))}
