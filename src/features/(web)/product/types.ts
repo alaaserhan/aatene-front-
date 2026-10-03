@@ -231,6 +231,8 @@ export interface Product {
   updated_at?: string;
   price_after_discount?: string;
   discount_present?: number;
+  /** When the current discount expires; drives the offer countdown. */
+  end_date?: string | null;
 }
 
 export interface ProductDetailsResponse {

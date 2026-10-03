@@ -240,7 +240,8 @@ export default function ProductHero({
         {/* Details — min-w-0 so the bundle card's slider can shrink here. */}
         <div className="flex-1 min-w-0">
           <div className="white-card mb-6">
-            <div className="mb-4 flex flex-wrap items-center gap-3">
+            {/* Order (RTL): price, old price, discount pill, offer countdown. */}
+            <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
               {shouldAskForPrice ? (
                 <ChatNowButton
                   size="md"
@@ -251,13 +252,7 @@ export default function ProductHero({
                 />
               ) : (
                 <>
-                  {hasDiscount && discountPercent > 0 && (
-                    <span className="rounded-full bg-c2-danger px-4 py-1.5 text-xs font-medium text-white">
-                      عرض محدود
-                    </span>
-                  )}
-
-                  <Price value={displayPrice} className="text-primary" />
+                  <Price value={displayPrice} className="text-c2-primary" />
 
                   {hasDiscount && (
                     <span className="text-sm text-c2-danger line-through">
@@ -266,9 +261,19 @@ export default function ProductHero({
                   )}
 
                   {hasDiscount && discountPercent > 0 && (
-                    <span className="rounded-full bg-c2-success/20 px-3 py-1 text-xs font-medium text-c2-success">
+                    <span
+                      dir="ltr"
+                      className="rounded-full bg-c2-danger px-3 py-1 text-sm font-medium text-white"
+                    >
                       {discountPercent}% off
                     </span>
+                  )}
+
+                  {hasDiscount && product.end_date && (
+                    <OfferCountdown
+                      endDate={product.end_date}
+                      className="ms-4"
+                    />
                   )}
                 </>
               )}
@@ -405,6 +410,47 @@ export default function ProductHero({
         description="قم بمشاركة هذا المنتج مع أصدقائك"
       />
     </section>
+  );
+}
+
+/** Days : hours : minutes left on the discount; hidden once it has expired. */
+function OfferCountdown({
+  endDate,
+  className,
+}: {
+  endDate: string;
+  className?: string;
+}) {
+  // Computed only on the client so the server render can't mismatch the clock.
+  const [msLeft, setMsLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    const target = new Date(endDate).getTime();
+    if (Number.isNaN(target)) return;
+
+    const tick = () => setMsLeft(target - Date.now());
+    tick();
+    const timer = setInterval(tick, 30_000);
+    return () => clearInterval(timer);
+  }, [endDate]);
+
+  if (msLeft === null || msLeft <= 0) return null;
+
+  const totalMinutes = Math.floor(msLeft / 60_000);
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor(totalMinutes / 60) % 24;
+  const minutes = totalMinutes % 60;
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return (
+    <span
+      className={cn(
+        "rounded-full bg-c2-navy-50 px-6 py-1 text-sm text-c2-navy-700",
+        className,
+      )}
+    >
+      {days} يوم : {pad(hours)} : {pad(minutes)}
+    </span>
   );
 }
 
