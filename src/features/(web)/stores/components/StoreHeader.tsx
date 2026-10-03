@@ -37,6 +37,7 @@ import { ReportAbuseModal } from "@/src/features/(web)/reports/components/Report
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 import { useLanguage } from "@/src/hooks/use-language";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import { StorePhoneDialog } from "./StorePhoneDialog";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -217,7 +218,7 @@ function WhoFavoritedSection({
     const handleFollowToggle = (user: WhoFavoritedUser) => {
         setPendingUserId(user.id);
 
-        // قراءة الحالة الحقيقية من الـ cache قبل أي تعديل
+        // Read the real follow state from the cache before mutating it
         const currentCache = queryClient.getQueryData<any>(["storeWhoFavorited", slug]);
         const currentUser = currentCache?.users?.find((u: WhoFavoritedUser) => u.id === user.id);
         const isCurrentlyFollowing = currentUser ? currentUser.am_i_following : user.am_i_following;
@@ -315,6 +316,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     const [showShareModal, setShowShareModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
+    const [showPhoneDialog, setShowPhoneDialog] = useState(false);
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const covers = store.cover_urls || [];
@@ -428,7 +430,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                             cover. From lg it turns into a 2x2 grid: logo + name on the
                             first row, rating & followers next to the actions on the second. */}
                         <div className="grid grid-cols-1 justify-items-center gap-3 lg:grid-cols-[150px_minmax(0,1fr)] lg:items-end lg:gap-x-6 lg:gap-y-4">
-                            {/* الشعار — same px widths as the logo below, so the cell
+                            {/* Logo — same px widths as the logo below, so the cell
                                 never clips it off-centre under the 85% root font-size */}
                             <div className="shrink-0 w-[100px] sm:w-[108px] lg:w-[150px] lg:col-start-1 lg:row-start-1">
                                 <div
@@ -475,7 +477,6 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                 </div>
                             </div>
 
-                            {/* اسم المتجر والعنوان */}
                             <div className="w-full text-center lg:col-start-2 lg:row-start-1 lg:self-end lg:text-right lg:pb-2">
                                 <h1 className="text-2xl font-bold text-c2-neutral-1000 leading-tight wrap-break-words">
                                     {store.name}
@@ -491,7 +492,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                 )}
                             </div>
 
-                            {/* التقييم والمتابعون: صف واحد على الموبايل، عمود أسفل الشعار على الشاشات الكبيرة */}
+                            {/* Rating and followers: one row on mobile, a column under the logo from lg */}
                             <div className="flex w-full flex-row-reverse items-center justify-center gap-4 lg:w-auto lg:flex-col lg:gap-2 lg:col-start-1 lg:row-start-2">
                                 <div className="flex items-center gap-2 lg:flex-col lg:gap-0">
                                     <div className="flex items-center gap-0.5 leading-none">
@@ -626,8 +627,9 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
 
                                 <div className="flex items-center gap-1.5 shrink-0 lg:gap-2">
                                     {showPhone && (
-                                        <a
-                                            href={`tel:${store.phone}`}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPhoneDialog(true)}
                                             aria-label="اتصال بالمتجر"
                                             title={store.phone}
                                             className="w-9 h-9 rounded-full border border-c2-neutral-200 flex items-center justify-center hover:bg-c2-neutral-50 transition-colors cursor-pointer shrink-0 lg:w-10 lg:h-10"
@@ -636,7 +638,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                                 className="w-4 h-4 text-c2-neutral-550 lg:w-5 lg:h-5"
                                                 strokeWidth={2}
                                             />
-                                        </a>
+                                        </button>
                                     )}
 
                                     <div className="w-9 h-9 rounded-full border border-c2-neutral-200 flex items-center justify-center hover:bg-c2-neutral-50 transition-colors cursor-pointer shrink-0 text-c2-neutral-550 lg:w-10 lg:h-10">
@@ -727,6 +729,14 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                 shareUrl={typeof window !== "undefined" ? window.location.href : `https://aatene.com/store/${store.slug}`}
                 title="مشاركة المتجر"
             />
+
+            {showPhone && (
+                <StorePhoneDialog
+                    phone={store.phone}
+                    open={showPhoneDialog}
+                    onOpenChange={setShowPhoneDialog}
+                />
+            )}
 
             <ReportAbuseModal
                 isOpen={showReportModal}
