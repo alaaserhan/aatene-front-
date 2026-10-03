@@ -25,10 +25,10 @@ export function useReviewMutations(
     const remove = useMutation({
         mutationFn: () => api.delete(`/reviews/${reviewId}`),
         onSuccess: () => {
-            toast.success("تم حذف التقييم بنجاح");
+            toast.success("تم حذف التعليق بنجاح");
             onDeleted?.();
         },
-        onError: (error: ApiError) => toast.error(errorMessage(error, "حدث خطأ أثناء حذف التقييم")),
+        onError: (error: ApiError) => toast.error(errorMessage(error, "حدث خطأ أثناء حذف التعليق")),
     });
 
     const update = useMutation({
@@ -56,10 +56,10 @@ export function useReviewMutations(
             });
         },
         onSuccess: (_data, values) => {
-            toast.success("تم تعديل التقييم بنجاح");
+            toast.success("تم تعديل التعليق بنجاح");
             onUpdated?.(values);
         },
-        onError: (error: ApiError) => toast.error(errorMessage(error, "حدث خطأ أثناء تعديل التقييم")),
+        onError: (error: ApiError) => toast.error(errorMessage(error, "حدث خطأ أثناء تعديل التعليق")),
     });
 
     return { remove, update };

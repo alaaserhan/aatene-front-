@@ -19,6 +19,7 @@ export const useGetServicePageData = (slugOrId: string | number) => {
 
 // Reviews
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
     getServiceReviews,
     addServiceReview,
@@ -46,7 +47,9 @@ export const useAddServiceReview = () => {
     return useMutation({
         mutationFn: ({ slug, payload }: { slug: string; payload: AddReviewPayload }) =>
             addServiceReview(slug, payload),
-        onSuccess: (_, { slug }) => {
+        onSuccess: (_, { slug, payload }) => {
+            // The same endpoint posts both top-level reviews and replies
+            toast.success(payload.parent_id ? "تم إرسال الرد بنجاح" : "تم إرسال التقييم بنجاح");
             queryClient.invalidateQueries({ queryKey: ["service-reviews", slug] });
             queryClient.invalidateQueries({ queryKey: ["service", slug] });
             queryClient.invalidateQueries({ queryKey: ["service-page-data", slug] });
@@ -78,6 +81,7 @@ export const usePostServiceBoardQuestion = () => {
         mutationFn: ({ serviceId, content }: { serviceId: number | string; content: string }) =>
             postServiceBoardQuestion(serviceId, content),
         onSuccess: (_, { serviceId }) => {
+            toast.success("تم إضافة السؤال بنجاح");
             queryClient.invalidateQueries({ queryKey: ["service-board-questions", serviceId] });
         },
     });
@@ -97,6 +101,7 @@ export const usePostServiceBoardAnswer = () => {
         mutationFn: ({ questionId, content }: { questionId: number | string; content: string }) =>
             postServiceBoardAnswer(questionId, content),
         onSuccess: (_, { questionId }) => {
+            toast.success("تم إضافة الإجابة بنجاح");
             queryClient.invalidateQueries({ queryKey: ["service-board-answers", questionId] });
             queryClient.invalidateQueries({ queryKey: ["service-board-questions"] });
         },
