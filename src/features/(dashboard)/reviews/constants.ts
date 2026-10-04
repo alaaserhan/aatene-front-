@@ -9,7 +9,7 @@ import {
     Wrench,
     type LucideIcon,
 } from "lucide-react";
-import type { ReviewTargetType } from "./api";
+import type { ReviewTarget, ReviewTargetType } from "./api";
 
 export const REVIEWS_PER_PAGE = 10;
 
@@ -66,18 +66,18 @@ export const RATE_FILTER_OPTIONS = [
 ];
 
 /**
- * Admin route for a reviewed entity, or `null` when the dashboard has no
- * single page for it (a service or blog needs its store id, which the
- * reviews endpoint doesn't return).
+ * Route for a reviewed entity, or `null` when there is no single page for it
+ * (a service or blog needs its store id, which the reviews endpoint doesn't
+ * return). Products link to their public page, not the admin preview.
  */
-export function getTargetHref(type: ReviewTargetType, targetId: number): string | null {
+export function getTargetHref(type: ReviewTargetType, target: ReviewTarget): string | null {
     switch (type) {
         case "product":
-            return `/admin/products/${targetId}/view`;
+            return `/product/${target.slug || target.id}`;
         case "store":
-            return `/admin/stores/${targetId}`;
+            return `/admin/stores/${target.id}`;
         case "user":
-            return `/admin/users?userId=${targetId}`;
+            return `/admin/users?userId=${target.id}`;
         default:
             return null;
     }

@@ -110,7 +110,7 @@ export function ReviewsTable({
                     ) : (
                         reviews.map((review) => {
                             const targetHref = review.target
-                                ? getTargetHref(review.comment_for_type, review.target.id)
+                                ? getTargetHref(review.comment_for_type, review.target)
                                 : null;
                             const isDeleting = deletingId === review.id;
 

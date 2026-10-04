@@ -105,7 +105,7 @@ function AddKeywordsForm({ onClose }: { onClose: () => void }) {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="اضف الوسم ثم اضغط علي اضافة"
+            placeholder="اضف الوسم ثم اضغط علي إضافة"
             disabled={createKeyword.isPending}
             className="min-w-0 flex-1 bg-transparent text-sm text-c2-neutral-800 placeholder:text-c2-neutral-500 focus:outline-none disabled:cursor-not-allowed"
           />
@@ -115,7 +115,7 @@ function AddKeywordsForm({ onClose }: { onClose: () => void }) {
             disabled={!input.trim() || createKeyword.isPending}
             className="shrink-0 cursor-pointer rounded-full bg-c2-navy-900 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-c2-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
-            اضافة
+            إضافة
           </button>
         </div>
 
