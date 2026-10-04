@@ -12,6 +12,7 @@ import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
+import { useUser } from "@/src/auth/session";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
@@ -24,6 +25,12 @@ function CommentCard({
     onOpenMedia: (media: string[], index: number) => void;
 }) {
     const lang = useLanguage();
+    const currentUser = useUser();
+    // Comment payload may carry only id or only slug, so match on whichever is present.
+    const isOwnComment = !!currentUser && (
+        (comment.user.id != null && comment.user.id === currentUser.id) ||
+        (!!comment.user.slug && comment.user.slug === currentUser.slug)
+    );
     const profileHref = comment.user.slug
         ? `/${lang}/profile/${comment.user.slug}`
         : comment.user.id
@@ -64,14 +71,16 @@ function CommentCard({
                         )}
                     </div>
                 </div>
-                <ReportAbuse type="comment" id={comment.id}>
-                    <button
-                        className="flex items-center gap-1.5 text-red-500 text-xs font-medium cursor-pointer"
-                    >
-                        <Flag className="w-3 h-3" />
-                        <span>بلغ عن إساءة</span>
-                    </button>
-                </ReportAbuse>
+                {!isOwnComment && (
+                    <ReportAbuse type="comment" id={comment.id}>
+                        <button
+                            className="flex items-center gap-1.5 text-red-500 text-xs font-medium cursor-pointer"
+                        >
+                            <Flag className="w-3 h-3" />
+                            <span>بلغ عن إساءة</span>
+                        </button>
+                    </ReportAbuse>
+                )}
 
             </div>
 

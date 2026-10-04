@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  MediaGallery,
+  type MediaItem,
+} from "@/src/components/shared/MediaGallery";
 import StoreInfoCard from "@/src/components/shared/StoreInfoCard";
 import {
   Accordion,
@@ -12,7 +16,6 @@ import { Checkbox } from "@/src/components/ui/checkbox";
 import { Price } from "@/src/components/ui/Price";
 import { RatingStars } from "@/src/components/ui/RatingStars";
 import { ShareModal } from "@/src/components/ui/ShareModal";
-import { VideoOrImageNext } from "@/src/components/ui/VideoOrImageNext";
 import {
   useAddServiceToCompare,
   useRemoveServiceFromCompare,
@@ -22,13 +25,10 @@ import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  ChevronLeft,
-  ChevronRight,
   Clock4,
   Flag,
   MoreVertical,
   Phone,
-  Play,
   Send,
   Share2,
 } from "lucide-react";
@@ -46,8 +46,6 @@ const EXECUTE_TYPE_LABELS: Record<string, string> = {
 };
 
 const PLACEHOLDER_SRC = "/images/placeholders/product-placeholder.svg";
-
-type MediaItem = { type: "image" | "video"; url: string };
 
 interface ServiceHeroProps {
   service: Service;
@@ -86,8 +84,6 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
   // Keep the selection valid when the media list shrinks between renders.
   const activeIndex = Math.min(selectedIndex, Math.max(allMedia.length - 1, 0));
-  const currentMedia = allMedia[activeIndex];
-  const hasGallery = allMedia.length > 1;
 
   const rating = parseFloat(service.review_rate || "0");
   const reviewCount = parseInt(service.review_count || "0");
@@ -119,11 +115,6 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
     askPrice,
   });
 
-  const showPrev = () =>
-    setSelectedIndex(activeIndex > 0 ? activeIndex - 1 : allMedia.length - 1);
-
-  const showNext = () =>
-    setSelectedIndex(activeIndex < allMedia.length - 1 ? activeIndex + 1 : 0);
 
   const toggleExtra = (id: number) =>
     setSelectedExtras((prev) =>
@@ -150,57 +141,14 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
       />
 
       <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%] lg:items-start">
-          {hasGallery && (
-            <ul
-              className={cn(
-                "flex shrink-0 gap-2.5 list-none",
-                "flex-row h-[100px] w-full overflow-x-auto overflow-y-hidden",
-                "lg:flex-col lg:h-auto lg:max-h-[600px] lg:w-[100px]",
-                "lg:overflow-x-hidden lg:overflow-y-auto",
-              )}
-            >
-              {allMedia.map((item, index) => (
-                <li key={item.url}>
-                  <MediaThumbnail
-                    item={item}
-                    index={index}
-                    title={service.title}
-                    isActive={activeIndex === index}
-                    onSelect={() => setSelectedIndex(index)}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
-            <VideoOrImageNext
-              src={currentMedia?.url}
-              alt={service.title}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 55vw"
-              fallbackSrc={PLACEHOLDER_SRC}
-              videoProps={{ controls: true }}
-            />
-
-            {hasGallery && (
-              <>
-                <GalleryArrow
-                  side="right"
-                  label="الصورة التالية"
-                  onClick={showNext}
-                />
-                <GalleryArrow
-                  side="left"
-                  label="الصورة السابقة"
-                  onClick={showPrev}
-                />
-              </>
-            )}
-          </div>
-        </div>
+        <MediaGallery
+          items={allMedia}
+          title={service.title}
+          activeIndex={activeIndex}
+          onSelect={setSelectedIndex}
+          fallbackSrc={PLACEHOLDER_SRC}
+          className="lg:w-[55%] lg:self-start"
+        />
 
         {/* Details */}
         <div className="flex-1">
@@ -320,80 +268,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
   );
 }
 
-function MediaThumbnail({
-  item,
-  index,
-  title,
-  isActive,
-  onSelect,
-}: {
-  item: MediaItem;
-  index: number;
-  title: string;
-  isActive: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-current={isActive}
-      aria-label={`${title} - ${index + 1}`}
-      className={cn(
-        "relative block w-[100px] h-[100px] rounded-md overflow-hidden shrink-0 border-2 cursor-pointer transition-colors",
-        isActive ? "border-blue-4" : "border-transparent hover:border-gray-300",
-      )}
-    >
-      <VideoOrImageNext
-        src={item.url}
-        alt={`${title} - ${index + 1}`}
-        fill
-        sizes="100px"
-        fallbackSrc={PLACEHOLDER_SRC}
-        className="pointer-events-none"
-        videoProps={{ controls: false, autoPlay: false }}
-      />
 
-      {item.type === "video" && (
-        <span className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
-          <span className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
-            <Play
-              className="w-5 h-5 text-gray-700 fill-gray-700"
-              aria-hidden="true"
-            />
-          </span>
-        </span>
-      )}
-    </button>
-  );
-}
-
-function GalleryArrow({
-  side,
-  label,
-  onClick,
-}: {
-  side: "left" | "right";
-  label: string;
-  onClick: () => void;
-}) {
-  const Icon = side === "right" ? ChevronRight : ChevronLeft;
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      className={cn(
-        "absolute top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/60 shadow-lg cursor-pointer",
-        "flex items-center justify-center backdrop-blur-sm hover:bg-white/80 transition-colors",
-        side === "right" ? "right-4" : "left-4",
-      )}
-    >
-      <Icon className="w-5 h-5 text-gray-700" aria-hidden="true" />
-    </button>
-  );
-}
 
 const EXTRAS_TITLE = "تطويرات اختيارية";
 
