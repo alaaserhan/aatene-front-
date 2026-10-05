@@ -64,7 +64,7 @@ export const useConversationMessages = (conversationId: number | string, ignoreC
         enabled: !!conversationId && enabled,
         staleTime: 0,
         refetchOnWindowFocus: true,
-        refetchInterval: 5 * 1000, // polling كل 5 ثوانٍ لاستقبال رسائل الطرف الآخر
+        refetchInterval: 5 * 1000, // poll every 5s to pick up the other side's messages
     });
 };
 
@@ -90,9 +90,11 @@ export const useBlockUser = () => {
         mutationKey: ["block-user"],
         mutationFn: ({ payload, ignoreCookie }: { payload: api.BlockUserPayload; ignoreCookie?: boolean }) =>
             api.blockUser(payload, ignoreCookie),
+        // Returning the conversations refetch keeps the mutation pending until the
+        // fresh `can_chat` arrives, so the UI never flashes the pre-block state.
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: QK.conversations });
             queryClient.invalidateQueries({ queryKey: ["blocked-users"] });
+            return queryClient.invalidateQueries({ queryKey: QK.conversations });
         },
     });
 };
@@ -104,10 +106,11 @@ export const useUnblockUser = () => {
         mutationKey: ["unblock-user"],
         mutationFn: ({ payload, ignoreCookie }: { payload: api.UnblockUserPayload; ignoreCookie?: boolean }) =>
             api.unblockUser(payload, ignoreCookie),
+        // Same as useBlockUser: stay pending until the refreshed `can_chat` lands.
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: QK.conversations });
             queryClient.invalidateQueries({ queryKey: ["blocked-users"] });
             queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
+            return queryClient.invalidateQueries({ queryKey: QK.conversations });
         },
     });
 };

@@ -65,7 +65,6 @@ function chatNavLog(...args: unknown[]) {
     }
 }
 
-/** شريط المنتج/الخدمة العلوي — نص أبيض + شيكل */
 function ChatHeaderPriceBadge({ price }: { price: string | number | null | undefined }) {
     if (isAskForPricePrice(price)) {
         return <span className="text-sm leading-none text-white font-medium whitespace-nowrap">اطلب السعر</span>;
@@ -78,7 +77,6 @@ function ChatHeaderPriceBadge({ price }: { price: string | number | null | undef
     );
 }
 
-/** سعر داخل فقاعة الرسالة */
 function ChatMessagePriceLine({ price }: { price: string | number | null | undefined }) {
     if (isAskForPricePrice(price)) {
         return <p className="text-xs text-blue-3 font-medium mt-1">اطلب السعر</p>;
@@ -96,8 +94,8 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const { data: messagesData, isLoading } = useConversationMessages(conversation.id, ignoreCookie, !isDeleted);
     const { mutate: sendMessage } = useSendMessage();
     const { mutate: markSeen } = useMarkMessageAsSeen();
-    const { mutate: blockUser } = useBlockUser();
-    const { mutate: unblockUser } = useUnblockUser();
+    const { mutate: blockUser, isPending: isBlocking } = useBlockUser();
+    const { mutate: unblockUser, isPending: isUnblocking } = useUnblockUser();
     const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversation();
 
     const [newMessage, setNewMessage] = useState("");
@@ -137,7 +135,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         !(String(conversation.who_blocked.id) === String(currentParticipantId) &&
             conversation.who_blocked.type === currentParticipantType);
 
-    /** إعادة ضبط الحالة المحلية عند تغيير المحادثة — لا يُستدعى setState أثناء الرندر */
+    /** Reset local state when the conversation changes — done in an effect so setState never runs during render. */
     useEffect(() => {
         setPendingMessages([]);
         setNewMessage("");
@@ -427,6 +425,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             {(conversation.can_chat !== false || isMeBlocked) && conversation.type !== "group" && (
                                 <DropdownMenuItem
                                     className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
+                                    disabled={isUnblocking}
                                     onSelect={(e) => {
                                         e.preventDefault();
                                         if (!isMeBlocked && conversation.can_chat === false) {
@@ -451,10 +450,16 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                     }}
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
-                                        <Ban className="w-4 h-4 text-gray-600" />
+                                        {isUnblocking ? (
+                                            <Loader2 className="w-4 h-4 text-gray-600 animate-spin" />
+                                        ) : (
+                                            <Ban className="w-4 h-4 text-gray-600" />
+                                        )}
                                     </div>
                                     <span className="font-medium text-gray-700">
-                                        {!isMeBlocked && conversation.can_chat === false ? "إلغاء الحظر" : "حظر المستخدم"}
+                                        {!isMeBlocked && conversation.can_chat === false
+                                            ? (isUnblocking ? "جاري إلغاء الحظر..." : "إلغاء الحظر")
+                                            : "حظر المستخدم"}
                                     </span>
                                 </DropdownMenuItem>
                             )}
@@ -556,218 +561,9 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                     return null;
                 })()}
 
-                {/* Messages Area */}
-                <ScrollArea
-                    ref={scrollAreaRef}
-                    className="flex-1 p-4 bg-auto bg-repeat bg-center bg-[#FAFAFA]"
-                    style={{ backgroundImage: "url('/chat frame.svg')" }}
-                    dir="rtl"
-                >
-                    <div className="space-y-4 pb-4">
-                        {serverMessages.map((msg, index) => {
-                            const isMe = msg.sender_data.participant_type === currentParticipantType &&
-                                String(msg.sender_data.participant_id) === String(currentParticipantId);
-
-                            // Find sender name from participants list (for group chat)
-                            const senderParticipant = conversation.type === "group" && !isMe
-                                ? conversation.participants.find(
-                                    p => p.participant_data.type === msg.sender_data.participant_type &&
-                                        String(p.participant_data.id) === String(msg.sender_data.participant_id)
-                                )
-                                : null;
-                            const senderName = senderParticipant?.participant_data.name;
-                            const senderAvatar = senderParticipant?.participant_data.avatar;
-
-                            return (
-                                <div key={msg.id || index} className={cn("flex flex-col w-full", isMe ? "items-start" : "items-end")}>
-                                    {/* Sender name & avatar for group messages */}
-                                    {conversation.type === "group" && !isMe && senderName && (
-                                        <div className="flex items-center gap-1.5 mb-1 px-1">
-                                            <ParticipantAvatar
-                                                src={senderAvatar}
-                                                size={20}
-                                                className="bg-gray-200 shrink-0"
-                                                fallback={<User className="w-3 h-3 text-gray-400" aria-hidden="true" />}
-                                            />
-                                            <span className="text-xs font-medium text-blue-4">{senderName}</span>
-                                        </div>
-                                    )}
-                                    <div className={cn(
-                                        "max-w-[85%] sm:max-w-[75%] rounded-xl p-3 px-4 text-sm",
-                                        isMe ? "bg-blue-5 " : "bg-white  border border-gray-100 shadow-sm"
-                                    )}>
-                                        {msg.body && <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>}
-
-                                        {msg.service && (
-                                            <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
-                                                <img
-                                                    src={msg.service.image_url}
-                                                    alt={msg.service.title}
-                                                    className="w-16 h-16 rounded-lg object-cover shrink-0"
-                                                    onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
-                                                />
-                                                <div className="min-w-0 flex-1">
-                                                    <Link href={`/services/${msg.service.slug || msg.service.id}`}>
-                                                        <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.service.title}</p>
-                                                    </Link>
-                                                    <p className="text-xs text-gray-400 truncate">{msg.service.description}</p>
-                                                    <ChatMessagePriceLine price={msg.service.price} />
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {msg.product && (
-                                            <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
-                                                <img
-                                                    src={msg.product.cover}
-                                                    alt={msg.product.name}
-                                                    className="w-16 h-16 rounded-lg object-cover shrink-0"
-                                                    onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
-                                                />
-                                                <div className="min-w-0 flex-1">
-                                                    <Link href={`/product/${msg.product.slug || msg.product.id}`}>
-                                                        <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.product.name}</p>
-                                                    </Link>
-                                                    <p className="text-[10px] text-gray-400 truncate">{msg.product.description}</p>
-                                                    <ChatMessagePriceLine price={msg.product.price} />
-                                                    <div className="flex items-center gap-0.5 mt-1">
-                                                        {[...Array(5)].map((_, i) => (
-                                                            <Star
-                                                                key={i}
-                                                                className={cn(
-                                                                    "w-3 h-3",
-                                                                    i < Math.round(parseFloat(msg.product!.review_rate || "0"))
-                                                                        ? "fill-[#FB923C] text-[#FB923C]"
-                                                                        : "fill-gray-200 text-gray-200"
-                                                                )}
-                                                            />
-                                                        ))}
-                                                        <span className="text-[10px] text-gray-400 mr-1">({msg.product.review_count})</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {msg.files_url && msg.files_url.length > 0 && (
-                                            <div className={cn(
-                                                "grid gap-2 ",
-                                                msg.files_url.length === 1 ? "grid-cols-1" :
-                                                    msg.files_url.length === 2 ? "grid-cols-2" :
-                                                        "grid-cols-3"
-                                            )}>
-                                                {msg.files_url.map((url: string, i: number) => (
-                                                    <img
-                                                        key={i}
-                                                        src={url}
-                                                        alt=""
-                                                        onClick={() => setMediaViewerState({ isOpen: true, media: msg.files_url!, initialIndex: i })}
-                                                        className="rounded-lg w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                                    />
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <span className="text-[10px] text-gray-2 mt-1 px-1">
-                                        {format(new Date(msg.created_at), "hh:mm a", { locale: arSA })}
-                                    </span>
-                                </div>
-                            );
-                        })}
-
-                        {/* Pending Messages (Optimistic) */}
-                        {pendingMessages.map((msg) => (
-                            <div key={msg.id} className="flex flex-col w-full items-start">
-                                <div className={cn(
-                                    "max-w-[85%] sm:max-w-[75%] rounded-xl p-3 px-4 text-sm bg-blue-5  relative",
-                                    msg.status === "failed" && "bg-red-50 border border-red-200"
-                                )}>
-                                    <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>
-                                </div>
-                                <div className="flex items-center gap-2 mt-1 px-1">
-                                    <span className="text-[10px] text-gray-2">
-                                        {format(new Date(msg.created_at), "hh:mm a", { locale: arSA })}
-                                    </span>
-                                    {msg.status === "sending" && (
-                                        <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
-                                    )}
-                                    {msg.status === "failed" && (
-                                        <button
-                                            onClick={() => handleRetry(msg.id, msg.body)}
-                                            className="text-[10px] text-red-500 hover:text-red-700 flex items-center gap-1"
-                                        >
-                                            <span>فشل الإرسال</span>
-                                            <span className="underline">إعادة المحاولة</span>
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </ScrollArea>
-
-                {/* Selected Files Preview */}
-                {selectedFiles.length > 0 && (
-                    <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 flex gap-2 overflow-x-auto">
-                        {selectedFiles.map((file, i) => (
-                            <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200 shrink-0">
-                                <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
-                                <button
-                                    onClick={() => setSelectedFiles(prev => prev.filter((_, idx) => idx !== i))}
-                                    className="absolute p-0.5 top-0 right-0 bg-red-600 cursor-pointer text-white w-4 h-4 rounded-bl-md text-xs flex items-center justify-center"
-                                >
-                                    <X />
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Input Area or Blocked Message */}
-                {conversation.can_chat !== false ? (
-                    <div className="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileSelect}
-                            className="hidden"
-                            multiple
-                            accept="image/*"
-                        />
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-full hover:bg-gray-100 shrink-0"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <ImageIcon className="w-5 h-5 text-gray-500" />
-                        </Button>
-
-                        <div className="flex-1 flex items-center bg-gray-50 rounded-full border border-gray-200 px-4">
-                            <input
-                                ref={messageInputRef}
-                                autoFocus
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder="نص الرسالة ..."
-                                className="border-none bg-transparent px-1 py-2 text-[15px] outline-none font-normal shadow-none focus-visible:ring-0 flex-1 text-gray-2 placeholder:text-gray-400"
-                            />
-                        </div>
-
-                        <Button
-                            onClick={handleSend}
-                            disabled={!newMessage.trim() && selectedFiles.length === 0}
-                            size="icon"
-                            className={cn(
-                                "rounded-full w-10 h-10 shrink-0 transition-all text-white bg-blue-3 hover:bg-blue-4"
-                            )}
-                        >
-                            <Send className="w-5 h-5 rtl:-rotate-90" />
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="p-10 bg-white border-t border-gray-100 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+                {/* Blocked state replaces the whole conversation body */}
+                {conversation.can_chat === false ? (
+                    <div className="flex-1 p-10 bg-white flex flex-col items-center justify-center text-center animate-in fade-in duration-700">
                         <div className="relative mb-6">
                             <div className={cn(
                                 "w-20 h-20 rounded-2xl flex items-center justify-center rotate-3 transition-transform hover:rotate-0 duration-500",
@@ -797,7 +593,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                         </h3>
 
                         {isMeBlocked ? (
-                            <p className="text-gray-2 text-[15px] mb-8 max-w-[320px] leading-relaxed">
+                            <p className="text-gray-2 text-[15px] max-w-[320px] leading-relaxed">
                                 لا يمكنك إرسال رسائل أو التفاعل مع هذا الحساب في الوقت الحالي. لقد تم حظرك من قبل الطرف الآخر.
                             </p>
                         ) : (
@@ -825,13 +621,227 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                             });
                                         }
                                     }}
+                                    disabled={isUnblocking}
                                     className="rounded-full bg-blue-3 hover:bg-blue-4 text-white px-10 h-12 font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20"
                                 >
-                                    إلغاء الحظر
+                                    {isUnblocking && <Loader2 className="w-4 h-4 animate-spin" />}
+                                    {isUnblocking ? "جاري إلغاء الحظر..." : "إلغاء الحظر"}
                                 </Button>
                             </>
                         )}
                     </div>
+                ) : (
+                    <>
+                        {/* Messages Area */}
+                        <ScrollArea
+                            ref={scrollAreaRef}
+                            className="flex-1 p-4 bg-auto bg-repeat bg-center bg-[#FAFAFA]"
+                            style={{ backgroundImage: "url('/chat frame.svg')" }}
+                            dir="rtl"
+                        >
+                            <div className="space-y-4 pb-4">
+                                {serverMessages.map((msg, index) => {
+                                    const isMe = msg.sender_data.participant_type === currentParticipantType &&
+                                        String(msg.sender_data.participant_id) === String(currentParticipantId);
+
+                                    // Find sender name from participants list (for group chat)
+                                    const senderParticipant = conversation.type === "group" && !isMe
+                                        ? conversation.participants.find(
+                                            p => p.participant_data.type === msg.sender_data.participant_type &&
+                                                String(p.participant_data.id) === String(msg.sender_data.participant_id)
+                                        )
+                                        : null;
+                                    const senderName = senderParticipant?.participant_data.name;
+                                    const senderAvatar = senderParticipant?.participant_data.avatar;
+
+                                    return (
+                                        <div key={msg.id || index} className={cn("flex flex-col w-full", isMe ? "items-start" : "items-end")}>
+                                            {/* Sender name & avatar for group messages */}
+                                            {conversation.type === "group" && !isMe && senderName && (
+                                                <div className="flex items-center gap-1.5 mb-1 px-1">
+                                                    <ParticipantAvatar
+                                                        src={senderAvatar}
+                                                        size={20}
+                                                        className="bg-gray-200 shrink-0"
+                                                        fallback={<User className="w-3 h-3 text-gray-400" aria-hidden="true" />}
+                                                    />
+                                                    <span className="text-xs font-medium text-blue-4">{senderName}</span>
+                                                </div>
+                                            )}
+                                            <div className={cn(
+                                                "max-w-[85%] sm:max-w-[75%] rounded-xl p-3 px-4 text-sm",
+                                                isMe ? "bg-blue-5 " : "bg-white  border border-gray-100 shadow-sm"
+                                            )}>
+                                                {msg.body && <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>}
+
+                                                {msg.service && (
+                                                    <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
+                                                        <img
+                                                            src={msg.service.image_url}
+                                                            alt={msg.service.title}
+                                                            className="w-16 h-16 rounded-lg object-cover shrink-0"
+                                                            onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                                                        />
+                                                        <div className="min-w-0 flex-1">
+                                                            <Link href={`/services/${msg.service.slug || msg.service.id}`}>
+                                                                <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.service.title}</p>
+                                                            </Link>
+                                                            <p className="text-xs text-gray-400 truncate">{msg.service.description}</p>
+                                                            <ChatMessagePriceLine price={msg.service.price} />
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {msg.product && (
+                                                    <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
+                                                        <img
+                                                            src={msg.product.cover}
+                                                            alt={msg.product.name}
+                                                            className="w-16 h-16 rounded-lg object-cover shrink-0"
+                                                            onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                                                        />
+                                                        <div className="min-w-0 flex-1">
+                                                            <Link href={`/product/${msg.product.slug || msg.product.id}`}>
+                                                                <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.product.name}</p>
+                                                            </Link>
+                                                            <p className="text-[10px] text-gray-400 truncate">{msg.product.description}</p>
+                                                            <ChatMessagePriceLine price={msg.product.price} />
+                                                            <div className="flex items-center gap-0.5 mt-1">
+                                                                {[...Array(5)].map((_, i) => (
+                                                                    <Star
+                                                                        key={i}
+                                                                        className={cn(
+                                                                            "w-3 h-3",
+                                                                            i < Math.round(parseFloat(msg.product!.review_rate || "0"))
+                                                                                ? "fill-[#FB923C] text-[#FB923C]"
+                                                                                : "fill-gray-200 text-gray-200"
+                                                                        )}
+                                                                    />
+                                                                ))}
+                                                                <span className="text-[10px] text-gray-400 mr-1">({msg.product.review_count})</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {msg.files_url && msg.files_url.length > 0 && (
+                                                    <div className={cn(
+                                                        "grid gap-2 ",
+                                                        msg.files_url.length === 1 ? "grid-cols-1" :
+                                                            msg.files_url.length === 2 ? "grid-cols-2" :
+                                                                "grid-cols-3"
+                                                    )}>
+                                                        {msg.files_url.map((url: string, i: number) => (
+                                                            <img
+                                                                key={i}
+                                                                src={url}
+                                                                alt=""
+                                                                onClick={() => setMediaViewerState({ isOpen: true, media: msg.files_url!, initialIndex: i })}
+                                                                className="rounded-lg w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <span className="text-[10px] text-gray-2 mt-1 px-1">
+                                                {format(new Date(msg.created_at), "hh:mm a", { locale: arSA })}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+
+                                {/* Pending Messages (Optimistic) */}
+                                {pendingMessages.map((msg) => (
+                                    <div key={msg.id} className="flex flex-col w-full items-start">
+                                        <div className={cn(
+                                            "max-w-[85%] sm:max-w-[75%] rounded-xl p-3 px-4 text-sm bg-blue-5  relative",
+                                            msg.status === "failed" && "bg-red-50 border border-red-200"
+                                        )}>
+                                            <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-1 px-1">
+                                            <span className="text-[10px] text-gray-2">
+                                                {format(new Date(msg.created_at), "hh:mm a", { locale: arSA })}
+                                            </span>
+                                            {msg.status === "sending" && (
+                                                <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
+                                            )}
+                                            {msg.status === "failed" && (
+                                                <button
+                                                    onClick={() => handleRetry(msg.id, msg.body)}
+                                                    className="text-[10px] text-red-500 hover:text-red-700 flex items-center gap-1"
+                                                >
+                                                    <span>فشل الإرسال</span>
+                                                    <span className="underline">إعادة المحاولة</span>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollArea>
+
+                        {/* Selected Files Preview */}
+                        {selectedFiles.length > 0 && (
+                            <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 flex gap-2 overflow-x-auto">
+                                {selectedFiles.map((file, i) => (
+                                    <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200 shrink-0">
+                                        <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
+                                        <button
+                                            onClick={() => setSelectedFiles(prev => prev.filter((_, idx) => idx !== i))}
+                                            className="absolute p-0.5 top-0 right-0 bg-red-600 cursor-pointer text-white w-4 h-4 rounded-bl-md text-xs flex items-center justify-center"
+                                        >
+                                            <X />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Input Area */}
+                        <div className="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileSelect}
+                                className="hidden"
+                                multiple
+                                accept="image/*"
+                            />
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="rounded-full hover:bg-gray-100 shrink-0"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <ImageIcon className="w-5 h-5 text-gray-500" />
+                            </Button>
+
+                            <div className="flex-1 flex items-center bg-gray-50 rounded-full border border-gray-200 px-4">
+                                <input
+                                    ref={messageInputRef}
+                                    autoFocus
+                                    value={newMessage}
+                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="نص الرسالة ..."
+                                    className="border-none bg-transparent px-1 py-2 text-[15px] outline-none font-normal shadow-none focus-visible:ring-0 flex-1 text-gray-2 placeholder:text-gray-400"
+                                />
+                            </div>
+
+                            <Button
+                                onClick={handleSend}
+                                disabled={!newMessage.trim() && selectedFiles.length === 0}
+                                size="icon"
+                                className={cn(
+                                    "rounded-full w-10 h-10 shrink-0 transition-all text-white bg-blue-3 hover:bg-blue-4"
+                                )}
+                            >
+                                <Send className="w-5 h-5 rtl:-rotate-90" />
+                            </Button>
+                        </div>
+                    </>
                 )}
 
                 <AddMemberModal
@@ -866,6 +876,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 <BlockUserModal
                     isOpen={showBlockModal}
                     onClose={() => setShowBlockModal(false)}
+                    isLoading={isBlocking}
                     onConfirm={(reason) => {
                         if (otherParticipant) {
                             blockUser({
@@ -879,7 +890,10 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                 onSuccess: () => {
                                     toast.success("تم حظر المستخدم بنجاح");
                                     setShowBlockModal(false);
-                                }
+                                },
+                                onError: (error) => {
+                                    toast.error(chatMutationErrorMessage(error, "فشل حظر المستخدم"));
+                                },
                             });
                         }
                     }}

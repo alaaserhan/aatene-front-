@@ -19,7 +19,7 @@ interface ConversationListSidebarProps {
     isError: boolean;
     selectedConversationId: number | null;
     onSelectConversation: (conversation: Conversation) => void;
-    /** عند تعريفه يُستخدم `<Link>` للتنقل — يصلح تعطل التحديث مع query على الديسكتوب */
+    /** When provided, rows navigate via `<Link>` — fixes the stale update with query params on desktop. */
     getConversationHref?: (conversation: Conversation) => string;
     searchQuery: string;
     onSearchChange: (query: string) => void;
@@ -192,7 +192,7 @@ export function ConversationListSidebar({
         }
     }, [conversations, activeTab]);
 
-    /** عند فتح محادثة من روابط خارجية (دردشة من البروفايل إلخ): إظهار الصف في القائمة */
+    /** When a chat is opened from an external link (e.g. "chat" on a profile), make sure its row is visible in the list. */
     const displayConversations = useMemo(() => {
         if (!selectedConversationId) return filteredConversations;
         const already = filteredConversations.some((c) => c.id === selectedConversationId);
@@ -202,7 +202,7 @@ export function ConversationListSidebar({
         return [selected, ...filteredConversations.filter((c) => c.id !== selectedConversationId)];
     }, [filteredConversations, conversations, selectedConversationId]);
 
-    /** التبويب/البحث الحالي يخفي المحادثة المختارة → أظهر «الكل» وامسح البحث */
+    /** The current tab/search hides the selected chat → switch to "all" and clear the search. */
     useEffect(() => {
         if (!selectedConversationId || conversations.length === 0) return;
         const conv = conversations.find((c) => c.id === selectedConversationId);
@@ -316,7 +316,7 @@ export function ConversationListSidebar({
                 const rowClass = cn(
                     "flex w-full gap-3 p-4 cursor-pointer transition-colors text-right border-0 bg-transparent font-inherit rounded-none no-underline text-inherit",
                     isSelected
-                        ? "bg-blue-5 shadow-[inset_4px_0_0_0_theme(colors.blue.3)]"
+                        ? "bg-blue-5 shadow-[inset_4px_0_0_0_var(--c2-primary)] rtl:shadow-[inset_-4px_0_0_0_var(--c2-primary)]"
                         : "hover:bg-gray-50"
                 );
 

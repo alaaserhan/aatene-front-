@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -30,6 +31,7 @@ export function BlockUserModal({
     };
 
     const handleClose = () => {
+        if (isLoading) return;
         setReason("");
         onClose();
     };
@@ -39,7 +41,7 @@ export function BlockUserModal({
             <DialogContent className="sm:max-w-md" dir="rtl">
                 <DialogHeader className="">
                     <DialogTitle className="text-lg font-semibold ">
-                       اضف سبب الحظر
+                        حظر المستخدم
                     </DialogTitle>
                 </DialogHeader>
 
@@ -62,6 +64,7 @@ export function BlockUserModal({
                         disabled={isLoading}
                         className="w-full"
                     >
+                        {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                         {isLoading ? "جاري الحظر..." : "أرسل"}
                     </Button>
                 </div>
