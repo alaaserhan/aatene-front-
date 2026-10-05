@@ -411,10 +411,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
 
                             <DropdownMenuItem
                                 className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
-                                onSelect={(e) => {
-                                    e.preventDefault();
-                                    setShowAddMemberModal(true);
-                                }}
+                                onSelect={() => setShowAddMemberModal(true)}
                             >
                                 <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
                                     <UserPlus className="w-4 h-4 text-gray-600" />
@@ -426,8 +423,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                 <DropdownMenuItem
                                     className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
                                     disabled={isUnblocking}
-                                    onSelect={(e) => {
-                                        e.preventDefault();
+                                    onSelect={() => {
                                         if (!isMeBlocked && conversation.can_chat === false) {
                                             // Already blocked by me → unblock directly
                                             if (otherParticipant) {
@@ -470,10 +466,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                     <div className="h-px bg-gray-100 my-1" />
                                     <DropdownMenuItem
                                         className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group data-[highlighted]:bg-red-50 focus:bg-red-50 outline-none transition-colors"
-                                        onSelect={(e) => {
-                                            e.preventDefault();
-                                            setShowDeleteModal(true);
-                                        }}
+                                        onSelect={() => setShowDeleteModal(true)}
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-red-50 group-hover:bg-red-100 flex items-center justify-center shrink-0 transition-colors">
                                             <Trash2 className="w-4 h-4 text-red-600" />
