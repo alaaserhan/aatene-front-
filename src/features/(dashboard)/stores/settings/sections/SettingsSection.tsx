@@ -52,7 +52,7 @@ export function SettingsSection({
     >
       <AccordionTrigger
         iconStyle="chevron"
-        className="group px-4 py-4 hover:no-underline data-[state=open]:bg-blue-5/60 sm:px-6"
+        className="group rounded-xl px-4 py-4 outline-none hover:no-underline focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-c2-navy-300 data-[state=open]:rounded-b-none data-[state=open]:bg-blue-5/60 sm:px-6"
       >
         <div className="flex items-center gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-2 transition-colors group-hover:text-blue-4 group-data-[state=open]:border-blue-1 group-data-[state=open]:bg-white group-data-[state=open]:text-blue-3">

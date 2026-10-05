@@ -59,8 +59,10 @@ export function ReviewItem({
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isReplying, setIsReplying] = useState(false);
-    // Locally applied edits, so the item reflects the change before a refetch lands
-    const [edited, setEdited] = useState<ReviewEditValues | null>(null);
+    // Locally applied edits, so the item reflects the change before a refetch lands.
+    // Tied to the `review` object they were made on: once the parent refetches and
+    // hands down a new object, the server's copy (including new uploads) wins.
+    const [edited, setEdited] = useState<{ source: SharedReview; values: ReviewEditValues } | null>(null);
     const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
     const { remove, update } = useReviewMutations(review.id, {
@@ -71,7 +73,7 @@ export function ReviewItem({
             onDeleted?.(review.id);
         },
         onUpdated: (values) => {
-            setEdited(values);
+            setEdited({ source: review, values });
             setIsEditing(false);
             onUpdated?.(review.id, { content: values.content, rate: values.rate ? String(values.rate) : null });
         },
@@ -79,10 +81,11 @@ export function ReviewItem({
 
     if (isDeleted) return null;
 
-    const content = edited?.content ?? review.content;
-    const rate = edited ? edited.rate : review.rate ? parseFloat(review.rate) : 0;
+    const pendingEdit = edited?.source === review ? edited.values : null;
+    const content = pendingEdit?.content ?? review.content;
+    const rate = pendingEdit ? pendingEdit.rate : review.rate ? parseFloat(review.rate) : 0;
     // Removed media disappears right away; newly uploaded files show up on refetch.
-    const images = edited?.keptImages ?? review.images ?? [];
+    const images = pendingEdit?.keptImages ?? review.images ?? [];
     const repliesCount = Number(review.replies_count) || 0;
 
     return (

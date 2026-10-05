@@ -40,18 +40,17 @@ export function useReviewMutations(
                 return api.put(`/reviews/${reviewId}`, { content: values.content, rate: values.rate });
             }
 
-            // PHP doesn't populate $_FILES on PUT → POST + Laravel method spoofing.
-            // `kept_images[]` / `removed_images[]` carry the media the user kept
-            // and dropped; new uploads go in `images[]` like on create.
+            // Real PUT with form-data — the backend appends `images[]` to the
+            // review's media. `kept_images[]` / `removed_images[]` describe the
+            // existing media the user kept and dropped.
             const formData = new FormData();
-            formData.append("_method", "PUT");
             formData.append("content", values.content);
             formData.append("rate", String(values.rate));
             values.keptImages.forEach((url) => formData.append("kept_images[]", url));
             removedImages.forEach((url) => formData.append("removed_images[]", url));
             values.images.forEach((file) => formData.append("images[]", file));
 
-            return api.post(`/reviews/${reviewId}`, formData, {
+            return api.put(`/reviews/${reviewId}`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
         },

@@ -595,6 +595,10 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
   const answersCount = Number(question.answers_count) || displayAnswers.length;
   const firstAnswer = displayAnswers.length > 0 ? displayAnswers[0] : null;
 
+  const authSlug = useAuthStore((state) => state.user?.slug);
+  const isOwnQuestion = !!authSlug && authSlug === question.user?.slug;
+  const isOwnFirstAnswer = !!authSlug && authSlug === firstAnswer?.user?.slug;
+
   return (
     <div
       className="bg-white border border-gray-200 p-5 rounded-lg relative"
@@ -605,13 +609,15 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
           {question.content}
         </h4>
         <div className="flex items-center gap-4 shrink-0">
-          <button
-            onClick={() => setIsReportModalOpen(true)}
-            className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer text-xs"
-          >
-            <Flag className="w-3.5 h-3.5" />
-            بلغ عن إساءة
-          </button>
+          {!isOwnQuestion && (
+            <button
+              onClick={() => setIsReportModalOpen(true)}
+              className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer text-xs"
+            >
+              <Flag className="w-3.5 h-3.5" />
+              بلغ عن إساءة
+            </button>
+          )}
           <button
             onClick={() => setShowReplyForm(!showReplyForm)}
             className="flex items-center gap-1.5 px-3 py-1.5 border border-[#456A8E] rounded-md text-xs text-[#456A8E] font-medium hover:bg-gray-50 transition-colors cursor-pointer"
@@ -654,16 +660,18 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
             </div>
             <div className="flex items-center gap-4 text-xs">
               <span className="text-gray-400">{firstAnswer.created_at}</span>
-              <button
-                onClick={() => {
-                  setReportAnswerId(firstAnswer.id);
-                  setIsAnswerReportOpen(true);
-                }}
-                className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer"
-              >
-                <Flag className="w-3.5 h-3.5" />
-                بلغ عن إساءة
-              </button>
+              {!isOwnFirstAnswer && (
+                <button
+                  onClick={() => {
+                    setReportAnswerId(firstAnswer.id);
+                    setIsAnswerReportOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer"
+                >
+                  <Flag className="w-3.5 h-3.5" />
+                  بلغ عن إساءة
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -805,6 +813,7 @@ function ServiceQAAnswersModal({
     isOpen,
   );
   const answers = answersData?.answers || question.answers || [];
+  const authSlug = useAuthStore((state) => state.user?.slug);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -855,14 +864,16 @@ function ServiceQAAnswersModal({
                       <span className="text-gray-400" dir="ltr">
                         {ans.created_at}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => onReportAnswer(ans.id)}
-                        className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer"
-                      >
-                        <Flag className="w-3.5 h-3.5" />
-                        بلغ عن إساءة
-                      </button>
+                      {!(authSlug && authSlug === ans.user?.slug) && (
+                        <button
+                          type="button"
+                          onClick={() => onReportAnswer(ans.id)}
+                          className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer"
+                        >
+                          <Flag className="w-3.5 h-3.5" />
+                          بلغ عن إساءة
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
