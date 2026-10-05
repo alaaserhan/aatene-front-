@@ -6,6 +6,7 @@ import {
 } from "@/src/components/shared/MediaGallery";
 import StoreInfoCard from "@/src/components/shared/StoreInfoCard";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { Price } from "@/src/components/ui/Price";
 import { RatingStars } from "@/src/components/ui/RatingStars";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -67,6 +68,7 @@ export default function ProductHero({
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isInCompare, setIsInCompare] = useState(product.in_compare);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const { mutate: addToCompare } = useAddProductToCompare();
   const { mutate: removeFromCompare } = useRemoveProductFromCompare();
@@ -181,6 +183,7 @@ export default function ProductHero({
           title={product.name}
           activeIndex={activeIndex}
           onSelect={setSelectedIndex}
+          onOpen={() => setIsPreviewOpen(true)}
           fallbackSrc={PLACEHOLDER_SRC}
           className="lg:w-[55%] lg:self-start"
         />
@@ -342,6 +345,13 @@ export default function ProductHero({
           </MobileCollapsibleSection>
         </div>
       </div>
+
+      <MediaViewer
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        media={allMedia.map((item) => item.url)}
+        initialIndex={activeIndex}
+      />
 
       <ReportAbuseModal
         isOpen={isReportOpen}

@@ -3,7 +3,7 @@
 import { ScrollArea, ScrollBar } from "@/src/components/ui/scroll-area";
 import { VideoOrImageNext } from "@/src/components/ui/VideoOrImageNext";
 import { cn } from "@/src/lib/utils";
-import { Play } from "lucide-react";
+import { Maximize2, Play } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export type MediaItem = { type: "image" | "video"; url: string };
@@ -15,6 +15,8 @@ interface MediaGalleryProps {
   activeIndex: number;
   onSelect: (index: number) => void;
   fallbackSrc: string;
+  /** When set, the main media becomes clickable and opens a full-screen preview. */
+  onOpen?: (index: number) => void;
   className?: string;
 }
 
@@ -29,6 +31,7 @@ export function MediaGallery({
   activeIndex,
   onSelect,
   fallbackSrc,
+  onOpen,
   className,
 }: MediaGalleryProps) {
   const currentMedia = items[activeIndex];
@@ -109,6 +112,34 @@ export function MediaGallery({
           fallbackSrc={fallbackSrc}
           videoProps={{ controls: true }}
         />
+
+        {onOpen && currentMedia && (
+          <>
+            {/* Images open on a click anywhere; videos keep their own click for
+                play/pause, so they rely on the corner button alone. */}
+            {currentMedia.type === "image" && (
+              <button
+                type="button"
+                onClick={() => onOpen(activeIndex)}
+                aria-label="عرض الصورة بالحجم الكامل"
+                tabIndex={-1}
+                className="absolute inset-0 cursor-zoom-in"
+              />
+            )}
+            <button
+              type="button"
+              onClick={() => onOpen(activeIndex)}
+              aria-label="معاينة بملء الشاشة"
+              className={cn(
+                "absolute top-3 end-3 flex size-9 cursor-pointer items-center justify-center rounded-full",
+                "bg-white/90 text-c2-navy-700 shadow-sm transition-colors hover:bg-white",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-c2-navy-500",
+              )}
+            >
+              <Maximize2 className="size-4" aria-hidden="true" />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
