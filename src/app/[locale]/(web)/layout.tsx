@@ -1,3 +1,4 @@
+import DetailPageScrollReset from "@/src/components/(web)/DetailPageScrollReset";
 import Footer from "@/src/components/(web)/Footer";
 import Navbar from "@/src/components/(web)/Navbar";
 import { MaintenanceGuard } from "@/src/components/providers/MaintenanceGuard";
@@ -10,6 +11,7 @@ export default function WebLayout({
 }) {
   return (
     <div className="flex flex-col min-h-screen justify-between">
+      <DetailPageScrollReset />
       <Navbar />
       <main className="flex min-h-0 flex-1 flex-col">
         <MaintenanceGuard>
