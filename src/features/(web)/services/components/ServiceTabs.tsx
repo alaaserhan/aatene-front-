@@ -348,30 +348,6 @@ function ServiceReviewWithReplies({
 function ServiceFAQ({ service }: { service: Service }) {
   const questions = service.questions || [];
 
-  // Fallback if no questions (for demo matching image)
-  const demoQuestions = [
-    {
-      id: 1,
-      question: "مـا هـي خدمـة ”محـام إلـى جانبـك“؟",
-      answer:
-        "هي خدمة تتيح لك الحصول على استشارة قانونية فورية من محام مختص في مختلف المجالات القانونية دون الحاجة لحجز موعد مسبق.",
-    },
-    {
-      id: 2,
-      question: "ما نوع القضايا التي يمكنني الاستفسار عنها؟",
-      answer:
-        "يمكنك طرح استفساراتك في قضايا مثل: الأحوال الشخصية (الطلاق، الحضانة)، العقود، القضايا العمالية، والمشاكل القانونية الطارئة.",
-    },
-    {
-      id: 3,
-      question: "هل الاستشارة سرية؟",
-      answer:
-        "نعم، جميع الاستشارات تتم بسرية تامة واحترافية عالية لضمان خصوصيتك.",
-    },
-  ];
-
-  const displayQuestions = questions.length > 0 ? questions : demoQuestions;
-
   return (
     <div className="space-y-6">
       <div className="mb-4">
@@ -381,24 +357,30 @@ function ServiceFAQ({ service }: { service: Service }) {
         </p>
       </div>
 
-      <div className="divide-y divide-gray-100">
-        {displayQuestions.map((q, index) => (
-          <div key={q.id} className="py-4">
-            <h5
-              className={`font-medium text-sm transition-colors text-c2-navy-1000 `}
-            >
-              {index + 1}. {q.question}
-            </h5>
-            <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out  mt-2`}
-            >
-              <p className="text-[#343C60] leading-relaxed pr-4 border-r-2 border-blue-100 mr-1 text-sm">
-                {q.answer}
-              </p>
+      {questions.length === 0 ? (
+        <div className="rounded-lg bg-c2-neutral-50 py-10 text-center">
+          <p className="text-c2-neutral-500">لا توجد أسئلة شائعة لهذه الخدمة</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {questions.map((q, index) => (
+            <div key={q.id} className="py-4">
+              <h5
+                className={`font-medium text-sm transition-colors text-c2-navy-1000 `}
+              >
+                {index + 1}. {q.question}
+              </h5>
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out  mt-2`}
+              >
+                <p className="text-[#343C60] leading-relaxed pr-4 border-r-2 border-blue-100 mr-1 text-sm">
+                  {q.answer}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -595,7 +577,10 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
   const answersCount = Number(question.answers_count) || displayAnswers.length;
   const firstAnswer = displayAnswers.length > 0 ? displayAnswers[0] : null;
   // The first answer is rendered inline, so "show more" only counts the rest.
-  const remainingAnswersCount = Math.max(answersCount - (firstAnswer ? 1 : 0), 0);
+  const remainingAnswersCount = Math.max(
+    answersCount - (firstAnswer ? 1 : 0),
+    0,
+  );
 
   const authSlug = useAuthStore((state) => state.user?.slug);
   const isOwnQuestion = !!authSlug && authSlug === question.user?.slug;
