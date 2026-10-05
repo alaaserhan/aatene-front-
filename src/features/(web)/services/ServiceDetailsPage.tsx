@@ -6,7 +6,6 @@ import ServiceDetailsSkeleton from "./components/ServiceDetailsSkeleton";
 import ServiceHero from "./components/ServiceHero";
 import ServiceTabs from "./components/ServiceTabs";
 import ServicesChooseForYou from "./components/ServicesChooseForYou";
-import SimilarServices from "./components/SimilarServices";
 import { useGetService, useGetServicePageData } from "./hooks";
 
 export default function ServiceDetailsPage({
@@ -46,12 +45,6 @@ export default function ServiceDetailsPage({
       {pageData?.chooseForYou && pageData.chooseForYou.length > 0 && (
         <Section className="bg-c2-neutral-50 pt-8 pb-6 lg:pb-8">
           <ServicesChooseForYou services={pageData.chooseForYou} />
-        </Section>
-      )}
-
-      {pageData?.similar && pageData.similar.length > 0 && (
-        <Section className="bg-c2-neutral-50 pt-8 pb-6 lg:pb-8">
-          <SimilarServices services={pageData.similar} />
         </Section>
       )}
     </div>

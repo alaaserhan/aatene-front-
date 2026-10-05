@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Plus, HelpCircle, X } from 'lucide-react';
 import { Button } from '@/src/components/ui/button';
@@ -21,6 +21,14 @@ interface ServiceGuideProps {
 export function ServiceGuide({ dashboardBase, storeId, onClose }: ServiceGuideProps) {
     const [guideStep, setGuideStep] = useState(1);
     const StepContent = STEPS[guideStep - 1];
+
+    // Each step is long, so without this the next one opens scrolled to its bottom.
+    const prevStep = useRef(guideStep);
+    useEffect(() => {
+        if (prevStep.current === guideStep) return;
+        prevStep.current = guideStep;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [guideStep]);
 
     return (
         <>
@@ -82,7 +90,7 @@ export function ServiceGuide({ dashboardBase, storeId, onClose }: ServiceGuidePr
 
                         {/* Navigation */}
                         <div className="flex items-center justify-between gap-3">
-                            {/* زر إغلاق - يسار */}
+                            {/* Close - left */}
                             <button
                                 onClick={onClose}
                                 className="flex items-center gap-2 bg-[#2D496A] hover:bg-[#223952] text-white px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
@@ -91,7 +99,7 @@ export function ServiceGuide({ dashboardBase, storeId, onClose }: ServiceGuidePr
                                 <X className="w-4 h-4" />
                             </button>
 
-                            {/* Dots - منتصف */}
+                            {/* Dots - center */}
                             <div className="flex items-center gap-2">
                                 {Array.from({ length: STEP_COUNT }, (_, i) => i + 1).map((s) => (
                                     <button
@@ -105,7 +113,7 @@ export function ServiceGuide({ dashboardBase, storeId, onClose }: ServiceGuidePr
                                 ))}
                             </div>
 
-                            {/* أزرار التنقل - يمين */}
+                            {/* Prev / next - right */}
                             <div className="flex items-center gap-2">
                                 {guideStep > 1 && guideStep < STEP_COUNT && (
                                     <button

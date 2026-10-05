@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { NoProductsStep } from './steps/NoProductsStep';
@@ -17,6 +17,14 @@ interface ProductGuideProps {
 export function ProductGuide({ onClose }: ProductGuideProps) {
     const [guideStep, setGuideStep] = useState(1);
     const StepContent = STEPS[guideStep - 1];
+
+    // Each step is long, so without this the next one opens scrolled to its bottom.
+    const prevStep = useRef(guideStep);
+    useEffect(() => {
+        if (prevStep.current === guideStep) return;
+        prevStep.current = guideStep;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [guideStep]);
 
     return (
         <div className="flex-1 px-4 pt-4 pb-6 overflow-y-auto" dir="rtl">
@@ -51,7 +59,7 @@ export function ProductGuide({ onClose }: ProductGuideProps) {
 
                     {/* Navigation */}
                     <div className="flex items-center justify-between gap-3">
-                        {/* زر إغلاق - يسار */}
+                        {/* Close - left */}
                         <button
                             onClick={onClose}
                             className="flex items-center justify-center gap-2 bg-[#2D496A] hover:bg-[#223952] text-white px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
@@ -60,7 +68,7 @@ export function ProductGuide({ onClose }: ProductGuideProps) {
                             <X className="w-4 h-4" />
                         </button>
 
-                        {/* Dots - منتصف */}
+                        {/* Dots - center */}
                         <div className="flex items-center gap-2">
                             {Array.from({ length: STEP_COUNT }, (_, i) => i + 1).map((s) => (
                                 <button
@@ -74,7 +82,7 @@ export function ProductGuide({ onClose }: ProductGuideProps) {
                             ))}
                         </div>
 
-                        {/* أزرار التنقل - يمين */}
+                        {/* Prev / next - right */}
                         <div className="flex items-center gap-2">
                             {guideStep > 1 && guideStep < STEP_COUNT && (
                                 <button
