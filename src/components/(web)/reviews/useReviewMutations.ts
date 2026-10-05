@@ -40,13 +40,11 @@ export function useReviewMutations(
                 return api.put(`/reviews/${reviewId}`, { content: values.content, rate: values.rate });
             }
 
-            // Real PUT with form-data — the backend appends `images[]` to the
-            // review's media. `kept_images[]` / `removed_images[]` describe the
-            // existing media the user kept and dropped.
+            // Real PUT with form-data. The backend appends `images[]` to the
+            // review's existing media and deletes the URLs in `removed_images[]`.
             const formData = new FormData();
             formData.append("content", values.content);
             formData.append("rate", String(values.rate));
-            values.keptImages.forEach((url) => formData.append("kept_images[]", url));
             removedImages.forEach((url) => formData.append("removed_images[]", url));
             values.images.forEach((file) => formData.append("images[]", file));
 
