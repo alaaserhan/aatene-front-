@@ -1,9 +1,10 @@
 "use client";
 
 import { Dispatch, ReactNode, RefObject, SetStateAction, useRef } from "react";
-import { Loader2, MessageSquareText } from "lucide-react";
+import { MessageSquareText } from "lucide-react";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ReviewComposer } from "./ReviewComposer";
+import { ReviewListSkeleton, ReviewStatisticsSkeleton } from "./ReviewsSkeleton";
 import { useReviewsPagination } from "./useReviewsPagination";
 import type { ReviewFormRef } from "./ReviewForm";
 import type { ReviewSubmitPayload } from "./types";
@@ -51,15 +52,13 @@ export function ReviewsSection({
 
     return (
         <div className="space-y-6">
-            {stats}
+            {isLoading ? <ReviewStatisticsSkeleton /> : stats}
 
             <ReviewComposer ref={composerRef} onSubmit={onSubmit} isSubmitting={isSubmitting} />
 
             <div ref={listRef} className="scroll-mt-24">
                 {isLoading ? (
-                    <div className="flex justify-center p-10">
-                        <Loader2 className="animate-spin text-c2-navy-700" />
-                    </div>
+                    <ReviewListSkeleton />
                 ) : itemsOnPage === 0 ? (
                     <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-c2-neutral-200 bg-c2-neutral-50 py-10 text-center">
                         <MessageSquareText size={26} className="text-c2-navy-300" />

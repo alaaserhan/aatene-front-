@@ -2,6 +2,7 @@ export { ReviewForm, type ReviewFormRef } from "./ReviewForm";
 export { ReviewComposer } from "./ReviewComposer";
 export { ReviewsSection } from "./ReviewsSection";
 export { ReviewItem } from "./ReviewItem";
+export { ReviewItemSkeleton, ReviewListSkeleton, ReviewStatisticsSkeleton } from "./ReviewsSkeleton";
 export { useReviewsPagination } from "./useReviewsPagination";
 export { ReviewEditForm } from "./ReviewEditForm";
 export { RatingInput } from "./RatingInput";

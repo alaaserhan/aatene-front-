@@ -178,7 +178,7 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(function Re
                         className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-c2-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-c2-navy-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                     >
                         {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={16} />}
-                        <span>{isSubmitting ? "جاري الإرسال..." : "إرسال المراجعة"}</span>
+                        <span>{isSubmitting ? "جاري النشر..." : "نشر التقييم"}</span>
                     </button>
                 </div>
             </form>

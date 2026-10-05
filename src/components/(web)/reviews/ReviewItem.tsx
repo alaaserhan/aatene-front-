@@ -14,6 +14,7 @@ import { useLanguage } from "@/src/hooks/use-language";
 import { useUser } from "@/src/auth/session";
 import { ReviewEditForm } from "./ReviewEditForm";
 import { ReviewReplyForm } from "./ReviewReplyForm";
+import { ReviewItemSkeleton } from "./ReviewsSkeleton";
 import { useReviewMutations } from "./useReviewMutations";
 import type { ReviewEditValues } from "./schema";
 import type { ReviewSubmitPayload, SharedReview } from "./types";
@@ -229,7 +230,7 @@ export function ReviewItem({
             {showReplies && (
                 <div className="mt-2 space-y-2">
                     {isLoadingReplies && (
-                        <div className="ms-8 py-2 text-sm text-gray-400 md:ms-16">جاري تحميل الردود...</div>
+                        <ReviewItemSkeleton isReply lines={1} />
                     )}
                     {replies?.map((reply) => (
                         <ReviewItem
