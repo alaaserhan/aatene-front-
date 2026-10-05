@@ -10,9 +10,9 @@ import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { usePreviousParticipants, useCreateConversation } from "../hooks";
 import { ParticipantData } from "../api";
+import { Checkbox } from "@/src/components/ui/checkbox";
 import { toast } from "sonner";
-import Image from "next/image";
-import { cn } from "@/src/lib/utils";
+import { ParticipantAvatar } from "./ParticipantAvatar";
 
 interface CreateGroupModalProps {
     isOpen: boolean;
@@ -161,52 +161,30 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: C
                                         const key = `${participant.type}-${participant.id}`;
                                         const isSelected = selectedParticipants.has(key);
                                         return (
-                                            <div
-                                                key={participant.id}
-                                                className="flex items-center  p-3 hover:bg-gray-50 cursor-pointer"
-                                                onClick={() => toggleParticipant(participant)}
+                                            <label
+                                                key={key}
+                                                className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer"
                                             >
-                                                <div className="flex items-center flex-1 me-2 gap-3">
-                                                    <div className="flex items-center gap-3">
-                                                        {/* Custom Radio/Checkbox */}
-                                                        <div
-                                                            className={cn(
-                                                                "w-4 h-4 rounded-full border transition-colors flex items-center justify-center shrink-0",
-                                                                isSelected
-                                                                    ? "border-blue-3"
-                                                                    : "border-gray-300 group-hover:border-gray-400"
-                                                            )}
-                                                        >
-                                                            {isSelected && (
-                                                                <div className="w-2 h-2 rounded-full bg-blue-3" />
-                                                            )}
-                                                        </div>
-                                                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-                                                            {participant.avatar ? (
-                                                                <Image
-                                                                    src={participant.avatar}
-                                                                    alt={participant.name || "Participant"}
-                                                                    width={40}
-                                                                    height={40}
-                                                                    className="w-full h-full object-cover"
-                                                                    unoptimized
-                                                                />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">
-                                                                    {participant.name?.[0] || "U"}
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-
-                                                    </div>
-                                                    <div className="">
-                                                        <p className="font-medium text-sm ">
-                                                            {participant.name}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                <Checkbox
+                                                    checked={isSelected}
+                                                    onCheckedChange={() => toggleParticipant(participant)}
+                                                    className="border-gray-300 data-[state=checked]:border-c2-primary data-[state=checked]:bg-c2-primary data-[state=checked]:text-white"
+                                                />
+                                                <ParticipantAvatar
+                                                    src={participant.avatar}
+                                                    alt={participant.name || ""}
+                                                    size={40}
+                                                    className="bg-gray-200 shrink-0"
+                                                    fallback={
+                                                        <span className="text-gray-500 font-bold">
+                                                            {participant.name?.[0] || "U"}
+                                                        </span>
+                                                    }
+                                                />
+                                                <p className="font-medium text-sm">
+                                                    {participant.name}
+                                                </p>
+                                            </label>
                                         );
                                     })}
                                     {hasNextPage && isFetchingNextPage && (

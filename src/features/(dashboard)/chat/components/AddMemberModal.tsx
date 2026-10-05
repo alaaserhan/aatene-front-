@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
     Dialog,
     DialogContent,
     DialogTitle,
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
-import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { usePreviousParticipants, useAddParticipant } from "../hooks";
 import { ParticipantData } from "../api";
 import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
+import { ParticipantAvatar } from "./ParticipantAvatar";
 
 interface AddMemberModalProps {
     isOpen: boolean;
@@ -116,7 +116,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
                                         const isSelected = selectedParticipant === key;
                                         return (
                                             <div
-                                                key={participant.id}
+                                                key={key}
                                                 className="flex items-center  p-3 hover:bg-gray-50 cursor-pointer"
                                                 onClick={() => handleSelectParticipant(participant)}
                                             >
@@ -133,20 +133,17 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
                                                             <div className="w-2 h-2 rounded-full bg-blue-3" />
                                                         )}
                                                     </div>
-                                                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-                                                        {participant.avatar ? (
-                                                            <img
-                                                                src={participant.avatar}
-                                                                alt={participant.name || ""}
-                                                                className="w-full h-full object-cover"
-                                                                onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
-                                                            />
-                                                        ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">
+                                                    <ParticipantAvatar
+                                                        src={participant.avatar}
+                                                        alt={participant.name || ""}
+                                                        size={40}
+                                                        className="bg-gray-200 shrink-0"
+                                                        fallback={
+                                                            <span className="text-gray-500 font-bold">
                                                                 {participant.name?.[0] || "U"}
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                            </span>
+                                                        }
+                                                    />
 
                                                 </div>
                                                 <div className="flex items-center  flex-1 ms-3 gap-3">
