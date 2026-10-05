@@ -200,7 +200,7 @@ export function ReportView({ type }: ReportViewProps) {
                 topListItems: (data as ServicesAnalyticsResponse)?.topRatedServices?.map((item: AnalyticsService, i: number) => ({
                     id: item.id, title: item.title, subtitle: "التقيم", image: item.images_urls[0], rank: i + 1, badgeText: `${item.review_rate || 0} `, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
-                bottomListName: "الخدمات الاعلي عدد بلاغات",
+                bottomListName: "الخدمات الأعلى عدد بلاغات",
                 bottomListItems: (data as ServicesAnalyticsResponse)?.mostReportedServices?.map((item: AnalyticsService, i: number) => ({
                     id: item.id, title: item.title, subtitle: "عدد البلاغات", image: item.images_urls[0], rank: i + 1, badgeText: `${item.reports_count || 0} بلاغ`, badgeColor: "bg-red-100 text-red-700"
                 })) || []
@@ -254,7 +254,7 @@ export function ReportView({ type }: ReportViewProps) {
                 topListItems: (data as MerchantsAnalyticsResponse)?.topMerchantsByStores?.map((item: AnalyticsMerchant, i: number) => ({
                     id: item.id, title: item.name || "غير معروف", subtitle: "التقيم", image: item.avatar_url, rank: i + 1, badgeText: `${item.review_rate || 0} `, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
-                bottomListName: "التجار الاعلي عدد بلاغات",
+                bottomListName: "التجار الأعلى عدد بلاغات",
                 bottomListItems: (data as MerchantsAnalyticsResponse)?.topMerchantsByReports?.map((item: AnalyticsMerchant, i: number) => ({
                     id: item.id, title: item.name || "غير معروف", subtitle: "عدد البلاغات", image: item.avatar_url, rank: i + 1, badgeText: `${item.store_reports_count || 0} بلاغ`, badgeColor: "bg-red-100 text-red-700"
                 })) || []
@@ -284,7 +284,7 @@ export function ReportView({ type }: ReportViewProps) {
                 topListItems: (data as StoresAnalyticsResponse)?.topRatedStores?.map((item: AnalyticsStore, i: number) => ({
                     id: item.id, title: item.name, subtitle: "التقيم", image: item.cover_url, rank: i + 1, badgeText: `${item.review_rate || 0} `, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
-                bottomListName: "المتاجر الاعلي عدد بلاغات",
+                bottomListName: "المتاجر الأعلى عدد بلاغات",
                 bottomListItems: (data as StoresAnalyticsResponse)?.topReportedStores?.map((item: AnalyticsStore, i: number) => ({
                     id: item.id, title: item.name, subtitle: "عدد البلاغات", image: item.logo_url, rank: i + 1, badgeText: `${item.reports_count || 0} بلاغ`, badgeColor: "bg-red-100 text-red-700"
                 })) || []
