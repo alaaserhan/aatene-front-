@@ -594,6 +594,8 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
   const displayAnswers = question.answers || [];
   const answersCount = Number(question.answers_count) || displayAnswers.length;
   const firstAnswer = displayAnswers.length > 0 ? displayAnswers[0] : null;
+  // The first answer is rendered inline, so "show more" only counts the rest.
+  const remainingAnswersCount = Math.max(answersCount - (firstAnswer ? 1 : 0), 0);
 
   const authSlug = useAuthStore((state) => state.user?.slug);
   const isOwnQuestion = !!authSlug && authSlug === question.user?.slug;
@@ -686,13 +688,13 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
         </div>
       )}
 
-      {answersCount > 0 && (
+      {remainingAnswersCount > 0 && (
         <div className="mt-4">
           <button
             onClick={() => setIsAnswersModalOpen(true)}
             className="flex items-center gap-1 text-sm font-medium text-[#456A8E] hover:text-[#355A7E] transition-colors cursor-pointer"
           >
-            عرض المزيد من الإجابات ({answersCount})
+            عرض المزيد من الإجابات ({remainingAnswersCount})
             <ChevronLeft className="w-4 h-4" />
           </button>
         </div>
