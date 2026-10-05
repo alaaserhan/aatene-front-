@@ -6,21 +6,21 @@ import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { HelpCircle, X } from "lucide-react";
 import { Tooltip } from "@/src/components/ui/Tooltip";
 
-// تعريف المدينة بـ ID رقمي
 interface CityOption {
   id: number;
   name: string;
 }
 
 interface CityMultiSelectProps {
-  cities: CityOption[]; // قائمة المدن بالكامل
-  selectedCityIds: number[]; // مصفوفة أرقام
+  cities: CityOption[];
+  selectedCityIds: number[];
   onChange: (ids: number[]) => void;
   error?: string;
   placeholder?: string;
   label?: string;
   tooltip?: string;
   tooltipLabel?: string;
+  searchPlaceholder?: string;
 }
 
 export function CityMultiSelect({
@@ -32,6 +32,7 @@ export function CityMultiSelect({
   label = "المدينة",
   tooltip,
   tooltipLabel = "ما هي مدينة المتجر",
+  searchPlaceholder = "ابحث عن مدينة...",
 }: CityMultiSelectProps) {
   const [citySearch, setCitySearch] = useState("");
 
@@ -93,7 +94,7 @@ export function CityMultiSelect({
           placeholder={placeholder}
           error={error}
           onSearch={(q) => setCitySearch(q)}
-          searchPlaceholder="ابحث عن مدينة..."
+          searchPlaceholder={searchPlaceholder}
         />
       </div>
 

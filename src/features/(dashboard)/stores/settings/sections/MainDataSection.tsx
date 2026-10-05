@@ -2,13 +2,9 @@
 "use client";
 
 import { useState } from "react";
-import { HelpCircle } from "lucide-react";
 import { FormInput } from "@/src/components/ui/FormInput";
-import { Tooltip } from "@/src/components/ui/Tooltip";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
-import { OptionTag } from "@/src/components/ui/OptionTag";
-import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Textarea } from "@/src/components/ui/Textarea";
 import { StoreIdentitySelector } from "../../components/StoreIdentitySelector";
 import { StoreSingleBannerSelector } from "../../components/StoreSingleBannerSelector";
@@ -34,7 +30,6 @@ export function MainDataSection({
 }: MainDataSectionProps) {
   const [values, setValues] = useState<StoreMainDataValues>(initialValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [serviceCitySearch, setServiceCitySearch] = useState("");
 
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
@@ -97,15 +92,7 @@ export function MainDataSection({
   const handleCancel = () => {
     setValues(initialValues);
     setErrors({});
-    setServiceCitySearch("");
   };
-
-  const availableServiceCities = cities
-    .filter((city) => !values.serviceCities.includes(city.id))
-    .filter((city) =>
-      city.name.toLowerCase().includes(serviceCitySearch.toLowerCase())
-    )
-    .map((city) => ({ label: city.name, value: String(city.id) }));
 
   return (
     <SettingsSection
@@ -219,73 +206,20 @@ export function MainDataSection({
         </div>
 
         {isServicesStore && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-4">
-              <Label className="text-sm font-medium">
-                المناطق التي يمكنك تقديم خدمتك فيها{" "}
-                <span className="text-red-500">*</span>
-              </Label>
-              <Tooltip
-                trigger={
-                  <div className="flex items-center gap-1 text-blue-4 cursor-pointer">
-                    <HelpCircle className="w-3.5 h-3.5" />
-                    <span className="text-xs font-medium">
-                      ما هي مناطق الخدمة
-                    </span>
-                  </div>
-                }
-                content="اختر المدن التي تقدم فيها خدماتك. يمكنك اختيار أكثر من مدينة إذا كنت تقدم خدماتك في أكثر من مدينة."
-              />
-            </div>
-            <ReusableDropdown
-              options={availableServiceCities}
-              value=""
-              onChange={(cityId) => {
-                const id = Number(cityId);
-                if (!Number.isFinite(id) || values.serviceCities.includes(id))
-                  return;
-                setValues({
-                  ...values,
-                  serviceCities: [...values.serviceCities, id],
-                });
-                clearError("serviceCities");
-              }}
-              placeholder="أضف مدينة جديدة"
-              error={errors.serviceCities}
-              className="h-11"
-              onSearch={setServiceCitySearch}
-              searchPlaceholder="ابحث باسم المدينة..."
-              triggerIcon={
-                <img
-                  src="/icons/dashboard/mark.svg"
-                  alt=""
-                  className="w-5 h-5 opacity-50"
-                />
-              }
-            />
-
-            <div className="flex flex-wrap gap-2 mt-2">
-              {values.serviceCities.map((cityId) => {
-                const city = cities.find((c) => c.id === cityId);
-                if (!city) return null;
-                return (
-                  <OptionTag
-                    key={cityId}
-                    label={city.name}
-                    showRemoveButton
-                    onRemove={() =>
-                      setValues({
-                        ...values,
-                        serviceCities: values.serviceCities.filter(
-                          (id) => id !== cityId
-                        ),
-                      })
-                    }
-                  />
-                );
-              })}
-            </div>
-          </div>
+          <CityMultiSelect
+            label="المناطق التي يمكنك تقديم خدمتك فيها"
+            cities={cities}
+            selectedCityIds={values.serviceCities}
+            onChange={(ids) => {
+              setValues({ ...values, serviceCities: ids });
+              clearError("serviceCities");
+            }}
+            error={errors.serviceCities}
+            placeholder="أضف منطقة جديدة"
+            searchPlaceholder="ابحث عن منطقة..."
+            tooltipLabel="ما هي مناطق الخدمة"
+            tooltip="اختر المناطق التي تقدم فيها خدماتك. يمكنك اختيار أكثر من منطقة إذا كنت تقدم خدماتك في أكثر من منطقة."
+          />
         )}
       </div>
     </SettingsSection>
