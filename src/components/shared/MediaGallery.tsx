@@ -3,7 +3,7 @@
 import { ScrollArea, ScrollBar } from "@/src/components/ui/scroll-area";
 import { VideoOrImageNext } from "@/src/components/ui/VideoOrImageNext";
 import { cn } from "@/src/lib/utils";
-import { Maximize2, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export type MediaItem = { type: "image" | "video"; url: string };
@@ -110,35 +110,29 @@ export function MediaGallery({
           priority
           sizes="(max-width: 1024px) 100vw, 55vw"
           fallbackSrc={fallbackSrc}
-          videoProps={{ controls: true }}
+          // With a preview, the video plays there instead, so the slot only shows its frame.
+          videoProps={onOpen ? { controls: false, autoPlay: false } : { controls: true }}
         />
 
         {onOpen && currentMedia && (
-          <>
-            {/* Images open on a click anywhere; videos keep their own click for
-                play/pause, so they rely on the corner button alone. */}
-            {currentMedia.type === "image" && (
-              <button
-                type="button"
-                onClick={() => onOpen(activeIndex)}
-                aria-label="عرض الصورة بالحجم الكامل"
-                tabIndex={-1}
-                className="absolute inset-0 cursor-zoom-in"
-              />
+          <button
+            type="button"
+            onClick={() => onOpen(activeIndex)}
+            aria-label={
+              currentMedia.type === "video" ? "تشغيل الفيديو" : "عرض الصورة بالحجم الكامل"
+            }
+            className={cn(
+              "absolute inset-0 flex cursor-zoom-in items-center justify-center",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-c2-navy-500",
+              currentMedia.type === "video" && "cursor-pointer bg-black/20",
             )}
-            <button
-              type="button"
-              onClick={() => onOpen(activeIndex)}
-              aria-label="معاينة بملء الشاشة"
-              className={cn(
-                "absolute top-3 end-3 flex size-9 cursor-pointer items-center justify-center rounded-full",
-                "bg-white/90 text-c2-navy-700 shadow-sm transition-colors hover:bg-white",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-c2-navy-500",
-              )}
-            >
-              <Maximize2 className="size-4" aria-hidden="true" />
-            </button>
-          </>
+          >
+            {currentMedia.type === "video" && (
+              <span className="flex size-16 items-center justify-center rounded-full bg-white/90">
+                <Play className="size-7 fill-gray-700 text-gray-700" aria-hidden="true" />
+              </span>
+            )}
+          </button>
         )}
       </div>
     </div>
