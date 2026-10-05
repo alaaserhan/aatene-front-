@@ -70,3 +70,12 @@ export function joinPhoneCountryCode(
   const withoutTrunkPrefix = local.replace(/^0+/, "");
   return withoutTrunkPrefix ? `${countryCode}${withoutTrunkPrefix}` : "";
 }
+
+/**
+ * Hide everything but the dial code ("+972 *** ***"). Local numbers saved
+ * without a code get the default one, matching what StorePhoneDialog reveals.
+ */
+export function maskPhone(phone: string | null | undefined): string {
+  const { countryCode } = splitPhoneCountryCode(phone);
+  return `${countryCode} *** ***`;
+}

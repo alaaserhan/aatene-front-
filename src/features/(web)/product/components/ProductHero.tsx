@@ -34,6 +34,8 @@ import { Attribute, AttributeOption, Product, Store } from "../api";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import type { ChatTarget } from "@/src/lib/chat-links";
 import { getAttributePlaceholder } from "@/src/lib/attribute-placeholder";
+import { maskPhone } from "@/src/lib/phone";
+import { StorePhoneDialog } from "@/src/features/(web)/stores/components/StorePhoneDialog";
 
 const PRODUCT_CONDITION_LABELS: Record<string, string> = {
   new: "جديد",
@@ -60,7 +62,7 @@ export default function ProductHero({
   crossSells,
 }: ProductHeroProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
+  const [isPhoneDialogOpen, setIsPhoneDialogOpen] = useState(false);
   const [selectedVariations, setSelectedVariations] = useState<
     Record<string, string>
   >({});
@@ -295,20 +297,14 @@ export default function ProductHero({
 
           <div className="flex flex-col gap-3">
             {storePhone && (
-              <a
-                href={`tel:${storePhone}`}
-                onClick={(e) => {
-                  if (isPhoneRevealed) return;
-                  e.preventDefault();
-                  setIsPhoneRevealed(true);
-                }}
-                className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity"
+              <button
+                type="button"
+                onClick={() => setIsPhoneDialogOpen(true)}
+                className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity cursor-pointer"
               >
-                <span dir="ltr">
-                  {isPhoneRevealed ? storePhone : maskDisplayPhone(storePhone)}
-                </span>
+                <span dir="ltr">{maskPhone(storePhone)}</span>
                 <Phone className="w-5 h-5" aria-hidden="true" />
-              </a>
+              </button>
             )}
 
             <ChatNowButton
@@ -367,6 +363,14 @@ export default function ProductHero({
         title={product.name}
         description="قم بمشاركة هذا المنتج مع أصدقائك"
       />
+
+      {storePhone && (
+        <StorePhoneDialog
+          phone={storePhone}
+          open={isPhoneDialogOpen}
+          onOpenChange={setIsPhoneDialogOpen}
+        />
+      )}
     </section>
   );
 }
@@ -506,10 +510,4 @@ function normalizeDisplayPhone(phone: unknown): string {
   const digits = value.replace(/\D/g, "");
   if (digits.length <= 4) return "";
   return value;
-}
-
-function maskDisplayPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length <= 6) return phone;
-  return phone.replace(/^\+?(\d{3}).*/, "+$1 *** ***");
 }

@@ -37,6 +37,8 @@ import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { Service, ServiceExtra } from "../api";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import type { ChatTarget } from "@/src/lib/chat-links";
+import { maskPhone } from "@/src/lib/phone";
+import { StorePhoneDialog } from "@/src/features/(web)/stores/components/StorePhoneDialog";
 
 const EXECUTE_TYPE_LABELS: Record<string, string> = {
   hour: "ساعة",
@@ -54,7 +56,7 @@ interface ServiceHeroProps {
 // TODO: this component needs to be refactored
 export default function ServiceHero({ service }: ServiceHeroProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
+  const [isPhoneDialogOpen, setIsPhoneDialogOpen] = useState(false);
   const [selectedExtras, setSelectedExtras] = useState<number[]>([]);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -206,25 +208,14 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
           <div className="flex flex-col gap-3">
             {service.store?.phone && (
-              <a
-                href={`tel:${service.store.phone}`}
-                onClick={(e) => {
-                  if (isPhoneRevealed) return;
-                  e.preventDefault();
-                  setIsPhoneRevealed(true);
-                }}
-                className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity"
+              <button
+                type="button"
+                onClick={() => setIsPhoneDialogOpen(true)}
+                className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity cursor-pointer"
               >
-                <span dir="ltr">
-                  {isPhoneRevealed
-                    ? service.store.phone
-                    : service.store.phone.replace(
-                        /^\+?(\d{3}).*/,
-                        "+$1 *** ***",
-                      )}
-                </span>
+                <span dir="ltr">{maskPhone(service.store.phone)}</span>
                 <Phone className="w-5 h-5" aria-hidden="true" />
-              </a>
+              </button>
             )}
 
             <ChatNowButton
@@ -264,6 +255,14 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
         title={service.title}
         description="قم بمشاركة هذه الخدمة مع أصدقائك"
       />
+
+      {service.store?.phone && (
+        <StorePhoneDialog
+          phone={service.store.phone}
+          open={isPhoneDialogOpen}
+          onOpenChange={setIsPhoneDialogOpen}
+        />
+      )}
     </section>
   );
 }
