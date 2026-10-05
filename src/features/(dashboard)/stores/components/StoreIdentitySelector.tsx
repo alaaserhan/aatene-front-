@@ -123,6 +123,8 @@ export function StoreIdentitySelector({
         multiple={false}
         allowedMediaTypes={[ "image"]}
         accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+        uploadPrimaryText="أضف أو اسحب صورة الشعار"
+        uploadSecondaryText="PNG, JPG, SVG"
       />
     </div>
   );

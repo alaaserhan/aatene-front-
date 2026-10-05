@@ -3,7 +3,29 @@
 
 import { useRef, useState, DragEvent } from "react";
 import { Plus, Upload, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
+
+// The input's `accept` is only a hint to the file dialog: drag-and-drop and the
+// dialog's "All files" option both bypass it, so every file is re-checked here.
+function matchesAccept(file: File, acceptTokens: string[]) {
+  const mime = file.type.toLowerCase();
+  const name = file.name.toLowerCase();
+  return acceptTokens.some((token) => {
+    if (token.startsWith(".")) return name.endsWith(token);
+    if (token.endsWith("/*")) return mime.startsWith(token.slice(0, -1));
+    return mime === token;
+  });
+}
+
+function describeAccept(acceptTokens: string[]) {
+  const labels = acceptTokens.map((token) =>
+    token.startsWith(".")
+      ? token.slice(1).toUpperCase()
+      : token.split("/")[1].replace("+xml", "").toUpperCase()
+  );
+  return Array.from(new Set(labels)).join(", ");
+}
 
 interface MediaUploadAreaProps {
   onUpload: (files: FileList) => Promise<void>;
@@ -26,13 +48,48 @@ export function MediaUploadArea({
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  const acceptTokens = accept
+    .split(",")
+    .map((token) => token.trim().toLowerCase())
+    .filter(Boolean);
+
+  // Drops rejected files with a toast; returns null when nothing is left to upload.
+  const filterAccepted = (files: FileList): FileList | null => {
+    if (acceptTokens.length === 0) return files;
+
+    const transfer = new DataTransfer();
+    const rejected: File[] = [];
+    Array.from(files).forEach((file) =>
+      matchesAccept(file, acceptTokens) ? transfer.items.add(file) : rejected.push(file)
+    );
+
+    if (rejected.length > 0) {
+      const imagesOnly = acceptTokens.every((token) => token.startsWith("image/"));
+      const hasVideo = rejected.some((file) => file.type.startsWith("video/"));
+      toast.error(
+        imagesOnly && hasVideo
+          ? "لا يمكن رفع فيديو هنا، يُسمح بالصور فقط"
+          : "نوع الملف غير مدعوم",
+        { description: `الصيغ المسموح بها: ${describeAccept(acceptTokens)}` }
+      );
+    }
+
+    return transfer.files.length > 0 ? transfer.files : null;
+  };
+
   const handleClick = () => {
     fileInputRef.current?.click();
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const selected = e.target.files;
+    if (!selected || selected.length === 0) return;
+
+    const files = filterAccepted(selected);
+    if (!files) {
+      e.target.value = "";
+      return;
+    }
 
     setIsUploading(true);
     try {
@@ -59,8 +116,13 @@ export function MediaUploadArea({
     e.preventDefault();
     setIsDragging(false);
 
-    const files = e.dataTransfer.files;
-    if (!files || files.length === 0) return;
+    if (isUploading) return;
+
+    const dropped = e.dataTransfer.files;
+    if (!dropped || dropped.length === 0) return;
+
+    const files = filterAccepted(dropped);
+    if (!files) return;
 
     setIsUploading(true);
     try {
