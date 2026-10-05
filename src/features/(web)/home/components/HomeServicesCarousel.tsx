@@ -58,16 +58,17 @@ export default function HomeServicesCarousel({
 
           <div
             ref={scrollContainerRef}
-            className="flex flex-row flex-nowrap overflow-x-auto gap-4 md:gap-6 pb-4 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto overscroll-x-contain w-fit max-w-full"
+            className="flex w-full flex-row flex-nowrap items-stretch overflow-x-auto gap-3 md:gap-6 pb-4 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto overscroll-x-contain"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {services.map((service) => (
               <div
                 key={service.id}
-                className="flex-none w-[72vw] max-w-[280px] sm:min-w-[260px] sm:w-auto snap-start"
+                /* Same widths as the services search grid (2 / 3 / 4 columns) — basis accounts for the gaps */
+                className="flex shrink-0 snap-start flex-col basis-[calc((100%_-_0.75rem)/2)] md:basis-[calc((100%_-_3rem)/3)] lg:basis-[calc((100%_-_4.5rem)/4)]"
                 dir="rtl"
               >
-                <ServiceCard service={service} />
+                <ServiceCard service={service} className="h-full w-full" />
               </div>
             ))}
           </div>

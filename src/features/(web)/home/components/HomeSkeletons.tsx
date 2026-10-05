@@ -36,11 +36,11 @@ export const ServicesCarouselSkeleton = ({ showViewAll = true }: { showViewAll?:
                     <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-full shrink-0" />
                 ) : null}
             </div>
-            <div className="flex flex-row flex-nowrap gap-4 overflow-hidden pb-4">
-                {[1, 2, 3].map((i) => (
+            <div className="flex flex-row flex-nowrap gap-3 md:gap-6 overflow-hidden pb-4">
+                {[1, 2, 3, 4].map((i) => (
                     <div
                         key={i}
-                        className="flex-none w-[72vw] max-w-[280px] sm:min-w-[260px] aspect-[4/5] bg-gray-100 animate-pulse rounded-2xl"
+                        className="shrink-0 basis-[calc((100%_-_0.75rem)/2)] md:basis-[calc((100%_-_3rem)/3)] lg:basis-[calc((100%_-_4.5rem)/4)] aspect-[4/5] bg-gray-100 animate-pulse rounded-2xl"
                     />
                 ))}
             </div>
