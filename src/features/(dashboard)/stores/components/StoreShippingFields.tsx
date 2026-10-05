@@ -104,9 +104,11 @@ export function StoreShippingFields({
 
     onChange({ delivery_type: "shipping", shippingCompanies: nextCompanies });
 
-    if (editingCompanyIndex !== null) {
-      toast.success("تم تعديل شركة الشحن بنجاح");
-    }
+    toast.success(
+      editingCompanyIndex !== null
+        ? "تم تعديل شركة الشحن بنجاح"
+        : "تم إضافة شركة الشحن بنجاح"
+    );
   };
 
   /** The first company in the list is the store's default one. */
