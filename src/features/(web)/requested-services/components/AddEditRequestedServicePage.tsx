@@ -14,6 +14,7 @@ import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
 import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { useLanguage } from "@/src/hooks/use-language";
 
 interface AddEditRequestedServicePageProps {
@@ -45,6 +46,7 @@ export default function AddEditRequestedServicePage({
   const [imageFiles, setImageFiles] = useState<string[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const [lastRecordId, setLastRecordId] = useState<string | number | undefined>(
     undefined,
@@ -99,20 +101,23 @@ export default function AddEditRequestedServicePage({
         formData.have_searched_for_services_before ? 1 : 0,
     };
 
-    const options = {
-      onSuccess: () => {
-        router.push(`/${lang}/requested-services`);
-      },
-    };
-
     if (isEditMode && serviceData?.record.id) {
-      updateMutation.mutateAsync(
+      updateMutation.mutate(
         { id: serviceData.record.id, payload },
-        options,
+        { onSuccess: () => router.push(`/${lang}/requested-services`) },
       );
     } else {
-      createMutation.mutateAsync(payload, options);
+      createMutation.mutate(payload, {
+        onSuccess: () => setShowReviewModal(true),
+      });
     }
+  };
+
+  // New requests are hidden until approved, so send the user to their own
+  // list, where the pending request is visible.
+  const goToMyRequests = () => {
+    setShowReviewModal(false);
+    router.push(`/${lang}/my/requested-services`);
   };
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
@@ -209,6 +214,22 @@ export default function AddEditRequestedServicePage({
           </div>
         </div>
       </div>
+
+      <SuccessModal
+        isOpen={showReviewModal}
+        onClose={goToMyRequests}
+        variant="pending"
+        badgeText="قيد المراجعة"
+        title="تم إرسال طلبك بنجاح 🎉"
+        message="طلبك الآن قيد المراجعة من قِبل فريقنا، وبمجرد اعتماده سيظهر للبائعين ليتمكنوا من التواصل معك. يمكنك متابعة حالته من صفحة طلباتي."
+        buttonText="متابعة طلباتي"
+        onButtonClick={goToMyRequests}
+        secondaryButtonText="تصفح الخدمات المطلوبة"
+        onSecondaryButtonClick={() => {
+          setShowReviewModal(false);
+          router.push(`/${lang}/requested-services`);
+        }}
+      />
     </div>
   );
 }

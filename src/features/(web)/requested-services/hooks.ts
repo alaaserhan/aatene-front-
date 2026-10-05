@@ -46,11 +46,10 @@ export const useCreateRequestedService = () => {
     return useMutation({
         mutationFn: (payload: CreateRequestedServicePayload) =>
             createRequestedService(payload),
-        onSuccess: (data) => {
-            toast.success(data.message || "Requested service created successfully");
-        },
+        // No success toast: the create page shows its own "under review" modal.
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["requested-services"] });
+            queryClient.invalidateQueries({ queryKey: ["my-requested-services"] });
         },
     });
 };
