@@ -1,4 +1,5 @@
 import { StarRating } from "@/src/components/ui/StarRating";
+import { RATING_LABELS } from "@/src/components/(web)/reviews/RatingInput";
 
 export interface ReviewStatisticsData {
     total_reviews: number;
@@ -13,14 +14,6 @@ export interface ReviewStatisticsData {
 }
 
 export function ReviewStatisticsDisplay({ stats }: { stats: ReviewStatisticsData }) {
-    const starLabels = {
-        5: "ممتاز",
-        4: "جيد",
-        3: "متوسط",
-        2: "ليس سيئاً",
-        1: "سيئ",
-    };
-
     return (
         <div className="w-full">
             <div className="flex flex-col md:flex-row gap-8 items-start mb-8">
@@ -41,7 +34,7 @@ export function ReviewStatisticsDisplay({ stats }: { stats: ReviewStatisticsData
                         const percentage = Number(total) > 0 ? (count / Number(total)) * 100 : 0;
                         return (
                             <div key={star} className="flex items-center gap-4">
-                                <span className="w-14 text-sm font-medium">{starLabels[star as keyof typeof starLabels]}</span>
+                                <span className="w-14 text-sm font-medium">{RATING_LABELS[star]}</span>
                                 <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                                     <div
                                         className="h-full bg-[#FA9130] rounded-full"

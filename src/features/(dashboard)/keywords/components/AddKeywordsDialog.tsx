@@ -13,31 +13,35 @@ import {
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { OptionTag } from "@/src/components/ui/OptionTag";
+import { KeywordType } from "../api";
 import { useCreateKeyword } from "../hooks";
 
 interface AddKeywordsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Entity tab the dialog was opened from; every created tag is scoped to it */
+  type: KeywordType;
+  typeLabel: string;
 }
 
-export function AddKeywordsDialog({ open, onOpenChange }: AddKeywordsDialogProps) {
+export function AddKeywordsDialog({ open, onOpenChange, type, typeLabel }: AddKeywordsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl" dir="rtl">
         <DialogHeader className="border-b border-c2-neutral-200 pb-4">
           <DialogTitle className="text-lg font-bold text-c2-primary">
-            إضافة كلمات مفتاحية
+            إضافة كلمات مفتاحية إلى {typeLabel}
           </DialogTitle>
         </DialogHeader>
 
         {/* Mounted only while open, so the staged list always starts empty */}
-        <AddKeywordsForm onClose={() => onOpenChange(false)} />
+        <AddKeywordsForm type={type} onClose={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
   );
 }
 
-function AddKeywordsForm({ onClose }: { onClose: () => void }) {
+function AddKeywordsForm({ type, onClose }: { type: KeywordType; onClose: () => void }) {
   const [input, setInput] = useState("");
   const [staged, setStaged] = useState<string[]>([]);
   const createKeyword = useCreateKeyword();
@@ -67,7 +71,7 @@ function AddKeywordsForm({ onClose }: { onClose: () => void }) {
     // One request per keyword: the endpoint creates a single tag at a time
     for (const title of staged) {
       try {
-        await createKeyword.mutateAsync({ title });
+        await createKeyword.mutateAsync({ title, type });
       } catch {
         failed.push(title);
       }

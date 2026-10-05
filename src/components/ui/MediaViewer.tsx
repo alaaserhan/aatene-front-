@@ -1,125 +1,182 @@
 "use client";
 
-import { X, ChevronRight, ChevronLeft } from "lucide-react";
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useRef, useState } from "react";
+import Image from "next/image";
+import { ChevronLeft, ChevronRight, PlayCircle, X } from "lucide-react";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/src/components/ui/dialog";
+import { cn, isVideoFile } from "@/src/lib/utils";
+import { useLanguage } from "@/src/hooks/use-language";
 
 interface MediaViewerProps {
     isOpen: boolean;
     onClose: () => void;
     media: string[];
     initialIndex?: number;
-    type?: "image" | "video"; // Currently treating all strings as images/urls, but extensible
 }
 
-export function MediaViewer({
-    isOpen,
-    onClose,
-    media,
-    initialIndex = 0,
-}: MediaViewerProps) {
+/** Horizontal travel (px) a touch has to cover before it counts as a swipe */
+const SWIPE_THRESHOLD = 50;
+
+/**
+ * Full-screen lightbox for a set of images and videos. Navigates with the
+ * on-screen arrows, the thumbnail strip, the keyboard arrows or a swipe, and
+ * follows the page direction so "next" always sits on the reading-forward side.
+ */
+export function MediaViewer({ isOpen, onClose, media, initialIndex = 0 }: MediaViewerProps) {
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
+    const lang = useLanguage();
+    // The locale layout sets `dir` on a wrapper div, which the portaled dialog
+    // sits outside of, so the direction is derived here and applied explicitly
+    const isRtl = lang === "ar" || lang === "he";
+    const touchStartX = useRef<number | null>(null);
 
     // Sync state with props during render to avoid cascading renders in useEffect
     const [prevInitialIndex, setPrevInitialIndex] = useState(initialIndex);
     const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
-
     if (isOpen !== prevIsOpen || initialIndex !== prevInitialIndex) {
         setPrevIsOpen(isOpen);
         setPrevInitialIndex(initialIndex);
-        if (isOpen) {
-            setCurrentIndex(initialIndex);
-        }
+        if (isOpen) setCurrentIndex(initialIndex);
     }
 
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "unset";
-        }
-        return () => {
-            document.body.style.overflow = "unset";
-        };
-    }, [isOpen]);
+    const count = media.length;
+    const hasMany = count > 1;
+    const safeIndex = Math.min(Math.max(currentIndex, 0), Math.max(count - 1, 0));
+    const current = media[safeIndex];
 
-    if (!isOpen) return null;
+    const goNext = () => setCurrentIndex((i) => (i + 1) % count);
+    const goPrev = () => setCurrentIndex((i) => (i - 1 + count) % count);
 
-    const handleNext = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setCurrentIndex((prev) => (prev + 1) % media.length);
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (!hasMany) return;
+        // ArrowRight moves forward in LTR and backward in RTL
+        if (e.key === "ArrowRight") (isRtl ? goPrev : goNext)();
+        else if (e.key === "ArrowLeft") (isRtl ? goNext : goPrev)();
     };
 
-    const handlePrev = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setCurrentIndex((prev) => (prev - 1 + media.length) % media.length);
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartX.current === null || !hasMany) return;
+        const delta = e.changedTouches[0].clientX - touchStartX.current;
+        touchStartX.current = null;
+        if (Math.abs(delta) < SWIPE_THRESHOLD) return;
+        const swipedTowardStart = isRtl ? delta > 0 : delta < 0;
+        (swipedTowardStart ? goNext : goPrev)();
     };
 
-    const currentMedia = media[currentIndex];
-
-    return createPortal(
-        <div
-            className="fixed inset-0 z-[10002] bg-black/90 flex items-center justify-center backdrop-blur-sm"
-            onClick={onClose}
-        >
-            {/* Content Container */}
-            <div
-                className="relative w-full h-full flex items-center justify-center p-4 md:p-10"
-                onClick={(e) => e.stopPropagation()}
+    return (
+        <Dialog open={isOpen && count > 0} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent
+                dir={isRtl ? "rtl" : "ltr"}
+                showCloseButton={false}
+                overlayClassName="z-[10002] bg-black/90"
+                onKeyDown={handleKeyDown}
+                className="z-[10002] flex h-dvh w-screen max-w-none flex-col gap-0 rounded-none bg-transparent p-0 shadow-none sm:w-screen sm:max-w-none sm:rounded-none"
             >
-                {/* Navigation - Prev (Left in LTR, Right in RTL visually if we used icons correctly, but logical prev is index - 1) */}
-                {media.length > 1 && (
-                    <button
-                        onClick={handlePrev}
-                        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white/70 hover:bg-black/70 hover:text-white transition-all cursor-pointer z-10"
-                    >
-                        <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
-                    </button>
-                )}
+                <DialogTitle className="sr-only">معاينة الوسائط</DialogTitle>
+                <DialogDescription className="sr-only">
+                    {hasMany ? `العنصر ${safeIndex + 1} من ${count}` : "معاينة الوسائط"}
+                </DialogDescription>
 
-                {/* Media */}
-                <div className="relative w-full max-w-5xl h-full max-h-[85vh] flex items-center justify-center">
-                    <div className="relative w-full h-full flex items-center justify-center">
-                        {currentMedia.split('?')[0].match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                <div className="flex items-center justify-between px-4 py-3 md:px-6">
+                    {hasMany ? (
+                        <span className="rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-white/90" dir="ltr">
+                            {safeIndex + 1} / {count}
+                        </span>
+                    ) : (
+                        <span />
+                    )}
+                    <DialogClose
+                        className="cursor-pointer rounded-full bg-white/10 p-2 text-white/80 transition-colors hover:bg-white/20 hover:text-white focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none"
+                        aria-label="إغلاق"
+                    >
+                        <X className="h-6 w-6" />
+                    </DialogClose>
+                </div>
+
+                <div
+                    className="relative flex min-h-0 flex-1 items-center justify-center px-4 md:px-20"
+                    onClick={(e) => e.target === e.currentTarget && onClose()}
+                    onTouchStart={(e) => (touchStartX.current = e.touches[0].clientX)}
+                    onTouchEnd={handleTouchEnd}
+                >
+                    {current &&
+                        (isVideoFile(current) ? (
+                            // Keyed per item so switching slides stops the previous video
                             <video
-                                src={currentMedia}
+                                key={current}
+                                src={current}
                                 controls
-                                className="max-w-full max-h-full object-contain select-none outline-none"
+                                autoPlay
+                                playsInline
+                                className="max-h-full max-w-full rounded-lg bg-black outline-none"
                             />
                         ) : (
-                            <img
-                                src={currentMedia}
-                                alt={`Media ${currentIndex + 1}`}
-                                className="max-w-full max-h-full object-contain select-none"
-                            />
-                        )}
+                            <div className="pointer-events-none relative h-full w-full max-w-5xl">
+                                <Image
+                                    key={current}
+                                    src={current}
+                                    alt={`الصورة ${safeIndex + 1}`}
+                                    fill
+                                    sizes="100vw"
+                                    unoptimized
+                                    className="object-contain select-none"
+                                />
+                            </div>
+                        ))}
+
+                    {hasMany && (
+                        <>
+                            <NavButton side="start" label="السابق" onClick={goPrev} />
+                            <NavButton side="end" label="التالي" onClick={goNext} />
+                        </>
+                    )}
+                </div>
+
+                {hasMany && (
+                    <div className="flex justify-center gap-2 overflow-x-auto px-4 py-4">
+                        {media.map((src, index) => (
+                            <button
+                                key={`${src}-${index}`}
+                                type="button"
+                                onClick={() => setCurrentIndex(index)}
+                                aria-label={`عرض العنصر ${index + 1}`}
+                                aria-current={index === safeIndex}
+                                className={cn(
+                                    "relative h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-md border-2 transition-opacity",
+                                    index === safeIndex ? "border-white opacity-100" : "border-transparent opacity-50 hover:opacity-80",
+                                )}
+                            >
+                                {isVideoFile(src) ? (
+                                    <>
+                                        <video src={`${src}#t=0.1`} className="h-full w-full object-cover" preload="metadata" muted playsInline />
+                                        <PlayCircle className="absolute inset-0 m-auto h-5 w-5 text-white" />
+                                    </>
+                                ) : (
+                                    <Image src={src} alt="" fill sizes="56px" unoptimized className="object-cover" />
+                                )}
+                            </button>
+                        ))}
                     </div>
-                </div>
-
-                {/* Navigation - Next */}
-                {media.length > 1 && (
-                    <button
-                        onClick={handleNext}
-                        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white/70 hover:bg-black/70 hover:text-white transition-all cursor-pointer z-10"
-                    >
-                        <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
-                    </button>
                 )}
+            </DialogContent>
+        </Dialog>
+    );
+}
 
-                {/* Counter */}
-                <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/80 font-medium bg-black/40 px-3 py-1 rounded-full text-sm">
-                    {currentIndex + 1} / {media.length}
-                </div>
-            </div>
-
-            {/* Close Button - Moved to end and high z-index */}
-            <button
-                onClick={onClose}
-                className="absolute top-5 right-5 text-white/70 hover:text-white transition-colors cursor-pointer z-[10003]"
-            >
-                <X className="w-8 h-8" />
-            </button>
-        </div>,
-        document.body
+function NavButton({ side, label, onClick }: { side: "start" | "end"; label: string; onClick: () => void }) {
+    const Icon = side === "start" ? ChevronLeft : ChevronRight;
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            aria-label={label}
+            className={cn(
+                "absolute top-1/2 z-10 -translate-y-1/2 cursor-pointer rounded-full bg-white/10 p-2 text-white/80 transition-colors hover:bg-white/20 hover:text-white focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none",
+                side === "start" ? "start-2 md:start-6" : "end-2 md:end-6",
+            )}
+        >
+            {/* Chevrons are drawn for LTR; flip them so they point outward in RTL */}
+            <Icon className="h-6 w-6 rtl:rotate-180 md:h-8 md:w-8" />
+        </button>
     );
 }

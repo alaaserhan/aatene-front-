@@ -4,7 +4,12 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import * as api from "./api";
-import { GetKeywordsParams, KeywordPayload, KeywordsListResponse } from "./api";
+import {
+  CreateKeywordPayload,
+  GetKeywordsParams,
+  KeywordPayload,
+  KeywordsListResponse,
+} from "./api";
 
 const QK = {
   any: ["admin-keywords"] as const,
@@ -30,7 +35,7 @@ export const useGetKeywords = (params: GetKeywordsParams) =>
 export const useCreateKeyword = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: KeywordPayload) => api.createKeyword(payload),
+    mutationFn: (payload: CreateKeywordPayload) => api.createKeyword(payload),
     onSettled: () => {
       qc.invalidateQueries({ queryKey: QK.listAny });
     },

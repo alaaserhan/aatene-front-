@@ -41,6 +41,11 @@ export interface KeywordPayload {
   title: string;
 }
 
+/** A new tag is scoped to the entity tab it was created from */
+export interface CreateKeywordPayload extends KeywordPayload {
+  type: KeywordType;
+}
+
 export interface DeleteSelectedPayload {
   ids: number[];
 }
@@ -87,7 +92,7 @@ export const getKeyword = async (id: string | number): Promise<KeywordResponse> 
   return data;
 };
 
-export const createKeyword = async (payload: KeywordPayload): Promise<BaseResponse> => {
+export const createKeyword = async (payload: CreateKeywordPayload): Promise<BaseResponse> => {
   const { data } = await api.post<BaseResponse>(ENDPOINT, payload);
   return data;
 };

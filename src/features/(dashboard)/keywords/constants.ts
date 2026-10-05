@@ -10,5 +10,8 @@ export const KEYWORD_TYPES: { label: string; value: KeywordType }[] = [
   { label: "المتاجر", value: "store" },
 ];
 
+export const isKeywordType = (value: string | null): value is KeywordType =>
+  KEYWORD_TYPES.some((item) => item.value === value);
+
 export const getKeywordTypeLabel = (type: KeywordType): string =>
   KEYWORD_TYPES.find((item) => item.value === type)?.label ?? "";

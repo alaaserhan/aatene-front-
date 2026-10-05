@@ -2,13 +2,19 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 import { SearchKeywordsPanel } from "@/src/features/(dashboard)/search-keywords/components/SearchKeywordsPanel";
 import { useDebounce } from "@/src/hooks/use-debounce";
 import { KeywordType } from "../api";
-import { DEFAULT_KEYWORD_TYPE, KEYWORD_TYPES, getKeywordTypeLabel } from "../constants";
+import {
+  DEFAULT_KEYWORD_TYPE,
+  KEYWORD_TYPES,
+  getKeywordTypeLabel,
+  isKeywordType,
+} from "../constants";
 import { KeywordsPanel } from "./KeywordsPanel";
 
 /** The two datasets on this screen: what visitors searched for, and the curated tags. */
@@ -27,25 +33,42 @@ const SECTIONS: { value: KeywordsSection; label: string; description: string }[]
   },
 ];
 
+const isKeywordsSection = (value: string | null): value is KeywordsSection =>
+  SECTIONS.some((item) => item.value === value);
+
 const SEARCH_PLACEHOLDERS: Record<KeywordsSection, string> = {
   search: "ابحث عن كلمة بحث...",
   tags: "ابحث عن كلمة مفتاحية...",
 };
 
 export function KeywordsPage() {
-  const [activeSection, setActiveSection] = useState<KeywordsSection>("search");
-  const [activeType, setActiveType] = useState<KeywordType>(DEFAULT_KEYWORD_TYPE);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Both tab rows live in the URL so a reload or a shared link lands on the same view
+  const sectionParam = searchParams.get("section");
+  const typeParam = searchParams.get("type");
+  const activeSection: KeywordsSection = isKeywordsSection(sectionParam) ? sectionParam : "search";
+  const activeType: KeywordType = isKeywordType(typeParam) ? typeParam : DEFAULT_KEYWORD_TYPE;
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const debouncedSearch = useDebounce(searchQuery.trim(), 400);
   const typeLabel = getKeywordTypeLabel(activeType);
   const section = SECTIONS.find((item) => item.value === activeSection) ?? SECTIONS[0];
 
+  const setParam = (key: "section" | "type", value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(key, value);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
   // The two panels query different endpoints, so a term typed for one is
   // meaningless in the other
   const handleSectionChange = (next: KeywordsSection) => {
     if (next === activeSection) return;
-    setActiveSection(next);
+    setParam("section", next);
     setSearchQuery("");
   };
 
@@ -85,7 +108,7 @@ export function KeywordsPage() {
 
       <Tabs
         value={activeType}
-        onValueChange={(next) => setActiveType(next as KeywordType)}
+        onValueChange={(next) => setParam("type", next)}
         className="mt-6"
       >
         <TabsList className="w-full max-w-full overflow-x-auto">

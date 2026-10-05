@@ -175,7 +175,12 @@ export function KeywordsPanel({ type, search, typeLabel }: KeywordsPanelProps) {
         )}
       </div>
 
-      <AddKeywordsDialog open={isAddOpen} onOpenChange={setIsAddOpen} />
+      <AddKeywordsDialog
+        open={isAddOpen}
+        onOpenChange={setIsAddOpen}
+        type={type}
+        typeLabel={typeLabel}
+      />
 
       <EditKeywordDialog keyword={editingKeyword} onClose={() => setEditingKeyword(null)} />
 

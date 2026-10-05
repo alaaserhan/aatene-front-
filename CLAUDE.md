@@ -43,16 +43,24 @@ you're already reworking that screen, not as a standalone cleanup.
 Two patterns get hand-rolled over and over. Don't. Both already exist, and a
 screen that rolls its own drifts out of sync with every other screen.
 
-**Tabs** — [src/components/ui/tabs.tsx](src/components/ui/tabs.tsx). A pill row:
-`TabsList` is a `rounded-full` white bar with a light border, and the active
-`TabsTrigger` is a filled `--c2-navy-700` pill with white text. Reach for it for
-any tab strip, including one that only swaps a query param and has no
-`TabsContent` — see `ReviewsTypeTabs` in
+**Tabs** — [src/components/ui/tabs.tsx](src/components/ui/tabs.tsx). Two
+variants, set once on `Tabs`:
+
+- `pill` (default) — `TabsList` is a `rounded-full` white bar with a light
+  border, and the active `TabsTrigger` is a filled `--c2-navy-700` pill with
+  white text.
+- `underline` — a flat full-width row with a bottom rule, for page-level
+  sub-navigation above the content it switches (e.g. above a nested `pill` row,
+  as in `KeywordsPage`). This is a valid style, not legacy.
+
+Reach for it for any tab strip, including one that only swaps a query param and
+has no `TabsContent` — see `ReviewsTypeTabs` in
 [src/features/(dashboard)/reviews/components/](src/features/(dashboard)/reviews/components/)
 for that shape, and `ServiceTabs` in
 [src/features/(web)/services/components/ServiceTabs.tsx](src/features/(web)/services/components/ServiceTabs.tsx)
-for the full version with panels. The underlined-tab style in the older reports
-screens is legacy — don't copy it into new work.
+for the full version with panels. If you need underlined tabs, use
+`variant="underline"`. Don't hand-roll them the way some older reports screens
+do.
 
 **Delete confirmation** — [src/components/(dashboard)/ConfirmDeleteModal.tsx](src/components/(dashboard)/ConfirmDeleteModal.tsx),
 *not* the plainer `ConfirmationDialog`. It brings the concentric red warning

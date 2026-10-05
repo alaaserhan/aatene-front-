@@ -4,11 +4,12 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
-const RATING_LABELS: Record<number, string> = {
-    1: "سيئ جدًا",
-    2: "سيئ",
-    3: "مقبول",
-    4: "جيد جدًا",
+/** Shared with the rating breakdown so the picker and the stats speak the same words */
+export const RATING_LABELS: Record<number, string> = {
+    1: "سيئ",
+    2: "ليس سيئًا",
+    3: "متوسط",
+    4: "جيد",
     5: "ممتاز",
 };
 

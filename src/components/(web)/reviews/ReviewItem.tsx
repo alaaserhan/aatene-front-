@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, ChevronUp, Flag, Loader2, Pencil, PlayCircle, Reply, Trash2, User } from "lucide-react";
 import { StarRating } from "@/src/components/ui/StarRating";
+import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
@@ -19,6 +20,7 @@ import type { ReviewSubmitPayload, SharedReview } from "./types";
 
 interface ReviewItemProps {
     review: SharedReview;
+    /** Overrides the built-in media preview; omit it and the item opens its own viewer */
     onOpenMedia?: (media: string[], index: number) => void;
     reportType?: "comment" | "store" | "product";
     /** Enables the inline reply box under this review */
@@ -58,6 +60,7 @@ export function ReviewItem({
     const [isReplying, setIsReplying] = useState(false);
     // Locally applied edits, so the item reflects the change before a refetch lands
     const [edited, setEdited] = useState<ReviewEditValues | null>(null);
+    const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
     const { remove, update } = useReviewMutations(review.id, {
         currentImages: review.images,
@@ -130,7 +133,10 @@ export function ReviewItem({
                 ) : (
                     <>
                         <p className="text-start text-[14px] leading-relaxed text-c2-neutral-600">{content}</p>
-                        {images.length > 0 && <ReviewMediaThumbs images={images} onOpenMedia={onOpenMedia} />}
+                        {images.length > 0 && <ReviewMediaThumbs
+                                images={images}
+                                onOpen={(index) => (onOpenMedia ? onOpenMedia(images, index) : setPreviewIndex(index))}
+                            />}
                     </>
                 )}
 
@@ -200,6 +206,15 @@ export function ReviewItem({
                 )}
             </div>
 
+            {!onOpenMedia && (
+                <MediaViewer
+                    isOpen={previewIndex !== null}
+                    onClose={() => setPreviewIndex(null)}
+                    media={images}
+                    initialIndex={previewIndex ?? 0}
+                />
+            )}
+
             <ConfirmDeleteModal
                 isOpen={isConfirmOpen}
                 onClose={() => setIsConfirmOpen(false)}
@@ -232,34 +247,39 @@ export function ReviewItem({
     );
 }
 
-function ReviewMediaThumbs({
-    images,
-    onOpenMedia,
-}: {
-    images: string[];
-    onOpenMedia?: (media: string[], index: number) => void;
-}) {
+function ReviewMediaThumbs({ images, onOpen }: { images: string[]; onOpen: (index: number) => void }) {
     return (
         <div className="flex flex-wrap gap-2">
-            {images.map((src, index) => (
-                <button
-                    key={`${src}-${index}`}
-                    type="button"
-                    onClick={() => onOpenMedia?.(images, index)}
-                    className="group relative flex h-20 w-20 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-gray-100 bg-black/5 transition-opacity hover:opacity-90"
-                >
-                    {isVideoFile(src) ? (
-                        <>
-                            <video src={src} className="h-full w-full object-cover" preload="metadata" muted />
-                            <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20 transition-colors group-hover:bg-black/30">
-                                <PlayCircle className="h-8 w-8 text-white opacity-80" />
-                            </span>
-                        </>
-                    ) : (
-                        <Image src={src} alt="" fill className="object-contain" />
-                    )}
-                </button>
-            ))}
+            {images.map((src, index) => {
+                const isVideo = isVideoFile(src);
+                return (
+                    <button
+                        key={`${src}-${index}`}
+                        type="button"
+                        onClick={() => onOpen(index)}
+                        aria-label={isVideo ? `تشغيل الفيديو ${index + 1}` : `عرض الصورة ${index + 1}`}
+                        className="group relative flex h-20 w-20 cursor-zoom-in items-center justify-center overflow-hidden rounded-lg border border-gray-100 bg-black/5 focus-visible:ring-2 focus-visible:ring-c2-navy-500 focus-visible:outline-none"
+                    >
+                        {isVideo ? (
+                            <>
+                                {/* The #t fragment makes iOS Safari paint a first frame instead of a black box */}
+                                <video src={`${src}#t=0.1`} className="h-full w-full object-cover" preload="metadata" muted playsInline />
+                                <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/25 transition-colors group-hover:bg-black/40">
+                                    <PlayCircle className="h-8 w-8 text-white drop-shadow" />
+                                </span>
+                            </>
+                        ) : (
+                            <Image
+                                src={src}
+                                alt={`صورة مرفقة ${index + 1}`}
+                                fill
+                                sizes="80px"
+                                className="object-cover transition-transform duration-200 group-hover:scale-105"
+                            />
+                        )}
+                    </button>
+                );
+            })}
         </div>
     );
 }
