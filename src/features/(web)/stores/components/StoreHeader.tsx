@@ -365,7 +365,9 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     return (
         <>
             <div className="relative bg-white card-shadow pb-4">
-                <div className="relative h-60 md:h-[250px] lg:h-[300px] w-full overflow-hidden group">
+                {/* 24:5 matches the 1920×400 banner size recommended in the store settings. The px min-height
+                    keeps room for the overlapping logo on phones (px, not rem, because of the 85% root font-size). */}
+                <div className="relative aspect-24/5 min-h-[176px] max-h-[400px] w-full overflow-hidden group">
                     {covers.length > 0 ? (
                         currentCoverIsVideo ? (
                             <video
@@ -384,6 +386,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                 src={currentCoverUrl}
                                 alt="Store Cover"
                                 fill
+                                sizes="100vw"
                                 className="object-cover transition-all duration-700"
                             />
                         )

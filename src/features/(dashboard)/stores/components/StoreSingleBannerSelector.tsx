@@ -1,12 +1,15 @@
-// src/features/(dashboard)/stores/components/StoreSingleBannerSelector.tsx
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Plus } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
 import { MediaItem, getMediaPreviewUrl } from "../../mediaCenter/api";
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
+
+// Same 24:5 ratio the public store page cover uses, so the preview shows the same crop.
+const BANNER_RECOMMENDED_SIZE = "1920×400";
 
 function BannerPreview({ url, fileName }: { url: string; fileName: string }) {
     if (isStoreBannerVideoUrl(url, fileName)) {
@@ -21,7 +24,7 @@ function BannerPreview({ url, fileName }: { url: string; fileName: string }) {
             />
         );
     }
-    return <img src={url} alt="Banner" className="w-full h-full object-cover" />;
+    return <Image src={url} alt="بانر المتجر" fill sizes="448px" className="object-cover" />;
 }
 
 interface StoreSingleBannerSelectorProps {
@@ -59,29 +62,32 @@ export function StoreSingleBannerSelector({
                     بانر المتجر {required && <span className="text-red-500">*</span>}
                 </label>
                 <span className="text-xs text-gray-2">
-                    المقاسات المفضلة للصور 680 × 180 — يمكن اختيار فيديو من المعرض
+                    المقاس المقترح {BANNER_RECOMMENDED_SIZE} بكسل — قد تُقص الأطراف قليلًا على الجوال
+                    <br />
+                    يمكن اختيار صورة أو فيديو من المعرض
                 </span>
             </div>
 
-            <div className="w-60">
+            <div className="w-full max-w-md">
                 {!previewUrl ? (
-                    <div
+                    <button
+                        type="button"
                         onClick={() => setIsModalOpen(true)}
                         className={cn(
-                            "w-full h-40rounded-lg",
+                            "w-full aspect-24/5 min-h-28 rounded-lg",
                             "flex flex-col items-center justify-center gap-1 cursor-pointer transition-all",
                             "bg-[#F8F8F8] hover:bg-gray-100"
                         )}
                     >
-                        <div className="w-10 h-10 rounded-full mb-2 border-2 border-gray-1 flex items-center justify-center transition-colors">
-                            <Plus className="w-5 h-5 text-gray-2" />
+                        <div className="w-8 h-8 rounded-full mb-1 border-2 border-gray-1 flex items-center justify-center transition-colors">
+                            <Plus className="w-4 h-4 text-gray-2" />
                         </div>
                         <span className="text-xs text-gray-3 font-medium">أضف بانر</span>
                         <span className="text-xs text-gray-3">صور أو فيديو (من الميديا)</span>
-                    </div>
+                    </button>
                 ) : (
                     <div className="w-full bg-white rounded-xl border border-gray-200 overflow-hidden">
-                        <div className="h-30 w-full bg-gray-100 relative">
+                        <div className="aspect-24/5 w-full bg-gray-100 relative">
                             <BannerPreview url={previewUrl} fileName={value || ""} />
                         </div>
 
@@ -99,7 +105,7 @@ export function StoreSingleBannerSelector({
                                 className="shrink-0 flex min-w-9 min-h-9 items-center justify-center rounded-md bg-red-2 cursor-pointer touch-manipulation"
                                 aria-label="حذف البنر"
                             >
-                                <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
+                                <Image src="/icons/dashboard/trash.svg" width={16} height={16} alt="" />
                             </button>
                         </div>
                     </div>

@@ -62,7 +62,9 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
 
     return (
         <div className="relative mb-8 bg-white shadow-sm border-b border-gray-100 pb-2 md:pb-6">
-            <div className="relative h-44 md:h-[200px] lg:h-[250px] overflow-hidden w-full ">
+            {/* 24:5 matches the 1920×400 size recommended in settings. The px min-height keeps room for the
+                overlapping avatar on phones (px, not rem, because of the 85% root font-size). */}
+            <div className="relative aspect-24/5 min-h-[176px] max-h-[400px] overflow-hidden w-full">
                 {user.cover_url ? (
                     isVideoFile(user.cover_url) ? (
                         <video
@@ -175,7 +177,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                         <h1 className="text-xl lg:text-2xl font-medium pt-2">{user.fullname}</h1>
                         <p className="text-gray-500 text-sm  font-medium mb-3">{user.city?.name}</p>
 
-                        {/* الجوال: صف واحد مضغوط | الديسكتوب: كما كان سابقاً */}
+                        {/* Mobile: one compact row | desktop: original layout */}
                         {/* On desktop the row is pushed to the bottom so it lines up with the followers row in column 1 */}
                         <div className="flex w-full max-w-full flex-1 flex-row flex-nowrap items-stretch justify-center gap-1.5 max-md:max-w-full md:mt-auto md:max-w-none md:flex-none md:items-center md:justify-start md:gap-3">
                             {isOwnProfile ? (

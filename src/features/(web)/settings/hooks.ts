@@ -290,7 +290,7 @@ export const useUpdateAvatar = () => {
         onSuccess: (data) => {
             toast.success(data.message || "تم تحديث الصورة");
             
-            // الباكند يُرجع avatar_url في root مباشرة: { status, message, avatar_url }
+            // Backend returns avatar_url at the root: { status, message, avatar_url }
             const newAvatarUrl = data?.avatar_url || data?.data?.avatar_url || data?.data?.avatar;
             if (newAvatarUrl) {
                 useAuthStore.getState().updateUser({ 
@@ -309,16 +309,14 @@ export const useUpdateCover = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (cover: File) => updateCover(cover),
+        // No toasts here: the cover uploads as part of the profile save, whose success toast covers it,
+        // and the axios interceptor already toasts the backend error.
         onSuccess: (data) => {
-            toast.success(data.message || "تم تحديث صورة الغلاف");
-            // الباك: returnData(['cover_url' => ...]) → { status, message, cover_url } في الجذر
+            // Backend returns { status, message, cover_url } at the root.
             const newCoverUrl = data?.cover_url ?? data?.data?.cover_url;
             if (newCoverUrl) {
                 useAuthStore.getState().updateUser({ cover: newCoverUrl, cover_url: newCoverUrl });
             }
-        },
-        onError: () => {
-            toast.error("حدث خطأ أثناء تحديث صورة الغلاف");
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });

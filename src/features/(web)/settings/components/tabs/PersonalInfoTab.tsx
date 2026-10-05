@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Camera, Calendar as CalendarIcon, Plus } from "lucide-react";
+import { Camera, Calendar as CalendarIcon, Plus, Loader2, X } from "lucide-react";
 import { useGetAccount, useUpdateAccount, useUpdateAvatar, useUpdateCover, useGetCities } from "../../hooks";
 import { cn } from "@/src/lib/utils";
 import Image from "next/image";
@@ -23,6 +23,25 @@ const personalInfoSchema = z.object({
 
 type FormErrors = Partial<Record<keyof typeof personalInfoSchema.shape, string>>;
 
+const COVER_MAX_SIZE_MB = 2;
+const COVER_MAX_SIZE_BYTES = COVER_MAX_SIZE_MB * 1024 * 1024;
+const COVER_ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+// Same 24:5 ratio the profile page cover uses on tablet/desktop, so the image shows uncropped there.
+// On phones the cover keeps a min height for the overlapping avatar, which trims the sides.
+const COVER_RECOMMENDED_SIZE = "1920×400";
+
+/** Returns a user-facing error message, or null when the file is acceptable. */
+const validateCoverFile = (file: File): string | null => {
+    if (!COVER_ACCEPTED_TYPES.includes(file.type)) {
+        return "صيغة الملف غير مدعومة — المسموح: PNG أو JPG أو WEBP";
+    }
+    if (file.size > COVER_MAX_SIZE_BYTES) {
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+        return `حجم الصورة ${sizeMb} ميغابايت — الحد الأقصى ${COVER_MAX_SIZE_MB} ميغابايت`;
+    }
+    return null;
+};
+
 export default function PersonalInfoTab() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const coverInputRef = useRef<HTMLInputElement>(null);
@@ -30,7 +49,7 @@ export default function PersonalInfoTab() {
     const { data: accountData, isLoading: isLoadingAccount } = useGetAccount();
     const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
     const { mutate: updateAvatar, isPending: isUploadingAvatar } = useUpdateAvatar();
-    const { mutate: updateCover, isPending: isUploadingCover } = useUpdateCover();
+    const { mutateAsync: updateCover, isPending: isUploadingCover } = useUpdateCover();
 
     // City search state
     const [citySearch, setCitySearch] = useState("");
@@ -58,7 +77,19 @@ export default function PersonalInfoTab() {
 
     const [errors, setErrors] = useState<FormErrors>({});
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-    const [coverPreview, setCoverPreview] = useState<string | null>(null);
+    const [serverCover, setServerCover] = useState<string | null>(null);
+    // A picked cover is only uploaded on save; until then it is previewed from a local object URL.
+    const [pendingCover, setPendingCover] = useState<{ file: File; url: string } | null>(null);
+    const [coverError, setCoverError] = useState<string | null>(null);
+    const [isDraggingCover, setIsDraggingCover] = useState(false);
+
+    const coverPreview = pendingCover?.url ?? serverCover;
+    const isSaving = isUpdating || isUploadingCover;
+
+    useEffect(() => {
+        if (!pendingCover) return;
+        return () => URL.revokeObjectURL(pendingCover.url);
+    }, [pendingCover]);
 
     // Populate form with existing data
     useEffect(() => {
@@ -73,8 +104,8 @@ export default function PersonalInfoTab() {
                 bio: user.bio || "",
             });
             setAvatarPreview(user.avatar_url ?? user.avatar ?? null);
-            // الحساب من الباك: `cover` في ProfileResource؛ رفع الغلاف يعيد `cover_url` في JSON
-            setCoverPreview(user.cover_url ?? user.cover ?? null);
+            // ProfileResource returns the cover as `cover`; the upload endpoint returns `cover_url`.
+            setServerCover(user.cover_url ?? user.cover ?? null);
         }
     }, [accountData]);
 
@@ -83,7 +114,23 @@ export default function PersonalInfoTab() {
     };
 
     const handleCoverClick = () => {
+        if (isSaving) return;
         coverInputRef.current?.click();
+    };
+
+    const selectCoverFile = (file: File) => {
+        const error = validateCoverFile(file);
+        if (error) {
+            setCoverError(error);
+            return;
+        }
+        setCoverError(null);
+        setPendingCover({ file, url: URL.createObjectURL(file) });
+    };
+
+    const clearPendingCover = () => {
+        setPendingCover(null);
+        setCoverError(null);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,14 +147,17 @@ export default function PersonalInfoTab() {
 
     const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setCoverPreview(e.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-            updateCover(file);
-        }
+        // Reset so picking the same file again after an error still fires onChange.
+        e.target.value = "";
+        if (file) selectCoverFile(file);
+    };
+
+    const handleCoverDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDraggingCover(false);
+        if (isSaving) return;
+        const file = e.dataTransfer.files?.[0];
+        if (file) selectCoverFile(file);
     };
 
     const validateForm = () => {
@@ -125,11 +175,22 @@ export default function PersonalInfoTab() {
         return true;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (validateForm()) {
-            updateAccount(formData);
+        if (isSaving || !validateForm()) return;
+
+        if (pendingCover) {
+            try {
+                const res = await updateCover(pendingCover.file);
+                const uploadedUrl = res?.cover_url ?? res?.data?.cover_url;
+                if (uploadedUrl) setServerCover(uploadedUrl);
+                setPendingCover(null);
+            } catch {
+                // The axios interceptor already toasts the backend error; keep the file so the user can retry.
+                return;
+            }
         }
+        updateAccount(formData);
     };
 
     const bioLength = formData.bio.length;
@@ -335,42 +396,98 @@ export default function PersonalInfoTab() {
                         <div className="flex flex-col gap-3">
                             <label className="text-sm font-medium text-[#4B5563] text-right">صورة الغلاف</label>
                             <div
+                                role="button"
+                                tabIndex={0}
+                                aria-label="اختيار صورة الغلاف"
+                                aria-busy={isUploadingCover}
                                 onClick={handleCoverClick}
-                                className="relative w-full h-36 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 overflow-hidden cursor-pointer hover:border-blue-3 transition-colors group"
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        handleCoverClick();
+                                    }
+                                }}
+                                onDragOver={(e) => {
+                                    e.preventDefault();
+                                    if (!isSaving) setIsDraggingCover(true);
+                                }}
+                                onDragLeave={() => setIsDraggingCover(false)}
+                                onDrop={handleCoverDrop}
+                                className={cn(
+                                    "relative w-full aspect-24/5 min-h-28 rounded-xl border-2 border-dashed bg-gray-50 overflow-hidden transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-c2-primary",
+                                    isSaving ? "cursor-not-allowed" : "cursor-pointer hover:border-c2-primary",
+                                    coverError
+                                        ? "border-c2-danger"
+                                        : isDraggingCover
+                                            ? "border-c2-primary bg-c2-navy-50"
+                                            : pendingCover
+                                                ? "border-c2-primary"
+                                                : "border-gray-200"
+                                )}
                             >
                                 {coverPreview ? (
                                     <>
                                         <Image
                                             src={coverPreview}
-                                            alt="Cover"
+                                            alt="صورة الغلاف"
                                             fill
+                                            sizes="(min-width: 768px) 75vw, 100vw"
                                             className="object-cover"
                                         />
-                                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <Camera className="w-6 h-6 text-white" />
-                                            <span className="text-white text-sm ms-2">تغيير الغلاف</span>
-                                        </div>
+                                        {!isUploadingCover && (
+                                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <Camera className="w-6 h-6 text-white" />
+                                                <span className="text-white text-sm ms-2">تغيير الغلاف</span>
+                                            </div>
+                                        )}
                                     </>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center h-full gap-2 text-gray-400">
-                                        {isUploadingCover ? (
-                                            <span className="text-sm">جاري الرفع...</span>
-                                        ) : (
-                                            <>
-                                                <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                                                    <Plus className="w-5 h-5" />
-                                                </div>
-                                                <span className="text-sm">اضف او اسحب صورة</span>
-                                                <span className="text-xs text-gray-300">png , jpg , svg</span>
-                                            </>
-                                        )}
+                                        <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                                            <Plus className="w-5 h-5" />
+                                        </div>
+                                        <span className="text-sm">اضف او اسحب صورة</span>
                                     </div>
                                 )}
+
+                                {isUploadingCover && (
+                                    <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-2 text-white">
+                                        <Loader2 className="w-7 h-7 animate-spin" />
+                                        <span className="text-sm">جاري رفع الغلاف...</span>
+                                    </div>
+                                )}
+
+                                {pendingCover && !isUploadingCover && (
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            clearPendingCover();
+                                        }}
+                                        aria-label="إلغاء الصورة المختارة"
+                                        className="absolute top-2 inset-s-2 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white shadow flex items-center justify-center text-gray-600 cursor-pointer"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                )}
                             </div>
+                            {coverError ? (
+                                <p className="text-c2-danger text-xs px-4">{coverError}</p>
+                            ) : pendingCover ? (
+                                <p className="text-c2-primary text-xs px-4">
+                                    سيتم رفع الغلاف الجديد عند الضغط على حفظ
+                                </p>
+                            ) : (
+                                <p className="text-gray-400 text-xs px-4">
+                                    المقاس المقترح {COVER_RECOMMENDED_SIZE} بكسل — قد تُقص الأطراف قليلًا على الجوال
+                                    <br />
+                                    PNG أو JPG أو WEBP — حتى {COVER_MAX_SIZE_MB} ميغابايت
+                                </p>
+                            )}
                             <input
                                 ref={coverInputRef}
                                 type="file"
-                                accept="image/png,image/jpeg,image/svg+xml"
+                                accept={COVER_ACCEPTED_TYPES.join(",")}
                                 onChange={handleCoverChange}
                                 className="hidden"
                             />
@@ -407,13 +524,14 @@ export default function PersonalInfoTab() {
                         <div className="mt-4 flex justify-end">
                             <button
                                 type="submit"
-                                disabled={isUpdating}
+                                disabled={isSaving || isUploadingAvatar}
                                 className={cn(
-                                    "bg-c2-primary hover:bg-c2-navy-600 text-white px-14 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer",
-                                    isUpdating && "opacity-60 cursor-not-allowed"
+                                    "bg-c2-primary hover:bg-c2-navy-600 text-white px-14 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer inline-flex items-center gap-2",
+                                    (isSaving || isUploadingAvatar) && "opacity-60 cursor-not-allowed active:scale-100"
                                 )}
                             >
-                                {isUpdating ? "جاري الحفظ..." : "حفظ"}
+                                {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                                {isUploadingCover ? "جاري رفع الغلاف..." : isUpdating ? "جاري الحفظ..." : "حفظ"}
                             </button>
                         </div>
                     </div>
