@@ -2,7 +2,7 @@
 
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import Image from "next/image";
-import { PenLine, Star, User } from "lucide-react";
+import { MessageSquarePlus, Star, User } from "lucide-react";
 import { sanitizeMediaUrl } from "@/src/lib/utils";
 import { useUser } from "@/src/auth/session";
 import { ReviewForm, type ReviewFormRef } from "./ReviewForm";
@@ -72,7 +72,7 @@ export const ReviewComposer = forwardRef<ReviewFormRef, ReviewComposerProps>(fun
                     </span>
 
                     <span className="flex shrink-0 items-center gap-1 rounded-full bg-c2-primary px-4 py-2 text-xs font-medium text-white sm:text-sm">
-                        <PenLine size={15} />
+                        <MessageSquarePlus size={15} />
                         <span>أضف تقييمك</span>
                     </span>
                 </button>
