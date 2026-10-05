@@ -29,7 +29,7 @@ import { Badge } from "@/src/components/ui/badge";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { cn } from "@/src/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import Cookies from "js-cookie"; // ✅ للتحقق من الصلاحيات
+import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
@@ -61,16 +61,15 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successModalTitle, setSuccessModalTitle] = useState("");
-    // بعد قبول/رفض خدمة كانت "قيد المراجعة" → نُوجّه الأدمن لتبويب قيد المراجعة
+    // After approving/rejecting a pending service, send the admin back to the pending review tab
     const [redirectToReviewList, setRedirectToReviewList] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [activeImage, setActiveImage] = useState<string>("");
-    const [isAdmin, setIsAdmin] = useState(false); // ✅ حالة الأدمن
-    const [isMerchant, setIsMerchant] = useState(false); // ✅ حالة التاجر
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isMerchant, setIsMerchant] = useState(false);
     const [currentStoreId, setCurrentStoreId] = useState<number | null>(null);
 
-    // التحقق من صلاحية الأدمن عند التحميل
     useEffect(() => {
         const userType = Cookies.get("user_type");
         setIsAdmin(userType === "admin");
@@ -125,9 +124,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
             storeId
         }, {
             onSuccess: () => {
-                // تحديث البيانات فوراً لإخفاء الشريط
                 queryClient.invalidateQueries({ queryKey: ["services"] });
-                queryClient.invalidateQueries({ queryKey: ["services", serviceId] }); // تحديث الخدمة الحالية
+                queryClient.invalidateQueries({ queryKey: ["services", serviceId] });
                 setSuccessModalTitle("تم قبول الخدمة بنجاح");
                 if (wasInReview) setRedirectToReviewList(true);
                 setIsSuccessModalOpen(true);
@@ -235,11 +233,12 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     return (
         <div className="flex min-h-screen flex-col bg-[#F7F8FA] pb-10">
             {/* Header Area */}
-            <div className="space-y-4">
+            {/* flex gap, not space-y: the breadcrumb's mb-0 cancels space-y's margin and glues the next card to it */}
+            <div className="flex flex-col gap-4">
                 <Breadcrumb items={breadcrumbItems} withContainer className="mb-0"/>
 
                 {isOwner && (currentStatus === "pending" || currentStatus === "rejected") && (
-                    <div className="">
+                    <div>
                         <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between" dir="rtl">
                             <div>
                                 <p className="text-base font-bold text-gray-900">إدارة الخدمة قبل اعتمادها</p>
@@ -285,17 +284,16 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     dismissAlert();
                                 }
                             }}
-                            className={"mt-6"}
                         />
                     </div>
                 )}
 
 
-                {/* ✅ Action Bar: يظهر للأدمن عندما تكون الحالة pending أو rejected أو approved */}
+                {/* Admin action bar */}
                 {isAdmin && (service.status === "pending" || service.status === "rejected" || service.status === "approved") && (
-                    <div className="mt-4 px-4 md:px-0">
+                    <div className="px-4 md:px-0">
                         <div className="px-6 py-4 flex items-center justify-between border border-gray-100 bg-white rounded-2xl shadow-sm">
-                            <h2 className="text-lg font-bold ">اختر الاجراء المناسب للخدمة</h2>
+                            <h2 className="text-lg font-bold ">اختر الإجراء المناسب للخدمة</h2>
                             <div className="flex gap-3">
                                 {service.status !== "approved" && (
                                     <Button

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
@@ -102,6 +103,10 @@ export function StoreShippingFields({
         : [...shippingCompanies, company];
 
     onChange({ delivery_type: "shipping", shippingCompanies: nextCompanies });
+
+    if (editingCompanyIndex !== null) {
+      toast.success("تم تعديل شركة الشحن بنجاح");
+    }
   };
 
   /** The first company in the list is the store's default one. */
