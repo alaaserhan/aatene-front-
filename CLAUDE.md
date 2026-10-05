@@ -1,5 +1,14 @@
 # Project notes for Claude
 
+@AGENTS.md
+
+## Copy is Modern Standard Arabic — not a dialect
+
+The audience is Arabic speakers across the region, not only Egyptians. Write
+every user-facing string in clear Modern Standard Arabic (فصحى مبسطة), never
+Egyptian or another colloquial dialect (`بيظهر`, `تقدر`, `ما لقيت`, `علشان`...).
+Rewrite colloquial copy in older screens when you're already editing it.
+
 ## Comments are English — always
 
 Never write a code comment in Arabic. Every `//`, `/* */`, JSDoc block and JSX
