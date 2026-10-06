@@ -34,6 +34,7 @@ import { useStoreWhoFavorited } from "../hooks";
 import { useUser } from "@/src/auth/session";
 import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
+import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -323,6 +324,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     const [showReportModal, setShowReportModal] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
     const [showPhoneDialog, setShowPhoneDialog] = useState(false);
+    const [showCoverPreview, setShowCoverPreview] = useState(false);
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const covers = store.cover_urls || [];
@@ -342,13 +344,14 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
         created_at: s.created_at,
     }));
 
+    // Paused while the preview is open so the header doesn't keep sliding behind it
     useEffect(() => {
-        if (covers.length <= 1) return;
+        if (covers.length <= 1 || showCoverPreview) return;
         const interval = setInterval(() => {
             setCurrentImageIndex((prev) => (prev === covers.length - 1 ? 0 : prev + 1));
         }, 5000);
         return () => clearInterval(interval);
-    }, [covers.length]);
+    }, [covers.length, showCoverPreview]);
 
     const handleNext = () => {
         setCurrentImageIndex((prev) => (prev === covers.length - 1 ? 0 : prev + 1));
@@ -365,9 +368,10 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     return (
         <>
             <div className="relative bg-white card-shadow pb-4">
-                {/* 24:5 matches the 1920×400 banner size recommended in the store settings. The px min-height
-                    keeps room for the overlapping logo on phones (px, not rem, because of the 85% root font-size). */}
-                <div className="relative aspect-24/5 min-h-[176px] max-h-[400px] w-full overflow-hidden group">
+                {/* 24:5 matches the 1920×400 banner size recommended in the store settings. Phones use 3:1
+                    instead: a true 24:5 strip is only ~80px tall there, too thin under the overlapping logo,
+                    and 3:1 still shows most of the banner where a fixed min-height cropped it hard. */}
+                <div className="relative aspect-3/1 sm:aspect-24/5 max-h-[400px] w-full overflow-hidden group">
                     {covers.length > 0 ? (
                         currentCoverIsVideo ? (
                             <video
@@ -395,17 +399,30 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                     )}
                     <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
+                    {/* Phones crop the cover, so a tap opens it uncropped. A sibling of the
+                        arrows rather than their parent, so arrow clicks never open it. */}
+                    {covers.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => setShowCoverPreview(true)}
+                            aria-label="عرض صورة الغلاف"
+                            className="absolute inset-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70"
+                        />
+                    )}
+
                     {covers.length > 1 && (
                         <>
+                            {/* Hover-only arrows are invisible on touch screens yet still catch taps,
+                                which would steal them from the preview; swiping in the preview covers it */}
                             <button
                                 onClick={handleNext}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 hover:bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 cursor-pointer text-white"
+                                className="pointer-coarse:hidden absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 hover:bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 cursor-pointer text-white"
                             >
                                 <ChevronRight className="w-6 h-6" />
                             </button>
                             <button
                                 onClick={handlePrev}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 hover:bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 cursor-pointer text-white"
+                                className="pointer-coarse:hidden absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 hover:bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 cursor-pointer text-white"
                             >
                                 <ChevronLeft className="w-6 h-6" />
                             </button>
@@ -731,6 +748,13 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                     onClose={() => setShowWhoFavorited(false)}
                 />
             )}
+
+            <MediaViewer
+                isOpen={showCoverPreview}
+                onClose={() => setShowCoverPreview(false)}
+                media={covers}
+                initialIndex={currentImageIndex}
+            />
 
             <ShareModal
                 isOpen={showShareModal}
