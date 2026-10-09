@@ -78,7 +78,7 @@ interface VariationWithAttributeOptions extends Variation {
   attributes?: AttributeOption[];
 }
 
-/** بيانات العروض المرتبطة تُرسل كما هي — لم تعد جزءاً من نموذج التعديل */
+/** Cross-sell data is sent back unchanged — it is no longer part of the edit form. */
 interface CrossSellsSnapshot {
   crossSells: number[];
   cross_sells_price?: number;
@@ -126,11 +126,11 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const [sectionId, setSectionId] = useState<number | undefined>(undefined);
   const [tags, setTags] = useState<string[]>([]);
   const [variations, setVariations] = useState<Step3FormData | null>(null);
-  /** النسخة الأولية للاختلافات — تُستخدم لتهيئة الحقول مرة واحدة فقط */
+  /** Initial variations snapshot — seeds the fields once only. */
   const [variationsSeed, setVariationsSeed] = useState<Step3FormData | undefined>(undefined);
   const [crossSells, setCrossSells] = useState<CrossSellsSnapshot>({ crossSells: [] });
 
-  /** الأخطاء تظهر فقط بعد أول محاولة حفظ، ثم تختفي تلقائياً عند إصلاح الحقل */
+  /** Errors show only after the first save attempt, then clear as each field is fixed. */
   const [showErrors, setShowErrors] = useState(false);
 
   const [mappingError, setMappingError] = useState(false);
@@ -294,8 +294,8 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     return [{ label: "المنتجات", href: backHref }, { label: "تعديل المنتج" }];
   }, [fromUrl, storeId]);
 
-  // ---------------------------------------------------------------- توليد الكلمات المفتاحية
-  /** تُستدعى عند الخروج من حقل الوصف */
+  // ---------------------------------------------------------------- Keyword generation
+  /** Called when the description field loses focus. */
   const generateKeywords = () => {
     if (!basic) return;
     const title = basic.name.trim();
@@ -312,7 +312,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         const generatedKeywords = data.results?.keywords || [];
         if (generatedKeywords.length === 0) return;
         setAiKeywords(generatedKeywords);
-        // لا نستبدل الكلمات الموجودة على المنتج أو التي أضافها المستخدم
+        // Never overwrite the product's existing tags or ones the user added.
         setTags((prev) => (prev.length > 0 ? prev : generatedKeywords));
       })
       .catch((error) => {
@@ -320,7 +320,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       });
   };
 
-  // ---------------------------------------------------------------- التحقق
+  // ---------------------------------------------------------------- Validation
   const collectErrors = (): Record<string, string> => {
     if (!basic) return {};
     const newErrors = validateProductStep1(basic);
@@ -328,7 +328,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     return newErrors;
   };
 
-  // الأخطاء محسوبة أثناء العرض، فتختفي بمجرد إصلاح الحقل
+  // Errors are derived during render, so they disappear as soon as a field is fixed.
   const errors = showErrors ? collectErrors() : {};
   const variationsError =
     showErrors && variations ? validateProductVariations(variations) : null;
@@ -359,7 +359,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     if (basicErrorKeys.length > 0) {
       setOpenAccordion("basic");
       toast.error("يرجى إكمال حقول المعلومات الأساسية المطلوبة");
-      // ننتظر فتح الأكورديون قبل التمرير للحقل
+      // Wait for the accordion to open before scrolling to the field.
       setTimeout(() => scrollToFirstError(basicErrorKeys[0]), 100);
       return;
     }
@@ -389,7 +389,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       ask_for_price: basic.ask_for_price,
       status: product?.status || "pending",
       tags,
-      // العروض المرتبطة تُرسل كما هي حتى لا تُفقد عند التعديل
+      // Cross-sells are sent back unchanged so editing doesn't drop them.
       crossSells: [...new Set(crossSells.crossSells)],
       cross_sells_price: crossSells.cross_sells_price,
       cross_sells_due_date: crossSells.cross_sells_due_date,
@@ -405,7 +405,9 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         .filter((v) => v.enabled)
         .map((v) => ({
           price: v.price,
-          image: v.images[0] || "",
+          // `images` holds full display URLs until ProductVariationsFields mounts and
+          // swaps them for file names; the backend only accepts the stored file name.
+          image: v.imageFileName || "",
           attributeOptions: Object.entries(v.attributeValues).map(([attrId, optionId]) => ({
             attribute_id: Number(attrId) || 0,
             option_id: Number(optionId) || 0,
