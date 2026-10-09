@@ -9,10 +9,10 @@ import { Report } from "../api";
 import { getRelativeTimeArabic, formatDateTime } from "@/src/lib/date-helper";
 
 const STATUS_STYLES: Record<string, string> = {
-    pending: "bg-red-50 text-red-500",
-    processing: "bg-blue-1 text-blue-4",
-    finished: "bg-green-50 text-green-500",
-    cancelled: "bg-gray-50 text-gray-2",
+    pending: "bg-c2-amber-50 text-c2-orange-600",
+    processing: "bg-c2-lime-100 text-c2-olive-600",
+    finished: "bg-c2-green-100 text-c2-green-800",
+    cancelled: "bg-c2-red-100 text-c2-red-700",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -43,7 +43,7 @@ export function ReportsTable({ reports, isLoading, showStore = true, emptyMessag
                         )}
                         <th className="hidden sm:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">تم الانشاء</th>
                         <th className="hidden md:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">تاريخ الانشاء</th>
-                        <th className="px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">حالة الشكوي</th>
+                        <th className="px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">حالة الشكوى</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">

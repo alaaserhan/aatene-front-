@@ -139,6 +139,14 @@
   /* deeper green — approve/accept action buttons */
   --c2-green-600: #07b131;
   --c2-amber-400: #fb923c;
+  /* report status pills — resolved / cancelled / under review / processing (surface + text) */
+  --c2-green-100: #b9ffda;
+  --c2-green-800: #008c42;
+  --c2-red-100: #fee2e2;
+  --c2-amber-50: #fef5e2;
+  --c2-orange-600: #f05100;
+  --c2-lime-100: #f5fcc1;
+  --c2-olive-600: #baa804;
 
   /* semantic aliases */
   --c2-primary: var(--c2-navy-700);
@@ -255,6 +263,13 @@
   --color-c2-green-500: var(--c2-green-500);
   --color-c2-green-600: var(--c2-green-600);
   --color-c2-amber-400: var(--c2-amber-400);
+  --color-c2-green-100: var(--c2-green-100);
+  --color-c2-green-800: var(--c2-green-800);
+  --color-c2-red-100: var(--c2-red-100);
+  --color-c2-amber-50: var(--c2-amber-50);
+  --color-c2-orange-600: var(--c2-orange-600);
+  --color-c2-lime-100: var(--c2-lime-100);
+  --color-c2-olive-600: var(--c2-olive-600);
   --color-c2-primary: var(--c2-primary);
   --color-c2-danger: var(--c2-danger);
   --color-c2-warning: var(--c2-warning);
