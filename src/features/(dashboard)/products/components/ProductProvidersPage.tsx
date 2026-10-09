@@ -12,6 +12,7 @@ import { ProductProvidersTable } from "./ProductProvidersTable";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { Input } from "@/src/components/ui/input";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { useDebounce } from "@/src/hooks/use-debounce";
 import { useGetProducts, useUpdateProductStatus, useUpdateProductShown, useDeleteProduct } from "../hooks";
 import { MerchantProductStatus, Product } from "../api";
 import { ProductTable } from "./ProductTable";
@@ -29,12 +30,11 @@ const productStatusTabs: { key: MerchantProductStatus; label: string; activeClas
     { key: "rejected", label: "مرفوض", activeClass: "border-red-500 text-red-500", activeTextClass: "text-red-500", badgeClass: "bg-red-500" },
 ];
 
-// ── مكوّن عرض كل المنتجات (بدون شريط أقسام جانبي) ──
 function AllProductsSection() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // يسمح بفتح تبويب حالة محددة عبر ?status= (مثلاً بعد قبول/رفض منتج قيد المراجعة)
+    // ?status= opens a specific status tab (e.g. after approving/rejecting a pending product)
     const statusParam = searchParams.get("status") as MerchantProductStatus | null;
     const initialStatus: MerchantProductStatus =
         statusParam && productStatusTabs.some((tab) => tab.key === statusParam) ? statusParam : "approved";
@@ -44,15 +44,16 @@ function AllProductsSection() {
     const [currentPage, setCurrentPage] = useState(1);
     const [productToDelete, setProductToDelete] = useState<number | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const debouncedSearch = useDebounce(searchQuery);
 
     const productsQueryParams = useMemo(() => {
         const params = new URLSearchParams();
         params.set("page", String(currentPage));
         params.set("per_page", "10");
         params.set("status", activeStatus);
-        if (searchQuery) params.set("name", searchQuery);
+        if (debouncedSearch) params.set("name", debouncedSearch);
         return params;
-    }, [activeStatus, searchQuery, currentPage]);
+    }, [activeStatus, debouncedSearch, currentPage]);
 
     const { data: productsData, isLoading } = useGetProducts(productsQueryParams, {
         staleTime: 0,
@@ -62,9 +63,9 @@ function AllProductsSection() {
     const products = productsData?.data || [];
     const totalPages = Math.ceil((productsData?.recordsFiltered || 0) / 10);
 
-    const activeCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "approved"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
-    const notActiveCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "pending"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
-    const rejectedCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "rejected"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
+    const activeCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "approved"); p.set("per_page", "1"); if (debouncedSearch) p.set("name", debouncedSearch); return p; }, [debouncedSearch]);
+    const notActiveCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "pending"); p.set("per_page", "1"); if (debouncedSearch) p.set("name", debouncedSearch); return p; }, [debouncedSearch]);
+    const rejectedCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "rejected"); p.set("per_page", "1"); if (debouncedSearch) p.set("name", debouncedSearch); return p; }, [debouncedSearch]);
 
     const { data: activeCountData } = useGetProducts(activeCountParams);
     const { data: notActiveCountData } = useGetProducts(notActiveCountParams);
@@ -178,7 +179,6 @@ function AllProductsSection() {
     );
 }
 
-// ── مكوّن عرض مقدمي المنتجات ──
 function ProvidersSection() {
     const router = useRouter();
 
@@ -187,6 +187,7 @@ function ProvidersSection() {
     const [currentPage, setCurrentPage] = useState(1);
     const [storeToDelete, setStoreToDelete] = useState<number | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const debouncedSearch = useDebounce(searchQuery);
 
     const queryParams = useMemo(() => {
         const params = new URLSearchParams();
@@ -194,9 +195,9 @@ function ProvidersSection() {
         params.set("per_page", "10");
         params.set("type", "products");
         if (statusFilter !== "all") params.set("status", statusFilter);
-        if (searchQuery) params.set("owner_name", searchQuery);
+        if (debouncedSearch) params.set("owner_name", debouncedSearch);
         return params;
-    }, [statusFilter, searchQuery, currentPage]);
+    }, [statusFilter, debouncedSearch, currentPage]);
 
     const { data, isLoading } = useGetStores(queryParams);
     const stores = data?.data || [];
@@ -274,7 +275,6 @@ function ProvidersSection() {
     );
 }
 
-// ── الصفحة الرئيسية بتبويبين ──
 type MainTab = "products" | "providers";
 
 export function ProductProvidersPage() {
@@ -285,7 +285,6 @@ export function ProductProvidersPage() {
             {/* Header */}
             <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-10">
                 <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:h-16 sm:py-0 sm:px-6">
-                    {/* تبويبان قابلان للنقر */}
                     <div className="flex items-center gap-1 overflow-x-auto no-scrollbar -mx-1 px-1">
                         <button
                             onClick={() => setActiveTab("products")}
@@ -309,7 +308,6 @@ export function ProductProvidersPage() {
                         </button>
                     </div>
 
-                    {/* زر الإضافة يظهر فقط في تبويب مقدمي المنتجات */}
                     {activeTab === "providers" && (
                         <Link href="/admin/users/add" className="w-full sm:w-auto">
                             <button className="flex w-full sm:w-auto items-center justify-center gap-2 bg-blue-3 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-4 transition-colors">
