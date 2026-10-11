@@ -45,7 +45,7 @@ export function AllReportsPage() {
             case "requested_service": return "بلاغات التجار";
             case "product": return "بلاغات المنتجات";
             case "service": return "بلاغات الخدمات";
-            case "general": return "بلاغات اخرى";
+            case "general": return "بلاغات أخرى";
             default: return "البلاغات";
         }
     };
@@ -63,7 +63,7 @@ export function AllReportsPage() {
 
     return (
         <div className="flex flex-col gap-0">
-            <ReportsTabs className="px-4 sm:px-6 bg-white" />
+            <ReportsTabs className="px-4 sm:px-6 pt-4 bg-white" />
 
             <main className="flex-1 p-4 sm:p-6">
                 <div className="bg-white rounded-lg border border-gray-200 overflow-visible">

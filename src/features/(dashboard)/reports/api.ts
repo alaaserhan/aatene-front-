@@ -80,6 +80,21 @@ export interface ReportsListResponse {
   data: Report[];
 }
 
+export interface ReportsStatsResponse {
+  status: boolean;
+  message: string;
+  total: number;
+  by_type: {
+    products: number;
+    stores: number;
+    services: number;
+    requested_services: number;
+    comments: number;
+    board_questions: number;
+    board_answers: number;
+  };
+}
+
 export interface ReportTypesListResponse {
   status: boolean;
   message: string;
@@ -145,6 +160,12 @@ export const getReports = async (params?: ReportsParams): Promise<ReportsListRes
   if (params?.status) queryParams.append("status", params.status);
 
   const { data } = await api.get<ReportsListResponse>(`${endpoint}?${queryParams.toString()}`);
+  return data;
+};
+
+export const getReportsStats = async (): Promise<ReportsStatsResponse> => {
+  const endpoint = getDynamicEndpoint("/reports/stats");
+  const { data } = await api.get<ReportsStatsResponse>(endpoint);
   return data;
 };
 

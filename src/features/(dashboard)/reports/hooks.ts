@@ -13,7 +13,14 @@ export function useGetReports(params?: api.ReportsParams) {
   });
 }
 
-// New Hook: Get Report Types
+// Keyed under "reports" so every mutation that invalidates the list refreshes the counts too.
+export function useGetReportsStats() {
+  return useQuery({
+    queryKey: ["reports", "stats"],
+    queryFn: api.getReportsStats,
+  });
+}
+
 export function useGetReportTypes(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["report-types"],
