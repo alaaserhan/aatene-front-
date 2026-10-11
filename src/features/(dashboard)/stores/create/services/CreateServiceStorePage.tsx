@@ -97,7 +97,7 @@ export function CreateServiceStorePage() {
     }));
     return options.length > 0
       ? options
-      : [{ value: "", label: "لا يوجد مستخدمين" }];
+      : [{ value: "", label: "لا يوجد مستخدمون" }];
   }, [usersData, isUsersLoading]);
 
   const clearError = (field: string) => {

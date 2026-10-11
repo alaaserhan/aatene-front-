@@ -8,7 +8,7 @@ import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarL
 import { Ban, User as UserIcon } from "lucide-react";
 
 interface UserListSidebarProps {
-  users: User[]; // نستقبل المصفوفة مباشرة الآن
+  users: User[];
   isLoading: boolean;
   isError: boolean;
   selectedUserId: number | null;
@@ -84,9 +84,8 @@ export function UserListSidebar({
       onFilterChange={onStatusFilterChange}
       filterOptions={statusFilterOptions}
       className={className}
-      emptyText="لا يوجد مستخدمين"
+      emptyText="لا يوجد مستخدمون"
       selectedId={selectedUserId}
-      // --- تمرير Props Infinite Scroll ---
       onLoadMore={onLoadMore}
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}

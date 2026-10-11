@@ -32,7 +32,7 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 import { formatDate } from "@/src/lib/date-helper";
 
 const SIDEBAR_TABS = [
-    { name: "المستخدمين المسيئين", value: "abusive-users" },
+    { name: "المستخدمون المسيئون", value: "abusive-users" },
     { name: "عرض جميع الكلمات المضافة", value: "all-words" },
 ];
 

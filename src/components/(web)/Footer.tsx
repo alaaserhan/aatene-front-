@@ -94,7 +94,7 @@ const Footer = () => {
         { label: "منتجات", href: localePath("/search?type=products") },
         { label: "متاجر", href: localePath("/search?type=stores") },
         { label: "خدمات", href: localePath("/search?type=services") },
-        { label: "المستخدمين", href: localePath("/search?type=users") },
+        { label: "المستخدمون", href: localePath("/search?type=users") },
         { label: "المدونات", href: localePath("/blogs") },
       ],
     },

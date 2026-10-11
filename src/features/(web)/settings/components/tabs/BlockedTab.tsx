@@ -84,7 +84,7 @@ export default function BlockedTab() {
                             : "bg-[#F3F6F9] text-blue-4 hover:bg-gray-100"
                     )}
                 >
-                    مستخدمين
+                    مستخدمون
                 </button>
             </div>
 

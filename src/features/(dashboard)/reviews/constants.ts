@@ -28,7 +28,7 @@ export const REVIEW_TYPE_META: Record<ReviewTargetType, ReviewTypeMeta> = {
     product: { tab: "المنتجات", nameColumn: "اسم المنتج", icon: Package },
     service: { tab: "الخدمات", nameColumn: "اسم الخدمة", icon: Wrench },
     store: { tab: "المتاجر", nameColumn: "اسم المتجر", icon: Store },
-    user: { tab: "المستخدمين", nameColumn: "اسم المستخدم", icon: User },
+    user: { tab: "المستخدمون", nameColumn: "اسم المستخدم", icon: User },
     blog: { tab: "المدونات", nameColumn: "اسم المدونة", icon: Newspaper },
     "requested-service": {
         tab: "الطلبات غير الموجودة",

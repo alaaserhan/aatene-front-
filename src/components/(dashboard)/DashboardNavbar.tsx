@@ -60,12 +60,12 @@ import Cookies from "js-cookie";
 import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from "@/src/config/role-permissions";
-// import { useGetStoreBalance } from "@/src/features/(dashboard)/coins/hooks"; // ⚠️ معطّل مؤقتاً - نظام العملات الذهبية
+// import { useGetStoreBalance } from "@/src/features/(dashboard)/coins/hooks"; // ⚠️ Temporarily disabled - gold coins system
 import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
 import { Badge } from "@/src/components/ui/badge";
 import { NavIconButton } from "../(web)/NavIconButton";
 
-// ⚠️ مكوّن رصيد العملات الذهبية - معطّل مؤقتاً
+// ⚠️ Gold coins balance component - temporarily disabled
 // const MerchantNavbarPoints = ({ storeId }: { storeId?: string | number | null }) => {
 //   const { data, isLoading } = useGetStoreBalance(undefined, storeId || undefined);
 //   const [mounted, setMounted] = React.useState(false);
@@ -213,7 +213,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const allNavItems: NavItem[] = [
 
     { label: "الرئيسة", icon: <img src={"/icons/dashboard/nav_home.svg"} alt="" />, href: "/home", show: true },
-    { label: "المستخدمين", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: hasAdminPerm("/users") },
+    { label: "المستخدمون", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: hasAdminPerm("/users") },
     { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: hasAdminPerm("/stores") || isMerchant },
     { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: isMerchant && (storeType === "products") && isAllowedByRole("/products") },
 

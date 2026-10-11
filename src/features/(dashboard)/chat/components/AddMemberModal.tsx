@@ -108,7 +108,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
                             {isLoading ? (
                                 <div className="p-4 text-center text-gray-500">جاري التحميل...</div>
                             ) : uniqueParticipants.length === 0 ? (
-                                <div className="p-4 text-center text-gray-500">لا يوجد مستخدمين</div>
+                                <div className="p-4 text-center text-gray-500">لا يوجد مستخدمون</div>
                             ) : (
                                 <div>
                                     {uniqueParticipants.map((participant) => {

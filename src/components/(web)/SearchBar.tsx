@@ -25,7 +25,7 @@ const SEARCH_TYPE_TABS: { value: SearchType; label: string }[] = [
   { value: "stores", label: "متاجر" },
   { value: "products", label: "منتجات" },
   { value: "services", label: "خدمات" },
-  { value: "users", label: "مستخدمين" },
+  { value: "users", label: "مستخدمون" },
 ];
 
 /** Filters that only make sense within one search type — dropped when the tab changes. */
