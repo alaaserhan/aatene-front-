@@ -2,9 +2,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, Search, Trash2, Eye, AlertTriangle, Ban, Users, MessageSquareWarning, Bell } from "lucide-react";
+import { Plus, Search, Trash2, Eye, AlertTriangle, Ban, Users, MessageSquareWarning, Bell, Filter } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Pagination } from "@/src/components/ui/Pagination";
@@ -35,6 +36,12 @@ const SIDEBAR_TABS = [
     { name: "عرض جميع الكلمات المضافة", value: "all-words" },
 ];
 
+const BANNED_FILTER_OPTIONS = [
+    { label: "الكل", value: "all" },
+    { label: "المحظورون", value: "1" },
+    { label: "غير المحظورين", value: "0" },
+];
+
 type ActionType = "delete-comment" | "block-user" | "send-alert" | "delete-word" | null;
 
 // Abusive words are never rendered in plain text in the list, not even in
@@ -52,6 +59,7 @@ interface PendingAction {
 export function AbusiveWordsPage() {
     const [activeTab, setActiveTab] = useState("abusive-users");
     const [searchQuery, setSearchQuery] = useState("");
+    const [bannedFilter, setBannedFilter] = useState("all");
     const [wordsSearchQuery, setWordsSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [wordsCurrentPage, setWordsCurrentPage] = useState(1);
@@ -70,8 +78,11 @@ export function AbusiveWordsPage() {
         if (searchQuery) {
             params.set("search", searchQuery);
         }
+        if (bannedFilter !== "all") {
+            params.set("is_banned", bannedFilter);
+        }
         return params;
-    }, [currentPage, searchQuery]);
+    }, [currentPage, searchQuery, bannedFilter]);
 
     const wordsQueryParams = useMemo(() => {
         const params = new URLSearchParams();
@@ -261,6 +272,17 @@ export function AbusiveWordsPage() {
                                                 value={searchQuery}
                                                 onChange={(e) => handleSearch(e.target.value)}
                                                 className="w-full pr-10 h-11 border-gray-200"
+                                            />
+                                        </div>
+                                        <div className="w-full sm:w-[180px] shrink-0">
+                                            <ReusableDropdown
+                                                options={BANNED_FILTER_OPTIONS}
+                                                value={bannedFilter}
+                                                onChange={(val) => { setBannedFilter(val); setCurrentPage(1); }}
+                                                placeholder="تصفية"
+                                                className="bg-white h-11 border-gray-200 w-full"
+                                                triggerClassName="h-11"
+                                                triggerIcon={<Filter className="w-4 h-4 text-gray-2" />}
                                             />
                                         </div>
                                     </div>
