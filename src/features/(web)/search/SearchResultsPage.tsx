@@ -180,6 +180,21 @@ function SearchContent() {
         updateUrl(newFilters);
     };
 
+    // Min/max price count as a single "price" filter.
+    const activeFiltersCount = useMemo(() => {
+        let count = 0;
+        if (filters.category_id) count++;
+        count += filters.city_id?.length ?? 0;
+        count += filters.tags?.length ?? 0;
+        count += filters.variation_options?.length ?? 0;
+        if (filters.min_price !== undefined || filters.max_price !== undefined) count++;
+        if (filters.review_rate) count++;
+        if (filters.has_discount) count++;
+        return count;
+    }, [filters]);
+
+    const clearFilters = () => handleFilterChange({});
+
     // Build search params for API call
     const searchParamsObj = useMemo(() => {
         return {
@@ -276,36 +291,54 @@ function SearchContent() {
 
     return (
         <div className="flex flex-col gap-4">
-            {/* Top Bar: filter toggle */}
-            <div className="flex items-center justify-between">
+            {/* Top Bar: filter toggle + clear filters */}
+            <div className="flex items-center gap-2 flex-wrap">
                 {/* Desktop Filter Button */}
                 <button
+                    type="button"
                     onClick={() => setIsDesktopFilterOpen(prev => !prev)}
+                    aria-expanded={isDesktopFilterOpen}
                     className={cn(
                         "hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors cursor-pointer shrink-0",
                         isDesktopFilterOpen
-                            ? "bg-[#3D5E83] text-white border-[#3D5E83]"
-                            : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
+                            ? "bg-c2-navy-600 text-white border-c2-navy-600"
+                            : "bg-white text-c2-navy-600 border-c2-neutral-200 hover:bg-c2-neutral-50"
                     )}
                 >
                     <SlidersHorizontal className="w-4 h-4" />
                     <span className="font-medium text-sm">فلتر</span>
+                    <FilterCountBadge count={activeFiltersCount} inverted={isDesktopFilterOpen} />
                     {isDesktopFilterOpen ? <X className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
 
                 {/* Mobile Filter Button */}
                 <button
+                    type="button"
                     onClick={() => setIsFilterOpen(true)}
-                    className="flex lg:hidden items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-[#3D5E83] shrink-0"
+                    className="flex lg:hidden items-center gap-2 px-4 py-2 border border-c2-neutral-200 rounded-lg bg-white hover:bg-c2-neutral-50 transition-colors cursor-pointer text-c2-navy-600 shrink-0"
                 >
                     <SlidersHorizontal className="w-4 h-4" />
                     <span className="font-medium text-sm">فلتر</span>
+                    <FilterCountBadge count={activeFiltersCount} />
                 </button>
+
+                {activeFiltersCount > 0 && (
+                    <button
+                        type="button"
+                        onClick={clearFilters}
+                        className="group flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-c2-neutral-600 hover:text-c2-danger hover:bg-c2-red-500-a10 transition-colors cursor-pointer shrink-0 animate-in fade-in zoom-in-95 duration-150"
+                    >
+                        <span className="flex items-center justify-center size-4 rounded-full bg-c2-neutral-200 group-hover:bg-c2-danger group-hover:text-white transition-colors">
+                            <X className="size-3" strokeWidth={2.5} />
+                        </span>
+                        مسح الكل
+                    </button>
+                )}
             </div>
 
             {/* Main Layout */}
             <div className="flex flex-row gap-6 items-start">
-                {/* Filters Sidebar - Desktop (يظهر فقط عند الضغط) */}
+                {/* Desktop filters sidebar, shown only when toggled */}
                 {isDesktopFilterOpen && (
                     <aside className="hidden lg:block w-72 shrink-0 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto">
                         <div className="bg-white rounded-xl border border-gray-200 p-4">
@@ -357,5 +390,25 @@ function SearchContent() {
                 priceRange={filterData.priceRange}
             />
         </div>
+    );
+}
+
+/**
+ * The Ping AR font's vertical metrics push its digits off-centre in a small pill,
+ * so the number uses the system UI font with leading-none, and trims the line box
+ * to cap height / baseline where `text-box` is supported for exact optical centring.
+ */
+function FilterCountBadge({ count, inverted = false }: { count: number; inverted?: boolean }) {
+    if (count === 0) return null;
+    return (
+        <span
+            className={cn(
+                "inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full shrink-0",
+                "font-[system-ui,-apple-system,'Segoe_UI',Roboto,Arial,sans-serif] text-[11px] font-semibold leading-none tabular-nums",
+                inverted ? "bg-white text-c2-navy-600" : "bg-c2-navy-600 text-white"
+            )}
+        >
+            <span className="[text-box:trim-both_cap_alphabetic]">{count}</span>
+        </span>
     );
 }

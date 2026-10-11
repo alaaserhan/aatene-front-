@@ -20,6 +20,19 @@ interface SearchResultsProps {
     perPage?: number;
 }
 
+/**
+ * Arabic counted-noun agreement: 1 and 2 are written as words (the number is
+ * dropped), 3–10 take the plural, 11+ take the singular accusative.
+ * The plural form is also the right one after "من أصل" for 3–10.
+ */
+function resultsWord(count: number): string {
+    if (count === 1) return "نتيجة واحدة";
+    if (count === 2) return "نتيجتان";
+    const lastTwo = count % 100;
+    if (lastTwo >= 3 && lastTwo <= 10) return "نتائج";
+    return "نتيجة";
+}
+
 export default function SearchResults({
     type,
     items,
@@ -47,9 +60,28 @@ export default function SearchResults({
         <div className="flex flex-col gap-5">
             {/* Results Count */}
             {displayTotal > 0 ? (
-                <p className="text-gray-500 text-sm">
-                    <span className="font-medium text-gray-700">{displayTotal}</span> نتيجة — إظهار {startItem}-{endItem}
-                </p>
+                totalPages > 1 ? (
+                    <p className="text-c2-neutral-500 text-sm">
+                        عرض{" "}
+                        <span className="font-medium text-c2-neutral-700 tabular-nums">
+                            {startItem}–{endItem}
+                        </span>{" "}
+                        من أصل{" "}
+                        <span className="font-medium text-c2-neutral-700 tabular-nums">{displayTotal}</span>{" "}
+                        {resultsWord(displayTotal)}
+                    </p>
+                ) : (
+                    <p className="text-c2-neutral-500 text-sm">
+                        {displayTotal <= 2 ? (
+                            resultsWord(displayTotal)
+                        ) : (
+                            <>
+                                <span className="font-medium text-c2-neutral-700 tabular-nums">{displayTotal}</span>{" "}
+                                {resultsWord(displayTotal)}
+                            </>
+                        )}
+                    </p>
+                )
             ) : isLoading ? (
                 <ResultsCountSkeleton />
             ) : null}

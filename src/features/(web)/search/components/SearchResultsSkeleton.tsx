@@ -14,7 +14,7 @@ interface SearchResultsSkeletonProps {
 
 const shimmer = "bg-c2-neutral-200 animate-pulse";
 
-/** Placeholder for the "N نتيجة — إظهار x-y" line above the grid. */
+/** Placeholder for the results-count line above the grid. */
 export function ResultsCountSkeleton({ className }: { className?: string }) {
     return <div className={cn("h-4 w-30 rounded", shimmer, className)} aria-hidden="true" />;
 }

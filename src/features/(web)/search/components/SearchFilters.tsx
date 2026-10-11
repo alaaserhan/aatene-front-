@@ -224,6 +224,20 @@ export default function SearchFilters({
     const minVal = filters.min_price ?? sliderMin;
     const maxVal = filters.max_price ?? sliderMax;
 
+    const categorySummary = flatCategories.find((c) => c.id === filters.category_id)?.name;
+    const citySummary = summarizeLabels(
+        cities.filter((c) => filters.city_id?.includes(c.id)).map((c) => c.name)
+    );
+    const priceSummary =
+        filters.min_price !== undefined || filters.max_price !== undefined
+            ? `${minVal} – ${maxVal} ₪`
+            : undefined;
+    const ratingSummary = filters.review_rate ? ratingLabel(filters.review_rate) : undefined;
+    const attributeSummary = (attr: Attribute) =>
+        summarizeLabels(
+            attr.options.filter((opt) => filters.variation_options?.includes(opt.id)).map((opt) => opt.title)
+        );
+
     return (
         <div className={cn("flex flex-col gap-0 bg-white rounded-xl border border-gray-200 overflow-hidden", className)}>
             {/* Header */}
@@ -246,7 +260,7 @@ export default function SearchFilters({
             <div className="divide-y divide-gray-100">
                 {/* Categories */}
                 {type !== "stores" && categories.length > 0 && (
-                    <FilterSection title="الفئات" defaultOpen={false} forceOpen={!!filters.category_id}>
+                    <FilterSection title="الفئات" defaultOpen={false} forceOpen={!!filters.category_id} summary={categorySummary}>
                         <div className="flex flex-col gap-2">
                             {canGoBackCategory && (
                                 <button
@@ -317,7 +331,7 @@ export default function SearchFilters({
                     </FilterSection>
                 )}
                 {/* City */}
-                <FilterSection title="المدن" defaultOpen={false}>
+                <FilterSection title="المدن" defaultOpen={false} summary={citySummary}>
                     <ReusableDropdown
                         multiple={true}
                         options={cityOptions}
@@ -341,7 +355,7 @@ export default function SearchFilters({
                             .filter(opt => filters.variation_options?.includes(opt.id))
                             .map(opt => opt.id.toString());
                         return (
-                            <FilterSection key={attr.id} title={attr.title} defaultOpen={false}>
+                            <FilterSection key={attr.id} title={attr.title} defaultOpen={false} summary={attributeSummary(attr)}>
                                 <ReusableDropdown
                                     multiple={true}
                                     options={attr.options.map(opt => ({ value: opt.id.toString(), label: opt.title }))}
@@ -359,7 +373,7 @@ export default function SearchFilters({
                         ...attr.options.map(opt => ({ value: opt.id.toString(), label: opt.title }))
                     ];
                     return (
-                        <FilterSection key={attr.id} title={attr.title} defaultOpen={false}>
+                        <FilterSection key={attr.id} title={attr.title} defaultOpen={false} summary={attributeSummary(attr)}>
                             <ReusableDropdown
                                 options={options}
                                 value={selectedOptionId?.toString() || ""}
@@ -373,7 +387,7 @@ export default function SearchFilters({
 
                 {/* Price Range */}
                 {(type === "products" || type === "services") && (
-                    <FilterSection title=" السعر" defaultOpen={false}>
+                    <FilterSection title="السعر" defaultOpen={false} summary={priceSummary}>
                         <div className="flex flex-col gap-6 px-1 py-2">
                             <DualRangeSlider
                                 min={sliderMin}
@@ -398,8 +412,8 @@ export default function SearchFilters({
                     </div>
                 )}
 
-                {/* Review Rate - يظهر لجميع الأنواع */}
-                <FilterSection title="التقييم" defaultOpen={false}>
+                {/* Review rate - shown for every search type */}
+                <FilterSection title="التقييم" defaultOpen={false} summary={ratingSummary}>
                     <div className="flex flex-col gap-3">
                         {[5, 4, 3, 2, 1].map((rate) => (
                             <div key={rate} className="flex items-center gap-3">
@@ -435,12 +449,35 @@ export default function SearchFilters({
     );
 }
 
-function FilterSection({ title, children, defaultOpen = true, forceOpen }: { title: string; children: React.ReactNode; defaultOpen?: boolean; forceOpen?: boolean }) {
+// Joins selected labels, collapsing anything past the first two into "+N".
+function summarizeLabels(labels: string[]): string | undefined {
+    if (labels.length === 0) return undefined;
+    if (labels.length <= 2) return labels.join("، ");
+    return `${labels.slice(0, 2).join("، ")} +${labels.length - 2}`;
+}
+
+function ratingLabel(rate: number): string {
+    if (rate === 1) return "نجمة واحدة";
+    if (rate === 2) return "نجمتان";
+    return `${rate} نجوم`;
+}
+
+interface FilterSectionProps {
+    title: string;
+    children: React.ReactNode;
+    defaultOpen?: boolean;
+    forceOpen?: boolean;
+    /** Short text of the applied value; marks the section as active and shows under the title while collapsed. */
+    summary?: string;
+}
+
+function FilterSection({ title, children, defaultOpen = true, forceOpen, summary }: FilterSectionProps) {
     const [isOpen, setIsOpen] = useState(defaultOpen || !!forceOpen);
     const prevForceOpen = useRef(forceOpen);
+    const isActive = !!summary;
 
     useEffect(() => {
-        // فقط لو forceOpen تغيّر من false → true نفتح، وليس العكس
+        // Only open on a false -> true transition; never force it closed.
         if (forceOpen && !prevForceOpen.current) {
             setIsOpen(true);
         }
@@ -448,13 +485,27 @@ function FilterSection({ title, children, defaultOpen = true, forceOpen }: { tit
     }, [forceOpen]);
 
     return (
-        <div className="px-5 py-4">
+        <div className={cn("px-5 py-4 transition-colors", isActive && !isOpen && "bg-c2-navy-50/60")}>
             <button
+                type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between w-full cursor-pointer mb-0"
+                aria-expanded={isOpen}
+                className="flex items-center justify-between gap-3 w-full cursor-pointer mb-0 text-start"
             >
-                <h3 className="font-medium text-base text-gray-800">{title}</h3>
-                <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform duration-200", isOpen && "rotate-180")} />
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                        <h3 className={cn("text-base", isActive ? "font-semibold text-c2-navy-700" : "font-medium text-gray-800")}>
+                            {title.trim()}
+                        </h3>
+                        {isActive && (
+                            <span className="size-2 rounded-full bg-c2-navy-600 shrink-0" aria-label="مُطبّق" />
+                        )}
+                    </div>
+                    {isActive && !isOpen && (
+                        <p className="mt-0.5 text-xs text-c2-navy-600 truncate">{summary}</p>
+                    )}
+                </div>
+                <ChevronDown className={cn("w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
             </button>
             {isOpen && <div className="mt-3">{children}</div>}
         </div>
