@@ -13,9 +13,10 @@ import {
   useGetTrashedItems,
   useRestoreItem,
   useForceDeleteItem,
+  useBulkRestoreItems,
+  useBulkForceDeleteItems,
 } from "../hooks";
 import type { TrashedItem } from "../types";
-import { toast } from "sonner";
 
 export function TrashPage() {
   const lang = useLanguage();
@@ -25,7 +26,6 @@ export function TrashPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  // نوافذ التأكيد
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [confirmRestoreOpen, setConfirmRestoreOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<"delete" | "bulk-delete" | "restore" | "bulk-restore">(
@@ -35,12 +35,9 @@ export function TrashPage() {
 
   const [restoringId, setRestoringId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [bulkLoading, setBulkLoading] = useState(false);
 
-  // جلب الخيارات المتاحة من الباك إند
   const { data: optionsData } = useGetTrashOptions();
 
-  // تحويل الخيارات لتنسيق الشريط الجانبي
   const sidebarOptions = useMemo(() => {
     return (optionsData?.options || []).map((opt) => ({
       name: opt.name,
@@ -48,7 +45,7 @@ export function TrashPage() {
     }));
   }, [optionsData]);
 
-  // تعيين الفئة النشطة الافتراضية (أول فئة من القائمة)
+  // Default to the first category once options load
   React.useEffect(() => {
     if (sidebarOptions.length > 0 && !activeSlug) {
       setActiveSlug(sidebarOptions[0].value);
@@ -67,7 +64,6 @@ export function TrashPage() {
     return params;
   }, [searchQuery, currentPage]);
 
-  // جلب العناصر المحذوفة حسب الفئة
   const { data: itemsData, isLoading } = useGetTrashedItems(
     activeSlug,
     queryParams,
@@ -78,6 +74,11 @@ export function TrashPage() {
 
   const restoreMutation = useRestoreItem();
   const forceDeleteMutation = useForceDeleteItem();
+  const bulkRestoreMutation = useBulkRestoreItems();
+  const bulkForceDeleteMutation = useBulkForceDeleteItems();
+
+  const isRestorePending = restoreMutation.isPending || bulkRestoreMutation.isPending;
+  const isDeletePending = forceDeleteMutation.isPending || bulkForceDeleteMutation.isPending;
 
   const items: TrashedItem[] = itemsData?.data || [];
   const totalPages = Math.ceil((itemsData?.recordsFiltered || 0) / 15);
@@ -109,72 +110,63 @@ export function TrashPage() {
     setConfirmDeleteOpen(true);
   };
 
-  // تنفيذ الاسترجاع بعد التأكيد
-  const handleConfirmRestore = async () => {
-    setConfirmRestoreOpen(false);
-    if (confirmAction === "restore" && targetId !== null) {
-      setRestoringId(targetId);
-      restoreMutation.mutate(
-        { slug: activeSlug, id: targetId },
+  // The modals stay open on failure so the admin can retry; they close only on success.
+  const handleConfirmRestore = () => {
+    if (confirmAction === "bulk-restore") {
+      bulkRestoreMutation.mutate(
+        { slug: activeSlug, ids: selectedIds },
         {
-          onSettled: () => {
-            setRestoringId(null);
-            setTargetId(null);
-            setSelectedIds((prev) => prev.filter((x) => x !== targetId));
+          onSuccess: () => {
+            setSelectedIds([]);
+            setConfirmRestoreOpen(false);
           },
         }
       );
-    } else if (confirmAction === "bulk-restore") {
-      setBulkLoading(true);
-      let successCount = 0;
-      for (const id of selectedIds) {
-        try {
-          await restoreMutation.mutateAsync({ slug: activeSlug, id });
-          successCount++;
-        } catch {
-          // الخطأ يُعرض تلقائياً من الـ hook
-        }
-      }
-      if (successCount > 0) {
-        toast.success(`تم استرجاع ${successCount} عنصر بنجاح`);
-      }
-      setSelectedIds([]);
-      setBulkLoading(false);
+      return;
     }
+    if (targetId === null) return;
+    const id = targetId;
+    setRestoringId(id);
+    restoreMutation.mutate(
+      { slug: activeSlug, id },
+      {
+        onSuccess: () => {
+          setTargetId(null);
+          setSelectedIds((prev) => prev.filter((x) => x !== id));
+          setConfirmRestoreOpen(false);
+        },
+        onSettled: () => setRestoringId(null),
+      }
+    );
   };
 
-  // تنفيذ الحذف النهائي بعد التأكيد
-  const handleConfirmDelete = async () => {
-    setConfirmDeleteOpen(false);
-    if (confirmAction === "delete" && targetId !== null) {
-      setDeletingId(targetId);
-      forceDeleteMutation.mutate(
-        { slug: activeSlug, id: targetId },
+  const handleConfirmDelete = () => {
+    if (confirmAction === "bulk-delete") {
+      bulkForceDeleteMutation.mutate(
+        { slug: activeSlug, ids: selectedIds },
         {
-          onSettled: () => {
-            setDeletingId(null);
-            setTargetId(null);
-            setSelectedIds((prev) => prev.filter((x) => x !== targetId));
+          onSuccess: () => {
+            setSelectedIds([]);
+            setConfirmDeleteOpen(false);
           },
         }
       );
-    } else if (confirmAction === "bulk-delete") {
-      setBulkLoading(true);
-      let successCount = 0;
-      for (const id of selectedIds) {
-        try {
-          await forceDeleteMutation.mutateAsync({ slug: activeSlug, id });
-          successCount++;
-        } catch {
-          // الخطأ يُعرض تلقائياً من الـ hook
-        }
-      }
-      if (successCount > 0) {
-        toast.success(`تم حذف ${successCount} عنصر نهائياً`);
-      }
-      setSelectedIds([]);
-      setBulkLoading(false);
+      return;
     }
+    if (targetId === null) return;
+    const id = targetId;
+    setDeletingId(id);
+    forceDeleteMutation.mutate(
+      { slug: activeSlug, id },
+      {
+        onSuccess: () => {
+          setTargetId(null);
+          setSelectedIds((prev) => prev.filter((x) => x !== id));
+          setConfirmDeleteOpen(false);
+        },
+        onSettled: () => setDeletingId(null),
+      }
+    );
   };
 
   const handleBulkRestore = () => {
@@ -223,8 +215,8 @@ export function TrashPage() {
               selectedCount={selectedIds.length}
               onBulkRestore={handleBulkRestore}
               onBulkForceDelete={handleBulkForceDelete}
-              isRestoring={bulkLoading && confirmAction === "bulk-restore"}
-              isDeleting={bulkLoading && confirmAction === "bulk-delete"}
+              isRestoring={bulkRestoreMutation.isPending}
+              isDeleting={bulkForceDeleteMutation.isPending}
             />
 
             <TrashTable
@@ -245,7 +237,6 @@ export function TrashPage() {
         </div>
       </main>
 
-      {/* مودال تأكيد الاسترجاع */}
       <ConfirmDeleteModal
         isOpen={confirmRestoreOpen}
         onClose={() => setConfirmRestoreOpen(false)}
@@ -255,9 +246,11 @@ export function TrashPage() {
         confirmText="نعم، استرجاع"
         cancelText="إلغاء"
         variant="restore"
+        confirmPosition="start"
+        isLoading={isRestorePending}
+        autoCloseOnConfirm={false}
       />
 
-      {/* مودال تأكيد الحذف النهائي */}
       <ConfirmDeleteModal
         isOpen={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
@@ -267,6 +260,9 @@ export function TrashPage() {
         confirmText="نعم، حذف نهائي"
         cancelText="إلغاء"
         variant="delete"
+        confirmPosition="start"
+        isLoading={isDeletePending}
+        autoCloseOnConfirm={false}
       />
     </div>
   );

@@ -14,14 +14,12 @@ import type {
   TrashActionResponse,
 } from "./types";
 
-// مفاتيح الكاش
 const TrashQK = {
   all: ["trash"] as const,
   options: ["trash", "options"] as const,
   items: (slug: string, params: string) => ["trash", "items", slug, params] as const,
 };
 
-// جلب الخيارات المتاحة (الشريط الجانبي)
 export const useGetTrashOptions = (
   options?: Partial<UseQueryOptions<TrashOptionsResponse, Error>>
 ) =>
@@ -34,7 +32,6 @@ export const useGetTrashOptions = (
     ...options,
   });
 
-// جلب العناصر المحذوفة حسب الفئة
 export const useGetTrashedItems = (
   slug: string,
   params: URLSearchParams,
@@ -43,14 +40,13 @@ export const useGetTrashedItems = (
   useQuery({
     queryKey: TrashQK.items(slug, params.toString()),
     queryFn: () => api.getTrashedItems(slug, params),
-    
+
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     staleTime: 0,
     ...options,
   });
 
-// استرجاع عنصر واحد
 export const useRestoreItem = () => {
   const qc = useQueryClient();
   return useMutation<TrashActionResponse, Error, { slug: string; id: number }>({
@@ -70,7 +66,6 @@ export const useRestoreItem = () => {
   });
 };
 
-// حذف نهائي لعنصر واحد
 export const useForceDeleteItem = () => {
   const qc = useQueryClient();
   return useMutation<TrashActionResponse, Error, { slug: string; id: number }>({
@@ -86,6 +81,34 @@ export const useForceDeleteItem = () => {
     },
     onError: () => {
       toast.error("حدث خطأ أثناء الحذف");
+    },
+  });
+};
+
+export const useBulkRestoreItems = () => {
+  const qc = useQueryClient();
+  return useMutation<TrashActionResponse, Error, { slug: string; ids: number[] }>({
+    mutationFn: ({ slug, ids }) => api.bulkRestoreItems(slug, ids),
+    onSuccess: (_data, { ids }) => {
+      toast.success(`تم استرجاع ${ids.length} عنصر بنجاح`);
+      qc.invalidateQueries({ queryKey: TrashQK.all });
+    },
+    onError: () => {
+      toast.error("حدث خطأ أثناء استرجاع العناصر المحددة");
+    },
+  });
+};
+
+export const useBulkForceDeleteItems = () => {
+  const qc = useQueryClient();
+  return useMutation<TrashActionResponse, Error, { slug: string; ids: number[] }>({
+    mutationFn: ({ slug, ids }) => api.bulkForceDeleteItems(slug, ids),
+    onSuccess: (_data, { ids }) => {
+      toast.success(`تم حذف ${ids.length} عنصر نهائياً`);
+      qc.invalidateQueries({ queryKey: TrashQK.all });
+    },
+    onError: () => {
+      toast.error("حدث خطأ أثناء حذف العناصر المحددة");
     },
   });
 };

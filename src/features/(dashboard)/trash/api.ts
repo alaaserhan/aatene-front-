@@ -6,7 +6,7 @@ import type {
   TrashActionResponse,
 } from "./types";
 
-// جلب الخيارات المتاحة (users, stores, products...)
+// Trash categories for the sidebar (users, stores, products...)
 export const getTrashOptions =
   async (): Promise<TrashOptionsResponse> => {
     const endpoint = getDynamicEndpoint("/trashed/options");
@@ -14,7 +14,6 @@ export const getTrashOptions =
     return data;
   };
 
-// جلب العناصر المحذوفة حسب الفئة
 export const getTrashedItems = async (
   slug: string,
   params: URLSearchParams
@@ -26,7 +25,6 @@ export const getTrashedItems = async (
   return data;
 };
 
-// استرجاع عنصر واحد
 export const restoreItem = async (
   slug: string,
   id: number
@@ -36,12 +34,29 @@ export const restoreItem = async (
   return data;
 };
 
-// حذف نهائي لعنصر واحد
 export const forceDeleteItem = async (
   slug: string,
   id: number
 ): Promise<TrashActionResponse> => {
   const endpoint = getDynamicEndpoint(`/trashed/${slug}/${id}`);
   const { data } = await api.delete<TrashActionResponse>(endpoint);
+  return data;
+};
+
+export const bulkRestoreItems = async (
+  slug: string,
+  ids: number[]
+): Promise<TrashActionResponse> => {
+  const endpoint = getDynamicEndpoint(`/trashed/${slug}/restore`);
+  const { data } = await api.post<TrashActionResponse>(endpoint, { ids });
+  return data;
+};
+
+export const bulkForceDeleteItems = async (
+  slug: string,
+  ids: number[]
+): Promise<TrashActionResponse> => {
+  const endpoint = getDynamicEndpoint(`/trashed/${slug}/delete`);
+  const { data } = await api.post<TrashActionResponse>(endpoint, { ids });
   return data;
 };
