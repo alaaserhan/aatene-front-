@@ -173,7 +173,7 @@ export default function ProductHero({
           onSelect={setSelectedIndex}
           onOpen={() => setIsPreviewOpen(true)}
           fallbackSrc={PLACEHOLDER_SRC}
-          className="lg:w-[55%] lg:self-start"
+          className="lg:w-[55%] lg:self-start lg:sticky lg:top-24"
         />
 
         {/* Details — min-w-0 so the bundle card's slider can shrink here. */}

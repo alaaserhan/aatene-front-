@@ -129,7 +129,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
           activeIndex={activeIndex}
           onSelect={setSelectedIndex}
           fallbackSrc={PLACEHOLDER_SRC}
-          className="lg:w-[55%] lg:self-start"
+          className="lg:w-[55%] lg:self-start lg:sticky lg:top-24"
         />
 
         {/* Details */}
