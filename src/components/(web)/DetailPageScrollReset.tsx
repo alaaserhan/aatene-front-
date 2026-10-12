@@ -4,10 +4,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 // /product/{slug}, /services/{slug}, /store/{slug}, /profile/{slugOrId} — not nested
-// sub-pages like /profile/{id}/favorites. The locale prefix is optional: the i18n
-// proxy rewrites rather than redirects, so links like ProductCard's `/product/{slug}`
-// keep a locale-less URL in the browser.
-const DETAIL_PAGE_PATTERN = /^(?:\/(?:ar|en|he))?\/(product|services|store|profile)\/[^/]+\/?$/;
+// sub-pages like /profile/{id}/favorites — plus /search. The locale prefix is
+// optional: the i18n proxy rewrites rather than redirects, so links like
+// ProductCard's `/product/{slug}` keep a locale-less URL in the browser.
+const SCROLL_RESET_PATTERN =
+    /^(?:\/(?:ar|en|he))?(?:\/(?:product|services|store|profile)\/[^/]+|\/search)\/?$/;
 
 // usePathname() and location.pathname can disagree on percent-encoding (Arabic slugs).
 const normalizePath = (path: string) => {
@@ -19,7 +20,7 @@ const normalizePath = (path: string) => {
 };
 
 /**
- * Forces public detail pages to open at the very top.
+ * Forces public detail pages and the search page to open at the very top.
  *
  * On client navigation Next.js calls `scrollIntoView()` on the new page segment,
  * which sits below the sticky Navbar — so the page lands with the top still
@@ -29,6 +30,8 @@ const normalizePath = (path: string) => {
  * This runs as a passive effect, i.e. after Next's layout-phase scroll in the
  * same commit, so it has the final say. Back/forward navigations are skipped to
  * keep the browser's scroll restoration, and so are URLs with a hash anchor.
+ * It is keyed on the pathname only, so query-only changes (search filters, tabs,
+ * pagination) keep their scroll position.
  */
 export default function DetailPageScrollReset() {
     const pathname = usePathname();
@@ -49,7 +52,7 @@ export default function DetailPageScrollReset() {
         traversedPathRef.current = null;
 
         if (isTraversal || window.location.hash) return;
-        if (!DETAIL_PAGE_PATTERN.test(pathname)) return;
+        if (!SCROLL_RESET_PATTERN.test(pathname)) return;
 
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, [pathname]);
