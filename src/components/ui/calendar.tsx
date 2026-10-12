@@ -66,10 +66,9 @@ export function Calendar({
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
 
-  while (cells.length % 7 !== 0) cells.push(null);
-
-  const rows: (number | null)[][] = [];
-  for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+  // Always render 6 weeks so the calendar keeps one height across months;
+  // otherwise a popover flipped above its trigger shifts the nav arrows.
+  while (cells.length < 42) cells.push(null);
 
   const prevMonth = () => {
     if (viewMonth === 0) { setViewYear(y => y - 1); setViewMonth(11); }
@@ -158,7 +157,7 @@ export function Calendar({
           <div className="grid grid-cols-7 gap-y-1">
             {cells.map((day, idx) => {
               if (day === null) {
-                return <div key={idx} />;
+                return <div key={idx} className="h-7" />;
               }
               const date = new Date(viewYear, viewMonth, day);
               const isSelected = selected ? isSameDay(date, selected) : false;
