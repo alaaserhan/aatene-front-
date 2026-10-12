@@ -39,6 +39,7 @@ import { ReportAbuseModal } from "@/src/features/(web)/reports/components/Report
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 import { useLanguage } from "@/src/hooks/use-language";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import CoverFallback from "@/src/components/shared/CoverFallback";
 import { StorePhoneDialog } from "./StorePhoneDialog";
 
 interface StoreHeaderProps {
@@ -395,9 +396,12 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                             />
                         )
                     ) : (
-                        <div className="w-full h-full" />
+                        <CoverFallback />
                     )}
-                    <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+                    {/* Only tones down real media; on the fallback it would just muddy the gradient */}
+                    {covers.length > 0 && (
+                        <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+                    )}
 
                     {/* Phones crop the cover, so a tap opens it uncropped. A sibling of the
                         arrows rather than their parent, so arrow clicks never open it. */}

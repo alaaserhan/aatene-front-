@@ -22,6 +22,7 @@ import { Pagination } from "@/src/components/ui/Pagination";
 import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import CoverFallback from "@/src/components/shared/CoverFallback";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 
 function UserHeader({ user, isOwnProfile, followers, stories }: {
@@ -82,7 +83,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                         />
                     )
                 ) : (
-                    <div className="w-full h-full" />
+                    <CoverFallback />
                 )}
             </div>
 
