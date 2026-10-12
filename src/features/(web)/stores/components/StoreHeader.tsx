@@ -556,7 +556,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                 >
                                     {/* Avatars only when the store actually has followers */}
                                     {followers && followers.length > 0 && (
-                                        <span className="flex -space-x-2 rtl:space-x-reverse shrink-0">
+                                        <span className="flex items-center shrink-0">
                                             {followers.slice(0, 3).map((fItem, idx) => {
                                                 const avatarUrl =
                                                     fItem.follower_type === "store"
@@ -565,7 +565,8 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                                 return (
                                                     <div
                                                         key={fItem.id || idx}
-                                                        className="size-7 rounded-full border-2 border-white overflow-hidden relative shadow-sm bg-gray-100 flex items-center justify-center"
+                                                        style={{ zIndex: 3 - idx }}
+                                                        className="size-7 -ms-2.5 first:ms-0 rounded-full ring-2 ring-white overflow-hidden relative bg-c2-neutral-50 flex items-center justify-center"
                                                     >
                                                         <UserIcon className="w-3.5 h-3.5 text-gray-400 absolute" />
                                                         {avatarUrl && (
