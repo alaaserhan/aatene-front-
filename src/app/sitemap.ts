@@ -89,7 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
   const dynamicRoutes: MetadataRoute.Sitemap = [
-    ...productSlugs.map((s) => entry(`/product/${s}`, 0.8)),
+    ...productSlugs.map((s) => entry(`/products/${s}`, 0.8)),
     ...serviceSlugs.map((s) => entry(`/services/${s}`, 0.8)),
     ...storeSlugs.map((s) => entry(`/store/${s}`, 0.7)),
     ...blogSlugs.map((s) => entry(`/blogs/${s}`, 0.6)),

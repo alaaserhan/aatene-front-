@@ -534,7 +534,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                     />
                                     <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
                                         <div className="flex flex-col gap-1 min-w-0">
-                                            <Link href={`/product/${linkedProduct.slug || linkedProduct.id}`}>
+                                            <Link href={`/products/${linkedProduct.slug || linkedProduct.id}`}>
                                                 <p className="text-[15px] font-medium truncate  hover:underline transition-colors cursor-pointer">{linkedProduct.name}</p>
                                             </Link>
                                             <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedProduct.description}</p>
@@ -696,7 +696,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                                             onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
                                                         />
                                                         <div className="min-w-0 flex-1">
-                                                            <Link href={`/product/${msg.product.slug || msg.product.id}`}>
+                                                            <Link href={`/products/${msg.product.slug || msg.product.id}`}>
                                                                 <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.product.name}</p>
                                                             </Link>
                                                             <p className="text-[10px] text-gray-400 truncate">{msg.product.description}</p>

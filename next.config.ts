@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
         destination: "/:locale/my/requested-services",
         permanent: false,
       },
+      {
+        source: "/:locale(ar|en|he)/product/:slug",
+        destination: "/:locale/products/:slug",
+        permanent: true,
+      },
+      {
+        source: "/product/:slug",
+        destination: "/products/:slug",
+        permanent: true,
+      },
     ];
   },
   typescript: {
@@ -21,21 +31,21 @@ const nextConfig: NextConfig = {
    */
   serverExternalPackages: ["isomorphic-dompurify", "jsdom"],
   /**
-   * الصفحات تحت `app/[locale]/(dashboard)/[type]/...` تحتاج `/ar/admin/...` أو `/en/admin/...`.
-   * كثير من الروابط في المشروع تستخدم `/admin/...` بدون locale → 404 بدون هذا التوجيه الداخلي.
+   * Pages under `app/[locale]/(dashboard)/[type]/...` need `/ar/admin/...` or `/en/admin/...`.
+   * Many links in the project use `/admin/...` without a locale, which 404s without this rewrite.
    */
   async rewrites() {
     return [
       { source: "/admin", destination: "/ar/admin" },
       { source: "/admin/:path*", destination: "/ar/admin/:path*" },
-      /** روابط بدون locale (مثل إشعارات أو مشاركة) — يطابق سلوك الإدارة */
+      /** Locale-less links (notifications, shares) — same as admin. */
       { source: "/chat", destination: "/ar/chat" },
-      /** روابط الفوتر والصفحة الرئيسية بدون locale — يطابق سلوك الشات */
+      /** Locale-less footer and home links — same as chat. */
       { source: "/search", destination: "/ar/search" },
     ];
   },
   images: {
-    unoptimized: true, // ضروري تحذفي السطر ده لو حابة تستخدمي ميزة تحسين الصور اللي بتقدمها Next.js، بس لو مش هتستخدميها يبقى ممكن تسيبيها زي ما هي
+    unoptimized: true, // Remove to enable Next.js image optimization.
     remotePatterns: [
       {
         protocol: 'http',

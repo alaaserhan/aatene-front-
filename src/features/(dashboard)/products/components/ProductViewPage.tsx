@@ -652,7 +652,7 @@ export default function ProductViewPage() {
             <ShareModal
                 isOpen={isShareModalOpen}
                 onClose={() => setIsShareModalOpen(false)}
-                shareUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/product/${raw?.slug || id}`}
+                shareUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/products/${raw?.slug || id}`}
                 title="شارك هذا المنتج"
                 description="هل أعجبك هذا المنتج؟ شاركه الآن مع أصدقائك."
             />

@@ -337,7 +337,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
         <div className="group">
 
             {(name || desc) && (
-                <Link href={`/product/${product.slug}`} className="block">
+                <Link href={`/products/${product.slug}`} className="block">
                     <div className="pb-3 text-center" dir="rtl">
                         <h3 className="font-semibold text-gray-800 text-base group-hover:text-blue-3 transition-colors line-clamp-1">
                             {name}
@@ -373,7 +373,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                             <div className="flex items-center gap-1 sm:gap-1.5 md:gap-4 shrink-0">
                                 {visibleProducts.map((item, index) => (
                                     <div key={item.id} className="flex items-center gap-1 sm:gap-1.5 md:gap-4">
-                                        <Link href={`/product/${item.slug}`} className="flex flex-col items-center gap-0.5 sm:gap-1.5 w-[110px] sm:w-[110px] md:w-[180px] shrink-0 group/item">
+                                        <Link href={`/products/${item.slug}`} className="flex flex-col items-center gap-0.5 sm:gap-1.5 w-[110px] sm:w-[110px] md:w-[180px] shrink-0 group/item">
                                             <div className="mb-1 w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
                                                 <Image
                                                     src={!item.cover || failedImages.has(item.id) ? "/images/placeholders/product-placeholder.webp" : item.cover}
@@ -433,7 +433,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
 
                 ) : (
 
-                    <Link href={`/product/${product.slug}`} className="block">
+                    <Link href={`/products/${product.slug}`} className="block">
                         <div className="flex flex-col-reverse sm:flex-row items-center gap-4">
                             <div className="relative w-full sm:w-[160px] aspect-square rounded-xl overflow-hidden bg-gray-100 shrink-0">
                                 <Image

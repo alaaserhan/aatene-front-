@@ -73,7 +73,7 @@ export const RATE_FILTER_OPTIONS = [
 export function getTargetHref(type: ReviewTargetType, target: ReviewTarget): string | null {
     switch (type) {
         case "product":
-            return `/product/${target.slug || target.id}`;
+            return `/products/${target.slug || target.id}`;
         case "store":
             return `/admin/stores/${target.id}`;
         case "user":

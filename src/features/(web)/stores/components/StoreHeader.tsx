@@ -67,7 +67,7 @@ interface StoreHeaderProps {
 // Detail-page route segment per favs_type. Favorites of any other type have no
 // page to link to, so they are left out of the preview row.
 const FAV_ROUTE_SEGMENT: Record<string, string> = {
-    product: "product",
+    product: "products",
     service: "services",
     store: "store",
     blog: "blogs",

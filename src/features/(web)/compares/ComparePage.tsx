@@ -242,7 +242,7 @@ function ProductCompareRow({ item, onRemove }: { item: ProductCompareItem; onRem
                     className={cn(FAVORITE_BUTTON_CLASS, item.is_favorite && "bg-red-50 border-red-200")}
                     iconClassName="size-4"
                 />
-                <button onClick={() => router.push(`/product/${item.slug}`)} className="w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
+                <button onClick={() => router.push(`/products/${item.slug}`)} className="w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
                     <Maximize2 className="w-4 h-4 text-gray-500" />
                 </button>
             </div>

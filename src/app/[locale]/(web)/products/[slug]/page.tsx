@@ -40,9 +40,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 toPlainText(product.description) ||
                 "اطّلع على تفاصيل المنتج والتقييمات على منصة أعطيني.",
             image: product.cover || product.gallery?.[0] || undefined,
-            url: `${SITE_URL}/${locale}/product/${product.slug}`,
+            url: `${SITE_URL}/${locale}/products/${product.slug}`,
         }),
-        alternates: generateAlternates(locale, `/product/${product.slug}`),
+        alternates: generateAlternates(locale, `/products/${product.slug}`),
     };
 }
 
@@ -60,7 +60,7 @@ function buildProductJsonLd(product: Product, store: Store | undefined, locale: 
         "@type": "Product",
         name: product.name,
         description: toPlainText(product.short_description || product.description, 5000),
-        url: `${SITE_URL}/${locale}/product/${product.slug}`,
+        url: `${SITE_URL}/${locale}/products/${product.slug}`,
         ...(product.sku && { sku: product.sku }),
         ...(images.length > 0 && { image: images }),
         ...(product.category?.name && { category: product.category.name }),
@@ -77,7 +77,7 @@ function buildProductJsonLd(product: Product, store: Store | undefined, locale: 
                         product.status === "active"
                             ? "https://schema.org/InStock"
                             : "https://schema.org/OutOfStock",
-                    url: `${SITE_URL}/${locale}/product/${product.slug}`,
+                    url: `${SITE_URL}/${locale}/products/${product.slug}`,
                     ...(store?.name && {
                         seller: { "@type": "Organization", name: store.name },
                     }),

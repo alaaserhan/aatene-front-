@@ -39,7 +39,7 @@ export interface ProductCardProps {
     onClick?: () => void;
     className?: string;
     type?: "product" | "store" | "service" | "blog";
-    /** لربط «اطلب السعر» بمحادثة المتجر؛ إن لم يُمرَّر يُفتح صفحة المنتج */
+    /** Links "ask for price" to the store chat; when omitted, it opens the product page. */
     storeId?: number | string;
     /**
      * Visual style of the card.
@@ -131,7 +131,7 @@ const ProductCard = memo(({
             }
         }
         if (!sid) {
-            if (slug) router.push(`/product/${slug}`);
+            if (slug) router.push(`/products/${slug}`);
             else toast.error("لا يمكن فتح المحادثة لهذا المنتج.");
             return;
         }
@@ -147,7 +147,7 @@ const ProductCard = memo(({
 
             {/* Image Container */}
             <Link
-                href={slug ? `/product/${slug}` : "#"}
+                href={slug ? `/products/${slug}` : "#"}
                 className={styles.mediaLink}
             >
                 {isVideoFile(normalizedCover) ? (
@@ -200,7 +200,7 @@ const ProductCard = memo(({
             {/* Content */}
             <div className={styles.content} dir="rtl">
                 {/* Product Name */}
-                <Link href={slug ? `/product/${slug}` : "#"}>
+                <Link href={slug ? `/products/${slug}` : "#"}>
                     <h3 className={styles.title}>
                         {name || "اسم المنتج"}
                     </h3>
@@ -209,7 +209,7 @@ const ProductCard = memo(({
                 {/* Rating */}
                 <RatingStars rating={rating} count={count} size="sm" />
 
-                {/* Price / اطلب السعر */}
+                {/* Price / ask for price */}
                 <div className="mt-1">
                     {shouldAskForPrice ? (
                         <button

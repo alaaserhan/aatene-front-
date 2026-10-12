@@ -34,7 +34,7 @@ export function MerchantMostViewed() {
     const { data, isLoading } = useGetMerchantAnalyticsMostViewed();
     const storeType = Cookies.get("store_type");
     const isServiceStore = storeType === "services";
-    const basePath = isServiceStore ? "/services" : "/product";
+    const basePath = isServiceStore ? "/services" : "/products";
 
     // Select data based on store type
     const products = data?.mostViewedProducts || [];
