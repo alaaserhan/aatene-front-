@@ -70,7 +70,9 @@ export function ProductFormAccordion({
         </span>
       </button>
 
-      {isOpen && <div className="px-6 pb-6">{children}</div>}
+      {/* Hidden rather than unmounted: the sections own their form state, and a
+          remount would re-seed it from the initial data and drop the user's edits. */}
+      <div className={cn("px-6 pb-6", !isOpen && "hidden")}>{children}</div>
     </div>
   );
 }

@@ -176,10 +176,12 @@ export function ProductVariationsFields({
   }, [hasVariations, selectedAttributesFull, variations]);
 
   const handleToggleHasVariations = (val: boolean) => {
+    if (val === hasVariations) return;
     setHasVariations(val);
     if (!val) {
       setSelectedAttributeIds([]);
       setVariations([]);
+      setSavedSelectedOptions({});
     }
   };
 
@@ -597,6 +599,8 @@ export function ProductVariationsFields({
               };
             });
             setVariations(newVariations);
+          } else if (ids.length === 0) {
+            setVariations([]);
           }
           if (selectedOptsMap) {
             setSavedSelectedOptions(selectedOptsMap);
