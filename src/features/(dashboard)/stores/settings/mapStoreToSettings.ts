@@ -27,8 +27,8 @@ export function mapStoreToSettings(store: Store): StoreSettingsValues {
       description: store.description || "",
       speciality: store.speciality || "",
       email: store.email || "",
-      locationCities: toCityIds(store.locationCities),
-      serviceCities: toCityIds(store.serviceCities),
+      locationCities: toCityIds(store.location_cities ?? store.locationCities),
+      serviceCities: toCityIds(store.service_cities ?? store.serviceCities),
       address: store.address || "",
     },
 

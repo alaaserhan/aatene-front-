@@ -178,6 +178,8 @@ export interface Store {
   shippingCompanies?: ShippingCompany[];
   locationCities?: (number | Cities)[];
   serviceCities?: Cities[];
+  location_cities?: (number | Cities)[];
+  service_cities?: Cities[];
   tags?: string[];
   delivery_type?: DeliveryType;
   services_count?: number;
