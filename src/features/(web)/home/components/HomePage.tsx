@@ -115,7 +115,6 @@ export default function HomePage({
 
       {fifthBannerData && <HomeSingleBanner banner={fifthBannerData} />}
 
-      <div className="my-4" />
       {/* <LazySection fallback={<ProductsCarouselSkeleton />}>
         <HomeProductsYouMayLike />
       </LazySection> */}
@@ -124,11 +123,13 @@ export default function HomePage({
         <HomeTodayOffers />
       </LazySection>
 
-      {sixthBannerData && <HomeSingleBanner banner={sixthBannerData} />}
-
       <LazySection fallback={<ServicesGridSkeleton />}>
         <HomeRequestedServices />
       </LazySection>
+
+      {sixthBannerData && (
+        <HomeSingleBanner banner={sixthBannerData} className="pt-0 pb-12 md:pt-0 md:pb-12" />
+      )}
     </div>
   );
 }
