@@ -31,8 +31,8 @@ interface VariationRow {
   id: string;
   attributeValues: Record<string, string>;
   price: number;
-  images: string[];       // للعرض فقط (URL كامل)
-  imageFileName: string;  // للإرسال للباكند (file_name من DB)
+  images: string[];       // full URLs, display only
+  imageFileName: string;  // DB file_name sent to the backend
   enabled: boolean;
 }
 
@@ -62,13 +62,13 @@ export function validateProductVariations(data: Step3FormData): string | null {
 }
 
 interface ProductVariationsFieldsProps {
-  /** تُستخدم لجلب السمات الخاصة بفئة المنتج */
+  /** Scopes the attribute list to the product's category */
   categoryId?: number;
   initialData?: Step3FormData;
   onChange: (data: Step3FormData) => void;
 }
 
-/** Shared الاختلافات و الكميات fields for the product create/edit forms */
+/** Shared variations and quantities fields for the product create/edit forms */
 export function ProductVariationsFields({
   categoryId,
   initialData,
@@ -76,13 +76,12 @@ export function ProductVariationsFields({
 }: ProductVariationsFieldsProps) {
   const queryClient = useQueryClient();
 
-  // دالة مساعدة: تستعيد الـ variations مع الصور الصحيحة (image_previews أو images)
   const restoreVariations = (data?: Step3FormData): VariationRow[] => {
     return (data?.variations || []).map((v) => ({
       id: v.id,
       attributeValues: v.attributeValues,
       price: v.price,
-      // image_previews = URL كامل للعرض، images قد يكون file_name مختصر
+      // image_previews holds full URLs; images may hold only the bare file_name
       images: v.image_previews?.length
         ? v.image_previews
         : v.images?.filter((img: string) => img?.startsWith("http")) || v.images || [],
@@ -115,7 +114,7 @@ export function ProductVariationsFields({
 
   const [variations, setVariations] = useState<VariationRow[]>(() => restoreVariations(initialData));
 
-  // حفظ الخيارات المختارة بين فتحات المودال
+  // Option picks persisted across openings of the attribute dialog
   const [savedSelectedOptions, setSavedSelectedOptions] = useState<Record<number, number[]>>(() =>
     buildSelectedOptionsFromVariations(initialData)
   );
@@ -155,7 +154,6 @@ export function ProductVariationsFields({
     [allAttributes, selectedAttributeIds]
   );
 
-  // إبلاغ الأب بالبيانات الحالية عند أي تغيير
   useEffect(() => {
     onChange({
       hasVariations,
@@ -168,9 +166,9 @@ export function ProductVariationsFields({
         id: v.id,
         attributeValues: v.attributeValues,
         price: v.price,
-        images: [v.imageFileName],      // file_name للباكند
-        imageFileName: v.imageFileName, // محفوظ للتوافق مع النوع
-        image_previews: v.images,       // URL كامل للعرض
+        images: [v.imageFileName],
+        imageFileName: v.imageFileName,
+        image_previews: v.images,
         enabled: v.enabled,
       })),
     });
@@ -225,7 +223,6 @@ export function ProductVariationsFields({
   const handleImageSelect = (items: MediaItem | MediaItem[]) => {
     if (activeRowIdForImage) {
       const arr = Array.isArray(items) ? items : [items];
-      // images = URL كامل للعرض، imageFileName = file_name للإرسال للباكند
       const displayUrls = arr.map((i) => i.src || i.url || i.file_name);
       const fileName = arr[0]?.file_name || "";
       updateVariationRow(activeRowIdForImage, "images", displayUrls);
@@ -559,10 +556,9 @@ export function ProductVariationsFields({
               old ? { ...(old as object), data: updatedAttrs } : old
             );
           }
-          // توليد combinations تلقائياً
           if (ids.length > 0 && selectedOptsMap) {
             const attrs = (updatedAttrs || allAttributes).filter((a) => ids.includes(a.id));
-            // بناء مصفوفة لكل سمة: قائمة الخيارات المحددة (أو كل الخيارات إن لم يُحدد شيء)
+            // An attribute with no picked options contributes all of its options
             const attrOptions: { attrId: number; optIds: string[] }[] = attrs.map((a) => {
               const chosen = selectedOptsMap[a.id];
               const optIds =
@@ -653,16 +649,14 @@ function AttributeSelectionModal({
   const queryClient = useQueryClient();
   const [localSelected, setLocalSelected] = useState<number[]>(selectedIds);
   const [search, setSearch] = useState("");
-  // localAttributes: نسخة محلية من السمات لإضافة خيارات جديدة فوراً
   const [localAttributes, setLocalAttributes] = useState<api.Attribute[]>(attributes);
-  // newOptionInputs: قيمة الـ input لكل سمة { [attrId]: string }
   const [newOptionInputs, setNewOptionInputs] = useState<Record<number, string>>({});
-  // addingOptionFor: أي سمة تم فتح input لها
   const [addingOptionFor, setAddingOptionFor] = useState<number | null>(null);
-  // selectedOptions: الخيارات المحددة لكل سمة { [attrId]: optionId[] }
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number[]>>({});
   const { mutate: updateAttribute } = useUpdateAttribute();
 
+  // Reset only when the dialog opens: adding a value refetches `attributes`,
+  // and resetting on that would wipe the options picked in this session.
   useEffect(() => {
     if (isOpen) {
       setLocalSelected(selectedIds);
@@ -670,16 +664,15 @@ function AttributeSelectionModal({
       setLocalAttributes(attributes);
       setNewOptionInputs({});
       setAddingOptionFor(null);
-      // تهيئة selectedOptions من الخيارات المحفوظة سابقاً
       const initOptions: Record<number, number[]> = {};
       selectedIds.forEach((attrId) => {
         initOptions[attrId] = savedSelectedOptions[attrId] || [];
       });
       setSelectedOptions(initOptions);
     }
-  }, [isOpen, selectedIds, savedSelectedOptions, attributes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
-  // تحديث localAttributes عند تغيير attributes الخارجية
   useEffect(() => {
     setLocalAttributes(attributes);
   }, [attributes]);
@@ -694,7 +687,6 @@ function AttributeSelectionModal({
       const updated = current.includes(optId)
         ? current.filter((id) => id !== optId)
         : [...current, optId];
-      // إذا لا يوجد خيار محدد → إزالة السمة من localSelected
       setLocalSelected((prevSelected) => {
         if (updated.length > 0) {
           return prevSelected.includes(attrId) ? prevSelected : [...prevSelected, attrId];
@@ -709,7 +701,6 @@ function AttributeSelectionModal({
     const value = (newOptionInputs[attr.id] || "").trim();
     if (!value) return;
 
-    // إضافة الخيار للـ API — الباكند يطلب title دائماً
     const existingOptions: api.AttributeOptionPayload[] = attr.options.map((o) => ({
       id: String(o.id),
       title: o.title,
@@ -720,24 +711,32 @@ function AttributeSelectionModal({
       {
         id: attr.id,
         payload: {
-          title: attr.title, // مطلوب دائماً في الباكند
+          // The backend requires the title on every update
+          title: attr.title,
           options: [...existingOptions, { title: value }],
         },
       },
       {
         onSuccess: async (res) => {
           await queryClient.invalidateQueries({ queryKey: ["attributes"] });
-          // إضافة الخيار محلياً فوراً
           const newOptId =
             res?.record?.options?.find((o: api.AttributeOption) => o.title === value)?.id ??
             Date.now();
+          // The refetch may already have brought the new option in
           setLocalAttributes((prev) =>
             prev.map((a) =>
-              a.id === attr.id
+              a.id === attr.id && !a.options.some((o) => o.id === newOptId)
                 ? { ...a, options: [...a.options, { id: newOptId, title: value, data: null }] }
                 : a
             )
           );
+          setSelectedOptions((prev) => {
+            const current = prev[attr.id] || [];
+            return current.includes(newOptId)
+              ? prev
+              : { ...prev, [attr.id]: [...current, newOptId] };
+          });
+          setLocalSelected((prev) => (prev.includes(attr.id) ? prev : [...prev, attr.id]));
           setNewOptionInputs((prev) => ({ ...prev, [attr.id]: "" }));
           setAddingOptionFor(null);
         },
@@ -772,9 +771,7 @@ function AttributeSelectionModal({
             {filteredAttributes.length > 0 ? (
               filteredAttributes.map((attr) => (
                 <div key={attr.id}>
-                  {/* عنوان السمة */}
                   <p className="text-sm font-semibold text-gray-800 mb-3 text-right">{attr.title}</p>
-                  {/* الخيارات كـ chips */}
                   <div className="flex flex-wrap gap-2">
                     {attr.options.map((opt) => {
                       const isOptSelected = (selectedOptions[attr.id] || []).includes(opt.id);
@@ -795,7 +792,6 @@ function AttributeSelectionModal({
                       );
                     })}
 
-                    {/* زر "أضف قيمة غير موجودة" */}
                     {addingOptionFor === attr.id ? (
                       <div className="flex items-center gap-2">
                         <input
