@@ -180,7 +180,7 @@ export default function ProductHero({
         <div className="flex-1 min-w-0">
           <div className="white-card mb-6">
             {/* Order (RTL): price, old price, discount pill, offer countdown. */}
-            <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div className="mb-4 flex flex-wrap items-center gap-x-2.5 gap-y-2 sm:gap-x-4">
               {shouldAskForPrice ? (
                 <ChatNowButton
                   size="md"
@@ -200,19 +200,16 @@ export default function ProductHero({
                   )}
 
                   {hasDiscount && discountPercent > 0 && (
-                    <span
-                      dir="ltr"
-                      className="rounded-full bg-c2-danger px-3 py-1 text-sm font-medium text-white"
-                    >
-                      {discountPercent}% off
+                    <span className="inline-flex items-center gap-1 rounded-full bg-c2-danger px-3 py-1 text-sm font-medium text-white">
+                      خصم
+                      <span dir="ltr" className="font-digits leading-none">
+                        {discountPercent}%
+                      </span>
                     </span>
                   )}
 
                   {hasDiscount && product.end_date && (
-                    <OfferCountdown
-                      endDate={product.end_date}
-                      className="ms-4"
-                    />
+                    <OfferCountdown endDate={product.end_date} />
                   )}
                 </>
               )}
@@ -393,11 +390,17 @@ function OfferCountdown({
   return (
     <span
       className={cn(
-        "rounded-full bg-c2-navy-50 px-6 py-1 text-sm text-c2-navy-700",
+        "inline-flex items-center gap-1 rounded-full bg-c2-navy-50 px-3 py-1 sm:px-6 text-sm text-c2-navy-700",
         className,
       )}
     >
-      {days} يوم : {pad(hours)} : {pad(minutes)}
+      <span dir="ltr" className="font-digits leading-none">
+        {days}
+      </span>
+      يوم :
+      <span dir="ltr" className="font-digits leading-none">
+        {pad(hours)} : {pad(minutes)}
+      </span>
     </span>
   );
 }
