@@ -23,6 +23,7 @@ export interface BaseResponse {
 
 export interface Owner {
   id: number;
+  slug?: string | null;
   first_name: string;
   last_name: string;
   email: string;

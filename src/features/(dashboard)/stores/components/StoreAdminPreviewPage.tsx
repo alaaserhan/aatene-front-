@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useGetSingleStore } from "../hooks";
 import { getStoreCityNames, formatStoreCityNames } from "@/src/lib/storeCities";
@@ -15,6 +17,7 @@ interface StoreAdminPreviewPageProps {
  * the stores table: the accept/reject actions plus the store's basic data.
  */
 export function StoreAdminPreviewPage({ storeId }: StoreAdminPreviewPageProps) {
+  const { locale, type } = useParams<{ locale: string; type: string }>();
   const { data: storeData, isLoading } = useGetSingleStore(storeId);
   const store = storeData?.record;
 
@@ -117,7 +120,18 @@ export function StoreAdminPreviewPage({ storeId }: StoreAdminPreviewPageProps) {
             <PreviewField
               icon="/icons/dashboard/person.svg"
               label="المالك"
-              value={ownerName}
+              value={
+                ownerName && store.owner?.id ? (
+                  <Link
+                    href={`/${locale}/${type}/users?userId=${store.owner.id}`}
+                    className="text-c2-primary underline underline-offset-4 hover:text-c2-navy-900"
+                  >
+                    {ownerName}
+                  </Link>
+                ) : (
+                  ownerName
+                )
+              }
             />
             <PreviewField
               icon="/icons/dashboard/mark.svg"

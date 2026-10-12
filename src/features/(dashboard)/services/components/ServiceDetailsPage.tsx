@@ -7,7 +7,6 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { Button } from "@/src/components/ui/button";
-import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 import { formatPrice } from "@/src/lib/format-price";
 import {
   Clock4,
@@ -23,7 +22,7 @@ import { useDeleteService, useGetService, useUpdateServiceShown, useUpdateServic
 import { RejectServiceModal } from "./RejectServiceModal";
 
 import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
-import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
+import { StoreInfoCard } from "@/src/components/(dashboard)/StoreInfoCard";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { Badge } from "@/src/components/ui/badge";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
@@ -166,39 +165,6 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 queryClient.invalidateQueries({ queryKey: ["services", serviceId] });
             }
         });
-    };
-
-    const { mutate: followUser } = useFollowUser();
-    const { mutate: unfollowUser } = useUnfollowUser();
-
-    const handleFollowClick = () => {
-        if (!store?.owner?.id) return;
-
-        if (store.owner.am_i_following) {
-            unfollowUser(
-                {
-                    payload: { followed_type: "user", followed_id: store.owner.id },
-                    storeId: currentStoreId || undefined,
-                },
-                {
-                    onSuccess: () => {
-                        queryClient.invalidateQueries({ queryKey: ["singleStore", storeId] });
-                    },
-                }
-            );
-        } else {
-            followUser(
-                {
-                    payload: { followed_type: "user", followed_id: store.owner.id },
-                    storeId: currentStoreId || undefined,
-                },
-                {
-                    onSuccess: () => {
-                        queryClient.invalidateQueries({ queryKey: ["singleStore", storeId] });
-                    },
-                }
-            );
-        }
     };
 
     if (isLoading) return <div className="flex h-screen items-center justify-center">جاري التحميل...</div>;
@@ -378,9 +344,11 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
                             )}
                             {store && (
-                                <div className="mb-6">
-                                    <ProviderInfoCard store={store} isAdmin={true} isOwner={isOwner} isFollowing={store.owner?.am_i_following} onFollow={handleFollowClick} />
-                                </div>
+                                <StoreInfoCard
+                                    className="mb-6"
+                                    store={store}
+                                    href={isAdmin ? `${dashboardBase}/stores/${store.id}` : `/${routeParams?.locale || "ar"}/store/${store.slug}`}
+                                />
                             )}
 
                             {/* Service Details Section */}

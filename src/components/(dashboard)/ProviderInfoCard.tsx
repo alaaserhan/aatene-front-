@@ -34,6 +34,10 @@ interface ProviderInfoCardProps {
   isAdmin?: boolean;
 }
 
+function MaybeLink({ href, children }: { href?: string; children: React.ReactNode }) {
+  return href ? <Link href={href}>{children}</Link> : <>{children}</>;
+}
+
 export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing, isOwner, isAdmin }: ProviderInfoCardProps) {
   const lang = useLanguage();
   // If store is provided, map it to ProviderData
@@ -59,22 +63,28 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
 
   if (!data) return null;
 
+  const ownerProfileKey = store?.owner?.slug || store?.owner?.id;
+  const profileHref = store
+    ? ownerProfileKey
+      ? `/${lang}/profile/${ownerProfileKey}`
+      : undefined
+    : `/${lang}/store/${data.slug}`;
+
   return (
     <div className={cn("bg-white rounded-2xl p-4 border border-[#DEE2E7]", className)}>
-      {/* الجزء العلوي */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div className="flex items-center gap-4  w-full md:w-auto ">
-          <Link href={`/${lang}/store/${data.slug}`}>
+          <MaybeLink href={profileHref}>
             <Avatar className="w-14 h-14 border-2 border-white shadow-sm">
               <AvatarImage src={data.avatar} className="object-cover" />
               <AvatarFallback>{data.name?.[0]}</AvatarFallback>
             </Avatar>
-          </Link>
+          </MaybeLink>
 
           <div className="">
-            <Link href={`/${lang}/store/${data.slug}`}>
+            <MaybeLink href={profileHref}>
               <h3 className=" font-medium  mb-1">{data.name}</h3>
-            </Link>
+            </MaybeLink>
             {data.location && (
               <div className="flex items-center  gap-1 text-gray-2 text-sm">
                 <MapPin className="size-5 text-blue-3" />
@@ -102,10 +112,8 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
         </div>
       </div>
 
-      {/* الفاصل */}
       <div className="border-t border-[#DEE2E7] mb-6"></div>
 
-      {/* شريط الإحصائيات السفلي */}
       <div className="flex flex-wrap items-center  gap-8 text-sm text-gray-2">
         <div className="flex items-center gap-2">
           <AlarmClock className="size-5 text-[black]" />
