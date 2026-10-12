@@ -73,32 +73,36 @@ export function MediaGallery({
       )}
     >
       {hasGallery && (
-        <div className="relative shrink-0 lg:w-[112px]">
-          <ScrollArea className="w-full lg:absolute lg:inset-0">
-            <ul
-              className={cn(
-                "flex w-max list-none gap-2 p-1 pb-3",
-                "lg:w-full lg:flex-col lg:pb-1 lg:pe-3",
-              )}
-            >
-              {items.map((item, index) => {
-                const isActive = activeIndex === index;
-                return (
-                  <li key={item.url}>
-                    <MediaThumbnail
-                      ref={isActive ? activeThumbRef : undefined}
-                      item={item}
-                      alt={`${title} - ${index + 1}`}
-                      isActive={isActive}
-                      onSelect={() => onSelect(index)}
-                      fallbackSrc={fallbackSrc}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+        <div className="relative shrink-0 lg:w-29">
+          {/* Radix sets an inline `position: relative` on ScrollArea, so the
+              absolute positioning has to live on a wrapper instead. */}
+          <div className="lg:absolute lg:inset-0">
+            <ScrollArea className="w-full lg:h-full">
+              <ul
+                className={cn(
+                  "flex w-max list-none gap-2 p-1 pb-3",
+                  "lg:w-full lg:flex-col lg:pb-1 lg:pe-3",
+                )}
+              >
+                {items.map((item, index) => {
+                  const isActive = activeIndex === index;
+                  return (
+                    <li key={item.url}>
+                      <MediaThumbnail
+                        ref={isActive ? activeThumbRef : undefined}
+                        item={item}
+                        alt={`${title} - ${index + 1}`}
+                        isActive={isActive}
+                        onSelect={() => onSelect(index)}
+                        fallbackSrc={fallbackSrc}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+              <ScrollBar orientation="horizontal" className="lg:hidden" />
+            </ScrollArea>
+          </div>
         </div>
       )}
 
