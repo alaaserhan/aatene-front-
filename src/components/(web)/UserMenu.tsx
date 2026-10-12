@@ -220,7 +220,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
           {user.user_type === "merchant" && storeSlug && (
             <Link
-              href={`/${lang}/store/${storeSlug}`}
+              href={`/${lang}/stores/${storeSlug}`}
               className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
               onClick={handleLinkClick}
             >
@@ -381,7 +381,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
             {user.user_type === "merchant" && storeSlug && (
               <Link
-                href={`/${lang}/store/${storeSlug}`}
+                href={`/${lang}/stores/${storeSlug}`}
                 className="flex items-center gap-3 w-full py-2 px-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                 onClick={handleLinkClick}
               >

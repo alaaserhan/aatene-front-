@@ -42,7 +42,7 @@ const TYPE_SCOPED_PARAMS = [
 
 /** Detail routes that imply an active search type even though we're off the search page. */
 const DETAIL_PATH_TYPES: { segment: string; type: SearchType }[] = [
-  { segment: "/store/", type: "stores" },
+  { segment: "/stores/", type: "stores" },
   { segment: "/products/", type: "products" },
   { segment: "/services/", type: "services" },
   { segment: "/profile/", type: "users" },

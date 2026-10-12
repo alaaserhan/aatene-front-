@@ -39,9 +39,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 toPlainText(store.description) ||
                 "تصفح منتجات وخدمات المتجر على منصة أعطيني.",
             image: store.logo_url || store.cover_urls?.[0] || undefined,
-            url: `${SITE_URL}/${locale}/store/${store.slug}`,
+            url: `${SITE_URL}/${locale}/stores/${store.slug}`,
         }),
-        alternates: generateAlternates(locale, `/store/${store.slug}`),
+        alternates: generateAlternates(locale, `/stores/${store.slug}`),
     };
 }
 
@@ -54,7 +54,7 @@ function buildStoreJsonLd(store: StoreProfile, locale: string) {
         "@type": "Store",
         name: store.name,
         description: toPlainText(store.description, 5000),
-        url: `${SITE_URL}/${locale}/store/${store.slug}`,
+        url: `${SITE_URL}/${locale}/stores/${store.slug}`,
         ...(store.logo_url && { logo: store.logo_url, image: store.logo_url }),
         ...(store.address && { address: store.address }),
         ...(store.email && { email: store.email }),

@@ -347,7 +347,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 <StoreInfoCard
                                     className="mb-6"
                                     store={store}
-                                    href={isAdmin ? `${dashboardBase}/stores/${store.id}` : `/${routeParams?.locale || "ar"}/store/${store.slug}`}
+                                    href={isAdmin ? `${dashboardBase}/stores/${store.id}` : `/${routeParams?.locale || "ar"}/stores/${store.slug}`}
                                 />
                             )}
 

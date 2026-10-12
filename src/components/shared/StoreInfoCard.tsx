@@ -74,7 +74,7 @@ export default function StoreInfoCard({
     useUnfollowUserOrStore();
   const isFollowLoading = isFollowPending || isUnfollowPending;
 
-  const storeHref = `/${lang}/store/${store.slug}`;
+  const storeHref = `/${lang}/stores/${store.slug}`;
   const location = store.city?.name || DEFAULT_LOCATION;
   const memberSince = formatMemberSince(store.created_at);
 

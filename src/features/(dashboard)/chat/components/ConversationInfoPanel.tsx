@@ -38,7 +38,7 @@ function isImageFile(url: string): boolean {
 
 function getProfileLink(participantData: { type: "user" | "store"; slug?: string | null; id: string | number }): string {
     if (participantData.type === "store") {
-        return `/store/${participantData.slug || participantData.id}`;
+        return `/stores/${participantData.slug || participantData.id}`;
     }
     return `/profile/${participantData.slug || participantData.id}`;
 }

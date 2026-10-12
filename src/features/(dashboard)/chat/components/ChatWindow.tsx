@@ -375,7 +375,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                 <div className="flex-1 min-w-0">
                                     {otherParticipant ? (
                                         <Link href={otherParticipant.participant_data.type === "store"
-                                            ? `/store/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`
+                                            ? `/stores/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`
                                             : `/profile/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`}>
                                             <h3 className="font-medium text-sm md:text-base truncate hover:underline transition-colors cursor-pointer">{otherParticipant.participant_data.name || conversation.name || "مستخدم"}</h3>
                                         </Link>

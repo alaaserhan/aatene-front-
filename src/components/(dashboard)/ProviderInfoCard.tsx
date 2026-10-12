@@ -68,7 +68,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
     ? ownerProfileKey
       ? `/${lang}/profile/${ownerProfileKey}`
       : undefined
-    : `/${lang}/store/${data.slug}`;
+    : `/${lang}/stores/${data.slug}`;
 
   return (
     <div className={cn("bg-white rounded-2xl p-4 border border-[#DEE2E7]", className)}>

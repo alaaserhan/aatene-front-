@@ -47,7 +47,7 @@ function ActionDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const profileHref = item.type === "store" ? `/store/${item.slug}` : `/profile/${item.slug}`;
+  const profileHref = item.type === "store" ? `/stores/${item.slug}` : `/profile/${item.slug}`;
 
   const showUnfollow = type === "followings" || (type === "followers" && item.is_following_back);
   const showRemove = type === "followers" && !item.is_following_back;
@@ -138,7 +138,7 @@ export function FollowersTable({
               <tr key={`${item.id}-${index}`} className="group hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-none">
                 <td className="px-6 py-4">
                   <Link
-                    href={item.type === "store" ? `/store/${item.slug}` : `/profile/${item.slug}`}
+                    href={item.type === "store" ? `/stores/${item.slug}` : `/profile/${item.slug}`}
                     className="flex items-center gap-3 w-fit hover:opacity-80 transition-opacity"
                   >
                     <Avatar className="w-10 h-10 border border-gray-100">

@@ -66,7 +66,7 @@ export default function FollowingsTab() {
         const slug = target.slug || target.id;
 
         if (type === "store") {
-            router.push(`/${lang}/store/${slug}`);
+            router.push(`/${lang}/stores/${slug}`);
         } else if (type === "user") {
             router.push(`/${lang}/profile/${slug}`);
         }

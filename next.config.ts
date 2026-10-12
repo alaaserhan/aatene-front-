@@ -19,6 +19,16 @@ const nextConfig: NextConfig = {
         destination: "/products/:slug",
         permanent: true,
       },
+      {
+        source: "/:locale(ar|en|he)/store/:slug",
+        destination: "/:locale/stores/:slug",
+        permanent: true,
+      },
+      {
+        source: "/store/:slug",
+        destination: "/stores/:slug",
+        permanent: true,
+      },
     ];
   },
   typescript: {

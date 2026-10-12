@@ -68,7 +68,7 @@ function buildServiceJsonLd(service: Service, locale: string) {
                 "@type": "Organization",
                 name: service.store.name,
                 ...(service.store.slug && {
-                    url: `${SITE_URL}/${locale}/store/${service.store.slug}`,
+                    url: `${SITE_URL}/${locale}/stores/${service.store.slug}`,
                 }),
             },
         }),

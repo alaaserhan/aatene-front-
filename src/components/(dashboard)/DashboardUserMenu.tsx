@@ -234,7 +234,7 @@ export function DashboardUserMenu() {
                                 <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label="السجل المالي" onClick={() => setIsOpen(false)} />
                             )} */}
                             {activeStore?.slug && (
-                                <MenuItem href={`/${lang}/store/${activeStore.slug}`} icon={Store} label="الذهاب للمتجر" onClick={() => setIsOpen(false)} />
+                                <MenuItem href={`/${lang}/stores/${activeStore.slug}`} icon={Store} label="الذهاب للمتجر" onClick={() => setIsOpen(false)} />
                             )}
                             <MenuItem href={`/${lang}`} icon={Home} label="العودة للمنصة" onClick={() => setIsOpen(false)} />
 

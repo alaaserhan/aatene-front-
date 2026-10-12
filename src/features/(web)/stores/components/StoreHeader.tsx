@@ -69,7 +69,7 @@ interface StoreHeaderProps {
 const FAV_ROUTE_SEGMENT: Record<string, string> = {
     product: "products",
     service: "services",
-    store: "store",
+    store: "stores",
     blog: "blogs",
 };
 
@@ -166,7 +166,7 @@ function FollowerCard({
                             const { favs } = fav;
                             const imageUrl = favs.cover || favs.image_url || favs.logo_url || favs.thumbnail_url;
                             const label = favs.name || favs.title || "";
-                            const FallbackIcon = fav.routeSegment === "store" ? StoreIcon : ShoppingBag;
+                            const FallbackIcon = fav.routeSegment === "stores" ? StoreIcon : ShoppingBag;
                             return (
                                 <Link
                                     key={fav.id}
@@ -764,7 +764,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
             <ShareModal
                 isOpen={showShareModal}
                 onClose={() => setShowShareModal(false)}
-                shareUrl={typeof window !== "undefined" ? window.location.href : `https://aatene.com/store/${store.slug}`}
+                shareUrl={typeof window !== "undefined" ? window.location.href : `https://aatene.com/stores/${store.slug}`}
                 title="مشاركة المتجر"
             />
 

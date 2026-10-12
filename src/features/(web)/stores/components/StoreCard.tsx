@@ -51,7 +51,7 @@ const StoreCard = memo(({
 
     const router = useRouter();
     const lang = useLanguage();
-    const storePath = `/${lang}/store/${store.slug}`;
+    const storePath = `/${lang}/stores/${store.slug}`;
     const cityNames = getStoreCityNames(store);
     // The card is narrow and clamps to one line, so name two and count the rest
     const cityLabel =
