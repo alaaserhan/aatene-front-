@@ -29,6 +29,7 @@ export interface CrossSellingOffer {
     id: number;
 
     offer_name?: string | null;
+    offer_description?: string | null;
     offer_image?: string | null;
     offer_image_url?: string | null;
     /** Bundle price after the discount. */
@@ -60,7 +61,7 @@ export interface CrossSellingOffer {
 
 /**
  * GET /merchants/cross-selling-offers/{id} — the list row plus the bundled
- * products themselves. Note the offer carries no description of its own.
+ * products themselves.
  */
 export interface CrossSellingOfferDetails extends CrossSellingOffer {
     offer_products?: OfferProduct[];

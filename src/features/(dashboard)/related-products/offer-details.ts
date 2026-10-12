@@ -12,6 +12,7 @@ export interface OfferDetails {
     /** Also the main product's id — see `CrossSellingOffer.id`. */
     id: number;
     name: string;
+    description: string;
     /** "yyyy-MM-dd", as the DatePicker and the create payload expect it. */
     dueDate: string;
     /** Offer price, kept as a string for the form input. */
@@ -73,6 +74,7 @@ export function toOfferDetails(
     return {
         id: Number(source.id ?? 0),
         name: source.offer_name || "",
+        description: source.offer_description || "",
         dueDate: toDateOnly(source.offer_due_date),
         price: source.offer_price != null ? String(source.offer_price) : "",
         originalPrice: toNumber(source.offer_original_price),

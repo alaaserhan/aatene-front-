@@ -78,8 +78,7 @@ export function OfferFormDialog({ open, onOpenChange, offer = null }: OfferFormD
             setRelatedProducts(values.relatedProducts);
             setDraft({
                 name: values.name,
-                // The API stores no description for an offer, so it is typed again.
-                description: "",
+                description: values.description,
                 dueDate: values.dueDate,
                 price: values.price,
             });
