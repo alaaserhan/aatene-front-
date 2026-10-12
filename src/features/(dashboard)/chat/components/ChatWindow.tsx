@@ -6,6 +6,7 @@ import { Conversation } from "../api";
 import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Star, User, Store, X } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
+import { ShekelIcon } from "@/src/components/ui/shekel-icon";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -72,7 +73,8 @@ function ChatHeaderPriceBadge({ price }: { price: string | number | null | undef
     const n = chatPriceNumeric(price);
     return (
         <span className="flex items-center gap-1 text-sm leading-none text-white font-medium whitespace-nowrap">
-            {formatPrice(n)} <span className="text-base leading-none">₪</span>
+            <span dir="ltr" className="font-digits leading-none">{formatPrice(n)}</span>
+            <ShekelIcon className="size-[0.7em]" />
         </span>
     );
 }
