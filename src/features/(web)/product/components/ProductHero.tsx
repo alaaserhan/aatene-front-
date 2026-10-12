@@ -34,11 +34,6 @@ import { getAttributePlaceholder } from "@/src/lib/attribute-placeholder";
 import { maskPhone } from "@/src/lib/phone";
 import { StorePhoneDialog } from "@/src/features/(web)/stores/components/StorePhoneDialog";
 
-const PRODUCT_CONDITION_LABELS: Record<string, string> = {
-  new: "جديد",
-  used: "مستعمل",
-};
-
 const PLACEHOLDER_SRC = "/images/placeholders/product-placeholder.svg";
 
 interface ProductHeroProps {
@@ -133,12 +128,8 @@ export default function ProductHero({
   );
   const discountPercent = product.discount_present ?? 0;
 
-  const conditionLabel =
-    PRODUCT_CONDITION_LABELS[product.condition] ?? product.condition;
   const storePhone = normalizeDisplayPhone(store.phone);
-  const hasOptions = Boolean(
-    (product.condition && conditionLabel) || attributes?.length,
-  );
+  const hasOptions = Boolean(attributes?.length);
 
   const chatTarget = (askPrice = false): ChatTarget => ({
     type: "store",
@@ -244,17 +235,6 @@ export default function ProductHero({
 
           {hasOptions && (
             <div className="flex flex-col gap-3 white-card mb-6">
-              {product.condition && conditionLabel && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-c2-navy-1000">
-                    الحالة :
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-c2-neutral-200 px-3 py-1 text-sm text-c2-neutral-700">
-                    {conditionLabel}
-                  </span>
-                </div>
-              )}
-
               {attributes?.map((attr) => (
                 <ReusableDropdown
                   key={attr.id}

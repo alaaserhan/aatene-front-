@@ -1,6 +1,5 @@
 export { AddProductPage } from "./AddProductPage";
 export { EditProductPage } from "./EditProductPage";
-export { AddProductStep1 } from "./AddProductStep1";
 export { AddProductStep2 } from "./AddProductStep2";
 export { AddProductStep3 } from "./AddProductStep3";
 export { AddProductStep4 } from "./AddProductStep4";
