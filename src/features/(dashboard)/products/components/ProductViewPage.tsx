@@ -41,21 +41,21 @@ export default function ProductViewPage() {
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successModalTitle, setSuccessModalTitle] = useState("");
-    // بعد قبول/رفض منتج كان "قيد المراجعة" → نُوجّه الأدمن لتبويب قيد المراجعة
+    // After approving/rejecting a pending product, the admin is sent back to the pending tab.
     const [redirectAfterSuccess, setRedirectAfterSuccess] = useState<string | null>(null);
     const [activeImage, setActiveImage] = useState<string | null>(null);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<"description" | "reviews">("description");
 
-    // Alert: يظهر دائماً بناءً على الـ status الحالي — لا يُخزَّن في localStorage
+    // Dismissal is per visit on purpose — not persisted to localStorage.
     const [alertDismissed, setAlertDismissed] = useState(false);
 
     const dismissAlert = () => {
         setAlertDismissed(true);
     };
 
-    // Alert تعليق مؤقت: يظهر عند إيقاف التفعيل (shown=false) ويُغلق يدوياً
+    // Separate dismissal for the "deactivated" alert (approved but shown=false).
     const [shownAlertDismissed, setShownAlertDismissed] = useState(false);
 
     const { data: dashboardData, isLoading, isError, refetch } = useGetSingleProduct(id, {
@@ -64,11 +64,7 @@ export default function ProductViewPage() {
         refetchOnWindowFocus: true,
     });
 
-    useEffect(() => {
-        window.scrollTo({ top: 0 });
-    }, []);
-
-    // عند تغيّر الـ status (مثلاً أُعيد قبوله بعد رفضه) → أعِد إظهار الـ alert
+    // Re-show the alert whenever the status changes (e.g. approved again after a rejection).
     useEffect(() => {
         const status = dashboardData?.data?.status;
         if (status) {
@@ -132,7 +128,6 @@ export default function ProductViewPage() {
         );
     };
 
-    // إن كان المنتج قيد المراجعة وقت اتخاذ الإجراء → نُوجّه لتبويب "قيد المراجعة" بعد الإغلاق
     const reviewRedirectUrl = "/admin/productProviders?status=pending";
 
     const handleApprove = () => {
@@ -210,7 +205,7 @@ export default function ProductViewPage() {
     const raw = dashboardData.data;
     const currentStatus = raw.status;
 
-    // gallery_url قد يأتي كـ object من الباك اند — نحوّله لـ array بأمان
+    // The backend sometimes sends gallery_url as an object instead of an array.
     const coverUrl = raw.cover_url || raw.cover || null;
 
     const galleryUrls: string[] = raw.gallery_url
@@ -310,7 +305,7 @@ export default function ProductViewPage() {
                     </div>
                 )}
 
-                {/* ── Status Alert (للتاجر فقط وليس الأدمن) ── */}
+                {/* ── Status Alert (merchant only, not admin) ── */}
                 {!isAdmin && (
                     <div className="container mx-auto px-4 md:px-0">
                         <PreviewStatusAlert

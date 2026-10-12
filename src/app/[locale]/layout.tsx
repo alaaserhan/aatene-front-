@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { I18nProviderClient } from "@/src/i18n/provider";
 import { setStaticParamsLocale } from "next-international/server";
 import WebDynamicWidgets from "@/src/components/(web)/WebDynamicWidgets";
+import ScrollToTopOnNavigate from "@/src/components/shared/ScrollToTopOnNavigate";
 import { generateAlternates } from "@/src/lib/seo.config";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
@@ -37,6 +38,7 @@ export default async function LangLayout({
   const dir = locale === "ar" || locale === "he" ? "rtl" : "ltr";
   return (
     <I18nProviderClient locale={locale}>
+      <ScrollToTopOnNavigate />
       <div dir={dir}>{children}</div>
       <WebDynamicWidgets />
     </I18nProviderClient>
