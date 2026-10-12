@@ -172,7 +172,7 @@ export function MediaCenterModal({
           className="cursor-pointer shrink-0 h-9 px-4 font-medium"
           style={{ backgroundColor: "var(--blue-3)" }}
         >
-          نشر
+          إدراج
         </Button>
       </>
     ) : null;
