@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { Suspense, useState, useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { Menu, Plus } from "lucide-react";
@@ -10,16 +10,15 @@ import {
     useProductsSearchPage,
     useServicesSearchPage,
 } from "@/src/features/(web)/search/hooks";
-import CategoryMegaMenuContent, {
-    type MegaMenuSearchType,
-} from "@/src/features/(web)/search/components/CategoryMegaMenuContent";
-import type { Category } from "@/src/features/(web)/searchAndFilter/api";
+import CategoryMegaMenuContent from "@/src/features/(web)/search/components/CategoryMegaMenuContent";
+import type { Category } from "@/src/features/(web)/search/api";
+import { matchSearchRoute, searchHref } from "@/src/features/(web)/search/url";
 
 interface NavbarCategoriesMenuProps {
     variant: "desktop" | "mobile";
 }
 
-/** يحجز مساحة بجانب الشعار أثناء Suspense */
+/** Holds the trigger's space beside the logo while Suspense resolves. */
 function CategoriesMenuPlaceholder({ variant }: { variant: "desktop" | "mobile" }) {
     if (variant === "mobile") {
         return (
@@ -41,9 +40,6 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
     const router = useRouter();
     const lang = useLanguage();
 
-    /** مسار البحث الصريح بالـ locale — لا يعتمد على `pathname` بعد rewrite (مثل /search → /ar/search) */
-    const webSearchBase = useMemo(() => `/${lang}/search`, [lang]);
-
     const cancelClose = useCallback(() => {
         if (closeTimerRef.current != null) {
             clearTimeout(closeTimerRef.current);
@@ -63,7 +59,7 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
         setMounted(true);
     }, []);
 
-    /** جذر البوابة: يُستخدم فقط بعد mount حتى يكون `document.body` موجوداً */
+    /** Portal target; only read after mount so `document.body` exists. */
     const portalRoot =
         mounted &&
         typeof document !== "undefined" &&
@@ -86,8 +82,6 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
         return () => document.removeEventListener("keydown", onKey);
     }, [open, cancelClose]);
 
-    const isSearchPage = pathname.includes("/search");
-    const urlType = (searchParams.get("type") || "products") as MegaMenuSearchType;
     const categoryIdRaw = searchParams.get("category_id");
     const categoryId =
         categoryIdRaw != null && categoryIdRaw !== ""
@@ -102,36 +96,21 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
     const productCategories: Category[] = productsPageData?.categories ?? [];
     const serviceCategories: Category[] = servicesPageData?.categories ?? [];
 
-    const selectedSearchTypeForMenu: "products" | "services" | undefined =
-        urlType === "services"
-            ? "services"
-            : urlType === "products" || urlType === "users"
-              ? "products"
-              : undefined;
+    // Highlight the browsed category only on the products/services listing it filters.
+    const route = matchSearchRoute(pathname);
+    const listingType =
+        route?.isListing && (route.type === "products" || route.type === "services")
+            ? route.type
+            : undefined;
+    const selectedForMenu = listingType ? validCategoryId : undefined;
 
-    const selectedForMenu = isSearchPage ? validCategoryId : undefined;
-
+    // Picking a category starts a fresh browse of that category, like a store's department menu.
     const navigateWithCategory = useCallback(
         (id: number, searchType: "products" | "services") => {
-            if (isSearchPage) {
-                const p = new URLSearchParams(searchParams.toString());
-                const currentType = searchParams.get("type") || "products";
-                if (currentType === "users" || currentType === "stores") {
-                    p.set("type", currentType);
-                } else {
-                    p.set("type", searchType);
-                }
-                p.set("category_id", String(id));
-                p.set("page", "1");
-                router.push(`${webSearchBase}?${p.toString()}`, { scroll: false });
-            } else {
-                router.push(
-                    `${webSearchBase}?type=${searchType}&category_id=${id}&page=1`
-                );
-            }
+            router.push(searchHref(lang, searchType, { category_id: id }));
             setOpen(false);
         },
-        [isSearchPage, searchParams, router, webSearchBase]
+        [router, lang]
     );
 
     const menuPanel = (
@@ -139,14 +118,14 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
             productCategories={productCategories}
             serviceCategories={serviceCategories}
             selectedId={selectedForMenu}
-            selectedSearchType={selectedSearchTypeForMenu}
+            selectedSearchType={listingType}
             onSelect={navigateWithCategory}
             embedded
             layout={variant === "mobile" ? "mobile" : "desktop"}
         />
     );
 
-    /** سطح المكتب: أعمدة فقط تحت الزر — بدون شريط بعرض الشاشة */
+    /** Desktop: just the columns under the trigger, not a full-width bar. */
     const desktopDropdown =
         open &&
         mounted &&
@@ -168,7 +147,7 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
             </div>
         );
 
-    /** الجوال: لوحة بعرض المحتوى فقط، لا شريطًا يغطي الصفحة */
+    /** Mobile: a content-sized panel, not a strip covering the page. */
     const mobileOverlay =
         open &&
         mounted &&

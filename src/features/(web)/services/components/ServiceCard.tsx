@@ -9,9 +9,11 @@ import { Star, MapPin, User } from "lucide-react";
 import Image from "next/image";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
-import { useRouter, useParams } from "next/navigation";
+import { CardLink, CARD_ACTION } from "@/src/components/shared/CardLink";
+import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOpenChat } from "@/src/hooks/use-open-chat";
+import { useLanguage } from "@/src/hooks/use-language";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
@@ -19,7 +21,6 @@ import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 interface ServiceCardProps {
     service: Service;
     className?: string;
-    onClick?: () => void;
     onFavoriteClick?: (id: number) => void;
 }
 
@@ -29,16 +30,15 @@ function normalizeStoreId(v: number | string | undefined | null): number | null 
     return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-export default function ServiceCard({ service, className, onClick, onFavoriteClick }: ServiceCardProps) {
+export default function ServiceCard({ service, className, onFavoriteClick }: ServiceCardProps) {
     const router = useRouter();
-    const params = useParams();
-    const lang = (params?.locale as string) || (params?.lang as string) || "ar";
+    const lang = useLanguage();
     const qc = useQueryClient();
     const { openChat, isOpening: isOpeningChat } = useOpenChat();
     const [askPriceLoading, setAskPriceLoading] = useState(false);
-    const [imgError, setImgError] = useState(false);
     const [logoError, setLogoError] = useState(false);
 
+    const href = `/${lang}/services/${service.slug}`;
     const price = parseFloat(service.price || "0");
     const shouldAskForPrice = shouldShowAskForPrice(service.ask_for_price, service.price);
     const cityName = service.store?.city?.name || "فلسطين";
@@ -52,17 +52,8 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const reviewCount = hasStoreRating ? storeReviewCount : Number(service.review_count || 0);
     const reviewRate = hasStoreRating ? storeReviewRate : parseFloat(service.review_rate || "0");
 
-    const handleClick = () => {
-        if (onClick) {
-            onClick();
-        } else {
-            router.push(`/${lang}/services/${service.slug}`);
-        }
-    };
-
     const handleAskForPriceClick = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        e.stopPropagation();
         let sid = normalizeStoreId(service.store?.id);
         if (!sid) {
             setAskPriceLoading(true);
@@ -78,7 +69,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
             }
         }
         if (!sid) {
-            router.push(`/${lang}/services/${service.slug}`);
+            router.push(href);
             return;
         }
         openChat({ type: "store", id: sid, serviceId: service.id, askPrice: true });
@@ -91,18 +82,17 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const serviceLogoSrc = sanitizeMediaUrl(service.store?.logo_url || "");
 
     return (
-        <div
+        <article
             className={cn(
-                "bg-white overflow-hidden flex flex-col group cursor-pointer hover:shadow-sm rounded transition-all duration-300 w-full relative",
+                "bg-white overflow-hidden flex flex-col group hover:shadow-sm rounded transition-all duration-300 w-full relative isolate",
                 className
             )}
-            onClick={handleClick}
             dir="rtl"
         >
-            <CompareCheckbox id={service.id} type="service" />
+            <CompareCheckbox id={service.id} type="service" className={CARD_ACTION} />
 
             <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100">
-                {serviceImage && !imgError ? (
+                {serviceImage ? (
                     <VideoOrImage
                         src={serviceImage}
                         alt={service.title && !service.title.startsWith("http") ? service.title : "Service Image"}
@@ -116,10 +106,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                     </div>
                 )}
 
-                <div
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    className="absolute top-3 left-3 z-10 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-                >
+                <div className="absolute top-3 left-3 z-2 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform">
                     <FavoriteButton
                         id={service.id}
                         type="service"
@@ -137,7 +124,9 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
 
             <div className="p-4 flex flex-col flex-1">
                 <h3 className="font-semibold text-base text-right mb-2 leading-snug line-clamp-2 min-h-10 group-hover:text-[#3D5E83] transition-colors">
-                    {service.title}
+                    <CardLink href={href} className="after:rounded">
+                        {service.title}
+                    </CardLink>
                 </h3>
 
                 <div className="flex justify-start w-full mb-4 h-9 items-center">
@@ -147,6 +136,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                             disabled={askPriceLoading || isOpeningChat}
                             className={cn(
                                 productAskForPriceButtonClassName,
+                                CARD_ACTION,
                                 "w-full max-w-full sm:w-auto",
                                 (askPriceLoading || isOpeningChat) && "opacity-75 cursor-wait pointer-events-none"
                             )}
@@ -213,6 +203,6 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                     </div>
                 </div>
             </div>
-        </div>
+        </article>
     );
 }

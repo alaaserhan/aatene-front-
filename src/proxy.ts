@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createI18nMiddleware } from "next-international/middleware";
 import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from "@/src/config/role-permissions";
 import { loginUrl, postLoginRedirect } from "@/src/auth/links";
+import { normalizeSearchType } from "@/src/features/(web)/search/types";
 
 const LOCALES = new Set(["ar", "en", "he"]);
 const COMING_SOON_PATH = "coming-soon";
@@ -101,6 +102,17 @@ export default function proxy(request: NextRequest) {
       url.pathname = `/${locale}/${COMING_SOON_PATH}`;
       return NextResponse.redirect(url);
     }
+  }
+
+  // `/search?type=…` predates the per-type listing routes (`/products`, `/stores`, …).
+  // Old links, bookmarks and indexed URLs move there with the rest of their query.
+  if (stripLocalePrefix(pathname) === "/search") {
+    const url = request.nextUrl.clone();
+    const type = normalizeSearchType(url.searchParams.get("type"));
+    url.searchParams.delete("type");
+    const hasLocale = LOCALES.has(pathname.split("/").filter(Boolean)[0]);
+    url.pathname = hasLocale ? `/${getLocaleFromPath(pathname)}/${type}` : `/${type}`;
+    return NextResponse.redirect(url, 308);
   }
 
   // 2. Auth guard for protected web routes

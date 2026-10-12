@@ -1,89 +1,42 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
-import { cn } from "@/src/lib/utils";
 import { SlidersHorizontal, ChevronDown, ChevronRight } from "lucide-react";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { DualRangeSlider } from "@/src/components/ui/DualRangeSlider";
+import { Checkbox } from "@/src/components/ui/checkbox";
 import DiscountFilter from "@/src/components/(web)/DiscountFilter";
-import {
-    flattenCategoryTree,
-    buildCategoryTree,
-} from "@/src/features/(web)/search/utils/categoryTree";
-
-import type { FilterState, SearchType } from "../types";
 import { getAttributePlaceholder } from "@/src/lib/attribute-placeholder";
+import { cn } from "@/src/lib/utils";
+import type { Attribute, Category } from "../api";
+import type { SearchFilterOptions } from "../hooks";
+import { SEARCH_TYPE_META, type FilterState, type SearchType } from "../types";
+import { flattenCategoryTree, buildCategoryTree } from "../utils/categoryTree";
 
 interface SearchFiltersProps {
     type: SearchType;
     filters: FilterState;
     onFilterChange: (filters: FilterState) => void;
-    categories?: Category[];
-    cities?: City[];
-    tags?: Tag[];
-    attributes?: Attribute[];
-    priceRange?: PriceRange;
+    options: SearchFilterOptions;
     className?: string;
 }
 
 // Attributes (matched by title) rendered as multi-select instead of a single dropdown.
 const MULTI_SELECT_ATTRIBUTES = ["اللون"];
 
-// ─── Custom Checkbox Rating UI ─────────────────────────────────────────────
-interface CustomRatingCheckboxProps {
-    isActive: boolean;
-    onChange: () => void;
-}
-
-function CustomRatingCheckbox({ isActive, onChange }: CustomRatingCheckboxProps) {
-    return (
-        <button
-            type="button"
-            onClick={(e) => {
-                e.preventDefault();
-                onChange();
-            }}
-            className={cn(
-                "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 shrink-0",
-                "cursor-pointer",
-                isActive
-                    ? "bg-blue-5 border-blue-4"
-                    : "bg-white border-gray-300 hover:border-gray-400"
-            )}
-            aria-checked={isActive}
-            role="checkbox"
-        >
-            {isActive && (
-                <svg
-                    className="w-3.5 h-3.5 text-blue-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={3}
-                        d="M5 13l4 4L19 7"
-                    />
-                </svg>
-            )}
-        </button>
-    );
-}
+// Real-estate attributes that make no sense as marketplace-wide filters.
+const HIDDEN_ATTRIBUTES = ["عدد الطوابق", "عدد الغرف", "صفة المعلن", "عدد الحمامات", "مفروش؟", "العمر"];
 
 export default function SearchFilters({
     type,
     filters,
     onFilterChange,
-    categories = [],
-    cities = [],
-    tags = [],
-    attributes = [],
-    priceRange,
+    options,
     className,
 }: SearchFiltersProps) {
+    const { categories, cities, attributes, priceRange } = options;
+    const supports = SEARCH_TYPE_META[type].filters;
+
     const [manualCategoryPath, setManualCategoryPath] = useState<{
         categoryId?: number;
         path: Category[];
@@ -123,51 +76,10 @@ export default function SearchFilters({
         return selectedHasChildren ? fullPath : fullPath.slice(0, -1);
     }, [childrenMap, filters.category_id, flatCategories]);
 
-    const handleTagToggle = (tagId: number) => {
-        const currentTags = filters.tags || [];
-        const newTags = currentTags.includes(tagId)
-            ? currentTags.filter((id) => id !== tagId)
-            : [...currentTags, tagId];
-        onFilterChange({ ...filters, tags: newTags });
-    };
-
-    const handleAttributeChange = (attributeId: number, optionId: string) => {
-        const selectedOptionId = parseInt(optionId);
-        if (isNaN(selectedOptionId)) {
-            const attribute = attributes.find(a => a.id === attributeId);
-            if (attribute) {
-                const optionIdsToRemove = attribute.options.map(o => o.id);
-                const newOptions = (filters.variation_options || []).filter(id => !optionIdsToRemove.includes(id));
-                onFilterChange({ ...filters, variation_options: newOptions });
-            }
-            return;
-        }
-
-        const attribute = attributes.find(a => a.id === attributeId);
-        if (!attribute) return;
-
-        const optionIdsToRemove = attribute.options.map(o => o.id);
-        const currentOptions = filters.variation_options || [];
-        const newOptions = [
-            ...currentOptions.filter(id => !optionIdsToRemove.includes(id)),
-            selectedOptionId
-        ];
-
-        onFilterChange({ ...filters, variation_options: newOptions });
-    };
-
-    // Multi-select variant: swap this attribute's selected option ids for the new set.
-    const handleAttributeMultiChange = (attributeId: number, optionIds: string[]) => {
-        const attribute = attributes.find(a => a.id === attributeId);
-        if (!attribute) return;
-
-        const optionIdsToRemove = attribute.options.map(o => o.id);
-        const newOptions = [
-            ...(filters.variation_options || []).filter(id => !optionIdsToRemove.includes(id)),
-            ...optionIds.map(Number).filter(id => !isNaN(id)),
-        ];
-
-        onFilterChange({ ...filters, variation_options: newOptions.length > 0 ? newOptions : undefined });
+    const setAttributeOptions = (attribute: Attribute, optionIds: number[]) => {
+        const ownIds = new Set(attribute.options.map((o) => o.id));
+        const next = [...(filters.variation_options || []).filter((id) => !ownIds.has(id)), ...optionIds];
+        onFilterChange({ ...filters, variation_options: next.length > 0 ? next : undefined });
     };
 
     const cityOptions = cities
@@ -184,10 +96,12 @@ export default function SearchFilters({
         : parentCategories;
     const canGoBackCategory = categoryPath.length > 0;
 
+    // Attribute options belong to a category, so they reset with it.
     const handleCategorySelect = (categoryId: number | undefined) => {
         onFilterChange({
             ...filters,
             category_id: categoryId,
+            variation_options: undefined,
         });
     };
 
@@ -238,35 +152,39 @@ export default function SearchFilters({
             attr.options.filter((opt) => filters.variation_options?.includes(opt.id)).map((opt) => opt.title)
         );
 
+    const visibleAttributes = supports.attributes
+        ? attributes.filter((attr) => !HIDDEN_ATTRIBUTES.includes(attr.title))
+        : [];
+
     return (
         <div className={cn("flex flex-col gap-0 bg-white rounded-xl border border-gray-200 overflow-hidden", className)}>
             {/* Header */}
             <div className="px-5 py-4 flex items-center justify-between border-b border-gray-100">
                 <div className="flex items-center gap-2">
-                    <SlidersHorizontal className="w-5 h-5 text-[#3D5E83]" />
+                    <SlidersHorizontal className="w-5 h-5 text-c2-navy-600" />
                     <h2 className="text-lg font-semibold">فلتر</h2>
                 </div>
                 <button
+                    type="button"
                     onClick={() => {
                         setManualCategoryPath(null);
                         onFilterChange({});
                     }}
-                    className="text-sm text-[#3D5E83] hover:underline cursor-pointer"
+                    className="text-sm text-c2-navy-600 hover:underline cursor-pointer"
                 >
                     إعادة
                 </button>
             </div>
 
             <div className="divide-y divide-gray-100">
-                {/* Categories */}
-                {type !== "stores" && categories.length > 0 && (
+                {supports.categories && categories.length > 0 && (
                     <FilterSection title="الفئات" defaultOpen={false} forceOpen={!!filters.category_id} summary={categorySummary}>
                         <div className="flex flex-col gap-2">
                             {canGoBackCategory && (
                                 <button
                                     type="button"
                                     onClick={handleCategoryBack}
-                                    className="mb-1 inline-flex items-center gap-2 text-sm font-medium text-[#3D5E83] hover:underline"
+                                    className="mb-1 inline-flex items-center gap-2 text-sm font-medium text-c2-navy-600 hover:underline"
                                 >
                                     <ChevronRight className="w-4 h-4" />
                                     رجوع
@@ -280,8 +198,8 @@ export default function SearchFilters({
                                     className={cn(
                                         "w-full rounded-lg border px-3 py-2 text-right text-sm transition-colors",
                                         filters.category_id === activeCategory.id
-                                            ? "border-[#3D5E83] bg-[#EEF3FB] font-bold text-[#3D5E83]"
-                                            : "border-gray-200 text-gray-600 hover:border-[#3D5E83]"
+                                            ? "border-c2-navy-600 bg-c2-navy-50 font-bold text-c2-navy-600"
+                                            : "border-gray-200 text-gray-600 hover:border-c2-navy-600"
                                     )}
                                 >
                                     {activeCategory.name}
@@ -304,8 +222,8 @@ export default function SearchFilters({
                                             className={cn(
                                                 "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
                                                 isSelected
-                                                    ? "bg-[#EEF3FB] font-bold text-[#3D5E83]"
-                                                    : "text-gray-600 hover:bg-gray-50 hover:text-[#3D5E83]"
+                                                    ? "bg-c2-navy-50 font-bold text-c2-navy-600"
+                                                    : "text-gray-600 hover:bg-gray-50 hover:text-c2-navy-600"
                                             )}
                                         >
                                             <span className="min-w-0 flex-1 truncate text-right">
@@ -322,7 +240,7 @@ export default function SearchFilters({
                                 <button
                                     type="button"
                                     onClick={handleCategoryClear}
-                                    className="mt-2 text-right text-xs font-medium text-gray-400 hover:text-[#3D5E83]"
+                                    className="mt-2 text-right text-xs font-medium text-gray-400 hover:text-c2-navy-600"
                                 >
                                     إلغاء اختيار الفئة
                                 </button>
@@ -330,7 +248,7 @@ export default function SearchFilters({
                         </div>
                     </FilterSection>
                 )}
-                {/* City */}
+
                 <FilterSection title="المدن" defaultOpen={false} summary={citySummary}>
                     <ReusableDropdown
                         multiple={true}
@@ -345,48 +263,38 @@ export default function SearchFilters({
                     />
                 </FilterSection>
 
-                {/* Attributes */}
-                {attributes && attributes.length > 0 && (
-                    attributes
-                    .filter(attr => !["عدد الطوابق", "عدد الغرف", "صفة المعلن", "عدد الحمامات", "مفروش؟", "العمر"].includes(attr.title))
-                    .map((attr) => {
-                    if (MULTI_SELECT_ATTRIBUTES.includes(attr.title)) {
-                        const selectedIds = attr.options
-                            .filter(opt => filters.variation_options?.includes(opt.id))
-                            .map(opt => opt.id.toString());
-                        return (
-                            <FilterSection key={attr.id} title={attr.title} defaultOpen={false} summary={attributeSummary(attr)}>
-                                <ReusableDropdown
-                                    multiple={true}
-                                    options={attr.options.map(opt => ({ value: opt.id.toString(), label: opt.title }))}
-                                    value={selectedIds}
-                                    onChange={(vals: string[]) => handleAttributeMultiChange(attr.id, vals)}
-                                    placeholder={getAttributePlaceholder(attr.title)}
-                                />
-                            </FilterSection>
-                        );
-                    }
+                {visibleAttributes.map((attr) => {
+                    const selectedIds = attr.options
+                        .filter((opt) => filters.variation_options?.includes(opt.id))
+                        .map((opt) => opt.id.toString());
+                    const placeholder = getAttributePlaceholder(attr.title);
 
-                    const selectedOptionId = attr.options.find(opt => filters.variation_options?.includes(opt.id))?.id;
-                    const options = [
-                        { value: "", label: getAttributePlaceholder(attr.title) },
-                        ...attr.options.map(opt => ({ value: opt.id.toString(), label: opt.title }))
-                    ];
                     return (
                         <FilterSection key={attr.id} title={attr.title} defaultOpen={false} summary={attributeSummary(attr)}>
-                            <ReusableDropdown
-                                options={options}
-                                value={selectedOptionId?.toString() || ""}
-                                onChange={(val: string) => handleAttributeChange(attr.id, val)}
-                                placeholder={getAttributePlaceholder(attr.title)}
-                            />
+                            {MULTI_SELECT_ATTRIBUTES.includes(attr.title) ? (
+                                <ReusableDropdown
+                                    multiple={true}
+                                    options={attr.options.map((opt) => ({ value: opt.id.toString(), label: opt.title }))}
+                                    value={selectedIds}
+                                    onChange={(vals: string[]) => setAttributeOptions(attr, vals.map(Number))}
+                                    placeholder={placeholder}
+                                />
+                            ) : (
+                                <ReusableDropdown
+                                    options={[
+                                        { value: "", label: placeholder },
+                                        ...attr.options.map((opt) => ({ value: opt.id.toString(), label: opt.title })),
+                                    ]}
+                                    value={selectedIds[0] ?? ""}
+                                    onChange={(val: string) => setAttributeOptions(attr, val ? [Number(val)] : [])}
+                                    placeholder={placeholder}
+                                />
+                            )}
                         </FilterSection>
                     );
-                    })
-                )}
+                })}
 
-                {/* Price Range */}
-                {(type === "products" || type === "services") && (
+                {supports.price && (
                     <FilterSection title="السعر" defaultOpen={false} summary={priceSummary}>
                         <div className="flex flex-col gap-6 px-1 py-2">
                             <DualRangeSlider
@@ -394,8 +302,13 @@ export default function SearchFilters({
                                 max={sliderMax}
                                 step={1}
                                 value={[minVal, maxVal]}
-                                onValueChange={(val) =>
-                                    onFilterChange({ ...filters, min_price: val[0], max_price: val[1] })
+                                onValueChange={([min, max]) =>
+                                    onFilterChange({
+                                        ...filters,
+                                        // A thumb left at its end of the range is no limit at all.
+                                        min_price: min > sliderMin ? min : undefined,
+                                        max_price: max < sliderMax ? max : undefined,
+                                    })
                                 }
                                 className="w-full"
                             />
@@ -403,7 +316,7 @@ export default function SearchFilters({
                     </FilterSection>
                 )}
 
-                {type === "products" && (
+                {supports.discount && (
                     <div className="px-5 py-4">
                         <DiscountFilter
                             value={filters.has_discount}
@@ -415,32 +328,38 @@ export default function SearchFilters({
                 {/* Review rate - shown for every search type */}
                 <FilterSection title="التقييم" defaultOpen={false} summary={ratingSummary}>
                     <div className="flex flex-col gap-3">
-                        {[5, 4, 3, 2, 1].map((rate) => (
-                            <div key={rate} className="flex items-center gap-3">
-                                <CustomRatingCheckbox
-                                    isActive={filters.review_rate === rate}
-                                    onChange={() =>
-                                        onFilterChange({ ...filters, review_rate: filters.review_rate === rate ? undefined : rate })
-                                    }
-                                />
-                                <div className="flex gap-1 items-center" dir="ltr">
-                                    {[...Array(5)].map((_, i) => (
-                                        <svg key={i} className={cn("w-4 h-4", i < rate ? "text-[#FDB022]" : "text-gray-300")} fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                        </svg>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
+                        {[5, 4, 3, 2, 1].map((rate) => {
+                            const checked = filters.review_rate === rate;
+                            return (
+                                <label key={rate} className="flex items-center gap-3 cursor-pointer">
+                                    <Checkbox
+                                        checked={checked}
+                                        onCheckedChange={() =>
+                                            onFilterChange({ ...filters, review_rate: checked ? undefined : rate })
+                                        }
+                                        aria-label={ratingLabel(rate)}
+                                        className="ms-2 size-4 rounded-xs border-gray-300 bg-white shadow-none hover:border-gray-400 data-[state=checked]:border-blue-4 data-[state=checked]:bg-blue-5 data-[state=checked]:text-blue-4 [&_svg]:size-3.5 [&_svg]:stroke-3"
+                                    />
+                                    <div className="flex gap-1 items-center" dir="ltr">
+                                        {[...Array(5)].map((_, i) => (
+                                            <svg key={i} className={cn("w-4 h-4", i < rate ? "text-c2-warning" : "text-gray-300")} fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        ))}
+                                    </div>
+                                </label>
+                            );
+                        })}
                     </div>
                 </FilterSection>
             </div>
 
-            {/* Apply Button */}
+            {/* Filters apply as they change; kept as the familiar end-of-panel action. */}
             <div className="px-5 py-4 border-t border-gray-100 hidden lg:flex flex-col gap-2">
                 <button
+                    type="button"
                     onClick={() => onFilterChange(filters)}
-                    className="w-full py-2.5 bg-[#3D5E83] text-white rounded-xl font-medium hover:bg-[#2D496A] transition-colors cursor-pointer"
+                    className="w-full py-2.5 bg-c2-navy-600 text-white rounded-xl font-medium hover:bg-c2-navy-700 transition-colors cursor-pointer"
                 >
                     تطبيق الفلتر ›
                 </button>

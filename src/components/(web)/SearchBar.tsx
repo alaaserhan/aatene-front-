@@ -1,6 +1,7 @@
 "use client";
 
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useState, type MouseEvent } from "react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -8,9 +9,11 @@ import { cn } from "@/src/lib/utils";
 import { Button } from "@/src/components/ui/button";
 import {
   DEFAULT_SEARCH_TYPE,
-  isSearchType,
+  SEARCH_TAB_ORDER,
+  SEARCH_TYPE_META,
   type SearchType,
 } from "@/src/features/(web)/search/types";
+import { matchSearchRoute, searchHref } from "@/src/features/(web)/search/url";
 
 export type SearchBarVariant = "navbar" | "mobile";
 
@@ -19,34 +22,6 @@ interface SearchBarProps {
   variant?: SearchBarVariant;
   onSearch?: () => void;
 }
-
-/** Tab order and labels — deliberately not the declaration order in `SEARCH_TYPES`. */
-const SEARCH_TYPE_TABS: { value: SearchType; label: string }[] = [
-  { value: "stores", label: "متاجر" },
-  { value: "products", label: "منتجات" },
-  { value: "services", label: "خدمات" },
-  { value: "users", label: "مستخدمون" },
-];
-
-/** Filters that only make sense within one search type — dropped when the tab changes. */
-const TYPE_SCOPED_PARAMS = [
-  "page",
-  "category_id",
-  "city_id",
-  "tags",
-  "variation_options",
-  "min_price",
-  "max_price",
-  "review_rate",
-];
-
-/** Detail routes that imply an active search type even though we're off the search page. */
-const DETAIL_PATH_TYPES: { segment: string; type: SearchType }[] = [
-  { segment: "/stores/", type: "stores" },
-  { segment: "/products/", type: "products" },
-  { segment: "/services/", type: "services" },
-  { segment: "/profile/", type: "users" },
-];
 
 /* -------------------------------------------------------------------------- */
 /* Controller                                                                  */
@@ -58,9 +33,12 @@ function useSearchController(defaultType: SearchType, onSearch?: () => void) {
   const searchParams = useSearchParams();
   const locale = useLanguage();
 
+  // On a listing (`/stores`) or a detail page under it (`/stores/slug`), that's
+  // the type to search; elsewhere fall back to the default.
+  const route = matchSearchRoute(pathname);
+  const isListing = route?.isListing ?? false;
   const urlQuery = searchParams.get("q") || "";
-  const urlTypeParam = searchParams.get("type");
-  const urlType = isSearchType(urlTypeParam) ? urlTypeParam : defaultType;
+  const urlType = route?.type ?? defaultType;
 
   const [query, setQuery] = useState(urlQuery);
   const [selectedType, setSelectedType] = useState<SearchType>(urlType);
@@ -79,79 +57,58 @@ function useSearchController(defaultType: SearchType, onSearch?: () => void) {
     setSelectedType(urlType);
   }
 
-  // Covers both the locale-stripped `/search` and the `/${locale}/search` form
-  // that next-international may produce.
-  const isSearchPage = pathname.endsWith("/search");
-  const detailType =
-    DETAIL_PATH_TYPES.find(({ segment }) => pathname.includes(segment))?.type ?? null;
-
   const submit = useCallback(() => {
-    const params = new URLSearchParams();
     const trimmed = query.trim();
-    if (trimmed) params.set("q", trimmed);
-    params.set("type", selectedType);
+    const target = searchHref(locale, selectedType, { q: trimmed });
 
-    const target = `/${locale}/search`;
-    const queryString = params.toString();
-
-    // Already showing exactly this result set — don't push a duplicate entry
-    if (isSearchPage && searchParams.toString() === queryString) {
+    // Already showing exactly this result set — don't push a duplicate entry.
+    const current = new URLSearchParams(trimmed ? { q: trimmed } : {}).toString();
+    if (isListing && route?.type === selectedType && searchParams.toString() === current) {
       onSearch?.();
       return;
     }
 
-    router.push(`${target}?${queryString}`, { scroll: false });
+    // A new query starts a fresh result set: filters and page are dropped.
+    router.push(target);
     onSearch?.();
-  }, [query, selectedType, locale, isSearchPage, searchParams, router, onSearch]);
+  }, [query, selectedType, locale, isListing, route?.type, searchParams, router, onSearch]);
 
   const clear = useCallback(() => {
     setQuery("");
 
-    // Off the search page there are no results to update — just empty the field.
-    if (!isSearchPage) return;
+    // Off a listing there are no results to update — just empty the field.
+    if (!isListing) return;
 
     const params = new URLSearchParams(searchParams.toString());
     params.delete("q");
     params.delete("page");
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     onSearch?.();
-  }, [isSearchPage, searchParams, pathname, router, onSearch]);
+  }, [isListing, searchParams, pathname, router, onSearch]);
+
+  /** Where a type tab leads: that type's listing, re-running the current query. Filters are type-specific and dropped. */
+  const tabHref = (type: SearchType) =>
+    searchHref(locale, type, { q: searchParams.get("q") || query.trim() });
 
   /**
-   * Switches the active category tab.
+   * Runs before a tab link navigates.
    *
-   * `setSelectedType` runs optimistically so the active indicator moves on click
+   * `setSelectedType` is optimistic so the active indicator moves on click
    * rather than after the router settles (50–400 ms). An earlier version disabled
    * the tabs during that window, which read as a UI freeze — hence no pending state.
    *
    * Picking a tab is itself a search, so `onSearch` fires here too — it closes the
    * mobile drawer, which would otherwise stay over the results we just navigated to.
    */
-  const selectType = useCallback(
-    (type: SearchType) => {
-      if (isSearchPage && type === selectedType) {
-        onSearch?.();
-        return;
-      }
-
-      setSelectedType(type);
-
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("type", type);
-      TYPE_SCOPED_PARAMS.forEach((key) => params.delete(key));
-
-      const currentQuery = searchParams.get("q") || query.trim();
-      if (currentQuery) params.set("q", currentQuery);
-      else params.delete("q");
-
-      // On the search page use the live pathname, so we never re-introduce a
-      // locale prefix and trigger a next-international redirect loop.
-      if (isSearchPage) router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-      else router.push(`/${locale}/search?${params.toString()}`);
-
+  const onTabClick = useCallback(
+    (type: SearchType, event: MouseEvent<HTMLAnchorElement>) => {
+      // The current listing's own tab would only wipe its filters.
+      if (isListing && type === selectedType) event.preventDefault();
+      else setSelectedType(type);
       onSearch?.();
     },
-    [isSearchPage, selectedType, searchParams, query, pathname, router, locale, onSearch]
+    [isListing, selectedType, onSearch]
   );
 
   return {
@@ -160,9 +117,10 @@ function useSearchController(defaultType: SearchType, onSearch?: () => void) {
     selectedType,
     submit,
     clear,
-    selectType,
-    /** The tab to highlight: the live selection on the search page, otherwise the detail route's type. */
-    activeType: isSearchPage ? selectedType : detailType,
+    tabHref,
+    onTabClick,
+    /** The tab to highlight: the live selection on a listing, otherwise the detail route's type. */
+    activeType: isListing ? selectedType : (route?.type ?? null),
   };
 }
 
@@ -249,22 +207,26 @@ function TypeTabs({
   const styles = TAB_STYLES[appearance];
 
   return (
-    <div className={cn(styles.layout, className)}>
-      {SEARCH_TYPE_TABS.map(({ value, label }) => (
-        <button
-          key={value}
-          type="button"
-          onClick={() => controller.selectType(value)}
-          className={cn(
-            "flex shrink-0 items-center transition-colors cursor-pointer",
-            styles.base,
-            controller.activeType === value ? styles.active : styles.inactive
-          )}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
+    <nav className={cn(styles.layout, className)} aria-label="نوع البحث">
+      {SEARCH_TAB_ORDER.map((type) => {
+        const isActive = controller.activeType === type;
+        return (
+          <Link
+            key={type}
+            href={controller.tabHref(type)}
+            onClick={(event) => controller.onTabClick(type, event)}
+            aria-current={isActive ? "true" : undefined}
+            className={cn(
+              "flex shrink-0 items-center transition-colors cursor-pointer",
+              styles.base,
+              isActive ? styles.active : styles.inactive
+            )}
+          >
+            {SEARCH_TYPE_META[type].label}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
 

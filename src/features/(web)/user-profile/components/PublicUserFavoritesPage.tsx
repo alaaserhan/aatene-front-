@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { getUserProfile } from "../api";
-import { searchProducts, searchServices, searchStores } from "../../searchAndFilter/api";
+import { searchProducts, searchServices, searchStores } from "../../search/api";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "../../settings/hooks";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";

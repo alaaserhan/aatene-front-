@@ -20,7 +20,7 @@ interface HomeServicesCarouselProps {
 export default function HomeServicesCarousel({
   title,
   services,
-  viewAllHref = "/search?type=services",
+  viewAllHref = "/services",
   showViewAll = true,
   className,
   titleClassName,

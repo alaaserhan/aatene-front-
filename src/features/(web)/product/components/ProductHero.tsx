@@ -151,7 +151,7 @@ export default function ProductHero({
     <section>
       <Breadcrumb
         items={[
-          { label: "قائمة المنتجات", href: "/search?type=products" },
+          { label: "قائمة المنتجات", href: "/products" },
           { label: product.name },
         ]}
       />

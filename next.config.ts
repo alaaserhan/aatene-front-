@@ -50,8 +50,6 @@ const nextConfig: NextConfig = {
       { source: "/admin/:path*", destination: "/ar/admin/:path*" },
       /** Locale-less links (notifications, shares) — same as admin. */
       { source: "/chat", destination: "/ar/chat" },
-      /** Locale-less footer and home links — same as chat. */
-      { source: "/search", destination: "/ar/search" },
     ];
   },
   images: {

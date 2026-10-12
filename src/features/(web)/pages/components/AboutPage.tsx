@@ -102,7 +102,7 @@ export default function AboutPage() {
         : FALLBACK_VISION_CARDS;
 
     // ─── Why us ─────────────────────────────────────────────────────
-    // نستخدم الـ fallback دائماً كـ base، ونُدمج بيانات الـ API فوقها إن وُجدت
+    // The fallback is always the base; API data, when present, is merged over it.
     const apiWhyUs = aboutUs?.sectionWhyUs ?? [];
     const whyUsItems = FALLBACK_WHY_US.map((fallback, i) => {
         const apiItem = apiWhyUs[i];
@@ -377,7 +377,7 @@ export default function AboutPage() {
                         <div className="flex gap-4 justify-start flex-wrap w-full">
 
                             <Link
-                                href={`/search`}
+                                href="/products"
                                 className="bg-white text-black min-w-[180px] text-center px-8 py-3 rounded-[10px] text-[16px] font-bold hover:bg-gray-50 transition-colors shadow-sm"
                             >
                                 ابحث عن خدمة أو منتج محدّد

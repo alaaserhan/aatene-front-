@@ -17,7 +17,7 @@ export default function HomeTodayOffers({ products: initialProducts }: HomeToday
     <HomeProductsCarousel
       title="تخفيضات"
       products={products}
-      viewAllHref="/search?type=products&has_discount=1"
+      viewAllHref="/products?has_discount=1"
       className="py-12 bg-gray-50 bg-linear-to-b from-gray-50 to-white"
     />
   );

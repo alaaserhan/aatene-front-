@@ -7,7 +7,7 @@ import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { useStoreProducts } from "../hooks";
-import { useSearchServices } from "@/src/features/(web)/searchAndFilter/hooks";
+import { useSearchServices } from "@/src/features/(web)/search/hooks";
 
 interface StoreProductsSectionProps {
     storeId: number;

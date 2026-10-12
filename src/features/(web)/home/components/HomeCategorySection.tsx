@@ -35,7 +35,7 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
 
                 <div className="flex items-center gap-3 md:gap-4">
                     <HomeViewAllLink
-                        href={`/${lang}/search?type=products&category_id=${category.id}`}
+                        href={`/${lang}/products?category_id=${category.id}`}
                         className="text-xs md:text-sm p-1.5 px-3 md:p-2 md:px-4"
                     />
                 </div>

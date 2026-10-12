@@ -4,7 +4,7 @@ import { useState } from "react";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { Pagination } from "@/src/components/ui/Pagination";
-import { useSearchProducts, useSearchServices } from "@/src/features/(web)/searchAndFilter/hooks";
+import { useSearchProducts, useSearchServices } from "@/src/features/(web)/search/hooks";
 import { Loader2 } from "lucide-react";
 
 export default function StoreFavoritesSection({ storeId, storeType }: { storeId: number; storeType?: string }) {

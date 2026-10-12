@@ -8,6 +8,12 @@ interface HoverPlayVideoProps {
     src: string;
     className?: string;
     videoClassName?: string;
+    /**
+     * Hover state supplied by the parent. Pass it when something covers the
+     * video and swallows its pointer events — e.g. a card's stretched link —
+     * so playback follows the card's hover instead of the video's own.
+     */
+    hovered?: boolean;
 }
 
 function usePrefersTouchPlayback() {
@@ -16,7 +22,7 @@ function usePrefersTouchPlayback() {
     useEffect(() => {
         const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
         const update = () => {
-            // آيفون/موبايل: coarse أو بدون hover → تشغيل بالظهور وليس بالهوفر
+            // Phones (coarse pointer or no hover) play when scrolled into view, not on hover.
             const coarse = window.matchMedia("(pointer: coarse)").matches;
             const noHover = window.matchMedia("(hover: none)").matches;
             const hasTouch = navigator.maxTouchPoints > 0;
@@ -36,7 +42,7 @@ function usePrefersTouchPlayback() {
     return touchPlayback;
 }
 
-export function HoverPlayVideo({ src, className, videoClassName }: HoverPlayVideoProps) {
+export function HoverPlayVideo({ src, className, videoClassName, hovered }: HoverPlayVideoProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const touchPlayback = usePrefersTouchPlayback();
@@ -70,7 +76,6 @@ export function HoverPlayVideo({ src, className, videoClassName }: HoverPlayVide
         }
     }, [prepareVideo]);
 
-    // موبايل / آيفون
     useEffect(() => {
         if (!touchPlayback) return;
 
@@ -109,30 +114,38 @@ export function HoverPlayVideo({ src, className, videoClassName }: HoverPlayVide
         };
     }, [src, touchPlayback, prepareVideo, tryPlay]);
 
-    // ديسكتوب: هوفر
-    const playOnHover = () => {
+    const playOnHover = useCallback(() => {
         const video = videoRef.current;
         if (!video || touchPlayback) return;
         void tryPlay(video);
-    };
+    }, [touchPlayback, tryPlay]);
 
-    const pauseOnHoverLeave = () => {
+    const pauseOnHoverLeave = useCallback(() => {
         const video = videoRef.current;
         if (!video || touchPlayback) return;
         video.pause();
         video.currentTime = 0;
         setIsPlaying(false);
         setHasFrame(false);
-    };
+    }, [touchPlayback]);
+
+    const isControlled = hovered !== undefined;
+
+    useEffect(() => {
+        if (!isControlled) return;
+        if (hovered) playOnHover();
+        else pauseOnHoverLeave();
+    }, [isControlled, hovered, playOnHover, pauseOnHoverLeave]);
 
     const showDesktopOverlay = !touchPlayback && !isPlaying;
+    const ownHover = !touchPlayback && !isControlled;
 
     return (
         <div
             ref={containerRef}
             className={cn("relative h-full w-full bg-gray-100", className)}
-            onMouseEnter={touchPlayback ? undefined : playOnHover}
-            onMouseLeave={touchPlayback ? undefined : pauseOnHoverLeave}
+            onMouseEnter={ownHover ? playOnHover : undefined}
+            onMouseLeave={ownHover ? pauseOnHoverLeave : undefined}
         >
             <video
                 ref={(el) => {

@@ -21,7 +21,7 @@ interface HomeProductsCarouselProps {
 export default function HomeProductsCarousel({
   title,
   products,
-  viewAllHref = "/search?type=products",
+  viewAllHref = "/products",
   viewAllLabel,
   showViewAll = true,
   className,

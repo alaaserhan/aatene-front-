@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { User } from "@/src/features/(web)/searchAndFilter/api";
+import { User } from "@/src/features/(web)/search/api";
 import { cn } from "@/src/lib/utils";
 import { UserPlus, User as UserIcon, UserMinus } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useFollowUserOrStore,
   useUnfollowUserOrStore,
 } from "@/src/features/(web)/settings/hooks";
+import { CardLink, CARD_ACTION } from "@/src/components/shared/CardLink";
 import { useLanguage } from "@/src/hooks/use-language";
 
 interface UserCardProps {
@@ -20,7 +20,6 @@ interface UserCardProps {
 
 export default function UserCard({ user, className }: UserCardProps) {
   const lang = useLanguage();
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const [avatarFailed, setAvatarFailed] = useState(false);
@@ -41,8 +40,7 @@ export default function UserCard({ user, className }: UserCardProps) {
     queryClient.invalidateQueries({ queryKey: ["userProfile"] });
   };
 
-  const handleFollowToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleFollowToggle = () => {
     const payload = { followed_type: "user" as const, followed_id: user.id };
     const onSuccess = () => {
       setFollowOverride(!followed);
@@ -57,15 +55,13 @@ export default function UserCard({ user, className }: UserCardProps) {
   };
 
   return (
-    <div
-      onClick={() => router.push(profileLink)}
+    <article
       className={cn(
-        "group mx-auto flex w-full max-w-[320px] cursor-pointer flex-col items-center rounded-2xl border border-c2-neutral-200 bg-white px-5 pb-5 pt-7 text-center transition-all duration-300 hover:shadow-md",
+        "group relative isolate mx-auto flex w-full max-w-[320px] flex-col items-center rounded-2xl border border-c2-neutral-200 bg-white px-5 pb-5 pt-7 text-center transition-all duration-300 hover:shadow-md",
         className,
       )}
       dir="rtl"
     >
-      {/* Avatar */}
       <div className="relative mb-4 size-32.5 shrink-0 overflow-hidden rounded-full border-[3px] border-white bg-c2-neutral-50 shadow-sm">
         {showAvatar ? (
           <Image
@@ -83,23 +79,23 @@ export default function UserCard({ user, className }: UserCardProps) {
         )}
       </div>
 
-      {/* Name */}
       <h3 className="mb-2 line-clamp-1 w-full px-1 text-lg font-bold text-c2-neutral-900">
-        {user.name}
+        <CardLink href={profileLink} className="after:rounded-2xl">
+          {user.name}
+        </CardLink>
       </h3>
 
-      {/* Followers count */}
       <p className="mb-4 text-sm text-c2-neutral-500">{followersCount} متابع</p>
 
-      {/* Follow toggle */}
       <button
         type="button"
         disabled={isPending}
         onClick={handleFollowToggle}
         className={cn(
+          CARD_ACTION,
           "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-colors disabled:opacity-50 min-h-12",
           followed
-            ? "bg-[#EFF3F8] text-c2-primary hover:bg-c2-neutral-200"
+            ? "bg-c2-navy-50 text-c2-primary hover:bg-c2-neutral-200"
             : "bg-c2-primary text-white hover:bg-c2-navy-600",
         )}
       >
@@ -114,6 +110,6 @@ export default function UserCard({ user, className }: UserCardProps) {
               : "متابعة"}
         </span>
       </button>
-    </div>
+    </article>
   );
 }

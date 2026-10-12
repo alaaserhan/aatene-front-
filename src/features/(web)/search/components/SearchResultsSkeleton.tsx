@@ -138,18 +138,15 @@ const CARD_BY_TYPE: Record<SearchType, () => ReactElement> = {
     users: UserCardSkeleton,
 };
 
+/** Shared by the results grid and its skeleton so the two never drift apart. */
+export const RESULTS_GRID_CLASS = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6";
+
 /** Placeholder grid mirroring the SearchResults card grid for the active search type. */
 export default function SearchResultsSkeleton({ type = "products", count = 16, className }: SearchResultsSkeletonProps) {
     const Card = CARD_BY_TYPE[type] ?? ProductCardSkeleton;
 
     return (
-        <div
-            className={cn(
-                "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6",
-                className
-            )}
-            aria-hidden="true"
-        >
+        <div className={cn(RESULTS_GRID_CLASS, className)} aria-hidden="true">
             {Array.from({ length: count }).map((_, i) => (
                 <Card key={i} />
             ))}

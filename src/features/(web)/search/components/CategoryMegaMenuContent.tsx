@@ -2,15 +2,13 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { ChevronDown, ChevronLeft } from "lucide-react";
-import type { Category } from "@/src/features/(web)/searchAndFilter/api";
+import type { Category } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
     flattenCategoryTree,
     buildCategoryTree,
     getCategoryPathFromLeaf,
-} from "@/src/features/(web)/search/utils/categoryTree";
-
-export type { SearchType as MegaMenuSearchType } from "../types";
+} from "../utils/categoryTree";
 
 export type CategoryKind = "product" | "service";
 
@@ -21,7 +19,7 @@ export interface CategoryMegaMenuContentProps {
     selectedSearchType?: "products" | "services";
     onSelect: (id: number, searchType: "products" | "services") => void;
     embedded?: boolean;
-    /** عمود أوضح على الشاشات الصغيرة + عرض يمنع القص */
+    /** "mobile" stacks a single, wider column so nothing gets clipped on small screens. */
     layout?: "desktop" | "mobile";
     className?: string;
 }
@@ -32,7 +30,7 @@ function countFor(cat: Category, kind: CategoryKind) {
         : cat.products_count;
 }
 
-/** أعمدة الفروع: لكل عنصر في المسار، عمود بأبنائه */
+/** One column per category on the open path, holding that category's children. */
 function buildBranchColumns(
     path: number[],
     treeKind: CategoryKind,
@@ -287,7 +285,7 @@ export default function CategoryMegaMenuContent({
                 </div>
             </div>
 
-            {/* الأعمدة التالية: كل عمود = أبناء مستوى في المسار */}
+            {/* Following columns: each holds the children of one level on the path. */}
             {branchColumns.map((col, subIdx) => {
                 const colIndex = subIdx + 1;
                 const st = pathTree === "product" ? "products" : "services";

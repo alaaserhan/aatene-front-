@@ -117,7 +117,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
     <section>
       <Breadcrumb
         items={[
-          { label: "قائمة الخدمات", href: "/search?type=services" },
+          { label: "قائمة الخدمات", href: "/services" },
           { label: service.title },
         ]}
       />

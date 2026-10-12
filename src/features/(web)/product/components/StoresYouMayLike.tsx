@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { StoreInPageData } from "../types";
-import { Store } from "@/src/features/(web)/searchAndFilter/api";
+import { Store } from "@/src/features/(web)/search/api";
 
 interface StoresYouMayLikeProps {
     stores: StoreInPageData[];

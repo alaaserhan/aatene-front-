@@ -45,7 +45,7 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
           <h2 className="heading-3">
             المتاجر الأعلى تقييمًا
           </h2>
-          <HomeViewAllLink href="/search?type=stores" />
+          <HomeViewAllLink href="/stores" />
         </div>
 
         <div className="relative group/nav">

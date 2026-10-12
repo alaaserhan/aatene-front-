@@ -1,4 +1,3 @@
-
 import api from "@/src/lib/axios";
 import { normalizeAskForPrice } from "@/src/lib/normalizeAskForPrice";
 
@@ -22,11 +21,9 @@ export interface Category {
     parent_id: string | null;
     products_count: string | number;
     services_count?: string | number;
-    /** المتغير الجديد من نفس الـ API */
     childrenWithProducts?: Category[];
-    /** شجرة فئات الخدمات من الباك */
     childrenWithServices?: Category[];
-    /** توافق خلفي مؤقت لو رجعت بعض الاستجابات بالحقل القديم */
+    /** Legacy field name; some responses still return the tree under it. */
     children?: Category[];
 }
 
@@ -89,7 +86,7 @@ export interface Product {
     shown: boolean;
     is_favorite: boolean;
     in_compare: boolean;
-    /** اختياري إن رجعه الباك؛ وإلا يُستنتج من slug في الواجهة */
+    /** Not always returned; ProductCard resolves the store from the slug when missing. */
     store_id?: number;
     ask_for_price?: boolean;
     price: string;

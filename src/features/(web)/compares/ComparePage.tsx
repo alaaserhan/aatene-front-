@@ -44,7 +44,7 @@ export default function ComparePage() {
     const isLoading = compareType === "products" ? isLoadingProducts : isLoadingServices;
 
     const handleAddItem = () => {
-        router.push(`/search?type=${compareType}&compare=${compareType}`);
+        router.push(`/${compareType}?compare=${compareType}`);
     };
 
     const handleRemoveItem = (id: number) => {

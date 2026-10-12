@@ -14,7 +14,7 @@ import EmptyFavorites from "./EmptyFavorites";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
-import { Store } from "@/src/features/(web)/searchAndFilter/api";
+import { Store } from "@/src/features/(web)/search/api";
 import { Service } from "@/src/features/(web)/services/api";
 import { BlogCard } from "@/src/features/(web)/blogs/components/BlogCard";
 import { Blog } from "@/src/features/(web)/blogs/types";
@@ -264,7 +264,7 @@ export default function FavoritesContent({
                 <div className="text-center py-10">جاري تحميل العناصر...</div>
             )}
 
-            {/* Empty State — نستبعد العناصر اليتيمة (favs === null) */}
+            {/* Empty state — orphaned rows (favs === null) don't count. */}
             {visibleFavorites.length === 0 && !isLoadingListItems && (
                 <EmptyFavorites type={selectedType} />
             )}

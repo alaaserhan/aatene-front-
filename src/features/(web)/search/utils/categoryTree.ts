@@ -1,6 +1,6 @@
-import type { Category } from "@/src/features/(web)/searchAndFilter/api";
+import type { Category } from "../api";
 
-/** الـ API يعيد الجذور مع childrenWithProducts/childrenWithServices متداخلة */
+/** The API returns root categories with their children nested under childrenWithProducts/childrenWithServices. */
 export function flattenCategoryTree(categories: Category[]): Category[] {
     const out: Category[] = [];
     const seen = new Set<number>();
@@ -47,7 +47,7 @@ export function buildCategoryTree(categories: Category[]) {
     return { parentCategories, childrenMap };
 }
 
-/** مسار من الجذر إلى الفئة (مثلاً لعرض الأعمدة عند category_id في الرابط) */
+/** Ids from the root down to `leafId`, e.g. to open the menu columns for a `category_id` in the URL. */
 export function getCategoryPathFromLeaf(flat: Category[], leafId: number): number[] {
     const path: number[] = [];
     let cur: Category | undefined = flat.find((c) => c.id === leafId);
