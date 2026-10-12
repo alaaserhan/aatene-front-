@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "@/src/hooks/use-language";
 import SearchFilters from "./components/SearchFilters";
-import SearchResults from "./components/SearchResults";
+import SearchResults, { ResultsCount } from "./components/SearchResults";
 import MobileFilterDrawer from "./components/MobileFilterDrawer";
 import {
     useSearchProducts,
@@ -16,7 +16,7 @@ import {
     useStoresSearchPage,
     useUsersSearchPage,
 } from "./hooks";
-import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, X, PanelRightClose } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { CompareFloatingBar } from "../compares/components/CompareFloatingBar";
 import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
@@ -291,34 +291,40 @@ function SearchContent() {
 
     return (
         <div className="flex flex-col gap-4">
-            {/* Top Bar: filter toggle + clear filters */}
-            <div className="flex items-center gap-2 flex-wrap">
+            {/* Toolbar: filter toggle + clear filters on the start side, results count on the end side */}
+            <div className="flex items-center gap-x-2 gap-y-3 flex-wrap">
                 {/* Desktop Filter Button */}
                 <button
                     type="button"
                     onClick={() => setIsDesktopFilterOpen(prev => !prev)}
                     aria-expanded={isDesktopFilterOpen}
+                    title={isDesktopFilterOpen ? "إخفاء الفلتر" : "إظهار الفلتر"}
                     className={cn(
-                        "hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors cursor-pointer shrink-0",
+                        "hidden lg:flex items-center gap-2 h-11 px-5 rounded-xl border transition-colors cursor-pointer shrink-0",
                         isDesktopFilterOpen
                             ? "bg-c2-navy-600 text-white border-c2-navy-600"
-                            : "bg-white text-c2-navy-600 border-c2-neutral-200 hover:bg-c2-neutral-50"
+                            : "bg-white text-c2-navy-600 border-c2-neutral-200 hover:bg-c2-neutral-50 hover:border-c2-navy-100"
                     )}
                 >
-                    <SlidersHorizontal className="w-4 h-4" />
-                    <span className="font-medium text-sm">فلتر</span>
+                    {/* The sidebar opens beside the results (start side), so a panel icon reads better than a dropdown chevron.
+                        The icon is drawn for RTL (panel on the right); mirror it in LTR so the panel stays on the start side. */}
+                    {isDesktopFilterOpen ? (
+                        <PanelRightClose className="size-4.5 ltr:-scale-x-100" />
+                    ) : (
+                        <SlidersHorizontal className="size-4.5" />
+                    )}
+                    <span className="font-semibold text-sm">فلتر</span>
                     <FilterCountBadge count={activeFiltersCount} inverted={isDesktopFilterOpen} />
-                    {isDesktopFilterOpen ? <X className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
 
                 {/* Mobile Filter Button */}
                 <button
                     type="button"
                     onClick={() => setIsFilterOpen(true)}
-                    className="flex lg:hidden items-center gap-2 px-4 py-2 border border-c2-neutral-200 rounded-lg bg-white hover:bg-c2-neutral-50 transition-colors cursor-pointer text-c2-navy-600 shrink-0"
+                    className="flex lg:hidden items-center gap-2 h-11 px-5 border border-c2-neutral-200 rounded-xl bg-white hover:bg-c2-neutral-50 transition-colors cursor-pointer text-c2-navy-600 shrink-0"
                 >
-                    <SlidersHorizontal className="w-4 h-4" />
-                    <span className="font-medium text-sm">فلتر</span>
+                    <SlidersHorizontal className="size-4.5" />
+                    <span className="font-semibold text-sm">فلتر</span>
                     <FilterCountBadge count={activeFiltersCount} />
                 </button>
 
@@ -326,7 +332,7 @@ function SearchContent() {
                     <button
                         type="button"
                         onClick={clearFilters}
-                        className="group flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-c2-neutral-600 hover:text-c2-danger hover:bg-c2-red-500-a10 transition-colors cursor-pointer shrink-0 animate-in fade-in zoom-in-95 duration-150"
+                        className="group flex items-center gap-1.5 h-11 px-3 rounded-xl text-sm font-medium text-c2-neutral-600 hover:text-c2-danger hover:bg-c2-red-500-a10 transition-colors cursor-pointer shrink-0 animate-in fade-in zoom-in-95 duration-150"
                     >
                         <span className="flex items-center justify-center size-4 rounded-full bg-c2-neutral-200 group-hover:bg-c2-danger group-hover:text-white transition-colors">
                             <X className="size-3" strokeWidth={2.5} />
@@ -334,6 +340,14 @@ function SearchContent() {
                         مسح الكل
                     </button>
                 )}
+
+                <ResultsCount
+                    total={total}
+                    currentPage={page}
+                    perPage={PER_PAGE}
+                    isLoading={isLoading}
+                    className="ms-auto"
+                />
             </div>
 
             {/* Main Layout */}
@@ -403,7 +417,8 @@ function FilterCountBadge({ count, inverted = false }: { count: number; inverted
     return (
         <span
             className={cn(
-                "inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full shrink-0",
+                // ms-auto pins the badge to the inline-end edge, which flips with the locale direction.
+                "inline-flex items-center justify-center min-w-5 h-5 px-1.5 ms-auto rounded-full shrink-0",
                 "font-[system-ui,-apple-system,'Segoe_UI',Roboto,Arial,sans-serif] text-[11px] font-semibold leading-none tabular-nums",
                 inverted ? "bg-white text-c2-navy-600" : "bg-c2-navy-600 text-white"
             )}

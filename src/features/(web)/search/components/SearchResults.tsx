@@ -8,6 +8,7 @@ import UserCard from "@/src/features/(web)/users/components/UserCard";
 import { Product, Service, Store, User } from "@/src/features/(web)/searchAndFilter/api";
 import type { SearchType } from "../types";
 import SearchResultsSkeleton, { ResultsCountSkeleton } from "./SearchResultsSkeleton";
+import { cn } from "@/src/lib/utils";
 
 interface SearchResultsProps {
     type: SearchType;
@@ -33,6 +34,39 @@ function resultsWord(count: number): string {
     return "نتيجة";
 }
 
+interface ResultsCountProps {
+    total: number;
+    currentPage: number;
+    perPage: number;
+    isLoading?: boolean;
+    className?: string;
+}
+
+/** The results-count line; lives in the page toolbar beside the filter button. */
+export function ResultsCount({ total, currentPage, perPage, isLoading = false, className }: ResultsCountProps) {
+    if (total === 0) return isLoading ? <ResultsCountSkeleton className={className} /> : null;
+
+    const number = (value: React.ReactNode) => (
+        <span className="font-medium text-c2-neutral-700 tabular-nums">{value}</span>
+    );
+
+    if (total > perPage) {
+        const startItem = (currentPage - 1) * perPage + 1;
+        const endItem = Math.min(currentPage * perPage, total);
+        return (
+            <p className={cn("text-c2-neutral-500 text-sm", className)}>
+                عرض {number(`${startItem}–${endItem}`)} من أصل {number(total)} {resultsWord(total)}
+            </p>
+        );
+    }
+
+    return (
+        <p className={cn("text-c2-neutral-500 text-sm", className)}>
+            {total <= 2 ? resultsWord(total) : <>{number(total)} {resultsWord(total)}</>}
+        </p>
+    );
+}
+
 export default function SearchResults({
     type,
     items,
@@ -44,47 +78,13 @@ export default function SearchResults({
 }: SearchResultsProps) {
     const displayTotal = total;
     const totalPages = Math.ceil(displayTotal / perPage);
-    const startItem = (currentPage - 1) * perPage + 1;
-    const endItem = Math.min(currentPage * perPage, displayTotal);
 
     if (isLoading && displayTotal === 0) {
-        return (
-            <div className="flex flex-col gap-5">
-                <ResultsCountSkeleton />
-                <SearchResultsSkeleton type={type} count={perPage} />
-            </div>
-        );
+        return <SearchResultsSkeleton type={type} count={perPage} />;
     }
 
     return (
         <div className="flex flex-col gap-5">
-            {/* Results Count */}
-            {displayTotal > 0 ? (
-                totalPages > 1 ? (
-                    <p className="text-c2-neutral-500 text-sm">
-                        عرض{" "}
-                        <span className="font-medium text-c2-neutral-700 tabular-nums">
-                            {startItem}–{endItem}
-                        </span>{" "}
-                        من أصل{" "}
-                        <span className="font-medium text-c2-neutral-700 tabular-nums">{displayTotal}</span>{" "}
-                        {resultsWord(displayTotal)}
-                    </p>
-                ) : (
-                    <p className="text-c2-neutral-500 text-sm">
-                        {displayTotal <= 2 ? (
-                            resultsWord(displayTotal)
-                        ) : (
-                            <>
-                                <span className="font-medium text-c2-neutral-700 tabular-nums">{displayTotal}</span>{" "}
-                                {resultsWord(displayTotal)}
-                            </>
-                        )}
-                    </p>
-                )
-            ) : isLoading ? (
-                <ResultsCountSkeleton />
-            ) : null}
 
             {/* Content Area */}
             {isLoading ? (
