@@ -4,6 +4,7 @@
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery, InfiniteData, UseQueryOptions } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
+import { invalidateAfterIdentityChange } from "@/src/lib/queryClient";
 import * as api from "./api";
 import {
   UserCreatePayload,
@@ -172,9 +173,10 @@ export const useUpdateUser = () => {
       qc.invalidateQueries({ queryKey: QK.listAny });
     },
 
-    onSettled: (_data, _err, vars) => {
-      qc.invalidateQueries({ queryKey: QK.listAny });
-      qc.invalidateQueries({ queryKey: QK.single(vars.id) });
+    onSettled: () => {
+      // The user's name and avatar are also cached outside this screen: the
+      // header when admins edit themselves, plus profiles, reviews and chats.
+      invalidateAfterIdentityChange(qc);
     },
   });
 };

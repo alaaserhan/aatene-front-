@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
+import { invalidateAfterIdentityChange } from "@/src/lib/queryClient";
 import * as api from "./api";
 
 
@@ -52,9 +53,9 @@ export function useUpdateService() {
     }) => api.updateService(id, payload, storeId),
 
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["services"] });
-
       queryClient.setQueryData(["services", variables.id, variables.storeId], data);
+      // The service's name and slug are also cached in public screens (home, search, store page)
+      invalidateAfterIdentityChange(queryClient);
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
     },
@@ -87,7 +88,7 @@ export function useUpdateServiceStatus() {
       payload: api.ServiceStatusPayload;
       storeId?: number | string;
     }) => api.updateServiceStatus(id, payload, storeId),
-    // ✅ تم إزالة onMutate لمنع الأخطاء الناتجة عن اختلاف هيكل البيانات
+    // No optimistic onMutate: the list and single responses are shaped differently
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
     },
@@ -109,7 +110,6 @@ export function useUpdateServiceShown() {
       shown: number | boolean;
       storeId?: number | string;
     }) => api.updateServiceShown(id, shown, storeId),
-    // ✅ تم إزالة onMutate هنا أيضاً للأمان
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
     },
@@ -118,7 +118,7 @@ export function useUpdateServiceShown() {
   });
 }
 
-// أسباب رفض الخدمة في الواجهة: RejectServiceModal يستخدم report-types من الويب (فئة reject-service)
+// RejectServiceModal reads its reasons from the web report-types (the reject-service category)
 export function useGetRejectionReasons() {
   return useQuery({
     queryKey: ["rejection-reasons"],

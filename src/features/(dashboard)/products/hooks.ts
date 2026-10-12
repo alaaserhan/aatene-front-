@@ -10,6 +10,7 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { invalidateAfterIdentityChange } from "@/src/lib/queryClient";
 import * as api from "./api";
 import {
   ProductCreatePayload,
@@ -162,9 +163,9 @@ export const useUpdateProduct = () => {
         qc.setQueryData(ProductsQK.single(vars.id), ctx.prevSingle);
       }
     },
-    onSettled: (_data, _err, vars) => {
-      qc.invalidateQueries({ queryKey: ProductsQK.listAny });
-      qc.invalidateQueries({ queryKey: ProductsQK.single(vars.id) });
+    onSettled: () => {
+      // The product's name and slug are also cached in public screens (home, search, store page)
+      invalidateAfterIdentityChange(qc);
     },
   });
 };

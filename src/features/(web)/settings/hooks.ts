@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { USER_TYPE_COOKIE, AUTH_COOKIE_ATTRS } from "@/src/auth/cookies";
+import { invalidateAfterIdentityChange } from "@/src/lib/queryClient";
 import {
     getCities,
     GetCitiesParams,
@@ -300,7 +301,7 @@ export const useUpdateAvatar = () => {
             }
         },
         onSettled: () => {
-            qc.invalidateQueries({ queryKey: QK.account.profile });
+            invalidateAfterIdentityChange(qc);
         },
     });
 };
@@ -319,7 +320,7 @@ export const useUpdateCover = () => {
             }
         },
         onSettled: () => {
-            qc.invalidateQueries({ queryKey: QK.account.profile });
+            invalidateAfterIdentityChange(qc);
         },
     });
 };
@@ -339,7 +340,8 @@ export const useUpdateAccount = () => {
             });
         },
         onSettled: () => {
-            qc.invalidateQueries({ queryKey: QK.account.profile });
+            // The name feeds the user's slug, so their profile links change too
+            invalidateAfterIdentityChange(qc);
         },
     });
 };

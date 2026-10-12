@@ -9,16 +9,22 @@ import {
   updateStoreShippingCompanies,
 } from "../api";
 import { StoresQK } from "../hooks";
+import { invalidateAfterIdentityChange } from "@/src/lib/queryClient";
 import * as api from "./api";
 
 /**
  * Every settings section saves the same way: post its own payload, refresh the
  * store, then report success or failure.
+ *
+ * `changesIdentity` is for sections that edit what other screens show of the
+ * store (name, logo, slug); those refresh every cached query, not just the
+ * dashboard's copy of the store.
  */
 function useStoreSectionMutation<TPayload>(
   storeId: string | number,
   mutationFn: (payload: TPayload) => Promise<SingleStoreResponse>,
-  successMessage: string
+  successMessage: string,
+  { changesIdentity = false }: { changesIdentity?: boolean } = {}
 ) {
   const queryClient = useQueryClient();
 
@@ -37,6 +43,10 @@ function useStoreSectionMutation<TPayload>(
     },
 
     onSettled: () => {
+      if (changesIdentity) {
+        invalidateAfterIdentityChange(queryClient);
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: StoresQK.single(storeId) });
       queryClient.invalidateQueries({ queryKey: StoresQK.listAny });
     },
@@ -47,7 +57,8 @@ export function useUpdateStoreMainData(storeId: string | number) {
   return useStoreSectionMutation<api.UpdateMainDataPayload>(
     storeId,
     (payload) => api.updateStoreMainData(storeId, payload),
-    "تم حفظ البيانات الأساسية"
+    "تم حفظ البيانات الأساسية",
+    { changesIdentity: true }
   );
 }
 

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { setStoreContext } from "@/src/store-context";
+import { setStoreContext, STORE_SLUG_COOKIE } from "@/src/store-context";
 import { useLogout } from "@/src/auth";
 import { useGetStores } from "@/src/features/(dashboard)/stores/hooks";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -71,7 +71,7 @@ export function DashboardUserMenu() {
     const isAdmin = user?.user_type === "admin";
     const isMerchant = user?.user_type === "merchant";
 
-    // --- Fetch Stores (Only if Merchant) — المعتمدة فقط في مبدّل المتاجر ---
+    // Merchants only: the store switcher lists approved stores only
     const merchantStoresParams = useMemo(() => {
         const p = new URLSearchParams();
         p.set("per_page", "100");
@@ -89,15 +89,20 @@ export function DashboardUserMenu() {
         [storesData?.data]
     );
 
-    // مزامنة المتجر النشط: فقط متاجر معتمدة (إن كان الكوكي لمتجر pending يُستبدل)
+    // Keep the store context on an approved store (a cookie pointing at a
+    // pending one gets replaced) and its slug current. Renaming a store changes
+    // its slug, and the slug cookie feeds the "view my store" links in the
+    // navbar and the site header, which would otherwise 404. Store saves
+    // invalidate this list, so a rename re-syncs the cookie right away.
     useEffect(() => {
         if (stores.length === 0) return;
 
         const currentValid = stores.find((s) => String(s.id) === currentStoreId);
         const target = currentValid ?? stores[0];
         const targetId = String(target.id);
+        const slugInSync = (target.slug ?? undefined) === Cookies.get(STORE_SLUG_COOKIE);
 
-        if (currentValid && currentStoreId === targetId) return;
+        if (currentValid && slugInSync) return;
 
         const timer = setTimeout(() => {
             setCurrentStoreId(targetId);
@@ -112,15 +117,12 @@ export function DashboardUserMenu() {
         return () => clearTimeout(timer);
     }, [stores, currentStoreId]);
 
-    // تحديد المتجر النشط حالياً لعرض بياناته في الهيدر
     const activeStore = stores.find((s) => String(s.id) === currentStoreId);
 
-    // تصفية المتاجر بناءً على البحث
     const filteredStores = stores.filter((store) =>
         store.name.toLowerCase().includes(storeSearch.toLowerCase())
     );
 
-    // دالة اختيار المتجر
     const handleStoreSelect = (storeId: number) => {
         const selectedStore = stores.find((s) => s.id === storeId);
         if (selectedStore) {
@@ -199,14 +201,12 @@ export function DashboardUserMenu() {
                 {isMerchant && (
                     <div className="bg-white p-4 flex flex-row gap-3">
                         <Avatar className="w-13 h-13 border border-blue-1">
-                            {/* عرض صورة المتجر المختار */}
                             <AvatarImage src={activeStore?.logo_url || ""} className="object-contain" />
                             <AvatarFallback className="bg-blue-4 text-white text-xl">
                                 {activeStore?.name?.[0] || user?.fullname?.[0]}
                             </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                            {/* عرض اسم المتجر المختار */}
                             <h3 className="font-medium text-blue-4 mb-1">
                                 {activeStore ? activeStore.name : "اختر متجر"}
                             </h3>
@@ -225,11 +225,11 @@ export function DashboardUserMenu() {
                 {isMerchant && (
                     <div className="bg-white">
                         <div className=" space-y-1 p-2">
-                            {/* ⚠️ رابط شراء العملات الذهبية - معطّل مؤقتاً */}
+                            {/* Coins purchase link: temporarily disabled */}
                             {/* {isSegmentAllowedForRole(storeRole || undefined, "coins") && (
                                 <MenuItem href={`/${lang}/admin/coins/buy`} icon={Coins} label="النقاط" onClick={() => setIsOpen(false)} />
                             )} */}
-                            {/* ⚠️ السجل المالي مرتبط بنظام coins - معطّل مؤقتاً */}
+                            {/* Financial record depends on the coins system: temporarily disabled */}
                             {/* {isSegmentAllowedForRole(storeRole || undefined, "financial-record") && (
                                 <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label="السجل المالي" onClick={() => setIsOpen(false)} />
                             )} */}
