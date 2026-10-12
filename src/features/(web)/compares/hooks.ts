@@ -1,6 +1,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { getAuthTokenClient } from "@/src/auth/cookies";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
+import { invalidateAfterViewerFlagChange } from "@/src/lib/queryClient";
 import {
     addServiceToCompare,
     removeServiceFromCompare,
@@ -61,12 +65,9 @@ export const useAddServiceToCompare = () => {
             if (context?.previous) qc.setQueryData(COMPARE_QK.services.list, context.previous);
         },
         onSuccess: (data) => {
-            toast.success(data.message || "Added to comparison list");
+            toast.success(data.message || "تمت الإضافة إلى المقارنة");
         },
-        onSettled: () => {
-            qc.invalidateQueries({ queryKey: COMPARE_QK.services.list });
-            qc.invalidateQueries({ queryKey: COMPARE_QK.services.count });
-        },
+        onSettled: () => invalidateAfterViewerFlagChange(qc),
     });
 };
 
@@ -87,12 +88,9 @@ export const useRemoveServiceFromCompare = () => {
             if (context?.previous) qc.setQueryData(COMPARE_QK.services.list, context.previous);
         },
         onSuccess: (data) => {
-            toast.success(data.message || "Removed from comparison list");
+            toast.success(data.message || "تمت الإزالة من المقارنة");
         },
-        onSettled: () => {
-            qc.invalidateQueries({ queryKey: COMPARE_QK.services.list });
-            qc.invalidateQueries({ queryKey: COMPARE_QK.services.count });
-        },
+        onSettled: () => invalidateAfterViewerFlagChange(qc),
     });
 };
 
@@ -101,14 +99,11 @@ export const useClearServiceCompareList = () => {
     return useMutation({
         mutationFn: clearServiceCompareList,
         onSuccess: (data) => {
-            toast.success(data.message || "Comparison list cleared");
-            qc.setQueryData(COMPARE_QK.services.list, { services: [], total: 0 }); // Optimistic update
+            toast.success(data.message || "تم مسح قائمة المقارنة");
+            qc.setQueryData(COMPARE_QK.services.list, { services: [], total: 0 });
             qc.setQueryData(COMPARE_QK.services.count, { compare_count: 0 });
         },
-        onSettled: () => {
-            qc.invalidateQueries({ queryKey: COMPARE_QK.services.list });
-            qc.invalidateQueries({ queryKey: COMPARE_QK.services.count });
-        }
+        onSettled: () => invalidateAfterViewerFlagChange(qc),
     });
 };
 
@@ -147,12 +142,9 @@ export const useAddProductToCompare = () => {
             if (context?.previous) qc.setQueryData(COMPARE_QK.products.list, context.previous);
         },
         onSuccess: (data) => {
-            toast.success(data.message || "Added to comparison list");
+            toast.success(data.message || "تمت الإضافة إلى المقارنة");
         },
-        onSettled: () => {
-            qc.invalidateQueries({ queryKey: COMPARE_QK.products.list });
-            qc.invalidateQueries({ queryKey: COMPARE_QK.products.count });
-        },
+        onSettled: () => invalidateAfterViewerFlagChange(qc),
     });
 };
 
@@ -173,12 +165,9 @@ export const useRemoveProductFromCompare = () => {
             if (context?.previous) qc.setQueryData(COMPARE_QK.products.list, context.previous);
         },
         onSuccess: (data) => {
-            toast.success(data.message || "Removed from comparison list");
+            toast.success(data.message || "تمت الإزالة من المقارنة");
         },
-        onSettled: () => {
-            qc.invalidateQueries({ queryKey: COMPARE_QK.products.list });
-            qc.invalidateQueries({ queryKey: COMPARE_QK.products.count });
-        },
+        onSettled: () => invalidateAfterViewerFlagChange(qc),
     });
 };
 
@@ -187,13 +176,54 @@ export const useClearProductCompareList = () => {
     return useMutation({
         mutationFn: clearProductCompareList,
         onSuccess: (data) => {
-            toast.success(data.message || "Comparison list cleared");
-            qc.setQueryData(COMPARE_QK.products.list, { compares: [], total: 0 }); // Optimistic update
+            toast.success(data.message || "تم مسح قائمة المقارنة");
+            qc.setQueryData(COMPARE_QK.products.list, { compares: [], total: 0 });
             qc.setQueryData(COMPARE_QK.products.count, { compare_count: 0 });
         },
-        onSettled: () => {
-            qc.invalidateQueries({ queryKey: COMPARE_QK.products.list });
-            qc.invalidateQueries({ queryKey: COMPARE_QK.products.count });
-        }
+        onSettled: () => invalidateAfterViewerFlagChange(qc),
     });
+};
+
+/**
+ * Products plus services in the viewer's compare lists, for the navbar badge.
+ *
+ * Counted from the lists rather than the `/count` endpoints: those report more
+ * than the lists return (15 against 1 + 1 in testing), and the badge has to
+ * match what the compare page shows. Sharing the lists' cache also lets the
+ * optimistic add/remove move the badge instantly.
+ */
+export const useCompareCount = (enabled = true) => {
+    const { data: products } = useGetProductCompareList(enabled);
+    const { data: services } = useGetServiceCompareList(enabled);
+    return (products?.compares?.length ?? 0) + (services?.services?.length ?? 0);
+};
+
+// --- Toggle ---
+
+/**
+ * Adds or removes one item, sending guests to login first: the endpoints answer
+ * them with a 401, which the axios interceptor deliberately keeps silent.
+ *
+ * `isPending` stays true until the invalidated queries have refetched, so a
+ * button reading `in_compare` / `is_compare` from them never flips back early.
+ */
+export const useToggleCompare = (type: "product" | "service") => {
+    const router = useRouter();
+    const { locale } = useParams();
+    const addProduct = useAddProductToCompare();
+    const removeProduct = useRemoveProductFromCompare();
+    const addService = useAddServiceToCompare();
+    const removeService = useRemoveServiceFromCompare();
+
+    const [add, remove] = type === "product" ? [addProduct, removeProduct] : [addService, removeService];
+
+    const toggle = (id: number, isInCompare: boolean) => {
+        if (!getAuthTokenClient()) {
+            router.push(loginUrlWithAuthRequired(locale));
+            return;
+        }
+        (isInCompare ? remove : add).mutate(id);
+    };
+
+    return { toggle, isPending: add.isPending || remove.isPending };
 };

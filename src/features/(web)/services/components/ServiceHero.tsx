@@ -16,14 +16,10 @@ import { Checkbox } from "@/src/components/ui/checkbox";
 import { Price } from "@/src/components/ui/Price";
 import { RatingStars } from "@/src/components/ui/RatingStars";
 import { ShareModal } from "@/src/components/ui/ShareModal";
-import {
-  useAddServiceToCompare,
-  useRemoveServiceFromCompare,
-} from "@/src/features/(web)/compares/hooks";
+import { useToggleCompare } from "@/src/features/(web)/compares/hooks";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   Clock4,
   Flag,
@@ -60,11 +56,10 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
   const [selectedExtras, setSelectedExtras] = useState<number[]>([]);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isInCompare, setIsInCompare] = useState(service.is_compare);
 
-  const qc = useQueryClient();
-  const { mutate: addToCompare } = useAddServiceToCompare();
-  const { mutate: removeFromCompare } = useRemoveServiceFromCompare();
+  const isInCompare = !!service.is_compare;
+  const { toggle: toggleCompare, isPending: isTogglingCompare } =
+    useToggleCompare("service");
 
   const allMedia = useMemo<MediaItem[]>(() => {
     const sources = service.images_urls?.length
@@ -105,11 +100,6 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
   );
   const totalPrice = basePrice + extrasTotal;
 
-  const invalidateService = () => {
-    // Both the slug and the id variants are cached, so refresh either one.
-    qc.invalidateQueries({ queryKey: ["service"] });
-  };
-
   const chatTarget = (askPrice = false): ChatTarget => ({
     type: "store",
     id: service.store?.id,
@@ -122,16 +112,6 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
     setSelectedExtras((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
-
-  const toggleCompare = () => {
-    const mutate = isInCompare ? removeFromCompare : addToCompare;
-    mutate(service.id, {
-      onSuccess: () => {
-        setIsInCompare(!isInCompare);
-        invalidateService();
-      },
-    });
-  };
 
   return (
     <section>
@@ -183,7 +163,6 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                   id={service.id}
                   type="service"
                   isFavorite={service.is_favorite}
-                  onSuccess={invalidateService}
                   iconClassName="size-7"
                 />
                 <ServiceActionsMenu
@@ -229,13 +208,14 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
             <button
               type="button"
-              onClick={toggleCompare}
+              onClick={() => toggleCompare(service.id, isInCompare)}
+              disabled={isTogglingCompare}
               className={cn(
-                "text-sm font-medium underline underline-offset-4 cursor-pointer",
+                "text-sm font-medium underline underline-offset-4 cursor-pointer disabled:cursor-wait disabled:opacity-60",
                 isInCompare ? "text-c2-danger" : "text-c2-navy-500",
               )}
             >
-              {isInCompare ? "إزالة من المقارنة" : "أضف الى المقارنة"}
+              {isInCompare ? "إزالة من المقارنة" : "أضف إلى المقارنة"}
             </button>
           </div>
         </div>
@@ -302,7 +282,10 @@ function ServiceExtras({
           <AccordionTrigger className="py-0 hover:no-underline">
             <span className="flex items-center gap-1.5 text-base font-medium text-c2-navy-1000">
               {EXTRAS_TITLE}
-              <span className="flex size-[18px] shrink-0 items-center justify-center rounded-full bg-c2-navy-100 text-xs font-medium leading-none tabular-nums text-c2-navy-700 [text-box:trim-both_cap_alphabetic]">
+              <span
+                dir="ltr"
+                className="flex size-4.5 shrink-0 items-center justify-center rounded-full bg-c2-navy-100 font-digits text-xs font-medium leading-none tabular-nums text-c2-navy-700"
+              >
                 {extras.length}
               </span>
             </span>

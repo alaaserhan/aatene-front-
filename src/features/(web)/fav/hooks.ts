@@ -23,6 +23,7 @@ import {
 } from "./api";
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { invalidateAfterViewerFlagChange } from "@/src/lib/queryClient";
 
 const QK = {
     all: ["favorite-lists"] as const,
@@ -35,24 +36,6 @@ const QK = {
         check: (type: string, id: string | number) => ["favorites", "check", type, String(id)] as const,
     },
 };
-
-function invalidateProfileFavoriteQueries(qc: ReturnType<typeof useQueryClient>) {
-    // صفحات البروفايل تستخدم مفاتيح مختلفة عن مفاتيح /favorites
-    qc.invalidateQueries({
-        predicate: (query) => {
-            const root = query.queryKey?.[0];
-            return (
-                root === "userProfile" ||
-                root === "publicProfileFavProducts" ||
-                root === "publicProfileFavServices" ||
-                root === "publicProfileFavStores" ||
-                root === "publicFavProducts" ||
-                root === "publicFavServices" ||
-                root === "publicFavStores"
-            );
-        },
-    });
-}
 
 function getProfileFavoriteRootsByType(type: string) {
     const normalized = type === "products" ? "product" : type;
@@ -156,17 +139,8 @@ export const useAddToFavorites = () => {
         onSuccess: (data) => {
             toast.success(data.message || "تمت الإضافة إلى المفضلة بنجاح");
         },
-        onSettled: (_data, _error, variables) => {
-            qc.invalidateQueries({ queryKey: QK.favorites.all });
-            if (variables.list_id) {
-                qc.invalidateQueries({ queryKey: QK.items(variables.list_id) });
-                qc.invalidateQueries({ queryKey: QK.single(variables.list_id) });
-            }
-            qc.invalidateQueries({ queryKey: QK.favorites.byType(variables.favs_type) });
-            qc.invalidateQueries({
-                queryKey: QK.favorites.check(variables.favs_type, variables.favs_id),
-            });
-            invalidateProfileFavoriteQueries(qc);
+        onSettled: () => {
+            invalidateAfterViewerFlagChange(qc);
         },
     });
 };
@@ -258,14 +232,8 @@ export const useRemoveFromFavorites = () => {
                 }
             }
         },
-        onSettled: (_data, _error, variables) => {
-            qc.invalidateQueries({ queryKey: QK.favorites.all });
-            qc.invalidateQueries({ queryKey: QK.favorites.byType(variables.favs_type) });
-            qc.invalidateQueries({
-                queryKey: QK.favorites.check(variables.favs_type, variables.favs_id),
-            });
-            qc.invalidateQueries({ queryKey: ["favorite-lists", "items"] });
-            invalidateProfileFavoriteQueries(qc);
+        onSettled: () => {
+            invalidateAfterViewerFlagChange(qc);
         },
     });
 };

@@ -11,10 +11,7 @@ import { Price } from "@/src/components/ui/Price";
 import { RatingStars } from "@/src/components/ui/RatingStars";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { ShareModal } from "@/src/components/ui/ShareModal";
-import {
-  useAddProductToCompare,
-  useRemoveProductFromCompare,
-} from "@/src/features/(web)/compares/hooks";
+import { useToggleCompare } from "@/src/features/(web)/compares/hooks";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { formatPrice } from "@/src/lib/format-price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
@@ -66,18 +63,13 @@ export default function ProductHero({
   const [selectedVariations, setSelectedVariations] = useState<
     Record<string, string>
   >({});
-  const [isFavorite, setIsFavorite] = useState(product.is_favorite);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isInCompare, setIsInCompare] = useState(product.in_compare);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  const { mutate: addToCompare } = useAddProductToCompare();
-  const { mutate: removeFromCompare } = useRemoveProductFromCompare();
-
-  useEffect(() => {
-    setIsFavorite(product.is_favorite);
-  }, [product.is_favorite]);
+  const isInCompare = !!product.in_compare;
+  const { toggle: toggleCompare, isPending: isTogglingCompare } =
+    useToggleCompare("product");
 
   const selectedVariation = useMemo(() => {
     if (!product.variations || product.variations.length === 0) return null;
@@ -155,12 +147,6 @@ export default function ProductHero({
     askPrice,
   });
 
-
-  const toggleCompare = () => {
-    const mutate = isInCompare ? removeFromCompare : addToCompare;
-    mutate(product.id);
-    setIsInCompare(!isInCompare);
-  };
 
   // Jump the gallery to the picked variation's image once a full set is chosen.
   useEffect(() => {
@@ -245,8 +231,7 @@ export default function ProductHero({
                 <FavoriteButton
                   id={product.id}
                   type="product"
-                  isFavorite={isFavorite}
-                  onSuccess={() => setIsFavorite((prev) => !prev)}
+                  isFavorite={product.is_favorite}
                   iconClassName="size-7"
                 />
                 <ProductActionsMenu
@@ -318,13 +303,14 @@ export default function ProductHero({
 
             <button
               type="button"
-              onClick={toggleCompare}
+              onClick={() => toggleCompare(product.id, isInCompare)}
+              disabled={isTogglingCompare}
               className={cn(
-                "text-sm font-medium underline underline-offset-4 cursor-pointer",
+                "text-sm font-medium underline underline-offset-4 cursor-pointer disabled:cursor-wait disabled:opacity-60",
                 isInCompare ? "text-c2-danger" : "text-c2-navy-500",
               )}
             >
-              {isInCompare ? "إزالة من المقارنة" : "أضف الى المقارنة"}
+              {isInCompare ? "إزالة من المقارنة" : "أضف إلى المقارنة"}
             </button>
           </div>
 

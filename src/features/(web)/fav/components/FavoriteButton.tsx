@@ -32,7 +32,7 @@ export function FavoriteButton({
     const { user } = useAuthStore();
     const router = useRouter();
     const params = useParams();
-    const lang = params?.lang || "ar";
+    const lang = params?.locale || "ar";
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -44,7 +44,6 @@ export function FavoriteButton({
         }
 
         if (isFavorite) {
-            // If already favorite, remove directly
             removeFromFav(
                 {
                     favs_type: type,
@@ -57,7 +56,6 @@ export function FavoriteButton({
                 }
             );
         } else {
-            // If not favorite, open modal
             setIsModalOpen(true);
         }
     };
@@ -85,10 +83,7 @@ export function FavoriteButton({
                 type={type}
                 itemId={id}
                 isFavorite={isFavorite}
-                onSuccess={() => {
-                    onSuccess?.();
-                    // Modal handles its own closing via onClose prop passed above
-                }}
+                onSuccess={() => onSuccess?.()}
             />
         </>
     );

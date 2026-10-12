@@ -1,4 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
+import { sessionQueryKey } from "@/src/auth/keys";
 
 /**
  * Marks every cached query stale after a save that changes how a user, store,
@@ -12,6 +13,22 @@ import { QueryClient } from "@tanstack/react-query";
  */
 export function invalidateAfterIdentityChange(queryClient: QueryClient) {
     return queryClient.invalidateQueries();
+}
+
+/**
+ * Marks every cached query except the session stale after the viewer favorites
+ * or compares a product or service.
+ *
+ * `is_favorite` and `in_compare` / `is_compare` ship inside every product and
+ * service payload (details, cards, search, home sections, the compare lists).
+ * Refreshing only the screen that made the change leaves the others showing
+ * the old state for the whole staleTime, e.g. a favorite removed on the compare
+ * page still filled on the service page.
+ */
+export function invalidateAfterViewerFlagChange(queryClient: QueryClient) {
+    return queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] !== sessionQueryKey[0],
+    });
 }
 
 /**

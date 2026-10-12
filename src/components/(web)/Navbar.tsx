@@ -15,6 +15,7 @@ import { useLanguage } from "@/src/hooks/use-language";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
+import { useCompareCount } from "@/src/features/(web)/compares/hooks";
 import { upgradeHttpToHttps, fixMediaUrl } from "@/src/lib/utils";
 
 const Logo = () => {
@@ -46,13 +47,14 @@ const NavIcons = () => {
   const lang = useLanguage();
   const { data: unreadData } = useTotalUnreadCount(undefined, true);
   const unreadCount = unreadData?.unread_conversations_count || 0;
+  const compareCount = useCompareCount();
 
   useFCMToken();
 
   return (
     <>
       <Link href={`/${lang}/compare`} aria-label="المقارنات">
-        <NavIconButton tabIndex={-1}>
+        <NavIconButton tabIndex={-1} count={compareCount} badgeTone="neutral">
           <ArrowUpDown className="size-5" />
         </NavIconButton>
       </Link>

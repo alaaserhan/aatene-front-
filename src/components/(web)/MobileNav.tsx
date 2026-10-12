@@ -12,6 +12,8 @@ import { useLanguage } from "@/src/hooks/use-language";
 import { useMyNotificationStats } from "@/src/features/(web)/notifications/hooks";
 import { Badge } from "@/src/components/ui/badge";
 import { useSettingsStore } from "@/src/stores/settings-store";
+import { useCompareCount } from "@/src/features/(web)/compares/hooks";
+import { NavIconBadge } from "./NavIconButton";
 
 import { upgradeHttpToHttps, fixMediaUrl } from "@/src/lib/utils";
 
@@ -66,6 +68,7 @@ export default function MobileNav() {
 
   const { data: statsData } = useMyNotificationStats(!!user);
   const unreadCount = statsData?.unseen || 0;
+  const compareCount = useCompareCount(isLoggedIn);
   const { settings } = useSettingsStore();
   const mobileLogoUrl = settings?.logo_url
     ? upgradeHttpToHttps(fixMediaUrl(settings.logo_url))
@@ -222,8 +225,9 @@ export default function MobileNav() {
                             onClick={() => setMobileMenuOpen(false)}
                           >
                             <div className="flex items-center gap-4">
-                              <div className={navIconClass(isActive(`/${lang}/compare`))}>
+                              <div className={`relative ${navIconClass(isActive(`/${lang}/compare`))}`}>
                                 <img src="/icons/Compare.svg" alt="Compare" className="h-7 w-7" />
+                                <NavIconBadge count={compareCount} tone="neutral" />
                               </div>
                               <span className="font-medium">المقارنات</span>
                             </div>

@@ -40,7 +40,6 @@ export function CompareFloatingBar() {
 
     const productCount = products.length;
     const serviceCount = services.length;
-    const totalCount = productCount + serviceCount;
 
     const tabToDisplay = (isCompareMode === "services" || (serviceCount > 0 && productCount === 0))
         ? "services"
@@ -48,10 +47,10 @@ export function CompareFloatingBar() {
 
 
 
-    if (!isCompareMode) return null;
-    if (totalCount === 0) return null;
-
     const currentItems = tabToDisplay === "products" ? products : services;
+
+    if (!isCompareMode || currentItems.length === 0) return null;
+
     const countLabel = tabToDisplay === "products" ? "منتجات" : "خدمات";
 
     const handleRemove = (id: number) => {

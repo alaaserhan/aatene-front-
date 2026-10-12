@@ -1,6 +1,7 @@
 "use client";
 
-import { useGetProductCompareList, useGetServiceCompareList, useAddProductToCompare, useAddServiceToCompare, useRemoveProductFromCompare, useRemoveServiceFromCompare } from "../hooks";
+import { useGetProductCompareList, useGetServiceCompareList, useToggleCompare } from "../hooks";
+import { Checkbox } from "@/src/components/ui/checkbox";
 import { cn } from "@/src/lib/utils";
 import { useSearchParams } from "next/navigation";
 
@@ -12,44 +13,24 @@ interface CompareCheckboxProps {
 
 export function CompareCheckbox({ id, type, className }: CompareCheckboxProps) {
     const searchParams = useSearchParams();
-    const isCompareMode = searchParams.get("compare");
+    const isCompareMode = !!searchParams.get("compare");
 
     const numericId = Number(id);
 
-    const { data: productData } = useGetProductCompareList();
-    const { data: serviceData } = useGetServiceCompareList();
-
-    const { mutate: addProduct } = useAddProductToCompare();
-    const { mutate: addService } = useAddServiceToCompare();
-    const { mutate: removeProduct } = useRemoveProductFromCompare();
-    const { mutate: removeService } = useRemoveServiceFromCompare();
+    const { data: productData } = useGetProductCompareList(isCompareMode && type === "product");
+    const { data: serviceData } = useGetServiceCompareList(isCompareMode && type === "service");
+    const { toggle } = useToggleCompare(type);
 
     if (!isCompareMode) return null;
 
-    // Check status
-    const isInCompare = type === "product"
+    const isInCompare = !!(type === "product"
         ? productData?.compares?.some((p) => p.id === numericId)
-        : serviceData?.services?.some((s) => s.id === numericId);
+        : serviceData?.services?.some((s) => s.id === numericId));
 
     const handleToggle = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-
-        if (isInCompare) {
-            // If already in list, remove it
-            if (type === "product") {
-                removeProduct(numericId);
-            } else {
-                removeService(numericId);
-            }
-        } else {
-            // Not in list, add it
-            if (type === "product") {
-                addProduct(numericId);
-            } else {
-                addService(numericId);
-            }
-        }
+        toggle(numericId, isInCompare);
     };
 
     return (
@@ -60,25 +41,9 @@ export function CompareCheckbox({ id, type, className }: CompareCheckboxProps) {
             )}
             onClick={handleToggle}
         >
-            <div className={cn(
-                "w-4.5 h-4.5 rounded border flex items-center justify-center transition-colors shrink-0",
-                isInCompare
-                    ? "bg-blue-3 border-blue-3"
-                    : "border-gray-300 bg-white"
-            )}>
-                {isInCompare && (
-                    <svg
-                        className="w-3.5 h-3.5 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                )}
-            </div>
+            <Checkbox checked={isInCompare} className="pointer-events-none" tabIndex={-1} />
             <span className="text-sm font-medium text-blue-3 whitespace-nowrap select-none">
-                {isInCompare ? "إزالة من المقارنة" : "اضف للمقارنة"}
+                {isInCompare ? "إزالة من المقارنة" : "أضف إلى المقارنة"}
             </span>
         </div>
     );

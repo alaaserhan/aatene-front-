@@ -1,58 +1,43 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Star, Trash2, Heart, Maximize2, PlusCircle, ArrowLeftRight } from "lucide-react";
+import { Star, Trash2, Maximize2, PlusCircle } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
-import { useQueryClient } from "@tanstack/react-query";
 import {
     useGetProductCompareList,
     useGetServiceCompareList,
     useRemoveProductFromCompare,
     useRemoveServiceFromCompare,
-    useClearProductCompareList,
-    useClearServiceCompareList,
-    COMPARE_QK,
 } from "./hooks";
-import { AddToFavoritesModal } from "../fav/components/AddToFavoritesModal";
-import { useRemoveFromFavorites } from "../fav/hooks";
+import { FavoriteButton } from "../fav/components/FavoriteButton";
 import { ProductCompareItem, ServiceCompareItem } from "./api";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
+import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 
 type CompareType = "products" | "services";
+
+const FAVORITE_BUTTON_CLASS =
+    "w-9 h-9 border border-gray-200 rounded-md hover:scale-100 hover:bg-red-50 text-gray-500";
 
 export default function ComparePage() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const queryClient = useQueryClient();
-    const { mutate: removeFromFav } = useRemoveFromFavorites();
-    const initialType = searchParams.get("type") as CompareType;
-    const [compareType, setCompareType] = useState<CompareType>(initialType === "services" ? "services" : "products");
+    const compareType: CompareType = searchParams.get("type") === "services" ? "services" : "products";
 
-    // Modal State
-    const [isFavModalOpen, setIsFavModalOpen] = useState(false);
-    const [favModalItem, setFavModalItem] = useState<{ id: number | string; isFavorite: boolean } | null>(null);
-
-    useEffect(() => {
+    const setCompareType = (type: CompareType) => {
         const params = new URLSearchParams(searchParams.toString());
-        if (params.get("type") !== compareType) {
-            params.set("type", compareType);
-            router.replace(`?${params.toString()}`, { scroll: false });
-        }
-    }, [compareType, router, searchParams]);
+        params.set("type", type);
+        router.replace(`?${params.toString()}`, { scroll: false });
+    };
 
-    // Fetch compare lists
     const { data: productData, isLoading: isLoadingProducts } = useGetProductCompareList();
     const { data: serviceData, isLoading: isLoadingServices } = useGetServiceCompareList();
 
-    // Mutations
     const { mutate: removeProduct } = useRemoveProductFromCompare();
     const { mutate: removeService } = useRemoveServiceFromCompare();
-    const { mutate: clearProducts } = useClearProductCompareList();
-    const { mutate: clearServices } = useClearServiceCompareList();
 
     const products = productData?.compares || [];
     const services = serviceData?.services || [];
@@ -70,41 +55,6 @@ export default function ComparePage() {
         }
     };
 
-    const handleClear = () => {
-        if (compareType === "products") {
-            clearProducts();
-        } else {
-            clearServices();
-        }
-    };
-
-
-    const handleToggleFavorite = (item: { id: number | string; isFavorite: boolean }) => {
-        if (item.isFavorite) {
-            removeFromFav({
-                favs_type: compareType === "products" ? "product" : "service",
-                favs_id: item.id
-            }, {
-                onSuccess: () => {
-                    handleFavSuccess();
-                }
-            });
-        } else {
-            setFavModalItem(item);
-            setIsFavModalOpen(true);
-        }
-    };
-
-    const handleFavSuccess = () => {
-        // Invalidate specific compare list to update the heart icon
-        if (compareType === "products") {
-            queryClient.invalidateQueries({ queryKey: COMPARE_QK.products.list });
-        } else {
-            queryClient.invalidateQueries({ queryKey: COMPARE_QK.services.list });
-        }
-    };
-
-    // Table columns
     const columns = compareType === "products"
         ? ["المنتج", "الوصف", "السعر", "رسوم التوصيل", "التقييمات", "الإجراءات"]
         : ["الخدمة", "الوصف", "السعر", "التقييمات", "الإجراءات"];
@@ -113,38 +63,26 @@ export default function ComparePage() {
         <div className="container mx-auto my-10 px-4 md:px-6" dir="rtl">
             <div className="flex flex-col gap-8">
                 {/* Header Card */}
-                <div className="bg-white border border-gray-200 rounded-lg p-6 flex items-center justify-between">
+                <div className="bg-white border border-gray-200 rounded-lg p-6 flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                        <img src="/icons/Compare2.svg" alt="compare" width={40} height={40} />
+                        <Image src="/icons/Compare2.svg" alt="" width={40} height={40} />
                         <div className="flex flex-col gap-1">
                             <h1 className="text-2xl font-medium text-black">المقارنة</h1>
                             <p className="text-gray-2 text-sm">اختر أي {compareType === "products" ? "منتج" : "خدمة"} لإظهار تفاصيلها</p>
                         </div>
                     </div>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => setCompareType("products")}
-                            className={cn(
-                                "text-sm px-6 py-2 rounded-md font-medium transition-colors cursor-pointer",
-                                compareType === "products"
-                                    ? "bg-blue-4 text-white"
-                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                            )}
-                        >
-                            مقارنة المنتجات
-                        </button>
-                        <button
-                            onClick={() => setCompareType("services")}
-                            className={cn(
-                                "text-sm px-6 py-2 rounded-md font-medium transition-colors cursor-pointer",
-                                compareType === "services"
-                                    ? "bg-blue-4 text-white"
-                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                            )}
-                        >
-                            مقارنة الخدمات
-                        </button>
-                    </div>
+                    <Tabs value={compareType} onValueChange={(value) => setCompareType(value as CompareType)}>
+                        <TabsList>
+                            <TabsTrigger value="products" className="group">
+                                مقارنة المنتجات
+                                <TabCount count={products.length} />
+                            </TabsTrigger>
+                            <TabsTrigger value="services" className="group">
+                                مقارنة الخدمات
+                                <TabCount count={services.length} />
+                            </TabsTrigger>
+                        </TabsList>
+                    </Tabs>
                 </div>
 
                 {/* Compare Table */}
@@ -178,7 +116,6 @@ export default function ComparePage() {
                                 key={item.id}
                                 item={item}
                                 onRemove={() => handleRemoveItem(item.id)}
-                                onToggleFavorite={() => handleToggleFavorite({ id: item.id, isFavorite: item.is_favorite })}
                             />
                         ))}
 
@@ -187,88 +124,42 @@ export default function ComparePage() {
                                 key={item.id}
                                 item={item}
                                 onRemove={() => handleRemoveItem(item.id)}
-                                onToggleFavorite={() => handleToggleFavorite({ id: item.id, isFavorite: item.is_favorite })}
                             />
                         ))}
 
-                        {/* Empty Placeholder Row */}
-                        <div className="bg-gray-50/70 border border-gray-200/60 rounded-lg flex items-center px-6 md:px-12 py-8 opacity-70 gap-6">
-                            {/* Add Item Button */}
-                            <div className="w-36 shrink-0 flex flex-col items-center justify-center gap-3">
-                                <button
-                                    onClick={handleAddItem}
-                                    className="w-36 h-36 rounded-3xl bg-gray-100 border border-gray-200/50 flex flex-col items-center justify-center gap-2 hover:bg-gray-200/60 transition-colors cursor-pointer group"
-                                >
-                                    <PlusCircle className="w-14 h-14 text-blue-3 opacity-60 group-hover:opacity-100 transition-opacity" />
-                                    <span className="text-blue-3 text-[10px] font-medium">أضف عنصر</span>
-                                </button>
-                                {/* Placeholder info */}
-                                <div className="flex items-center gap-3">
-                                    <div className="flex flex-col gap-1">
-                                        <div className="w-20 h-2 bg-gray-200/50 rounded-full" />
-                                        <div className="w-20 h-2 bg-gray-200/50 rounded-full" />
-                                    </div>
-                                    <div className="w-6 h-6 bg-gray-200/50 rounded-full" />
-                                </div>
-                            </div>
-
-                            {/* Description placeholder */}
-                            <div className="flex-1 flex flex-col items-center justify-center gap-2">
-                                {[1, 2, 3, 4].map((i) => (
-                                    <div key={i} className="w-full h-2 bg-gray-200/50 rounded-full" />
-                                ))}
-                            </div>
-
-                            {/* Price placeholder */}
-                            <div className="flex-1 flex flex-col items-center justify-center gap-2">
-                                <div className="w-16 h-4 bg-gray-200/50 rounded-full" />
-                                <div className="w-12 h-2 bg-gray-200/50 rounded-full" />
-                            </div>
-
-                            {/* Delivery/Execute placeholder */}
-                            <div className="flex-1 flex items-center justify-center">
-                                <div className="w-16 h-3 bg-gray-200/50 rounded-full" />
-                            </div>
-
-                            {/* Rating placeholder */}
-                            <div className="flex-1 flex flex-col items-center justify-center gap-2">
-                                <div className="w-12 h-6 bg-gray-200/50 rounded-full" />
-                                <div className="flex gap-1">
-                                    {[1, 2, 3, 4, 5].map((i) => (
-                                        <div key={i} className="w-3 h-3 bg-gray-200/50 rounded-full" />
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Action placeholders */}
-                            <div className="flex-1 flex items-center justify-center gap-2">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="w-9 h-9 bg-gray-200/50 rounded-md" />
-                                ))}
-                            </div>
+                        <div className="bg-white border border-c2-neutral-200 rounded-lg flex items-center px-6 md:px-12 py-6">
+                            <button
+                                type="button"
+                                onClick={handleAddItem}
+                                className="group w-36 h-36 shrink-0 rounded-3xl border-2 border-dashed border-c2-navy-300 bg-c2-navy-50 flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer hover:border-c2-primary hover:bg-c2-navy-100"
+                            >
+                                <PlusCircle className="size-12 text-c2-primary transition-transform group-hover:scale-110" aria-hidden="true" />
+                                <span className="text-sm font-medium text-c2-primary">أضف عنصرًا</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            {/* Modal */}
-            {favModalItem && (
-                <AddToFavoritesModal
-                    isOpen={isFavModalOpen}
-                    onClose={() => setIsFavModalOpen(false)}
-                    type={compareType === "products" ? "product" : "service"}
-                    itemId={favModalItem.id}
-                    isFavorite={favModalItem.isFavorite}
-                    onSuccess={handleFavSuccess}
-                />
-            )}
         </div>
+    );
+}
+
+function TabCount({ count }: { count: number }) {
+    if (count <= 0) return null;
+
+    return (
+        <span
+            dir="ltr"
+            className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-c2-navy-50 px-1.5 font-digits text-xs font-semibold leading-none tabular-nums text-c2-navy-700 group-data-[state=active]:bg-white"
+        >
+            {count}
+        </span>
     );
 }
 
 // ─── Product Row ─────────────────────────────────────────────
 
-function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: ProductCompareItem; onRemove: () => void; onToggleFavorite: () => void }) {
+function ProductCompareRow({ item, onRemove }: { item: ProductCompareItem; onRemove: () => void }) {
     const price = parseFloat(item.price || "0");
     const priceAfterDiscount = parseFloat(item.price_after_discount || "0");
     const hasDiscount = item.discount_present > 0;
@@ -344,15 +235,13 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
                 <button onClick={onRemove} className="w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center hover:bg-red-50 transition-colors cursor-pointer">
                     <Trash2 className="w-4 h-4 text-gray-500" />
                 </button>
-                <button
-                    onClick={onToggleFavorite}
-                    className={cn(
-                        "w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center transition-colors cursor-pointer",
-                        item.is_favorite ? "bg-red-50 border-red-200" : "hover:bg-red-50"
-                    )}
-                >
-                    <Heart className={cn("w-4 h-4", item.is_favorite ? "text-red-500 fill-red-500" : "text-gray-500")} />
-                </button>
+                <FavoriteButton
+                    id={item.id}
+                    type="product"
+                    isFavorite={item.is_favorite}
+                    className={cn(FAVORITE_BUTTON_CLASS, item.is_favorite && "bg-red-50 border-red-200")}
+                    iconClassName="size-4"
+                />
                 <button onClick={() => router.push(`/product/${item.slug}`)} className="w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
                     <Maximize2 className="w-4 h-4 text-gray-500" />
                 </button>
@@ -364,7 +253,7 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
 
 // ─── Service Row ─────────────────────────────────────────────
 
-function ServiceCompareRow({ item, onRemove, onToggleFavorite }: { item: ServiceCompareItem; onRemove: () => void; onToggleFavorite: () => void }) {
+function ServiceCompareRow({ item, onRemove }: { item: ServiceCompareItem; onRemove: () => void }) {
     const price = parseFloat(item.price || "0");
     const rating = parseFloat(item.review_rate || "0");
     const reviewCount = parseInt(item.review_count || "0");
@@ -428,15 +317,13 @@ function ServiceCompareRow({ item, onRemove, onToggleFavorite }: { item: Service
                 <button onClick={onRemove} className="w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center hover:bg-red-50 transition-colors cursor-pointer">
                     <Trash2 className="w-4 h-4 text-gray-500" />
                 </button>
-                <button
-                    onClick={onToggleFavorite}
-                    className={cn(
-                        "w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center transition-colors cursor-pointer",
-                        item.is_favorite ? "bg-red-50 border-red-200" : "hover:bg-red-50"
-                    )}
-                >
-                    <Heart className={cn("w-4 h-4", item.is_favorite ? "text-red-500 fill-red-500" : "text-gray-500")} />
-                </button>
+                <FavoriteButton
+                    id={item.id}
+                    type="service"
+                    isFavorite={item.is_favorite}
+                    className={cn(FAVORITE_BUTTON_CLASS, item.is_favorite && "bg-red-50 border-red-200")}
+                    iconClassName="size-4"
+                />
                 <button onClick={() => router.push(`/services/${item.slug}`)} className="w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
                     <Maximize2 className="w-4 h-4 text-gray-500" />
                 </button>

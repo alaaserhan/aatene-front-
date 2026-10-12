@@ -419,11 +419,12 @@ function FilterCountBadge({ count, inverted = false }: { count: number; inverted
             className={cn(
                 // ms-auto pins the badge to the inline-end edge, which flips with the locale direction.
                 "inline-flex items-center justify-center min-w-5 h-5 px-1.5 ms-auto rounded-full shrink-0",
-                "font-[system-ui,-apple-system,'Segoe_UI',Roboto,Arial,sans-serif] text-[11px] font-semibold leading-none tabular-nums",
+                "font-digits text-[11px] font-semibold leading-none tabular-nums",
                 inverted ? "bg-white text-c2-navy-600" : "bg-c2-navy-600 text-white"
             )}
+            dir="ltr"
         >
-            <span className="[text-box:trim-both_cap_alphabetic]">{count}</span>
+            {count}
         </span>
     );
 }
