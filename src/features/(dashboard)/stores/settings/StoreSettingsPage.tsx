@@ -93,7 +93,11 @@ export function StoreSettingsPage({
         </p>
       </header>
 
-      <Accordion type="multiple" className="mt-4 mb-8 space-y-4">
+      <Accordion
+        type="multiple"
+        defaultValue={["mainData"]}
+        className="mt-4 mb-8 space-y-4"
+      >
         <MainDataSection
           key={`mainData-${storeId}`}
           storeId={storeId}
