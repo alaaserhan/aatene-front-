@@ -19,7 +19,7 @@ interface ProductKeywordsFieldProps {
   isGeneratingAI?: boolean;
 }
 
-/** الكلمات المفتاحية field backed by the tags endpoint (same input used in store settings) */
+/** Keywords field backed by the tags endpoint (same input used in store settings) */
 export function ProductKeywordsField({
   tags,
   onChange,
@@ -79,7 +79,6 @@ export function ProductKeywordsField({
         onAdd={addTag}
         onRemove={removeTag}
         type="product"
-        showRemoveButton={tags.length > MIN_TAGS}
         disabled={isGeneratingAI}
         placeholder={
           isGeneratingAI

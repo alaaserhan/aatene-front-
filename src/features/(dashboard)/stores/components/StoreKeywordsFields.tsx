@@ -96,7 +96,6 @@ export function StoreKeywordsFields({
         onAdd={addTag}
         onRemove={removeTag}
         type={type}
-        showRemoveButton={tags.length > MIN_TAGS}
         disabled={isGeneratingAI}
         placeholder={
           isGeneratingAI
