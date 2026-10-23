@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { useConversations, useTotalUnreadCount, useCreateConversation, useSendMessage } from "../hooks";
+import { useConversations, useCreateConversation, useSendMessage } from "../hooks";
 import { Conversation } from "../api";
-import { ConversationListSidebar } from "./ConversationListSidebar";
+import { ConversationListSidebar, type ReadFilter } from "./ConversationListSidebar";
 import { ChatWindow } from "./ChatWindow";
 import { ChatEmptyState } from "./ChatEmptyState";
 import { CreateGroupModal } from "./CreateGroupModal";
@@ -19,7 +19,7 @@ import { Loader2 } from "lucide-react";
 import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
 import { stripChatTargetParams } from "@/src/lib/chat-links";
 
-/** تفعيله من الكونسول: localStorage.setItem("DEBUG_CHAT_NAV","1") ثم إعادة تحميل */
+/** Enable in production from the console: localStorage.setItem("DEBUG_CHAT_NAV","1"), then reload. */
 function chatNavLog(...args: unknown[]) {
     if (typeof window === "undefined") return;
     try {
@@ -76,7 +76,6 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const storeId = isDashboard ? Cookies.get("current_store_id") : undefined;
 
     const { data, isLoading, isFetching, isError, refetch } = useConversations(storeId, ignoreCookie);
-    const { data: unreadData } = useTotalUnreadCount(storeId, ignoreCookie);
     /**
      * `mutateAsync`, not `mutate`: React Query drops the per-call callbacks passed
      * to `mutate` when the observer is torn down before the request settles, which
@@ -87,9 +86,10 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("all");
+    const [readFilter, setReadFilter] = useState<ReadFilter>("all");
     const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
     const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
-    /** يمنع «فراغ» التحديد بين النقر واكتمال تحديث الـ URL أو القائمة */
+    /** Keeps the selection from blanking out between the click and the URL / list catching up. */
     const [pendingConversation, setPendingConversation] = useState<Conversation | null>(null);
     /** Last target that failed to open — falls back to the list instead of spinning forever. */
     const [failedOpenTargetKey, setFailedOpenTargetKey] = useState<string | null>(null);
@@ -98,7 +98,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
 
     const allConversations = useMemo(() => data?.conversations || [], [data]);
 
-  /** محادثة مفتوحة: من القائمة أو من `pendingConversation` بعد الإنشاء (قبل اكتمال refetch) */
+    /** From the list, or from `pendingConversation` right after creation, before the refetch lands. */
     const activeConversation = useMemo(() => {
         const chatId = searchParams.get("chat");
         if (!chatId) return null;
@@ -139,16 +139,14 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         );
 
     /**
-     * مسار صفحة الدردشة للروابط والتنقل.
-     * الويب: دائماً `/${locale}/chat` حتى لا يعتمد على `pathname` بعد rewrite (مثل /chat → /ar/chat) فيفشل `<Link>` على Vercel.
-     * لوحة التحكم: `pathname` الفعلي مثل `/ar/admin/chat`.
+     * Web always uses `/${locale}/chat`: after a rewrite (/chat → /ar/chat) `pathname`
+     * is unreliable and `<Link>` breaks on Vercel. The dashboard uses the real pathname.
      */
     const chatListPath = useMemo(() => {
         if (isDashboard) return pathname || "";
         return `/${lang}/chat`;
     }, [isDashboard, pathname, lang]);
 
-    /** بناء رابط المحادثة — `<Link>` يستخدم مساراً مطلقاً متسقاً */
     const getConversationHref = useCallback(
         (conversation: Conversation) => {
             const params = stripChatTargetParams(searchParams);
@@ -175,7 +173,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         [getConversationHref, router]
     );
 
-    /** النقر من القائمة: التنقل عبر Link؛ هنا فقط حالة الانتظار حتى يتزامن الـ URL */
+    /** The row's `<Link>` does the navigation; this only bridges the gap until the URL syncs. */
     const onSidebarConversationPress = useCallback((conversation: Conversation) => {
         setPendingConversation(conversation);
     }, []);
@@ -420,7 +418,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
 
     const filteredConversations = useMemo(() => {
         let list = allConversations;
-        /** محادثة مفتوحة للتو (متجر/مستخدم) — تظهر في القائمة حتى ينتهي refetch */
+        /** A just-opened conversation shows in the list until the refetch includes it. */
         if (pendingConversation) {
             const exists = list.some((c) => String(c.id) === String(pendingConversation.id));
             if (!exists) {
@@ -454,7 +452,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         getConversationHref,
         searchQuery,
         onSearchChange: setSearchQuery,
-        totalUnreadCount: unreadData?.unread_conversations_count || 0,
+        readFilter,
+        onReadFilterChange: setReadFilter,
         context,
         onCreateGroup: () => setShowCreateGroupModal(true),
     };
@@ -516,8 +515,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     return (
         <div className="p-2 md:p-6 space-y-2 md:space-y-4">
             {/*
-              موبايل: عمود واحد فقط — إما قائمة أو دردشة (بدون عمودين أحدهما hidden)
-              يمنع طبقات DOM تلتقط النقر أو تبقى فوق القائمة.
+              Mobile renders a single column, list or chat — never both with one hidden,
+              which left layers that swallowed taps or stayed on top of the list.
             */}
             <div className={`md:hidden flex flex-col ${shellHeight} min-h-0 overflow-hidden`}>
                 {!activeConversation && !isResolvingChatFromUrl ? (
@@ -557,7 +556,6 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 )}
             </div>
 
-            {/* md+: فلتر يسار + قائمة + منطقة محادثة — تخطيط ثابت مع min-h-0 لتمرير صحيح */}
             <div className={`hidden md:flex gap-2 md:gap-4 ${shellHeight} min-h-0 w-full`}>
                 <div className="hidden lg:block w-64 shrink-0 min-h-0">
                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden h-full">

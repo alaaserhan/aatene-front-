@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
+import { useMemo, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { Conversation, Message } from "../api";
 import { ParticipantAvatar } from "./ParticipantAvatar";
@@ -9,9 +9,20 @@ import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarL
 import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 import { User, Store, Users, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
+
+export type ReadFilter = "all" | "unread" | "read";
+
+const READ_FILTER_TABS: { value: ReadFilter; label: string }[] = [
+    { value: "all", label: "الكل" },
+    { value: "unread", label: "غير مقروءة" },
+    { value: "read", label: "مقروءة" },
+];
+
+const isUnread = (conversation: Conversation) => conversation.unread_messages_count > 0;
 
 interface ConversationListSidebarProps {
     conversations: Conversation[];
@@ -24,7 +35,9 @@ interface ConversationListSidebarProps {
     searchQuery: string;
     onSearchChange: (query: string) => void;
     className?: string;
-    totalUnreadCount?: number;
+    /** Controlled by the page: the list unmounts on mobile while a chat is open, and local state would reset. */
+    readFilter: ReadFilter;
+    onReadFilterChange: (filter: ReadFilter) => void;
     context?: "web" | "dashboard";
     /** When set, the list header gets a persistent "new group" button. */
     onCreateGroup?: () => void;
@@ -104,7 +117,8 @@ export function ConversationListSidebar({
     searchQuery,
     onSearchChange,
     className,
-    totalUnreadCount = 0,
+    readFilter,
+    onReadFilterChange,
     context = "web",
     onCreateGroup,
 }: ConversationListSidebarProps) {
@@ -161,57 +175,26 @@ export function ConversationListSidebar({
         }
     };
 
-    const [activeTab, setActiveTab] = useState<"all" | "unread" | "read">("all");
-
-    // Helper to check if conversation is unread
-    // Assuming unread if any participant (likely "me") has unread messages > 0
-    const isUnread = (conversation: Conversation) => {
-        return conversation.unread_messages_count > 0;
-    };
-
+    /**
+     * Counted from the same list the tabs filter, so each badge always matches the
+     * rows under it — the global unread endpoint ignores search and the type filter.
+     */
     const counts = useMemo(() => {
-        const total = conversations.length;
-        // User requested: Read = Total - UnreadCount (using the API value)
-        const read = Math.max(0, total - totalUnreadCount);
+        const unread = conversations.filter(isUnread).length;
+        return { all: conversations.length, unread, read: conversations.length - unread };
+    }, [conversations]);
 
-        return {
-            total,
-            unread: totalUnreadCount,
-            read
-        };
-    }, [conversations, totalUnreadCount]);
-
-    const filteredConversations = useMemo(() => {
-        switch (activeTab) {
-            case "unread":
-                return conversations.filter(isUnread);
-            case "read":
-                return conversations.filter(c => !isUnread(c));
-            default:
-                return conversations;
-        }
-    }, [conversations, activeTab]);
-
-    /** When a chat is opened from an external link (e.g. "chat" on a profile), make sure its row is visible in the list. */
+    /**
+     * The open conversation stays in place even when it no longer matches the tab:
+     * opening an unread chat marks it read, and it shouldn't vanish from under the cursor.
+     */
     const displayConversations = useMemo(() => {
-        if (!selectedConversationId) return filteredConversations;
-        const already = filteredConversations.some((c) => c.id === selectedConversationId);
-        if (already) return filteredConversations;
-        const selected = conversations.find((c) => c.id === selectedConversationId);
-        if (!selected) return filteredConversations;
-        return [selected, ...filteredConversations.filter((c) => c.id !== selectedConversationId)];
-    }, [filteredConversations, conversations, selectedConversationId]);
-
-    /** The current tab/search hides the selected chat → switch to "all" and clear the search. */
-    useEffect(() => {
-        if (!selectedConversationId || conversations.length === 0) return;
-        const conv = conversations.find((c) => c.id === selectedConversationId);
-        if (!conv) return;
-        const visibleInTab = filteredConversations.some((c) => c.id === selectedConversationId);
-        if (!visibleInTab) {
-            setActiveTab("all");
-        }
-    }, [selectedConversationId, conversations, filteredConversations]);
+        if (readFilter === "all") return conversations;
+        const wantUnread = readFilter === "unread";
+        return conversations.filter(
+            (c) => c.id === selectedConversationId || isUnread(c) === wantUnread
+        );
+    }, [conversations, readFilter, selectedConversationId]);
 
     const scrollTargetDone = useRef<number | null>(null);
 
@@ -252,55 +235,26 @@ export function ConversationListSidebar({
                 ) : undefined
             }
             extraHeaderContent={
-                <div className="flex items-center px-4 mt-2 border-b border-gray-100 gap-6 text-sm font-medium">
-                    <button
-                        onClick={() => setActiveTab("all")}
-                        className={cn(
-                            "flex items-center gap-2 cursor-pointer pb-3 pt-1 border-b-2 transition-colors",
-                            activeTab === "all" ? "border-blue-3 text-blue-3" : "border-transparent text-gray-500"
-                        )}
-                    >
-                        <span>الكل</span>
-                        <span className={cn(
-                            "px-1.5 py-0.5 rounded text-xs",
-                            activeTab === "all" ? "bg-blue-5 text-blue-3" : "bg-gray-100 text-gray-500"
-                        )}>
-                            {counts.total}
-                        </span>
-                    </button>
-
-                    <button
-                        onClick={() => setActiveTab("unread")}
-                        className={cn(
-                            "flex items-center gap-2 cursor-pointer pb-3 pt-1 border-b-2 transition-colors",
-                            activeTab === "unread" ? "border-blue-3 text-blue-3" : "border-transparent text-gray-500"
-                        )}
-                    >
-                        <span>غير مقروء</span>
-                        <span className={cn(
-                            "px-1.5 py-0.5 rounded text-xs",
-                            activeTab === "unread" ? "bg-blue-5 text-blue-3" : "bg-gray-100 text-gray-500"
-                        )}>
-                            {counts.unread}
-                        </span>
-                    </button>
-
-                    <button
-                        onClick={() => setActiveTab("read")}
-                        className={cn(
-                            "flex items-center gap-2 cursor-pointer pb-3 pt-1 border-b-2 transition-colors",
-                            activeTab === "read" ? "border-blue-3 text-blue-3" : "border-transparent text-gray-500"
-                        )}
-                    >
-                        <span>مقروءة</span>
-                        <span className={cn(
-                            "px-1.5 py-0.5 rounded text-xs",
-                            activeTab === "read" ? "bg-blue-5 text-blue-3" : "bg-gray-100 text-gray-500"
-                        )}>
-                            {counts.read}
-                        </span>
-                    </button>
-                </div>
+                <Tabs
+                    variant="underline"
+                    value={readFilter}
+                    onValueChange={(value) => onReadFilterChange(value as ReadFilter)}
+                    className="px-4 mt-2"
+                >
+                    <TabsList>
+                        {READ_FILTER_TABS.map((tab) => (
+                            <TabsTrigger key={tab.value} value={tab.value} className="group gap-2">
+                                <span>{tab.label}</span>
+                                <span
+                                    dir="ltr"
+                                    className="font-digits leading-none px-1.5 py-1 rounded text-xs font-medium bg-c2-neutral-50 text-c2-neutral-500 group-data-[state=active]:bg-c2-navy-50 group-data-[state=active]:text-c2-primary"
+                                >
+                                    {counts[tab.value]}
+                                </span>
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </Tabs>
             }
             onSearchChange={onSearchChange}
             className={className}
