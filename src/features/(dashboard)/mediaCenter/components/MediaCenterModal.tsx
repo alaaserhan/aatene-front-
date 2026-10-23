@@ -12,7 +12,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { ScrollArea, ScrollBar } from "@/src/components/ui/scroll-area";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { X, Search, Upload } from "lucide-react";
 import { MediaGrid } from "./MediaGrid";
 import { MediaUploadArea } from "./MediaUploadArea";
@@ -87,7 +87,16 @@ export function MediaCenterModal({
   }, [searchQuery, activeType]);
 
   const { data: mediaData, isLoading, isFetching, error } = useGetMediaList(params, open);
-  const mediaItems: MediaItemType[] = mediaData?.data?.data ?? [];
+  // Tabs are storage folders, not file kinds — a video uploaded elsewhere can sit in
+  // the "image" folder. An image-only picker (e.g. a store logo) must not offer it.
+  const imagesOnly = useMemo(() => {
+    const tokens = accept.split(",").map((t) => t.trim()).filter(Boolean);
+    return tokens.length > 0 && tokens.every((t) => t.startsWith("image/"));
+  }, [accept]);
+  const mediaItems: MediaItemType[] = useMemo(() => {
+    const items: MediaItemType[] = mediaData?.data?.data ?? [];
+    return imagesOnly ? items.filter((item) => !isVideoFile(item.file_name || item.url)) : items;
+  }, [mediaData, imagesOnly]);
 
   const uploadMutation = useUploadMedia();
 

@@ -80,6 +80,9 @@ function ServiceCard({ service, className, onFavoriteClick }: ServiceCardProps) 
     );
     const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
     const isVideoCover = isVideoFile(serviceImage);
+    const videoPoster = isVideoCover
+        ? sanitizeMediaUrl(service.images_urls?.find((url) => url && !isVideoFile(url))) || undefined
+        : undefined;
     // `logo` is the raw storage path; `logo_url` is the absolute one the API exposes.
     const serviceLogoSrc = sanitizeMediaUrl(service.store?.logo_url || "");
     // The link overlay covers the video, so the card reports hover on its behalf.
@@ -104,6 +107,7 @@ function ServiceCard({ service, className, onFavoriteClick }: ServiceCardProps) 
                         className="absolute inset-0"
                         videoClassName="transition-transform duration-700 group-hover:scale-110"
                         hovered={isHovered}
+                        poster={videoPoster}
                     />
                 ) : serviceImage ? (
                     <Image

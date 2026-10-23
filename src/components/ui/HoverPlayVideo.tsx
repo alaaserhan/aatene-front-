@@ -14,6 +14,8 @@ interface HoverPlayVideoProps {
      * so playback follows the card's hover instead of the video's own.
      */
     hovered?: boolean;
+    /** Image shown until the video plays — and for good when the device refuses autoplay. */
+    poster?: string;
 }
 
 const HOVER_QUERY = "(hover: hover) and (pointer: fine)";
@@ -52,7 +54,7 @@ function withFirstFrameHint(src: string) {
     return src.includes("#") ? src : `${src}#t=0.1`;
 }
 
-export function HoverPlayVideo({ src, className, videoClassName, hovered }: HoverPlayVideoProps) {
+export function HoverPlayVideo({ src, className, videoClassName, hovered, poster }: HoverPlayVideoProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canHover = useMediaQuery(HOVER_QUERY, false);
@@ -62,7 +64,9 @@ export function HoverPlayVideo({ src, className, videoClassName, hovered }: Hove
     const [inView, setInView] = useState(false);
     const [ownHovered, setOwnHovered] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [hasFrame, setHasFrame] = useState(false);
+    const [isReady, setIsReady] = useState(false);
+    // Low Power Mode, data saver and in-app browsers reject play() even for muted video.
+    const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
     const isControlled = hovered !== undefined;
     const isHovered = isControlled ? hovered : ownHovered;
@@ -73,7 +77,8 @@ export function HoverPlayVideo({ src, className, videoClassName, hovered }: Hove
     if (prevSrc !== src) {
         setPrevSrc(src);
         setIsPlaying(false);
-        setHasFrame(false);
+        setIsReady(false);
+        setAutoplayBlocked(false);
     }
 
     // The src is only attached near the viewport, so a long grid costs no video requests up front.
@@ -114,7 +119,12 @@ export function HoverPlayVideo({ src, className, videoClassName, hovered }: Hove
         }
 
         const timer = window.setTimeout(() => {
-            video.play().catch(() => setIsPlaying(false));
+            video.play().catch((error: unknown) => {
+                setIsPlaying(false);
+                // An AbortError only means a pause() overtook this play(); the device still allows it.
+                if (error instanceof DOMException && error.name === "AbortError") return;
+                setAutoplayBlocked(true);
+            });
         }, canHover ? HOVER_INTENT_MS : 0);
         return () => window.clearTimeout(timer);
     }, [shouldPlay, nearViewport, canHover, src]);
@@ -138,6 +148,7 @@ export function HoverPlayVideo({ src, className, videoClassName, hovered }: Hove
                     }
                 }}
                 src={nearViewport ? withFirstFrameHint(src) : undefined}
+                poster={poster}
                 className={cn("h-full w-full object-cover", videoClassName)}
                 muted
                 playsInline
@@ -145,18 +156,24 @@ export function HoverPlayVideo({ src, className, videoClassName, hovered }: Hove
                 preload={nearViewport ? "metadata" : "none"}
                 disablePictureInPicture
                 disableRemotePlayback
-                onLoadedData={() => setHasFrame(true)}
-                onPlaying={() => setIsPlaying(true)}
+                // iOS often stops at metadata for a paused video and never fires `loadeddata`.
+                onLoadedMetadata={() => setIsReady(true)}
+                onLoadedData={() => setIsReady(true)}
+                onError={() => setIsReady(true)}
+                onPlaying={() => {
+                    setIsPlaying(true);
+                    setAutoplayBlocked(false);
+                }}
                 onPause={() => setIsPlaying(false)}
             />
-            {canHover && !isPlaying && (
+            {(canHover || autoplayBlocked) && !isPlaying && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
                     <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-sm">
                         <Play className="h-7 w-7 fill-gray-700 text-gray-700" />
                     </div>
                 </div>
             )}
-            {!canHover && !isPlaying && !hasFrame && (
+            {!canHover && !isPlaying && !isReady && !autoplayBlocked && !poster && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-gray-200/60">
                     <div className="h-8 w-8 animate-pulse rounded-full bg-gray-300/80" />
                 </div>
