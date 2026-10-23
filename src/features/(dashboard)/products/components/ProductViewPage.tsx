@@ -24,6 +24,9 @@ import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { cn } from "@/src/lib/utils";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUser } from "@/src/auth/session";
+import { isPhoneHidden, maskPhone } from "@/src/lib/phone";
+import { StorePhoneDialog } from "@/src/features/(web)/stores/components/StorePhoneDialog";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
@@ -36,6 +39,7 @@ export default function ProductViewPage() {
     const searchParams = useSearchParams();
     const id = params?.id as string;
     const isAdmin = Cookies.get("user_type") === "admin";
+    const user = useUser();
     const fromUrl = searchParams.get("from");
 
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
@@ -46,6 +50,7 @@ export default function ProductViewPage() {
     const [activeImage, setActiveImage] = useState<string | null>(null);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isPhoneDialogOpen, setIsPhoneDialogOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<"description" | "reviews">("description");
 
     // Dismissal is per visit on purpose — not persisted to localStorage.
@@ -86,13 +91,29 @@ export default function ProductViewPage() {
     const { mutate: followUser } = useFollowUser();
     const { mutate: unfollowUser } = useUnfollowUser();
 
-    const handleFollowClick = () => {
-        if (!store?.owner?.id) return;
+    const isOwner = !isAdmin && !!storeId && String(storeId) === Cookies.get("current_store_id");
+    const ownerUserId = store?.owner?.id ?? store?.owner_id;
+    const viewerOwnsStore = isOwner || (!isAdmin && !!user?.id && !!ownerUserId && String(ownerUserId) === String(user.id));
 
-        if (store.owner.am_i_following) {
+    // Admins and the store's own team see the number even when it is hidden from the public.
+    const storePhone =
+        store?.phone && (isAdmin || viewerOwnsStore || !isPhoneHidden(store.hide_phone)) ? store.phone : "";
+    const canChat = !!store?.id;
+
+    // The owner's card shows the store, so their follow button targets the store, not the merchant.
+    const followTarget = viewerOwnsStore
+        ? store && { type: "store" as const, id: store.id, isFollowing: store.am_i_following }
+        : store?.owner?.id
+            ? { type: "user" as const, id: store.owner.id, isFollowing: store.owner.am_i_following }
+            : undefined;
+
+    const handleFollowClick = () => {
+        if (!followTarget) return;
+
+        if (followTarget.isFollowing) {
             unfollowUser(
                 {
-                    payload: { followed_type: "user", followed_id: store.owner.id },
+                    payload: { followed_type: followTarget.type, followed_id: followTarget.id },
                     storeId: Cookies.get("current_store_id") || undefined,
                 },
                 {
@@ -104,7 +125,7 @@ export default function ProductViewPage() {
         } else {
             followUser(
                 {
-                    payload: { followed_type: "user", followed_id: store.owner.id },
+                    payload: { followed_type: followTarget.type, followed_id: followTarget.id },
                     storeId: Cookies.get("current_store_id") || undefined,
                 },
                 {
@@ -261,7 +282,6 @@ export default function ProductViewPage() {
         { label: "المنتجات", href: fromUrl ? decodeURIComponent(fromUrl) : (isAdmin ? "/admin/products" : "/dashboard/products") },
         { label: raw.name },
     ];
-    const isOwner = !isAdmin && !!storeId && String(storeId) === Cookies.get("current_store_id");
 
     return (
         <div className="flex flex-col pb-10" dir="rtl">
@@ -320,7 +340,7 @@ export default function ProductViewPage() {
                                     dismissAlert();
                                 }
                             }}
-                            className={cn(currentStatus === "pending" || currentStatus === "rejected" ? "mt-4" : "")}
+                            className="mt-4"
                         />
                     </div>
                 )}
@@ -368,8 +388,10 @@ export default function ProductViewPage() {
                                 <h1 className="text-2xl font-bold leading-tight max-w-[70%] text-[#1e3a52]">
                                     {raw.name}
                                 </h1>
+                                {(viewerOwnsStore || isAdmin) && (
                                 <div className="flex gap-4 text-gray-2">
                                     <button
+                                        type="button"
                                         onClick={() => {
                                             const currentViewUrl = `/admin/products/${id}/view${fromUrl ? `?from=${encodeURIComponent(decodeURIComponent(fromUrl))}` : ""}`;
                                             router.push(`/admin/products/${id}/edit?from=${encodeURIComponent(currentViewUrl)}`);
@@ -380,6 +402,7 @@ export default function ProductViewPage() {
                                         <span className="text-sm font-medium">تعديل المنتج</span>
                                     </button>
                                 </div>
+                                )}
                             </div>
 
                             {/* Main media */}
@@ -451,9 +474,9 @@ export default function ProductViewPage() {
                                 <div className="mb-6">
                                     <ProviderInfoCard
                                         store={store}
-                                        isOwner={isOwner}
+                                        isOwner={viewerOwnsStore}
                                         isAdmin={isAdmin}
-                                        isFollowing={store.owner?.am_i_following}
+                                        isFollowing={followTarget?.isFollowing}
                                         onFollow={handleFollowClick}
                                     />
                                 </div>
@@ -612,14 +635,22 @@ export default function ProductViewPage() {
                                 )}
 
                                 {/* Contact Buttons */}
+                                {(storePhone || canChat) && (
                                 <div className="flex flex-col gap-2.5 mt-4">
-                                    <Button className="w-full bg-[#1e3a52] hover:bg-[#152a3b] text-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
-                                        <Phone className="w-4 h-4 text-white" />
-                                        <span dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
-                                    </Button>
+                                    {storePhone && (
+                                        <Button
+                                            type="button"
+                                            onClick={() => setIsPhoneDialogOpen(true)}
+                                            className="w-full bg-[#1e3a52] hover:bg-[#152a3b] text-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm"
+                                        >
+                                            <Phone className="w-4 h-4 text-white" />
+                                            <span dir="ltr">{maskPhone(storePhone)}</span>
+                                        </Button>
+                                    )}
+                                    {canChat && (
                                     <ChatNowButton
                                         variant="outline"
-                                        target={{ type: "store", id: store?.id }}
+                                        target={{ type: "store", id: store?.id, productId: raw.id }}
                                         basePath="/admin/chat"
                                         label="دردشة"
                                         icon={<Send className="w-4 h-4" />}
@@ -627,7 +658,9 @@ export default function ProductViewPage() {
                                         iconClassName="w-4 h-4"
                                         className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm"
                                     />
+                                    )}
                                 </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -656,6 +689,13 @@ export default function ProductViewPage() {
                 title="شارك هذا المنتج"
                 description="هل أعجبك هذا المنتج؟ شاركه الآن مع أصدقائك."
             />
+            {storePhone && (
+                <StorePhoneDialog
+                    phone={storePhone}
+                    open={isPhoneDialogOpen}
+                    onOpenChange={setIsPhoneDialogOpen}
+                />
+            )}
             <ConfirmDeleteModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}

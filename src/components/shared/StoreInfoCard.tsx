@@ -169,7 +169,7 @@ export default function StoreInfoCard({
         <div className="flex items-center gap-2">
           <Star className="size-4 text-[#2E2E2F]" />
           <div className="flex items-center gap-1">
-            <span>تقييم البائع</span>
+            <span>تقييم المتجر</span>
             <span className="font-bold pt-px">
               {rating > 0 ? rating : "لا توجد تقييمات"}
             </span>

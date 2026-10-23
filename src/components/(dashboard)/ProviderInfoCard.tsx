@@ -40,8 +40,21 @@ function MaybeLink({ href, children }: { href?: string; children: React.ReactNod
 
 export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing, isOwner, isAdmin }: ProviderInfoCardProps) {
   const lang = useLanguage();
-  // If store is provided, map it to ProviderData
-  const data: ProviderData | null = store
+  // The owner and admins see the store's identity rather than the merchant's profile.
+  const showStore = !!store && (!!isOwner || !!isAdmin);
+  const data: ProviderData | null = store && showStore
+    ? {
+        id: store.id,
+        name: store.name,
+        avatar: store.logo_url || "",
+        location: formatStoreCityNames(getStoreCityNames(store)),
+        memberSince: "",
+        rating: store.review_rate || "5.0",
+        ordersCount: store.conversations_count || 0,
+        isFollowing: isFollowing !== undefined ? isFollowing : store.am_i_following,
+        slug: store.slug,
+      }
+    : store
     ? {
         id: store.id,
         name: `${store.owner?.first_name} ${store.owner?.last_name}`,
@@ -64,7 +77,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
   if (!data) return null;
 
   const ownerProfileKey = store?.owner?.slug || store?.owner?.id;
-  const profileHref = store
+  const profileHref = store && !showStore
     ? ownerProfileKey
       ? `/${lang}/profile/${ownerProfileKey}`
       : undefined
@@ -115,13 +128,15 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
       <div className="border-t border-[#DEE2E7] mb-6"></div>
 
       <div className="flex flex-wrap items-center  gap-8 text-sm text-gray-2">
-        <div className="flex items-center gap-2">
-          <AlarmClock className="size-5 text-[black]" />
-          <span className="pt-px text-[#505050]">
-            عضو منذ
-            <span className="font-bold ps-1">{data.memberSince}</span>
-          </span>
-        </div>
+        {data.memberSince && (
+          <div className="flex items-center gap-2">
+            <AlarmClock className="size-5 text-[black]" />
+            <span className="pt-px text-[#505050]">
+              عضو منذ
+              <span className="font-bold ps-1">{data.memberSince}</span>
+            </span>
+          </div>
+        )}
 
         {/* {data.isVerified !== false && (
                     <div className="flex items-center gap-2">
@@ -133,7 +148,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
         <div className="flex items-center gap-2">
           <Star className="size-5 text-[black]" />
           <span className="pt-px text-[#505050]">
-            تقييم البائع
+            {showStore ? "تقييم المتجر" : "تقييم البائع"}
             <span className="font-bold ps-1">{data.rating}</span>
           </span>
         </div>
