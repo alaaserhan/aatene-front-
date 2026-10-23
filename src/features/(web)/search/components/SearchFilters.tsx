@@ -353,17 +353,6 @@ export default function SearchFilters({
                     </div>
                 </FilterSection>
             </div>
-
-            {/* Filters apply as they change; kept as the familiar end-of-panel action. */}
-            <div className="px-5 py-4 border-t border-gray-100 hidden lg:flex flex-col gap-2">
-                <button
-                    type="button"
-                    onClick={() => onFilterChange(filters)}
-                    className="w-full py-2.5 bg-c2-navy-600 text-white rounded-xl font-medium hover:bg-c2-navy-700 transition-colors cursor-pointer"
-                >
-                    تطبيق الفلتر ›
-                </button>
-            </div>
         </div>
     );
 }

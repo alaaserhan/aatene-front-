@@ -58,7 +58,7 @@ export default function MobileFilterSheet({
 
                 <div className="sticky bottom-0 flex flex-col gap-3 border-t border-gray-100 bg-white p-4">
                     <SheetClose className="w-full cursor-pointer rounded-xl bg-c2-navy-600 py-3.5 font-medium text-white transition-colors hover:bg-c2-navy-700">
-                        تطبيق الفلتر
+                        عرض النتائج
                     </SheetClose>
                     <button
                         type="button"
