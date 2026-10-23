@@ -6,16 +6,21 @@ export type TagType = "product" | "service";
 
 export interface Tag {
   id: number;
-  name: string;
-  type?: TagType;
+  title: string;
+  main_type?: TagType;
 }
 
 export interface TagsResponse {
   status: boolean;
   message: string;
-  recordsTotal?: number;
-  recordsFiltered?: number;
-  data: Tag[];
+  items: Tag[];
+  pagination?: {
+    total: number;
+    count: number;
+    per_page: number;
+    current_page: number;
+    total_pages: number;
+  };
 }
 
 /** Store types are plural ("products" / "services"); the tags endpoint expects the singular form. */

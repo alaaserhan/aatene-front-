@@ -55,9 +55,9 @@ export function TagSearchInput({
   );
 
   // Suggestions exclude what is already selected
-  const suggestions = (data?.data ?? []).filter((tag) => !tags.includes(tag.name));
-  const hasExactMatch = (data?.data ?? []).some(
-    (tag) => tag.name.toLowerCase() === search.toLowerCase()
+  const suggestions = (data?.items ?? []).filter((tag) => !tags.includes(tag.title));
+  const hasExactMatch = (data?.items ?? []).some(
+    (tag) => tag.title.toLowerCase() === search.toLowerCase()
   );
   const canCreate = search.length > 0 && !hasExactMatch && !tags.includes(search);
 
@@ -147,10 +147,10 @@ export function TagSearchInput({
               <button
                 key={tag.id}
                 type="button"
-                onClick={() => handleAdd(tag.name)}
+                onClick={() => handleAdd(tag.title)}
                 className="block w-full px-4 py-2.5 text-start text-sm text-gray-700 transition-colors hover:bg-gray-50"
               >
-                {tag.name}
+                {tag.title}
               </button>
             ))}
 
