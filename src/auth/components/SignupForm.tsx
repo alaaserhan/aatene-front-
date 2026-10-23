@@ -53,7 +53,7 @@ type SignupFormData = z.infer<typeof signupSchema>;
 const SIGNUP_PANEL_IMAGE = "/Frame%201261155080.svg";
 
 const fieldClassName =
-  "rounded-full border-gray-200 py-2.5 text-sm placeholder:text-gray-400 focus:border-[#3d5e83] focus:ring-1 focus:ring-[#3d5e83]/20";
+  "rounded-full border-gray-200 py-2.5 text-sm placeholder:text-c2-neutral-450 focus:border-[#3d5e83] focus:ring-1 focus:ring-[#3d5e83]/20";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -146,7 +146,8 @@ export function SignupForm() {
 
   const onSubmit = (data: SignupFormData) => {
     const { confirmPassword, terms, ...credentials } = data;
-    const formattedPhone = `${countryCode}${data.phone.startsWith("0") ? data.phone.slice(1) : data.phone}`;
+    const phone = data.phone.replace(/\s+/g, "");
+    const formattedPhone = `${countryCode}${phone.startsWith("0") ? phone.slice(1) : phone}`;
 
     signupMutation(
       { ...credentials, phone: formattedPhone },
@@ -255,7 +256,8 @@ export function SignupForm() {
                 render={({ field, fieldState }) => (
                   <FormInput
                     label="الاسم الأول"
-                    placeholder="أدخل اسمك الأول"
+                    placeholder="الاسم الأول"
+                    autoComplete="given-name"
                     required
                     error={fieldState.error?.message}
                     className={fieldClassName}
@@ -270,7 +272,8 @@ export function SignupForm() {
                 render={({ field, fieldState }) => (
                   <FormInput
                     label="الاسم الأخير"
-                    placeholder="أدخل اسمك الأخير"
+                    placeholder="الاسم الأخير"
+                    autoComplete="family-name"
                     required
                     error={fieldState.error?.message}
                     className={fieldClassName}
@@ -289,10 +292,12 @@ export function SignupForm() {
                 <FormInput
                   label="البريد الإلكتروني"
                   type="email"
-                  placeholder="أدخل بريدك الإلكتروني"
+                  dir="ltr"
+                  placeholder="name@example.com"
+                  autoComplete="email"
                   required
                   error={fieldState.error?.message}
-                  className={fieldClassName}
+                  className={cn(fieldClassName, "text-right")}
                   containerClassName="space-y-2"
                   {...field}
                 />
@@ -306,50 +311,55 @@ export function SignupForm() {
               render={({ field, fieldState }) => (
                 <PhoneNumberInput
                   label="رقم الهاتف"
-                  placeholder="أدخل رقم هاتفك"
+                  placeholder="59 123 4567"
+                  autoComplete="tel-national"
+                  inputMode="tel"
                   required
                   countryCode={countryCode}
                   onCountryCodeChange={setCountryCode}
                   error={fieldState.error?.message}
                   roundedFull
                   height="h-10"
+                  className="ps-3 text-left placeholder:text-c2-neutral-450"
                   {...field}
                 />
               )}
             />
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field, fieldState }) => (
-                  <FormInput
-                    label="كلمة المرور"
-                    type="password"
-                    placeholder="٦ أحرف على الأقل"
-                    required
-                    error={fieldState.error?.message}
-                    className={fieldClassName}
-                    containerClassName="space-y-2"
-                    {...field}
-                  />
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field, fieldState }) => (
-                  <FormInput
-                    label="تأكيد كلمة المرور"
-                    type="password"
-                    placeholder="أعد إدخال كلمة المرور"
-                    required
-                    error={fieldState.error?.message}
-                    className={fieldClassName}
-                    containerClassName="space-y-2"
-                    {...field}
-                  />
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <FormInput
+                  label="كلمة المرور"
+                  type="password"
+                  placeholder="6 أحرف على الأقل"
+                  autoComplete="new-password"
+                  required
+                  error={fieldState.error?.message}
+                  className={fieldClassName}
+                  containerClassName="space-y-2"
+                  {...field}
+                />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field, fieldState }) => (
+                <FormInput
+                  label="تأكيد كلمة المرور"
+                  type="password"
+                  placeholder="أعد كتابة كلمة المرور"
+                  autoComplete="new-password"
+                  required
+                  error={fieldState.error?.message}
+                  className={fieldClassName}
+                  containerClassName="space-y-2"
+                  {...field}
+                />
+              )}
+            />
 
             {/* Terms */}
             <FormField
