@@ -12,6 +12,7 @@ import {
 } from "@/src/features/(web)/settings/hooks";
 import { CardLink, CARD_ACTION } from "@/src/components/shared/CardLink";
 import { useLanguage } from "@/src/hooks/use-language";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface UserCardProps {
   user: User;
@@ -21,6 +22,7 @@ interface UserCardProps {
 export default function UserCard({ user, className }: UserCardProps) {
   const lang = useLanguage();
   const queryClient = useQueryClient();
+  const isSelf = useAuthStore((s) => s.user?.id === user.id);
 
   const [avatarFailed, setAvatarFailed] = useState(false);
   const [followOverride, setFollowOverride] = useState<boolean | null>(null);
@@ -87,29 +89,31 @@ export default function UserCard({ user, className }: UserCardProps) {
 
       <p className="mb-4 text-sm text-c2-neutral-500">{followersCount} متابع</p>
 
-      <button
-        type="button"
-        disabled={isPending}
-        onClick={handleFollowToggle}
-        className={cn(
-          CARD_ACTION,
-          "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-colors disabled:opacity-50 min-h-12",
-          followed
-            ? "bg-c2-navy-50 text-c2-primary hover:bg-c2-neutral-200"
-            : "bg-c2-primary text-white hover:bg-c2-navy-600",
-        )}
-      >
-        {followed ? <UserMinus className="size-5 shrink-0" /> : <UserPlus className="size-5 shrink-0" />}
-        <span className="truncate">
-          {isPending
-            ? followed
-              ? "جاري الإلغاء..."
-              : "جاري المتابعة..."
-            : followed
-              ? "إلغاء المتابعة"
-              : "متابعة"}
-        </span>
-      </button>
+      {!isSelf && (
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={handleFollowToggle}
+          className={cn(
+            CARD_ACTION,
+            "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-colors disabled:opacity-50 min-h-12",
+            followed
+              ? "bg-c2-navy-50 text-c2-primary hover:bg-c2-neutral-200"
+              : "bg-c2-primary text-white hover:bg-c2-navy-600",
+          )}
+        >
+          {followed ? <UserMinus className="size-5 shrink-0" /> : <UserPlus className="size-5 shrink-0" />}
+          <span className="truncate">
+            {isPending
+              ? followed
+                ? "جاري الإلغاء..."
+                : "جاري المتابعة..."
+              : followed
+                ? "إلغاء المتابعة"
+                : "متابعة"}
+          </span>
+        </button>
+      )}
     </article>
   );
 }

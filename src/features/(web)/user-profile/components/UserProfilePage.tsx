@@ -20,6 +20,12 @@ import type { Service } from "@/src/features/(web)/services/api";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Button } from "@/src/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import CoverFallback from "@/src/components/shared/CoverFallback";
@@ -35,7 +41,6 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
     const hasStories = stories && stories.length > 0;
     const [showShareModal, setShowShareModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
-    const [showMoreMenu, setShowMoreMenu] = useState(false);
 
     const mappedAvatarStories: Story[] = [...stories].reverse().map(s => ({
         id: s.id,
@@ -184,7 +189,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                             {isOwnProfile ? (
                                 <button
                                     onClick={() => router.push("/settings")}
-                                    className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-blue-1 px-6 py-2 text-sm font-medium text-blue-4 hover:bg-blue-50 transition-colors cursor-pointer md:min-h-0 md:w-auto md:px-12 md:py-1.5"
+                                    className="flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-full border border-blue-1 px-6 py-2 text-sm font-medium text-blue-4 hover:bg-blue-50 transition-colors cursor-pointer md:min-h-0 md:flex-none md:px-12 md:py-1.5"
                                 >
                                     <img src="/icons/dashboard/edit2.svg" alt="" className="w-4 shrink-0" />
                                     تعديل
@@ -218,40 +223,38 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                         className="flex min-h-11 min-w-0 flex-1 basis-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-c2-primary bg-white px-2 py-2 text-[11px] font-medium text-c2-primary transition-colors hover:bg-blue-50 max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:px-8 md:py-2 md:text-sm disabled:opacity-50"
                                     />
 
-                                    <div className="relative shrink-0 self-center">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowMoreMenu(v => !v)}
-                                            className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer md:h-10 md:w-10"
-                                            aria-expanded={showMoreMenu}
-                                            aria-haspopup="menu"
-                                        >
-                                            <MoreHorizontal className="h-5 w-5 text-gray-500 md:h-4 md:w-4" />
-                                        </button>
-                                        {showMoreMenu && (
-                                            <>
-                                                <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} aria-hidden />
-                                                <div className="absolute end-0 top-full z-20 mt-1.5 min-w-[160px] rounded-xl border border-gray-100 bg-white py-1 shadow-lg overflow-hidden md:end-auto md:left-0 md:top-12 md:mt-0">
-                                                    <button
-                                                        onClick={() => { setShowMoreMenu(false); setShowShareModal(true); }}
-                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
-                                                    >
-                                                        <Share2 className="w-4 h-4 text-gray-500" />
-                                                        مشاركة
-                                                    </button>
-                                                    <button
-                                                        onClick={() => { setShowMoreMenu(false); setShowReportModal(true); }}
-                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                                                    >
-                                                        <Flag className="w-4 h-4 text-red-500" />
-                                                        إبلاغ
-                                                    </button>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
                                 </>
                             )}
+
+                            <DropdownMenu dir="rtl">
+                                <DropdownMenuTrigger asChild>
+                                    <button
+                                        type="button"
+                                        aria-label="المزيد"
+                                        className="flex h-11 w-11 shrink-0 self-center items-center justify-center rounded-full border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer md:h-10 md:w-10"
+                                    >
+                                        <MoreHorizontal className="h-5 w-5 text-gray-500 md:h-4 md:w-4" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="min-w-40 rounded-xl border-gray-100 bg-white py-1 shadow-lg">
+                                    <DropdownMenuItem
+                                        onSelect={() => setShowShareModal(true)}
+                                        className="cursor-pointer gap-3 px-4 py-2.5 text-gray-700"
+                                    >
+                                        <Share2 className="text-gray-500" />
+                                        مشاركة
+                                    </DropdownMenuItem>
+                                    {!isOwnProfile && (
+                                        <DropdownMenuItem
+                                            onSelect={() => setShowReportModal(true)}
+                                            className="cursor-pointer gap-3 px-4 py-2.5 text-red-600 focus:bg-red-50 focus:text-red-600"
+                                        >
+                                            <Flag className="text-red-500" />
+                                            إبلاغ
+                                        </DropdownMenuItem>
+                                    )}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
 
