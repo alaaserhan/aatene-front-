@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { ChevronUp, ChevronDown, Search, Play, Loader2 } from "lucide-react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Search, Play, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useGetFaqs } from "@/src/features/(web)/pages/hooks";
 
@@ -74,12 +74,12 @@ export default function FaqPage() {
 
                 <div className="pb-24">
                     <div className="container mx-auto px-4 max-w-4xl">
-                        <div className="flex overflow-x-auto justify-start md:justify-center gap-3 mb-10 pb-2 hide-scrollbar">
+                        <div className="flex overflow-x-auto overscroll-x-contain justify-center-safe gap-3 mb-10 snap-x scroll-px-4 no-scrollbar">
                             {faqsData.map((cat, index) => (
                                 <button
                                     key={index}
                                     onClick={() => handleCategoryChange(index)}
-                                    className={`px-6 md:px-10 py-3 md:py-4 rounded-md cursor-pointer text-[15px] md:text-[16px] font-medium transition-colors whitespace-nowrap shrink-0 ${activeCategoryIndex === index
+                                    className={`px-6 md:px-10 py-3 md:py-4 rounded-md cursor-pointer text-[15px] md:text-[16px] font-medium transition-colors whitespace-nowrap shrink-0 snap-start ${activeCategoryIndex === index
                                         ? "bg-blue-4 text-white shadow-sm border border-transparent"
                                         : "bg-white border border-gray-200 text-gray-2 hover:border-blue-4 hover:text-blue-4"
                                         }`}
