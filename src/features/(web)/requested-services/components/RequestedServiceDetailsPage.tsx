@@ -1,12 +1,12 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useRequestedServiceBySlug, useRequestedServiceComments, useAddRequestedServiceComment } from "../hooks";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
-import { Loader2, Flag, Play, User } from "lucide-react";
+import { Loader2, Flag, User, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { RequestedServiceComment } from "../types";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
@@ -109,6 +109,32 @@ function CommentCard({
                 </div>
             )}
         </div>
+    );
+}
+
+function BackToServicesLink({ lang }: { lang: string }) {
+    const router = useRouter();
+    const listHref = `/${lang}/requested-services`;
+
+    // Go back in history when the visitor came from inside the site (keeps list filters
+    // and scroll position); a direct or external visit falls through to the list page.
+    const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        if (document.referrer.startsWith(window.location.origin)) {
+            e.preventDefault();
+            router.back();
+        }
+    };
+
+    return (
+        <Link
+            href={listHref}
+            onClick={handleClick}
+            className="group mb-4 -ms-1 inline-flex h-10 items-center gap-1.5 rounded-md px-1 text-sm font-medium text-c2-navy-600 transition-colors hover:text-c2-navy-900"
+        >
+            <ArrowRight className="h-4 w-4 transition-transform ltr:rotate-180 rtl:group-hover:translate-x-0.5 ltr:group-hover:-translate-x-0.5" />
+            <span>العودة إلى الخدمات المطلوبة</span>
+        </Link>
     );
 }
 
@@ -217,8 +243,11 @@ export default function RequestedServiceDetailsPage() {
 
     if (isError || !serviceData?.record) {
         return (
-            <div className="text-center py-40" dir="rtl">
-                <p className="text-gray-500 text-lg">عذراً، لم يتم العثور على الخدمة المطلوبة</p>
+            <div className="container mx-auto w-full px-4 md:px-8 my-4 nmd:my-8">
+                <BackToServicesLink lang={lang} />
+                <div className="text-center py-32">
+                    <p className="text-gray-500 text-lg">عذراً، لم يتم العثور على الخدمة المطلوبة</p>
+                </div>
             </div>
         );
     }
@@ -237,6 +266,8 @@ export default function RequestedServiceDetailsPage() {
                     initialIndex={mediaViewerState.index}
                 />
             )}
+
+            <BackToServicesLink lang={lang} />
 
             {/* Moderation status banner — only for services not yet published */}
             {(service.status === "pending" || service.status === "rejected") && (
