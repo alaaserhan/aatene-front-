@@ -284,19 +284,19 @@ function NavbarSearchBar({ controller }: { controller: Controller }) {
       className="flex h-12 w-full items-center rounded-md border border-c2-navy-700 bg-white"
       dir="rtl"
     >
-      <div className="relative flex h-full flex-1 items-center">
+      <div className="relative flex h-full min-w-0 flex-1 items-center">
         <SearchField
           controller={controller}
-          className="h-full flex-1 pr-4 pl-10 text-sm"
+          className="h-full min-w-0 flex-1 pr-4 pl-10 text-sm"
           clearButtonClassName="left-3"
         />
       </div>
 
       <div className="h-9 w-px bg-c2-neutral-200" />
 
-      <TypeTabs controller={controller} appearance="plain" className="px-2" />
+      <TypeTabs controller={controller} appearance="plain" className="px-1 xl:px-2" />
 
-      <SubmitButton onClick={controller.submit} className="h-12 rounded-e-sm" />
+      <SubmitButton onClick={controller.submit} className="h-12 rounded-e-sm px-4 xl:px-6" />
     </div>
   );
 }

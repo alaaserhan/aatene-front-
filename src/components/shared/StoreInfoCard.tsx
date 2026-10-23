@@ -97,8 +97,8 @@ export default function StoreInfoCard({
   return (
     <div className={cn("white-card", className)}>
       {/* Store identity + actions */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-1">
           <Link href={storeHref}>
             <Avatar className="size-12">
               <AvatarImage
@@ -123,7 +123,7 @@ export default function StoreInfoCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             onClick={handleFollowToggle}
             disabled={isFollowLoading}

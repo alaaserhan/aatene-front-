@@ -783,15 +783,15 @@ function StoreOwnerCard({ store, className }: { store: StoreProfile; className?:
                     ))}
                 </div>
             </div>
-            <div className="grid grid-cols-2 gap-2.5 w-full" dir="rtl">
+            <div className="flex flex-wrap gap-2.5 w-full" dir="rtl">
                 <ChatNowButton
                     target={{ type: "user", id: store.owner?.id || store.owner_id }}
                     label={<span className="whitespace-nowrap">تواصل مع البائع</span>}
                     icon={<MessageSquare size={15} className="shrink-0" strokeWidth={2} />}
                     iconClassName="shrink-0 size-[15px]"
-                    className="rounded-full has-[>svg]:px-5 min-h-10 w-full"
+                    className="rounded-full has-[>svg]:px-5 min-h-10 flex-1 min-w-fit"
                 />
-                <div className="min-w-0">
+                <div className="flex-1 min-w-fit">
                     <ReportAbuse type="store" id={store.id}>
                         <Button
                             type="button"

@@ -86,10 +86,11 @@ const Navbar = () => {
       {/* Mobile navigation */}
       <MobileNav />
 
-      {/* Desktop navigation — 1fr / 2fr / 1fr keeps the search bar centred in the
-          viewport regardless of how wide the logo or the action icons get. */}
+      {/* Desktop navigation — 1fr / 2fr / 1fr keeps the search bar centred. The side
+          columns never shrink below their content, so on narrow desktops the search
+          bar gives up width instead of the action icons sliding under it. */}
       <div className="container my-2 hidden min-[1100px]:block">
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-6">
+        <div className="grid grid-cols-[minmax(max-content,1fr)_minmax(0,2fr)_minmax(max-content,1fr)] items-center gap-4 xl:gap-6">
           <div className="flex justify-start">
             <Logo />
           </div>
