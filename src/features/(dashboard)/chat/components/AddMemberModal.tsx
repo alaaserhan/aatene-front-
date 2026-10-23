@@ -8,8 +8,9 @@ import {
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { usePreviousParticipants, useAddParticipant } from "../hooks";
-import { ParticipantData } from "../api";
+import { Participant, ParticipantData } from "../api";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { ParticipantAvatar } from "./ParticipantAvatar";
 
@@ -18,9 +19,10 @@ interface AddMemberModalProps {
     onClose: () => void;
     conversationId: number;
     ignoreCookie?: boolean;
+    members?: Participant[];
 }
 
-export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }: AddMemberModalProps) {
+export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie, members = [] }: AddMemberModalProps) {
     const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
 
     const { data: participantsData, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = usePreviousParticipants(ignoreCookie);
@@ -33,19 +35,29 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
         }
     };
 
+    const memberKeys = useMemo(
+        () => new Set(members.map((m) => `${m.participant_data.type}-${m.participant_data.id}`)),
+        [members]
+    );
+
     const uniqueParticipants = useMemo(() => {
         if (!participantsData?.pages) return [];
         const seen = new Set<string>();
-        return participantsData.pages.flatMap(p => p.participants).filter((p) => {
+        const unique = participantsData.pages.flatMap(p => p.participants).filter((p) => {
             const key = `${p.type}-${p.id}`;
             if (seen.has(key)) return false;
             seen.add(key);
             return true;
         });
-    }, [participantsData]);
+        // Addable people first; current members sink to the bottom of the list.
+        return unique.sort(
+            (a, b) => Number(memberKeys.has(`${a.type}-${a.id}`)) - Number(memberKeys.has(`${b.type}-${b.id}`))
+        );
+    }, [participantsData, memberKeys]);
 
     const handleSelectParticipant = (participant: ParticipantData) => {
         const key = `${participant.type}-${participant.id}`;
+        if (memberKeys.has(key)) return;
         setSelectedParticipant(key === selectedParticipant ? null : key);
     };
 
@@ -114,30 +126,43 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
                                     {uniqueParticipants.map((participant) => {
                                         const key = `${participant.type}-${participant.id}`;
                                         const isSelected = selectedParticipant === key;
+                                        const isMember = memberKeys.has(key);
                                         return (
                                             <div
                                                 key={key}
-                                                className="flex items-center  p-3 hover:bg-gray-50 cursor-pointer"
+                                                aria-disabled={isMember}
+                                                className={cn(
+                                                    "flex items-center p-3",
+                                                    isMember
+                                                        ? "bg-c2-neutral-50 cursor-not-allowed"
+                                                        : "hover:bg-gray-50 cursor-pointer"
+                                                )}
                                                 onClick={() => handleSelectParticipant(participant)}
                                             >
                                                 <div className="flex items-center gap-2">
-                                                    <div
-                                                        className={cn(
-                                                            "w-4 h-4 rounded-full border transition-colors flex items-center justify-center shrink-0",
-                                                            isSelected
-                                                                ? "border-blue-3"
-                                                                : "border-gray-300 group-hover:border-gray-400"
-                                                        )}
-                                                    >
-                                                        {isSelected && (
-                                                            <div className="w-2 h-2 rounded-full bg-blue-3" />
-                                                        )}
-                                                    </div>
+                                                    {isMember ? (
+                                                        <div className="w-4 h-4 rounded-full bg-c2-success flex items-center justify-center shrink-0">
+                                                            <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                                                        </div>
+                                                    ) : (
+                                                        <div
+                                                            className={cn(
+                                                                "w-4 h-4 rounded-full border transition-colors flex items-center justify-center shrink-0",
+                                                                isSelected
+                                                                    ? "border-blue-3"
+                                                                    : "border-gray-300 group-hover:border-gray-400"
+                                                            )}
+                                                        >
+                                                            {isSelected && (
+                                                                <div className="w-2 h-2 rounded-full bg-blue-3" />
+                                                            )}
+                                                        </div>
+                                                    )}
                                                     <ParticipantAvatar
                                                         src={participant.avatar}
                                                         alt={participant.name || ""}
                                                         size={40}
-                                                        className="bg-gray-200 shrink-0"
+                                                        className={cn("bg-gray-200 shrink-0", isMember && "opacity-60 grayscale")}
                                                         fallback={
                                                             <span className="text-gray-500 font-bold">
                                                                 {participant.name?.[0] || "U"}
@@ -146,10 +171,15 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
                                                     />
 
                                                 </div>
-                                                <div className="flex items-center  flex-1 ms-3 gap-3">
-                                                    <p className="font-medium text-sm ">
+                                                <div className="flex items-center justify-between flex-1 ms-3 gap-3 min-w-0">
+                                                    <p className={cn("font-medium text-sm truncate", isMember && "text-c2-neutral-500")}>
                                                         {participant.name}
                                                     </p>
+                                                    {isMember && (
+                                                        <span className="shrink-0 rounded-full bg-c2-green-100 text-c2-green-800 text-xs font-medium px-2.5 py-1">
+                                                            عضو في المجموعة
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                         );

@@ -849,6 +849,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                     onClose={() => setShowAddMemberModal(false)}
                     conversationId={conversation.id}
                     ignoreCookie={ignoreCookie}
+                    members={conversation.participants}
                 />
 
                 {/* Confirm Delete Modal */}
