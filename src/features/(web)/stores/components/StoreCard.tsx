@@ -38,7 +38,8 @@ const StoreCard = memo(({
     const coverFallbackSrc =
         primaryCover && !coverIsVideo && failedCoverUrl !== primaryCover ? primaryCover : null;
     const avatarSrc = store.logo_url ? logoSrc : coverFallbackSrc || logoSrc;
-    const rating = parseFloat(store.review_rate || "0");
+    const rating = parseFloat(store.review_rate || "0") || 0;
+    const hasRating = rating > 0;
     const [followOverride, setFollowOverride] = useState<boolean | null>(null);
     const followed = followOverride ?? Boolean(isFollowing || store.am_i_following);
 
@@ -119,10 +120,17 @@ const StoreCard = memo(({
                     </span>
                 </div>
 
-                <div className="inline-flex items-center justify-center gap-1 text-xs leading-4 text-gray-400 sm:gap-1.5 sm:text-sm" dir="rtl">
-                    <Star className="size-3.5 shrink-0 fill-amber-400 text-amber-400 sm:size-4" aria-hidden />
-                    <span className="translate-y-px font-medium tabular-nums leading-4">{rating.toFixed(1)}</span>
-                </div>
+                {hasRating ? (
+                    <div className="inline-flex items-center justify-center gap-1 text-xs leading-4 text-gray-400 sm:gap-1.5 sm:text-sm" dir="rtl">
+                        <Star className="size-3.5 shrink-0 fill-amber-400 text-amber-400 sm:size-4" aria-hidden />
+                        <span className="translate-y-px font-medium tabular-nums leading-4">{rating.toFixed(1)}</span>
+                    </div>
+                ) : (
+                    <div className="inline-flex items-center justify-center gap-1 text-xs leading-4 text-gray-400 sm:gap-1.5 sm:text-sm" dir="rtl">
+                        <Star className="size-3.5 shrink-0 text-gray-300 sm:size-4" aria-hidden />
+                        <span className="translate-y-px leading-4">لا توجد تقييمات</span>
+                    </div>
+                )}
             </div>
 
             <div className="w-full shrink-0 pt-2.5 sm:pt-3">
