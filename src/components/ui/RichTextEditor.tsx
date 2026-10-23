@@ -3,8 +3,9 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { cn } from "@/src/lib/utils";
-import { HelpCircle, X } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { Tooltip } from "@/src/components/ui/Tooltip";
+import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 
 interface RichTextEditorProps {
   value: string;
@@ -24,7 +25,6 @@ interface RichTextEditorProps {
 
 type ModalType = "link" | "table" | "color" | "hiliteColor" | null;
 
-// دالة مساعدة للتحقق من صحة الرابط
 const isValidUrl = (url: string) => {
   try {
     new URL(url);
@@ -63,7 +63,7 @@ export function RichTextEditor({
   }>({ bold: false, italic: false, underline: false });
 
   const [urlInput, setUrlInput] = useState("");
-  const [urlError, setUrlError] = useState(""); // حالة لرسالة خطأ الرابط
+  const [urlError, setUrlError] = useState("");
   const [textInput, setTextInput] = useState("");
   const [rowsInput, setRowsInput] = useState(2);
   const [colsInput, setColsInput] = useState(2);
@@ -135,7 +135,7 @@ export function RichTextEditor({
     setModalType(type);
 
     setUrlInput("");
-    setUrlError(""); // تصفير الخطأ عند الفتح
+    setUrlError("");
     setTextInput("");
     setRowsInput(2);
     setColsInput(2);
@@ -154,10 +154,9 @@ export function RichTextEditor({
     restoreSelection();
 
     if (modalType === "link") {
-      // التحقق من صحة الرابط
       if (!urlInput || !isValidUrl(urlInput)) {
         setUrlError("الرجاء إدخال رابط صحيح (مثال: https://example.com)");
-        return; // إيقاف العملية إذا كان الرابط غير صالح
+        return;
       }
 
       execCommand("createLink", urlInput);
@@ -374,26 +373,22 @@ export function RichTextEditor({
 
       {error && <p className="text-xs text-red-500">{error}</p>}
 
-      {modalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="text-lg font-bold ">
-                {modalType === "link" && "إضافة رابط"}
+      <Dialog open={modalOpen} onOpenChange={(open) => !open && closeModal()}>
+        <DialogContent
+          className="max-w-md gap-0 overflow-hidden p-0"
+          // Keep focus in the editor after inserting; returning it to the toolbar button drops the caret.
+          onCloseAutoFocus={(e) => e.preventDefault()}
+        >
+          <div className="px-6 py-4 border-b border-gray-100">
+            <DialogTitle className="text-lg font-bold">
+              {modalType === "link" && "إضافة رابط"}
+              {modalType === "table" && "إضافة جدول"}
+              {modalType === "color" && "لون النص"}
+              {modalType === "hiliteColor" && "لون الخلفية"}
+            </DialogTitle>
+          </div>
 
-                {modalType === "table" && "إضافة جدول"}
-                {modalType === "color" && "لون النص"}
-                {modalType === "hiliteColor" && "لون الخلفية"}
-              </h3>
-              <button
-                onClick={closeModal}
-                className="text-gray-2 hover:text-gray-2 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4">
               {modalType === "link" && (
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700 text-start">
@@ -404,7 +399,7 @@ export function RichTextEditor({
                     value={urlInput}
                     onChange={(e) => {
                       setUrlInput(e.target.value);
-                      if (urlError) setUrlError(""); // إخفاء الخطأ عند الكتابة
+                      if (urlError) setUrlError("");
                     }}
                     placeholder="https://example.com"
                     className={cn(
@@ -461,25 +456,26 @@ export function RichTextEditor({
                   </div>
                 </div>
               )}
-            </div>
-
-            <div className="px-6 py-4 bg-gray-50 flex items-center justify-between gap-3">
-              <button
-                onClick={handleModalSave}
-                className="px-6 py-2 bg-[#3A5779] text-white rounded-lg text-sm font-medium hover:bg-[#2c425e] transition-colors"
-              >
-                حفظ
-              </button>
-              <button
-                onClick={closeModal}
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
-              >
-                إلغاء
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+
+          <div className="px-6 py-4 bg-gray-50 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={handleModalSave}
+              className="px-6 py-2 bg-c2-primary text-white rounded-lg text-sm font-medium hover:bg-c2-navy-900 transition-colors"
+            >
+              حفظ
+            </button>
+            <button
+              type="button"
+              onClick={closeModal}
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
+            >
+              إلغاء
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <style jsx global>{`
         [contenteditable] blockquote {

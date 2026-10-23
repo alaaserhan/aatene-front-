@@ -13,6 +13,37 @@ export default function FaqPage() {
     const [openItems, setOpenItems] = useState<Set<number>>(new Set([0]));
     const [searchQuery, setSearchQuery] = useState("");
 
+    const tabsRef = useRef<HTMLDivElement>(null);
+    const [tabsOverflow, setTabsOverflow] = useState({ left: false, right: false });
+
+    // Physical edges: scrollLeft runs 0..max in LTR and -max..0 in RTL.
+    const updateTabsOverflow = useCallback(() => {
+        const el = tabsRef.current;
+        if (!el) return;
+        const max = el.scrollWidth - el.clientWidth;
+        const isRtl = getComputedStyle(el).direction === "rtl";
+        const fromLeft = isRtl ? max + el.scrollLeft : el.scrollLeft;
+        setTabsOverflow({ left: fromLeft > 1, right: max - fromLeft > 1 });
+    }, []);
+
+    useEffect(() => {
+        const el = tabsRef.current;
+        if (!el) return;
+        updateTabsOverflow();
+        const observer = new ResizeObserver(updateTabsOverflow);
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [updateTabsOverflow, faqsData.length]);
+
+    const scrollTabs = (direction: -1 | 1) => {
+        const el = tabsRef.current;
+        if (!el) return;
+        el.scrollBy({ left: direction * el.clientWidth * 0.7, behavior: "smooth" });
+    };
+
+    // Fades out whichever edge still has tabs hidden behind it.
+    const tabsMask = `linear-gradient(to right, ${tabsOverflow.left ? "transparent" : "#000"}, #000 56px, #000 calc(100% - 56px), ${tabsOverflow.right ? "transparent" : "#000"})`;
+
     const handleCategoryChange = (index: number) => {
         setActiveCategoryIndex(index);
         setOpenItems(new Set([0]));
@@ -74,19 +105,46 @@ export default function FaqPage() {
 
                 <div className="pb-24">
                     <div className="container mx-auto px-4 max-w-4xl">
-                        <div className="flex overflow-x-auto overscroll-x-contain justify-center-safe gap-3 mb-10 snap-x scroll-px-4 no-scrollbar">
-                            {faqsData.map((cat, index) => (
+                        <div className="relative mb-10">
+                            {tabsOverflow.left && (
                                 <button
-                                    key={index}
-                                    onClick={() => handleCategoryChange(index)}
-                                    className={`px-6 md:px-10 py-3 md:py-4 rounded-md cursor-pointer text-[15px] md:text-[16px] font-medium transition-colors whitespace-nowrap shrink-0 snap-start ${activeCategoryIndex === index
-                                        ? "bg-blue-4 text-white shadow-sm border border-transparent"
-                                        : "bg-white border border-gray-200 text-gray-2 hover:border-blue-4 hover:text-blue-4"
-                                        }`}
+                                    type="button"
+                                    aria-label="السابق"
+                                    onClick={() => scrollTabs(-1)}
+                                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 size-9 rounded-full bg-white border border-c2-neutral-200 text-c2-navy-700 shadow-md flex items-center justify-center cursor-pointer hover:bg-c2-neutral-50"
                                 >
-                                    {cat.title}
+                                    <ChevronLeft className="size-5" />
                                 </button>
-                            ))}
+                            )}
+                            {tabsOverflow.right && (
+                                <button
+                                    type="button"
+                                    aria-label="التالي"
+                                    onClick={() => scrollTabs(1)}
+                                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 size-9 rounded-full bg-white border border-c2-neutral-200 text-c2-navy-700 shadow-md flex items-center justify-center cursor-pointer hover:bg-c2-neutral-50"
+                                >
+                                    <ChevronRight className="size-5" />
+                                </button>
+                            )}
+                            <div
+                                ref={tabsRef}
+                                onScroll={updateTabsOverflow}
+                                style={{ maskImage: tabsMask, WebkitMaskImage: tabsMask }}
+                                className="flex overflow-x-auto overscroll-x-contain justify-center-safe gap-3 snap-x scroll-px-4 no-scrollbar"
+                            >
+                                {faqsData.map((cat, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleCategoryChange(index)}
+                                        className={`px-6 md:px-10 py-3 md:py-4 rounded-md cursor-pointer text-[15px] md:text-[16px] font-medium transition-colors whitespace-nowrap shrink-0 snap-start ${activeCategoryIndex === index
+                                            ? "bg-blue-4 text-white shadow-sm border border-transparent"
+                                            : "bg-white border border-gray-200 text-gray-2 hover:border-blue-4 hover:text-blue-4"
+                                            }`}
+                                    >
+                                        {cat.title}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         <div className="bg-white rounded-xl flex items-center gap-3 px-3 py-2.5 mb-10 ">

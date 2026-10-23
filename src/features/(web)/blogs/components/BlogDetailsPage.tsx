@@ -23,6 +23,7 @@ import {
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -362,16 +363,14 @@ export default function BlogDetailsPage() {
         <div className="container mx-auto px-4 my-4 md:my-6">
             {/* Header Section */}
             <div className="flex flex-col gap-3 mb-4">
-                {/* Breadcrumb */}
-                <div className="flex items-center gap-1 text-[16px]">
-                    <Link href="/" className="text-[#8e8e8e] hover:text-gray-700 transition-colors">
-                        الرئيسية
-                    </Link>
-                    <span className="text-[#717171]">/</span>
-                    <Link href="/blogs" className="text-[#717171] hover:text-gray-700 transition-colors">
-                        المقالات
-                    </Link>
-                </div>
+                <Breadcrumb
+                    className="ps-0 lg:ps-0 mb-0"
+                    items={[
+                        { label: "الرئيسية", href: "/" },
+                        { label: "المقالات", href: "/blogs" },
+                        { label: blog.title },
+                    ]}
+                />
 
                 {/* Title */}
                 <h1 className="text-2xl md:text-3xl font-medium text-black leading-[36px] md:leading-[56px] tracking-[-0.72px] text-right w-full">
