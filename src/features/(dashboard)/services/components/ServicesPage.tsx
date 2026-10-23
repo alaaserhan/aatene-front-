@@ -27,6 +27,8 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { ServiceGuide } from "./guide";
 
+const PAGE_SIZE = 10;
+
 export function ServicesPage({ storeId }: { storeId: number }) {
     const router = useRouter();
     const routeParams = useParams<{ locale?: string; type?: string }>();
@@ -104,57 +106,30 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     }
 
 
-    const approvedCountParams = useMemo(() => {
+    // Same param shape for the counts and the list, so the active tab's request is shared from the cache.
+    const buildServicesParams = (status: ServiceStatus) => {
         const params = new URLSearchParams();
         params.set("store_id", String(storeId));
-        params.set("status", "approved");
-        params.set("per_page", "1");
+        params.set("status", status);
         if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
-        if (searchQuery) params.set("title", searchQuery);
         return params;
-    }, [storeId, selectedSectionId, searchQuery]);
+    };
 
-    const pendingCountParams = useMemo(() => {
-        const params = new URLSearchParams();
-        params.set("store_id", String(storeId));
-        params.set("status", "pending");
-        params.set("per_page", "1");
-        if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
-        if (searchQuery) params.set("search", searchQuery);
-        return params;
-    }, [storeId, selectedSectionId, searchQuery]);
+    const { data: approvedData } = useGetServices(buildServicesParams("approved"));
+    const { data: pendingData } = useGetServices(buildServicesParams("pending"));
+    const { data: rejectedData } = useGetServices(buildServicesParams("rejected"));
+    const { data: servicesData, isLoading: isLoadingServices } = useGetServices(buildServicesParams(activeStatus));
 
-    const rejectedCountParams = useMemo(() => {
-        const params = new URLSearchParams();
-        params.set("store_id", String(storeId));
-        params.set("status", "rejected");
-        params.set("per_page", "1");
-        if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
-        if (searchQuery) params.set("search", searchQuery);
-        return params;
-    }, [storeId, selectedSectionId, searchQuery]);
+    // The endpoint returns the whole list, so search and pagination run client-side.
+    const filteredServices = useMemo(() => {
+        const allServices = servicesData?.data || [];
+        const query = searchQuery.trim().toLowerCase();
+        if (!query) return allServices;
+        return allServices.filter((service) => service.title?.toLowerCase().includes(query));
+    }, [servicesData?.data, searchQuery]);
 
-    const { data: approvedData } = useGetServices(approvedCountParams);
-    const { data: pendingData } = useGetServices(pendingCountParams);
-    const { data: rejectedData } = useGetServices(rejectedCountParams);
-
-
-    const servicesQueryParams = useMemo(() => {
-        const params = new URLSearchParams();
-        params.set("page", String(currentPage));
-        params.set("per_page", "10");
-
-        if (storeId) params.set("store_id", String(storeId));
-        if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
-        if (searchQuery) params.set("search", searchQuery);
-        if (activeStatus) params.set("status", activeStatus);
-
-        return params;
-    }, [storeId, selectedSectionId, searchQuery, currentPage, activeStatus]);
-
-    const { data: servicesData, isLoading: isLoadingServices } = useGetServices(servicesQueryParams);
-    const services = servicesData?.data || [];
-    const totalPages = Math.ceil((servicesData?.recordsFiltered || 0) / 10);
+    const totalPages = Math.ceil(filteredServices.length / PAGE_SIZE);
+    const services = filteredServices.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
     const { mutate: deleteService, isPending: isDeleting } = useDeleteService();
     const { mutate: updateShown } = useUpdateServiceShown();
@@ -231,7 +206,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     return (
         <div className="flex flex-col min-h-[calc(100vh-80px)]">
 
-            {/* ── Header أدمن: Breadcrumb + Avatar card ── */}
+            {/* Admin header: breadcrumb + owner card */}
             {userType === "admin" && (
                 <>
                     <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
@@ -265,7 +240,6 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                 </>
             )}
 
-            {/* ── Header تاجر ── */}
             {userType === "merchant" && !showGuide && (
                 <header className="mt-6 pb-0">
                     <div className="heading-card flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -294,7 +268,6 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                 </header>
             )}
 
-            {/* ── دليل المساعدة (للتاجر فقط) ── */}
             {userType === "merchant" && showGuide && (
                 <ServiceGuide
                     dashboardBase={dashboardBase}
@@ -303,7 +276,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                 />
             )}
 
-            {/* ── Main (مخفي عند عرض الدليل للتاجر) ── */}
+            {/* Hidden for merchants while the guide is open */}
             {(userType !== "merchant" || !showGuide) && (
                 <main className="flex-1">
                     <div className="my-6">
