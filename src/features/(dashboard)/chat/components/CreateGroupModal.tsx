@@ -12,6 +12,7 @@ import { usePreviousParticipants, useCreateConversation } from "../hooks";
 import { Conversation, ParticipantData } from "../api";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import { toast } from "sonner";
+import { SearchX, Users } from "lucide-react";
 import { ParticipantAvatar } from "./ParticipantAvatar";
 
 interface CreateGroupModalProps {
@@ -154,7 +155,23 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: C
                             {isLoading ? (
                                 <div className="p-4 text-center text-gray-500">جاري التحميل...</div>
                             ) : uniqueParticipants.length === 0 ? (
-                                <div className="p-4 text-center text-gray-500">لا يوجد مستخدمون</div>
+                                <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+                                    <div className="flex size-14 items-center justify-center rounded-full bg-c2-navy-50">
+                                        {debouncedSearchTerm ? (
+                                            <SearchX className="size-6 text-c2-navy-500" />
+                                        ) : (
+                                            <Users className="size-6 text-c2-navy-500" />
+                                        )}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-semibold text-c2-neutral-900">لا يوجد مستخدمون</p>
+                                        <p className="text-xs text-c2-neutral-500">
+                                            {debouncedSearchTerm
+                                                ? "لا توجد نتائج مطابقة لبحثك، جرّب كلمة أخرى."
+                                                : "سيظهر هنا المستخدمون الذين تواصلت معهم سابقًا."}
+                                        </p>
+                                    </div>
+                                </div>
                             ) : (
                                 <div>
                                     {uniqueParticipants.map((participant) => {
