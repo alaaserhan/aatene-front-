@@ -157,7 +157,6 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const [activeStoreId, setActiveStoreId] = useState<string | number | null>(null);
   const [storeType, setStoreType] = useState<string | null>(null);
   const [storeRole, setStoreRole] = useState<MerchantRole | null>(null);
-  const [storeSlug, setStoreSlug] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
 
@@ -167,7 +166,6 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     setActiveStoreId(Cookies.get("current_store_id") || null);
     setStoreType(Cookies.get("store_type") || null);
     setStoreRole((Cookies.get("store_role") as MerchantRole) || null);
-    setStoreSlug(Cookies.get("store_slug") || Cookies.get("current_store_id") || null);
 
     const handleStoreUpdate = () => {
       const newStoreId = Cookies.get("current_store_id") || null;
@@ -176,7 +174,6 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
       setActiveStoreId(newStoreId);
       setStoreType(newStoreType);
       setStoreRole(newStoreRole);
-      setStoreSlug(Cookies.get("store_slug") || newStoreId);
     };
 
 
@@ -627,9 +624,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                       {/* Action Links */}
                       <div className="space-y-2">
 
-                        {isMerchant && storeSlug && (
+                        {isMerchant && activeStoreId && (
                           <Link
-                            href={`/${lang}/stores/${storeSlug}`}
+                            href={`/${lang}${navPrefix}/stores/${activeStoreId}`}
                             onClick={() => setMobileMenuOpen(false)}
                             className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
                           >

@@ -233,8 +233,8 @@ export function DashboardUserMenu() {
                             {/* {isSegmentAllowedForRole(storeRole || undefined, "financial-record") && (
                                 <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label="السجل المالي" onClick={() => setIsOpen(false)} />
                             )} */}
-                            {activeStore?.slug && (
-                                <MenuItem href={`/${lang}/stores/${activeStore.slug}`} icon={Store} label="الذهاب للمتجر" onClick={() => setIsOpen(false)} />
+                            {activeStore && (
+                                <MenuItem href={`/${lang}/admin/stores/${activeStore.id}`} icon={Store} label="الذهاب للمتجر" onClick={() => setIsOpen(false)} />
                             )}
                             <MenuItem href={`/${lang}`} icon={Home} label="العودة للمنصة" onClick={() => setIsOpen(false)} />
 

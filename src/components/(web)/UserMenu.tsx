@@ -9,7 +9,6 @@ import Image from "next/image";
 import Cookies from "js-cookie";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useLogout } from "@/src/auth";
-import { STORE_SLUG_COOKIE } from "@/src/store-context";
 import { loginUrl } from "@/src/auth/links";
 
 interface UserMenuProps {
@@ -33,7 +32,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
       active ? "bg-primary/10 text-primary" : "bg-gray-100"
     }`;
 
-  const storeSlug = typeof window !== "undefined" ? Cookies.get(STORE_SLUG_COOKIE) || Cookies.get("current_store_id") : undefined;
+  const storeId = typeof window !== "undefined" ? Cookies.get("current_store_id") : undefined;
 
   const handleLinkClick = () => {
     setIsOpen(false);
@@ -218,9 +217,9 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             </Link>
           )}
 
-          {user.user_type === "merchant" && storeSlug && (
+          {user.user_type === "merchant" && storeId && (
             <Link
-              href={`/${lang}/stores/${storeSlug}`}
+              href={`/${lang}/admin/stores/${storeId}`}
               className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
               onClick={handleLinkClick}
             >
@@ -379,9 +378,9 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               </Link>
             )}
 
-            {user.user_type === "merchant" && storeSlug && (
+            {user.user_type === "merchant" && storeId && (
               <Link
-                href={`/${lang}/stores/${storeSlug}`}
+                href={`/${lang}/admin/stores/${storeId}`}
                 className="flex items-center gap-3 w-full py-2 px-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                 onClick={handleLinkClick}
               >
