@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, type MouseEvent } from "react";
+import { memo, useState, type MouseEvent } from "react";
 import { Service, getService } from "../api";
-import { cn, sanitizeMediaUrl } from "@/src/lib/utils";
+import { cn, isVideoFile, resolveImageSrc, sanitizeMediaUrl } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { Star, MapPin, User } from "lucide-react";
@@ -16,7 +16,7 @@ import { useOpenChat } from "@/src/hooks/use-open-chat";
 import { useLanguage } from "@/src/hooks/use-language";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
-import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
+import { HoverPlayVideo } from "@/src/components/ui/HoverPlayVideo";
 
 interface ServiceCardProps {
     service: Service;
@@ -30,7 +30,7 @@ function normalizeStoreId(v: number | string | undefined | null): number | null 
     return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-export default function ServiceCard({ service, className, onFavoriteClick }: ServiceCardProps) {
+function ServiceCard({ service, className, onFavoriteClick }: ServiceCardProps) {
     const router = useRouter();
     const lang = useLanguage();
     const qc = useQueryClient();
@@ -78,8 +78,12 @@ export default function ServiceCard({ service, className, onFavoriteClick }: Ser
     const serviceImage = sanitizeMediaUrl(
         service.image_url || service.images_urls?.[0] || ""
     );
+    const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+    const isVideoCover = isVideoFile(serviceImage);
     // `logo` is the raw storage path; `logo_url` is the absolute one the API exposes.
     const serviceLogoSrc = sanitizeMediaUrl(service.store?.logo_url || "");
+    // The link overlay covers the video, so the card reports hover on its behalf.
+    const [isHovered, setIsHovered] = useState(false);
 
     return (
         <article
@@ -88,21 +92,31 @@ export default function ServiceCard({ service, className, onFavoriteClick }: Ser
                 className
             )}
             dir="rtl"
+            onMouseEnter={isVideoCover ? () => setIsHovered(true) : undefined}
+            onMouseLeave={isVideoCover ? () => setIsHovered(false) : undefined}
         >
             <CompareCheckbox id={service.id} type="service" className={CARD_ACTION} />
 
             <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100">
-                {serviceImage ? (
-                    <VideoOrImage
+                {isVideoCover ? (
+                    <HoverPlayVideo
                         src={serviceImage}
-                        alt={service.title && !service.title.startsWith("http") ? service.title : "Service Image"}
+                        className="absolute inset-0"
+                        videoClassName="transition-transform duration-700 group-hover:scale-110"
+                        hovered={isHovered}
+                    />
+                ) : serviceImage ? (
+                    <Image
+                        src={resolveImageSrc(serviceImage, failedImageUrl, "product")}
+                        alt={service.title && !service.title.startsWith("http") ? service.title : "صورة الخدمة"}
                         fill
-                        thumb
+                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 320px"
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        onError={() => setFailedImageUrl(serviceImage)}
                     />
                 ) : (
                     <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                        <Image src="/images/placeholders/product-placeholder.svg" alt="Placeholder" width={100} height={100} className="opacity-40" />
+                        <Image src="/images/placeholders/product-placeholder.svg" alt="" width={100} height={100} className="opacity-40" />
                     </div>
                 )}
 
@@ -163,6 +177,7 @@ export default function ServiceCard({ service, className, onFavoriteClick }: Ser
                                     src={serviceLogoSrc}
                                     alt={providerName}
                                     fill
+                                    sizes="40px"
                                     className="object-cover"
                                     onError={() => setLogoError(true)}
                                 />
@@ -206,3 +221,5 @@ export default function ServiceCard({ service, className, onFavoriteClick }: Ser
         </article>
     );
 }
+
+export default memo(ServiceCard);
