@@ -14,8 +14,6 @@ import {
     Instagram,
     Youtube,
     User,
-    ChevronLeft,
-    ChevronRight,
 } from "lucide-react";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../hooks";
 import { ReviewItem, ReviewsSection, type ReviewSubmitPayload, type SharedReview } from "@/src/components/(web)/reviews";
@@ -32,6 +30,9 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/src/com
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import type { ChatTarget } from "@/src/lib/chat-links";
 import MobileCollapsibleSection from "@/src/features/(web)/product/components/MobileCollapsibleSection";
+import { getStorefrontOffer } from "@/src/features/(web)/product/storefront-offer";
+import { OfferBundlePreview } from "@/src/features/(dashboard)/related-products/components/OfferBundlePreview";
+import { isOfferShowable } from "@/src/features/(dashboard)/related-products/offer-pricing";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -324,38 +325,27 @@ function OrderOfferButton({ target, className }: { target: ChatTarget; className
 }
 
 function OfferCard({ product, storeId }: { product: ProductInPageData; storeId: number }) {
-    const crossSellProducts = product.crossSells || [];
-    const hasCrossSells = crossSellProducts.length > 0;
+    // Same reading, and the same bar, as the product page: a bundle without a
+    // positive price isn't an offer yet, so the product is shown on its own.
+    const offer = getStorefrontOffer(product);
+    const isBundle = isOfferShowable(offer);
     const imageUrl = sanitizeMediaUrl(product.cross_sells_image_url || product.cover) || "/images/placeholders/product-placeholder.webp";
     const [mainImageError, setMainImageError] = useState(false);
     const name = product.cross_sells_name || product.name || "اسم العرض";
     const desc = product.cross_sells_description || product.short_description || product.name || "";
 
-    const fallbackMainPrice = product.price_after_discount || product.price;
-    const fallbackOldPrice = product.price_after_discount && parseFloat(product.price) > parseFloat(product.price_after_discount)
+    // Without a bundle there is no offer total to show — only the product's own
+    // discount. The stored `cross_sells_*` prices would describe nothing on screen.
+    const mainPrice = product.price_after_discount || product.price;
+    const oldPrice = product.price_after_discount && parseFloat(product.price) > parseFloat(product.price_after_discount)
         ? product.price
         : (product.discount_present > 0 ? product.price : null);
-
-    const mainPrice = product.cross_sells_price || fallbackMainPrice;
-    const oldPrice = product.cross_sells_original_price || fallbackOldPrice;
-
-    // Pagination for cross-sell products (max 3 per page)
-    const PAGE_SIZE = 3;
-    const totalPages = Math.ceil(crossSellProducts.length / PAGE_SIZE);
-    const [page, setPage] = useState(0);
-    const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
-    const visibleProducts = crossSellProducts.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-
-    const originalTotal = hasCrossSells
-        ? crossSellProducts.reduce((sum, p) => sum + parseFloat(p.price || "0"), 0)
-        : null;
-    const savings = originalTotal !== null ? originalTotal - parseFloat(mainPrice) : null;
 
     const orderTarget: ChatTarget = {
         type: "store",
         id: storeId,
         productId: product.id,
-        bundleProductId: hasCrossSells ? product.id : undefined,
+        bundleProductId: isBundle ? product.id : undefined,
     };
 
     return (
@@ -376,87 +366,16 @@ function OfferCard({ product, storeId }: { product: ProductInPageData; storeId: 
 
 
             <div className="py-4">
-                {hasCrossSells ? (
-                    <div className="flex flex-col items-center gap-2">
-
-                        {/* Single row: right arrow + products + left arrow + "=" + price */}
-                        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-1.5 md:gap-3 w-full justify-center py-1">
-                            <div className="flex items-center gap-1.5 sm:gap-1.5 md:gap-3 justify-center overflow-x-auto no-scrollbar">
-
-                            {totalPages > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.preventDefault(); setPage((p) => Math.min(totalPages - 1, p + 1)); }}
-                                    disabled={page === totalPages - 1}
-                                    className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 cursor-pointer rounded-full bg-blue-3 flex items-center justify-center hover:bg-blue-4 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shadow-sm"
-                                    aria-label="التالي"
-                                >
-                                    <ChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
-                                </button>
-                            )}
-
-                            <div className="flex items-center gap-1 sm:gap-1.5 md:gap-4 shrink-0">
-                                {visibleProducts.map((item, index) => (
-                                    <div key={item.id} className="flex items-center gap-1 sm:gap-1.5 md:gap-4">
-                                        <Link href={`/products/${item.slug}`} className="flex flex-col items-center gap-0.5 sm:gap-1.5 w-[110px] sm:w-[110px] md:w-[180px] shrink-0 group/item">
-                                            <div className="mb-1 w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
-                                                <Image
-                                                    src={!item.cover || failedImages.has(item.id) ? "/images/placeholders/product-placeholder.webp" : item.cover}
-                                                    alt={item.name}
-                                                    width={180}
-                                                    height={180}
-                                                    className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
-                                                    onError={() => setFailedImages(prev => new Set(prev).add(item.id))}
-                                                />
-                                            </div>
-                                            <p className="text-xs sm:text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors">
-                                                {item.name}
-                                            </p>
-                                        </Link>
-                                        {index < visibleProducts.length - 1 && (
-                                            <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-400 shrink-0">+</span>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Left arrow sits before the "=" */}
-                            {totalPages > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.preventDefault(); setPage((p) => Math.max(0, p - 1)); }}
-                                    disabled={page === 0}
-                                    className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 cursor-pointer rounded-full bg-blue-3 flex items-center justify-center hover:bg-blue-4 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shadow-sm"
-                                    aria-label="السابق"
-                                >
-                                    <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
-                                </button>
-                            )}
-                            </div>
-
-                            <div className="flex items-center gap-1 sm:gap-2 md:gap-4 shrink-0">
-                                <span className="text-2xl sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
-                                <div className="flex flex-col items-center gap-0.5 shrink-0">
-                                    <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 whitespace-nowrap">
-                                        {formatPrice(mainPrice)}{" "}
-                                        <span className="text-sm sm:text-base font-medium">₪</span>
-                                    </span>
-                                    <span className="text-xs sm:text-xs text-black whitespace-nowrap">بدلاً من</span>
-                                    <span className="text-sm sm:text-sm text-black line-through whitespace-nowrap">
-                                        {formatPrice(originalTotal ?? parseFloat(oldPrice || mainPrice))} ₪
-                                    </span>
-                                    {savings !== null && savings > 0 && (
-                                        <span className="mt-0.5 text-xs sm:text-xs font-semibold text-red-1 whitespace-nowrap">
-                                            وفّر {formatPrice(savings)} ₪
-                                        </span>
-                                    )}
-                                    <OrderOfferButton target={orderTarget} className="mt-2" />
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
+                {isBundle ? (
+                    <OfferBundlePreview
+                        mainProduct={offer.mainProduct}
+                        relatedProducts={offer.relatedProducts}
+                        offerPrice={offer.offerPrice}
+                        showSavings
+                        mainLabel="المنتج"
+                        relatedLabel="المنتجات المرتبطة"
+                        action={<OrderOfferButton target={orderTarget} />}
+                    />
                 ) : (
 
                     <div className="flex flex-col-reverse sm:flex-row items-center gap-4">

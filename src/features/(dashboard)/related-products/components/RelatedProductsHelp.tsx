@@ -14,11 +14,8 @@ const RELATED_PRODUCTS: BundleProduct[] = [
     { name: "حذاء بكعب", price: 230, imageUrl: "/images/related-products/black-shoes.png" },
 ];
 
-const ORIGINAL_TOTAL = RELATED_PRODUCTS.reduce(
-    (total, product) => total + Number(product.price),
-    0
-);
-const OFFER_TOTAL = 420;
+/** Against an 870 ₪ total (320 + 180 + 140 + 230), which the preview sums itself. */
+const OFFER_TOTAL = 720;
 
 interface RelatedProductsHelpProps {
     className?: string;
@@ -67,7 +64,6 @@ export function RelatedProductsHelp({ className }: RelatedProductsHelpProps) {
                     <OfferBundlePreview
                         mainProduct={MAIN_PRODUCT}
                         relatedProducts={RELATED_PRODUCTS}
-                        originalPrice={ORIGINAL_TOTAL}
                         offerPrice={OFFER_TOTAL}
                     />
                 </div>

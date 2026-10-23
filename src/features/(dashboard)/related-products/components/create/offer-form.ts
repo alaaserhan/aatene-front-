@@ -1,5 +1,5 @@
 // src/features/(dashboard)/related-products/components/create/offer-form.ts
-import type { CrossSellItem } from "../../types";
+import type { OfferPricing } from "../../offer-pricing";
 
 export const OFFER_NAME_MAX_CHARS = 80;
 export const OFFER_DESCRIPTION_MAX_CHARS = 200;
@@ -23,16 +23,15 @@ export const EMPTY_OFFER_DRAFT: OfferDraft = {
     price: "",
 };
 
-/** The storefront sums the bundled products only — the main product is the anchor. */
-export function getOriginalTotal(products: CrossSellItem[]): number {
-    return products.reduce((total, product) => total + (Number(product.price) || 0), 0);
-}
-
-export function validateOfferDraft(draft: OfferDraft, originalTotal: number): OfferDraftErrors {
+/**
+ * `pricing` must be built from this draft's price (see `getDetailsPricing`).
+ * An offer is only valid when both of its prices are known and it really
+ * saves money — so nothing that passes here can render a wrong price.
+ */
+export function validateOfferDraft(draft: OfferDraft, pricing: OfferPricing): OfferDraftErrors {
     const errors: OfferDraftErrors = {};
     const name = draft.name.trim();
     const description = draft.description.trim();
-    const price = Number(draft.price);
 
     if (!name) {
         errors.name = "يرجى إدخال اسم العرض";
@@ -46,9 +45,13 @@ export function validateOfferDraft(draft: OfferDraft, originalTotal: number): Of
         errors.description = `يجب ألا يتجاوز وصف العرض ${OFFER_DESCRIPTION_MAX_CHARS} حرفًا`;
     }
 
-    if (!draft.price || !Number.isFinite(price) || price <= 0) {
+    if (pricing.offerPrice === null) {
         errors.price = "يرجى إدخال سعر مخفض صحيح";
-    } else if (originalTotal > 0 && price >= originalTotal) {
+    } else if (pricing.originalPrice === null) {
+        errors.price = `تعذّر حساب السعر الأصلي، هذه المنتجات بدون سعر: ${pricing.unpricedProducts
+            .map((product) => product.name)
+            .join("، ")}`;
+    } else if (pricing.savings === null) {
         errors.price = "يجب أن يكون السعر المخفض أقل من السعر الأصلي";
     }
 

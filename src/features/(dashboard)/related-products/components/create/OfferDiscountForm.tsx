@@ -4,8 +4,8 @@
 import { DatePicker } from "@/src/components/ui/DatePicker";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { formatPrice } from "@/src/lib/format-price";
-import type { CrossSellItem } from "../../types";
-import { OfferBundlePreview, type BundleProduct } from "../OfferBundlePreview";
+import type { OfferPricing } from "../../offer-pricing";
+import { OfferBundlePreview } from "../OfferBundlePreview";
 import {
     OFFER_DESCRIPTION_MAX_CHARS,
     OFFER_NAME_MAX_CHARS,
@@ -15,36 +15,34 @@ import {
 } from "./offer-form";
 
 interface OfferDiscountFormProps {
-    relatedProducts: CrossSellItem[];
-    originalTotal: number;
+    /** Built from the draft by the dialog — the same object it validates and saves. */
+    pricing: OfferPricing;
     draft: OfferDraft;
     errors: OfferDraftErrors;
     onChange: (patch: Partial<OfferDraft>) => void;
 }
 
-export function OfferDiscountForm({
-    relatedProducts,
-    originalTotal,
-    draft,
-    errors,
-    onChange,
-}: OfferDiscountFormProps) {
-    const discountedPrice = Number(draft.price) || 0;
-
-    const bundleProducts: BundleProduct[] = relatedProducts.map((product) => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        imageUrl: product.cover_url,
-    }));
+export function OfferDiscountForm({ pricing, draft, errors, onChange }: OfferDiscountFormProps) {
+    const { originalPrice } = pricing;
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between rounded-lg border border-c2-neutral-200 bg-c2-neutral-50 px-4 py-3">
-                <span className="text-sm text-c2-slate-600">السعر الأصلي</span>
-                <span className="text-xl font-bold text-c2-neutral-800">
-                    {formatPrice(originalTotal)} ₪
+                <span className="flex flex-col gap-0.5">
+                    <span className="text-sm text-c2-slate-600">السعر الأصلي</span>
+                    <span className="text-xs text-c2-neutral-500">
+                        المنتج مع المنتجات المرتبطة
+                    </span>
                 </span>
+                {originalPrice !== null ? (
+                    <span className="text-xl font-bold text-c2-neutral-800">
+                        {formatPrice(originalPrice)} ₪
+                    </span>
+                ) : (
+                    <span className="text-sm font-medium text-c2-danger">
+                        بعض المنتجات بدون سعر
+                    </span>
+                )}
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -54,7 +52,7 @@ export function OfferDiscountForm({
                     required
                     value={draft.price}
                     min={0.01}
-                    max={originalTotal > 0 ? Math.max(0, originalTotal - 0.01) : undefined}
+                    max={originalPrice !== null ? Math.max(0, originalPrice - 0.01) : undefined}
                     step="0.01"
                     onChange={(event) =>
                         onChange({ price: event.target.value.slice(0, OFFER_PRICE_MAX_LEN) })
@@ -105,16 +103,20 @@ export function OfferDiscountForm({
                 className="resize-y bg-white shadow-none focus:ring-0"
             />
 
-            {/* The same bundle preview the offers table shows, minus the main
-                product — it was picked back in step one and named in the footer. */}
+            {/* Compact, as on the product page: the framed variant's side-by-side
+                totals leave the bundle room for barely one card in this dialog. */}
             <div className="space-y-2">
                 <p className="text-sm text-c2-neutral-800">معاينة العرض</p>
                 <div className="min-w-0 rounded-lg border border-c2-neutral-200 bg-c2-neutral-50 p-4">
                     <OfferBundlePreview
-                        relatedProducts={bundleProducts}
-                        originalPrice={originalTotal}
-                        offerPrice={discountedPrice}
+                        mainProduct={pricing.mainProduct}
+                        relatedProducts={pricing.relatedProducts}
+                        offerPrice={pricing.offerPrice}
+                        missingPriceHint="أدخل السعر المخفض لمعاينة التوفير"
                         showSavings
+                        mainLabel="المنتج"
+                        relatedLabel="المنتجات المرتبطة"
+                        variant="compact"
                     />
                 </div>
             </div>

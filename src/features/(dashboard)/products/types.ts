@@ -32,7 +32,8 @@ export interface VariationRow {
   attributeValues: Record<string, string>;
   price: number;
   images: string[];
-  imageFileName: string;  // file_name للباكند (مسار نسبي)
+  /** The backend's `file_name` — a relative path. */
+  imageFileName: string;
   image_previews: string[];
   enabled: boolean;
 }
@@ -43,13 +44,14 @@ export interface Step3FormData {
   variations: VariationRow[];
 }
 
-// تعديل cover_url ليقبل string | null
 export interface RelatedProduct {
   id: number;
   name: string;
   cover_url: string | null;
   category_name: string;
   price: number;
+  /** Ask-for-price products can't join an offer — see `getOfferExclusion`. */
+  ask_for_price?: boolean;
 }
 
 export interface Step4FormData {

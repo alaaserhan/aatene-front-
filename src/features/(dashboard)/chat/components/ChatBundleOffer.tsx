@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { ChevronDown, Tags } from "lucide-react";
 import { OfferBundlePreview } from "@/src/features/(dashboard)/related-products/components/OfferBundlePreview";
+import { isOfferShowable } from "@/src/features/(dashboard)/related-products/offer-pricing";
 import { resolveCrossSellsCopy } from "@/src/features/(web)/product/components/CrossSellsSection";
+import { getStorefrontOffer } from "@/src/features/(web)/product/storefront-offer";
 import { useGetProductBySlug } from "@/src/features/(web)/product/hooks";
 import { formatPrice } from "@/src/lib/format-price";
-import { cn, sanitizeMediaUrl } from "@/src/lib/utils";
+import { cn } from "@/src/lib/utils";
 
 interface ChatBundleOfferProps {
     /** Slug of the conversation's linked product, used to load its offer. */
@@ -30,17 +32,13 @@ export function ChatBundleOffer({ slug, defaultOpen = false }: ChatBundleOfferPr
     const { data } = useGetProductBySlug(slug);
     const product = data?.product;
 
-    if (!product?.crossSells?.length) return null;
+    if (!product) return null;
 
-    const offerPrice = parseFloat(product.cross_sells_price || "0");
-    if (!Number.isFinite(offerPrice) || offerPrice <= 0) return null;
+    // Unlinked: following a card would leave the conversation.
+    const offer = getStorefrontOffer(product, { linkMain: false, linkRelated: false });
+    if (!isOfferShowable(offer)) return null;
 
     const { name, description } = resolveCrossSellsCopy(product);
-    const originalTotal = product.crossSells.reduce(
-        (sum, item) => sum + parseFloat(item.price || "0"),
-        0
-    );
-    const savings = originalTotal - offerPrice;
 
     return (
         <div className="border-b border-gray-100 bg-white px-4 py-2 shadow-sm">
@@ -56,11 +54,12 @@ export function ChatBundleOffer({ slug, defaultOpen = false }: ChatBundleOfferPr
                 </span>
                 <span className="ms-auto flex shrink-0 items-center gap-1.5">
                     <span className="text-xs font-bold whitespace-nowrap text-c2-primary">
-                        {formatPrice(offerPrice)} ₪
+                        {formatPrice(offer.offerPrice)} ₪
                     </span>
-                    {savings > 0 && (
+                    {/* Same rule as the preview: struck out only when it is a real saving. */}
+                    {offer.savings !== null && (
                         <span className="text-[10px] whitespace-nowrap text-c2-danger line-through">
-                            {formatPrice(originalTotal)} ₪
+                            {formatPrice(offer.originalPrice)} ₪
                         </span>
                     )}
                 </span>
@@ -80,14 +79,13 @@ export function ChatBundleOffer({ slug, defaultOpen = false }: ChatBundleOfferPr
                             {description}
                         </p>
                     )}
-                    {/* The summary line above already prices the offer. */}
+                    {/* The summary line above already prices the offer, and the
+                        product card above the thread already shows the main
+                        product — which still counts towards the total. */}
                     <OfferBundlePreview
-                        relatedProducts={product.crossSells.map((item) => ({
-                            id: item.id,
-                            name: item.name,
-                            price: item.price,
-                            imageUrl: sanitizeMediaUrl(item.cover),
-                        }))}
+                        mainProduct={offer.mainProduct}
+                        showMainProduct={false}
+                        relatedProducts={offer.relatedProducts}
                         showTotals={false}
                         variant="compact"
                     />

@@ -30,13 +30,20 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/src/components/ui/popover";
-import { Calendar } from "@/src/components/ui/calendar"; // تأكد من وجود هذا المكون أو قم بتثبيته عبر shadcn
+import { Calendar } from "@/src/components/ui/calendar";
 import { Stepper } from "@/src/components/ui/Stepper";
+import { OfferBundlePreview } from "@/src/features/(dashboard)/related-products/components/OfferBundlePreview";
+import {
+    getOfferExclusion,
+    getOfferItemPrice,
+    getOfferPricing,
+    type BundleProduct,
+} from "@/src/features/(dashboard)/related-products/offer-pricing";
 
-/** حدود حقول عرض الكوليكشن (cross-sells) — متوافقة مع التحقق في الـ API */
+/** Cross-sell offer field limits — match the API's validation. */
 const OFFER_NAME_MAX_CHARS = 80;
 const OFFER_DESCRIPTION_MAX_CHARS = 200;
-/** طول السعر كنص (منع إدخال غير معقول) */
+/** Guards against absurd price input lengths. */
 const DISCOUNT_PRICE_INPUT_MAX_LEN = 14;
 
 interface AddProductStep4Props {
@@ -304,6 +311,10 @@ export function AddProductStep4({
                                                         toast.error("يرجى اختيار منتجات لتطبيق الخصم عليها");
                                                         return;
                                                     }
+                                                    if (getOfferExclusion(previousData.price, previousData.ask_for_price)) {
+                                                        toast.error("لا يمكن إنشاء عرض لمنتج بدون سعر محدد، يرجى تحديد سعر المنتج أولًا");
+                                                        return;
+                                                    }
                                                     setIsDiscountModalOpen(true);
                                                 }}
                                                 className="w-full flex items-center justify-center gap-2 h-12 bg-blue-5 cursor-pointer border border-blue-3 text-blue-3 rounded-md text-sm font-medium hover:bg-blue-50 transition-colors"
@@ -366,6 +377,11 @@ export function AddProductStep4({
                 isOpen={isDiscountModalOpen}
                 onClose={() => setIsDiscountModalOpen(false)}
                 onConfirm={handleApplyDiscount}
+                mainProduct={{
+                    name: previousData.name,
+                    price: getOfferItemPrice(previousData.price, previousData.ask_for_price),
+                    imageUrl: previousData.cover_preview,
+                }}
                 selectedProducts={formData.crossSellsData.filter(p => selectedInListIds.includes(p.id))}
                 initialPrice={formData.cross_sells_price}
                 initialDate={formData.cross_sells_due_date}
@@ -382,6 +398,8 @@ interface DiscountModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: (price: number, date: Date, name: string, description: string) => void;
+    /** The product being created or edited — the offer's anchor, priced into its total. */
+    mainProduct: BundleProduct;
     selectedProducts: RelatedProduct[];
     initialPrice?: number;
     initialDate?: string;
@@ -393,6 +411,7 @@ function DiscountModal({
     isOpen,
     onClose,
     onConfirm,
+    mainProduct,
     selectedProducts,
     initialPrice,
     initialDate,
@@ -410,7 +429,18 @@ function DiscountModal({
         description?: string;
     }>({});
 
-    const totalOriginalPrice = selectedProducts.reduce((sum, p) => sum + Number(p.price), 0);
+    // The same pricing the related-products wizard and every offer preview use.
+    const pricing = getOfferPricing(
+        mainProduct,
+        selectedProducts.map((product) => ({
+            id: product.id,
+            name: product.name,
+            price: getOfferItemPrice(product.price, product.ask_for_price),
+            imageUrl: product.cover_url,
+        })),
+        price
+    );
+    const { originalPrice } = pricing;
 
     useEffect(() => {
         if (!isOpen) return;
@@ -422,13 +452,16 @@ function DiscountModal({
     }, [isOpen, initialPrice, initialDate, initialName, initialDescription]);
 
     const handleConfirm = () => {
-        const numPrice = Number(price);
         const newErrors: { price?: string; date?: string; name?: string; description?: string } = {};
 
-        if (!numPrice || numPrice <= 0) {
+        if (pricing.offerPrice === null) {
             newErrors.price = "يرجى إدخال سعر خصم صحيح";
-        } else if (numPrice >= totalOriginalPrice) {
-            newErrors.price = "يجب ان يكون السعر المخفض اقل من السعر الاصلي";
+        } else if (pricing.originalPrice === null) {
+            newErrors.price = `تعذّر حساب السعر الأصلي، هذه المنتجات بدون سعر: ${pricing.unpricedProducts
+                .map((product) => product.name)
+                .join("، ")}`;
+        } else if (pricing.savings === null) {
+            newErrors.price = "يجب أن يكون السعر المخفض أقل من السعر الأصلي";
         }
         if (!date) {
             newErrors.date = "يرجى اختيار تاريخ انتهاء الخصم";
@@ -451,8 +484,8 @@ function DiscountModal({
             return;
         }
 
-        if (!date) return;
-        onConfirm(numPrice, date, nameTrim, descTrim);
+        if (!date || pricing.offerPrice === null) return;
+        onConfirm(pricing.offerPrice, date, nameTrim, descTrim);
     };
 
     return (
@@ -471,13 +504,22 @@ function DiscountModal({
                 <div className="px-4 sm:px-8 py-4 overflow-y-auto flex-1 hide-scrollbar">
                     {/* Original Price Display */}
                     <div className="flex flex-col items-start mb-6 sm:mb-8 gap-2">
-                        <p className="text-sm  font-medium">السعر الاصلي</p>
-                        <div className="flex items-center gap-2" dir="ltr">
-                            <span className="text-4xl font-normal">₪</span>
-                            <span className="text-5xl font-medium tracking-tight">
-                                {formatPrice(totalOriginalPrice)}
-                            </span>
-                        </div>
+                        <p className="text-sm font-medium">السعر الأصلي</p>
+                        <p className="text-xs text-c2-neutral-500">المنتج مع المنتجات المرتبطة</p>
+                        {originalPrice !== null ? (
+                            <div className="flex items-center gap-2" dir="ltr">
+                                <span className="text-4xl font-normal">₪</span>
+                                <span className="text-5xl font-medium tracking-tight">
+                                    {formatPrice(originalPrice)}
+                                </span>
+                            </div>
+                        ) : (
+                            <p className="text-sm font-medium text-c2-danger">
+                                {`بعض المنتجات بدون سعر: ${pricing.unpricedProducts
+                                    .map((product) => product.name)
+                                    .join("، ")}`}
+                            </p>
+                        )}
                     </div>
 
                     {/* Inputs Grid */}
@@ -491,7 +533,7 @@ function DiscountModal({
                                 required
                                 value={price}
                                 min={0.01}
-                                max={totalOriginalPrice > 0 ? Math.max(0, totalOriginalPrice - 0.01) : undefined}
+                                max={originalPrice !== null ? Math.max(0, originalPrice - 0.01) : undefined}
                                 step="0.01"
                                 onChange={(e) => {
                                     let v = e.target.value;
@@ -605,49 +647,20 @@ function DiscountModal({
                             />
                         </div>
 
-                        {/* معاينة العرض */}
-                        <div className="space-y-2 col-span-2">
-                            <label className="text-sm font-medium mb-2 block">
-                                معاينة العرض
-                            </label>
-                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                <div className="flex items-center gap-3 flex-wrap">
-                                    {selectedProducts.map((product, idx) => (
-                                        <div key={product.id} className="flex items-center gap-2">
-                                            <div className="flex flex-col items-center gap-1">
-                                                <div className="relative w-12 h-12 rounded-md overflow-hidden bg-white border border-gray-200">
-                                                    {product.cover_url ? (
-                                                        <VideoOrImage
-                                                            src={product.cover_url}
-                                                            alt={product.name}
-                                                            fill
-                                                            thumb
-                                                            className=""
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                                            <ImageIcon className="w-3 h-3" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <p className="text-[10px] text-center text-gray-600 line-clamp-1 max-w-[48px]">{product.name}</p>
-                                            </div>
-                                            {idx < selectedProducts.length - 1 && (
-                                                <span className="text-gray-400 font-bold text-sm">+</span>
-                                            )}
-                                        </div>
-                                    ))}
-                                    {selectedProducts.length > 0 && (
-                                        <>
-                                            <span className="text-gray-400 font-bold text-sm mx-2">=</span>
-                                            <div className="flex items-center gap-1">
-                                                <span className="text-lg font-bold text-brand-black-1">{formatPrice(price || 0)}</span>
-                                                <span className="text-sm text-gray-500">₪</span>
-                                                <span className="text-xs text-red-400 line-through mr-2">{formatPrice(totalOriginalPrice)} ₪</span>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
+                        {/* The shared preview, as in the related-products wizard. */}
+                        <div className="min-w-0 space-y-2 sm:col-span-2">
+                            <p className="text-sm font-medium">معاينة العرض</p>
+                            <div className="min-w-0 rounded-lg border border-c2-neutral-200 bg-c2-neutral-50 p-4">
+                                <OfferBundlePreview
+                                    mainProduct={pricing.mainProduct}
+                                    relatedProducts={pricing.relatedProducts}
+                                    offerPrice={pricing.offerPrice}
+                                    missingPriceHint="أدخل السعر المخفض لمعاينة التوفير"
+                                    showSavings
+                                    mainLabel="المنتج"
+                                    relatedLabel="المنتجات المرتبطة"
+                                    variant="compact"
+                                />
                             </div>
                         </div>
 

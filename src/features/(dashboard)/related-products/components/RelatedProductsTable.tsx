@@ -13,6 +13,7 @@ import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { formatDate } from "@/src/lib/date-helper";
 import { formatPrice } from "@/src/lib/format-price";
+import { useOfferDetails } from "../hooks";
 import { getOfferItemsCount, type CrossSellingOffer } from "../types";
 
 interface RelatedProductsTableProps {
@@ -37,6 +38,47 @@ const COLUMNS = [
     "الحالة",
     "الاجراءات",
 ];
+
+/**
+ * The price before the offer, summed from the offer's products as they are
+ * priced today — the list row only counts the bundled products, so each row
+ * loads its offer's detail (cached with the preview and edit dialogs). The
+ * stored `offer_original_price` is never shown: it can be stale or leave the
+ * main product out. When the total can't be known, the cell says so.
+ */
+function OriginalPriceCell({ offer }: { offer: CrossSellingOffer }) {
+    const { pricing, isLoading } = useOfferDetails(offer);
+    const originalPrice = pricing?.originalPrice ?? null;
+
+    if (isLoading) {
+        return (
+            <td className="px-6 py-4">
+                <Loader2 className="mx-auto size-4 animate-spin text-c2-neutral-500" />
+            </td>
+        );
+    }
+
+    if (originalPrice === null) {
+        return (
+            <td
+                className="whitespace-nowrap px-6 py-4 text-center text-xs text-c2-danger"
+                title={
+                    pricing?.unpricedProducts.length
+                        ? pricing.unpricedProducts.map((product) => product.name).join("، ")
+                        : undefined
+                }
+            >
+                {pricing ? "منتج بدون سعر" : "تعذّر حساب السعر"}
+            </td>
+        );
+    }
+
+    return (
+        <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-c2-neutral-500 line-through">
+            {formatPrice(originalPrice)} ₪
+        </td>
+    );
+}
 
 export function RelatedProductsTable({
     offers,
@@ -120,10 +162,7 @@ export function RelatedProductsTable({
                                     {getOfferItemsCount(offer)}
                                 </td>
 
-                                {/* Price before the offer */}
-                                <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-c2-neutral-500 line-through">
-                                    {formatPrice(offer.offer_original_price)} ₪
-                                </td>
+                                <OriginalPriceCell offer={offer} />
 
                                 {/* Price after the offer */}
                                 <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-semibold text-c2-primary">

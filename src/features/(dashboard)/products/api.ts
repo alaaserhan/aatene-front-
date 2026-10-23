@@ -46,6 +46,7 @@ export interface CrossSellProduct {
   price: string | number;
   cover_url: string | null;
   category_name?: string; // Added to match frontend usage
+  ask_for_price?: boolean | number | null;
 }
 
 export interface Product {
@@ -241,7 +242,7 @@ export interface GenerateAIResponse {
 export const generateProductAI = async (
   payload: { title: string; description: string; type: string }
 ): Promise<GenerateAIResponse> => {
-  /** n8n قد يُرجع شكلًا متداخلًا أو JSON كنص — نفس تطبيع مسار المتاجر */
+  /** n8n may return a nested shape or JSON as a string — normalized the same way as the stores flow. */
   const { data } = await api.post<unknown>(
     "https://auto.mosaady.com/webhook/932942c7-8bb9-4793-9fae-8468d0b2de32",
     payload,

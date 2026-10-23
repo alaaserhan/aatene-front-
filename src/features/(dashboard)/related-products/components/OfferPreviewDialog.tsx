@@ -8,11 +8,9 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/src/components/ui/dialog";
-import { useGetSingleProduct } from "@/src/features/(dashboard)/products/hooks";
-import { useCrossSellingOffer } from "../hooks";
-import { toOfferDetails } from "../offer-details";
+import { useOfferDetails } from "../hooks";
 import type { CrossSellingOffer } from "../types";
-import { OfferBundlePreview, type BundleProduct } from "./OfferBundlePreview";
+import { OfferBundlePreview } from "./OfferBundlePreview";
 
 interface OfferPreviewDialogProps {
     /** The table row to preview — `null` keeps the dialog closed. */
@@ -22,31 +20,9 @@ interface OfferPreviewDialogProps {
 
 /** Read-only look at one offer, the way the customer meets it on the product page. */
 export function OfferPreviewDialog({ offer, onOpenChange }: OfferPreviewDialogProps) {
-    const { data, isLoading } = useCrossSellingOffer(offer?.id);
-
-    // The offer endpoints describe the main product without a price of its own,
-    // and `offer_original_price` only sums the bundled ones — so the product's
-    // own record is where the preview gets it from. An offer's id is that
-    // product's id, see `CrossSellingOffer.id`.
-    const { data: product } = useGetSingleProduct(offer?.id);
-
     // The row already carries the offer's own fields, so the header fills in
-    // while the bundled products are still loading.
-    const details = toOfferDetails(data, offer);
-
-    const mainProduct: BundleProduct = {
-        id: details?.mainProduct?.id,
-        name: details?.mainProduct?.name || offer?.product_name || "",
-        price: details?.mainProduct?.price ?? product?.data?.price,
-        imageUrl: details?.mainProduct?.cover_url || offer?.product_cover_url,
-    };
-
-    const relatedProducts: BundleProduct[] = (details?.relatedProducts ?? []).map((product) => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        imageUrl: product.cover_url,
-    }));
+    // while the products are still loading.
+    const { details, pricing, isLoading } = useOfferDetails(offer);
 
     return (
         <Dialog open={!!offer} onOpenChange={onOpenChange}>
@@ -74,17 +50,16 @@ export function OfferPreviewDialog({ offer, onOpenChange }: OfferPreviewDialogPr
                         <div className="flex min-h-60 items-center justify-center">
                             <Loader2 className="size-7 animate-spin text-c2-primary" />
                         </div>
-                    ) : relatedProducts.length === 0 ? (
+                    ) : !pricing || pricing.relatedProducts.length === 0 ? (
                         <p className="mt-8 text-center text-sm text-c2-slate-600">
                             لا توجد منتجات مرتبطة بهذا العرض
                         </p>
                     ) : (
                         <OfferBundlePreview
                             className="mt-6"
-                            mainProduct={mainProduct}
-                            relatedProducts={relatedProducts}
-                            originalPrice={details?.originalPrice}
-                            offerPrice={details?.price}
+                            mainProduct={pricing.mainProduct}
+                            relatedProducts={pricing.relatedProducts}
+                            offerPrice={pricing.offerPrice}
                             mainLabel="المنتج"
                             relatedLabel="المنتجات المرتبطة"
                         />

@@ -17,6 +17,11 @@ import {
   DialogFooter,
 } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
+import {
+  getOfferExclusion,
+  OFFER_EXCLUSION_LABELS,
+} from "@/src/features/(dashboard)/related-products/offer-pricing";
+import { normalizeAskForPrice } from "@/src/lib/normalizeAskForPrice";
 
 interface SelectProductsModalProps {
   isOpen: boolean;
@@ -34,7 +39,6 @@ export function SelectProductsModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [localSelectedIds, setLocalSelectedIds] = useState<number[]>(selectedIds);
 
-  // تحديث الحالة المحلية عند فتح المودال
   useEffect(() => {
     if (isOpen) {
       setLocalSelectedIds(selectedIds);
@@ -80,10 +84,10 @@ export function SelectProductsModal({
     }
   };
 
-  const handleToggleProduct = (productId: number) => {
+  const handleToggleProduct = (productId: number, isBlocked: boolean) => {
     if (localSelectedIds.includes(productId)) {
       setLocalSelectedIds(localSelectedIds.filter((id) => id !== productId));
-    } else {
+    } else if (!isBlocked) {
       setLocalSelectedIds([...localSelectedIds, productId]);
     }
   };
@@ -97,6 +101,7 @@ export function SelectProductsModal({
         cover_url: p.cover_url,
         category_name: p.category?.name || "",
         price: Number(p.price) || 0,
+        ask_for_price: normalizeAskForPrice(p.ask_for_price) === true,
       }));
 
     onSelect(selectedProducts);
@@ -150,17 +155,23 @@ export function SelectProductsModal({
               <div className="space-y-2">
                 {products.map((product) => {
                   const isSelected = localSelectedIds.includes(product.id);
-                  // const isDisabled = selectedIds.includes(product.id); // Optional: if you want to lock pre-selected
+                  // Related products become the offer, which an ask-for-price or
+                  // unpriced product can't join. One already selected can still be removed.
+                  const exclusion = getOfferExclusion(product.price, product.ask_for_price);
+                  const isBlocked = !!exclusion && !isSelected;
 
                   return (
                     <div
                       key={product.id}
-                      onClick={() => handleToggleProduct(product.id)}
+                      onClick={() => handleToggleProduct(product.id, !!exclusion)}
+                      aria-disabled={isBlocked}
+                      title={isBlocked ? "لا يمكن إضافة منتج بدون سعر محدد إلى العرض" : undefined}
                       className={cn(
                         "flex items-center justify-between p-3 rounded-xs cursor-pointer transition-all border-b border-gray-100 last:border-0",
                         isSelected
                           ? "bg-blue-5 "
-                          : "bg-white"
+                          : "bg-white",
+                        isBlocked && "cursor-not-allowed opacity-50"
                       )}
                     >
                       {/* Right Side: Checkbox + Image + Info */}
@@ -209,10 +220,16 @@ export function SelectProductsModal({
 
                       {/* Left Side: Price */}
                       <div className="text-left pl-2">
-                        <div className="text-sm font-bold text-gray-1  flex items-center gap-1">
-                          <span>{formatPrice(product.price)}</span>
-                          <span className="text-xl mb-1">₪</span>
-                        </div>
+                        {exclusion ? (
+                          <span className="text-xs text-c2-danger">
+                            {OFFER_EXCLUSION_LABELS[exclusion]}
+                          </span>
+                        ) : (
+                          <div className="text-sm font-bold text-gray-1  flex items-center gap-1">
+                            <span>{formatPrice(product.price)}</span>
+                            <span className="text-xl mb-1">₪</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );

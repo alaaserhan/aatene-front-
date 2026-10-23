@@ -16,16 +16,16 @@ import { Stepper } from "@/src/components/ui/Stepper";
 import { cn } from "@/src/lib/utils";
 import {
     useCreateCrossSellingOffer,
-    useCrossSellingOffer,
+    useOfferDetails,
     useUpdateCrossSellingOffer,
 } from "../../hooks";
-import { toOfferDetails } from "../../offer-details";
+import { getDetailsPricing } from "../../offer-details";
+import { parseOfferPrice } from "../../offer-pricing";
 import type { CrossSellItem, CrossSellingOffer } from "../../types";
 import { OfferDiscountForm } from "./OfferDiscountForm";
 import { ProductPicker } from "./ProductPicker";
 import {
     EMPTY_OFFER_DRAFT,
-    getOriginalTotal,
     toDueDateTime,
     validateOfferDraft,
     type OfferDraft,
@@ -56,33 +56,37 @@ export function OfferFormDialog({ open, onOpenChange, offer = null }: OfferFormD
     const [draft, setDraft] = useState<OfferDraft>(EMPTY_OFFER_DRAFT);
     const [errors, setErrors] = useState<OfferDraftErrors>({});
 
-    const { data: details, isLoading: isLoadingDetails } = useCrossSellingOffer(
-        open && isEdit ? offer.id : undefined
-    );
+    // Shared with the table and the preview dialog, main-price fallback included.
+    const {
+        details,
+        hasRecord,
+        isLoading: isLoadingDetails,
+    } = useOfferDetails(offer, { enabled: open && isEdit, verifyMainProduct: true });
     const { mutate: createOffer, isPending: isCreating } = useCreateCrossSellingOffer();
     const { mutate: updateOffer, isPending: isUpdating } = useUpdateCrossSellingOffer();
 
     const isPending = isCreating || isUpdating;
-    const originalTotal = getOriginalTotal(relatedProducts);
+    // The same pricing the preview renders, so what is validated and saved is
+    // exactly what the merchant sees.
+    const pricing = mainProduct[0]
+        ? getDetailsPricing(mainProduct[0], relatedProducts, draft.price)
+        : null;
 
-    // Fill the form once the offer being edited comes back. Adjusting state
-    // while rendering — not in an effect — keeps it to a single render pass.
+    // Fill the form once the offer being edited — and its main product's price,
+    // if that had to be fetched separately — comes back. Adjusting state while
+    // rendering, not in an effect, keeps it to a single render pass.
     const [prefilledOfferId, setPrefilledOfferId] = useState<number | null>(null);
 
-    if (open && isEdit && details && prefilledOfferId !== offer.id) {
-        const values = toOfferDetails(details, offer);
+    if (open && isEdit && hasRecord && !isLoadingDetails && details && prefilledOfferId !== offer.id) {
         setPrefilledOfferId(offer.id);
-
-        if (values) {
-            setMainProduct(values.mainProduct ? [values.mainProduct] : []);
-            setRelatedProducts(values.relatedProducts);
-            setDraft({
-                name: values.name,
-                description: values.description,
-                dueDate: values.dueDate,
-                price: values.price,
-            });
-        }
+        setMainProduct(details.mainProduct ? [details.mainProduct] : []);
+        setRelatedProducts(details.relatedProducts);
+        setDraft({
+            name: details.name,
+            description: details.description,
+            dueDate: details.dueDate,
+            price: details.price,
+        });
     }
 
     const resetAndClose = () => {
@@ -110,6 +114,10 @@ export function OfferFormDialog({ open, onOpenChange, offer = null }: OfferFormD
                 toast.error("يرجى اختيار المنتج الأساسي");
                 return;
             }
+            if (parseOfferPrice(mainProduct[0].price) === null) {
+                toast.error("لا يمكن إنشاء عرض لمنتج بدون سعر، يرجى اختيار منتج له سعر");
+                return;
+            }
             setStep(2);
             return;
         }
@@ -119,22 +127,36 @@ export function OfferFormDialog({ open, onOpenChange, offer = null }: OfferFormD
                 toast.error("يرجى اختيار منتج مرتبط واحد على الأقل");
                 return;
             }
+            const unpriced = relatedProducts.filter(
+                (product) => parseOfferPrice(product.price) === null
+            );
+            if (unpriced.length > 0) {
+                toast.error(
+                    `لا يمكن إضافة منتجات بدون سعر إلى العرض: ${unpriced
+                        .map((product) => product.name)
+                        .join("، ")}`
+                );
+                return;
+            }
             setStep(3);
             return;
         }
 
-        const validationErrors = validateOfferDraft(draft, originalTotal);
+        if (!pricing) return;
+
+        const validationErrors = validateOfferDraft(draft, pricing);
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         }
 
+        // validateOfferDraft guarantees both prices are known past this point.
         const payload = {
             product_id: mainProduct[0].id,
             cross_sells_name: draft.name.trim(),
             cross_sells_description: draft.description.trim(),
-            cross_sells_price: Number(draft.price),
-            cross_sells_original_price: originalTotal,
+            cross_sells_price: pricing.offerPrice!,
+            cross_sells_original_price: pricing.originalPrice!,
             cross_sells_due_date: toDueDateTime(draft.dueDate),
             cross_sells_status: "active" as const,
             cross_sell_ids: relatedProducts.map((product) => product.id),
@@ -203,10 +225,9 @@ export function OfferFormDialog({ open, onOpenChange, offer = null }: OfferFormD
                                 />
                             )}
 
-                            {step === LAST_STEP && (
+                            {step === LAST_STEP && pricing && (
                                 <OfferDiscountForm
-                                    relatedProducts={relatedProducts}
-                                    originalTotal={originalTotal}
+                                    pricing={pricing}
                                     draft={draft}
                                     errors={errors}
                                     onChange={handleDraftChange}
@@ -236,7 +257,7 @@ export function OfferFormDialog({ open, onOpenChange, offer = null }: OfferFormD
                         <Button
                             type="button"
                             className="h-10 gap-2 bg-c2-primary px-8 text-white"
-                            disabled={isPending}
+                            disabled={isPending || isLoadingDetails}
                             onClick={handleNext}
                         >
                             {isPending && <Loader2 className="size-4 animate-spin" />}

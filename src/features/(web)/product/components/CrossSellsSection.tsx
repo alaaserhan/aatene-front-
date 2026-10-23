@@ -2,9 +2,10 @@
 
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import { OfferBundlePreview } from "@/src/features/(dashboard)/related-products/components/OfferBundlePreview";
+import { isOfferShowable } from "@/src/features/(dashboard)/related-products/offer-pricing";
 import type { ChatTarget } from "@/src/lib/chat-links";
-import { sanitizeMediaUrl } from "@/src/lib/utils";
 import { Product } from "../api";
+import { getStorefrontOffer } from "../storefront-offer";
 
 function firstStringField(source: Record<string, unknown>, keys: string[]) {
     for (const key of keys) {
@@ -35,8 +36,8 @@ export function resolveCrossSellsCopy(product: Product) {
 }
 
 interface CrossSellsSectionProps {
-    crossSells: Product[];
-    crossSellsPrice: string;
+    /** The page's own product: the offer's anchor, its `crossSells` and its price. */
+    product: Product;
     crossSellsName?: string;
     crossSellsDescription?: string;
     /**
@@ -49,23 +50,19 @@ interface CrossSellsSectionProps {
 }
 
 /**
- * The bundle offer as one of the product info cards beside the gallery. The
- * anchor product is the page itself, so the preview is rendered without its
- * main product — only the bundled ones and the discounted total.
+ * The bundle offer as one of the product info cards beside the gallery: the
+ * page's own product as the anchor, then the bundled ones and their
+ * discounted total. Only the anchor's card isn't a link — it is this page.
  */
 export default function CrossSellsSection({
-    crossSells,
-    crossSellsPrice,
+    product,
     crossSellsName,
     crossSellsDescription,
     orderTarget,
     className,
 }: CrossSellsSectionProps) {
-    if (crossSells.length === 0 || !crossSellsPrice || parseFloat(crossSellsPrice) <= 0) {
-        return null;
-    }
-
-    const originalTotal = crossSells.reduce((sum, p) => sum + parseFloat(p.price || "0"), 0);
+    const offer = getStorefrontOffer(product, { linkMain: false });
+    if (!isOfferShowable(offer)) return null;
 
     return (
         <div className={className}>
@@ -81,14 +78,11 @@ export default function CrossSellsSection({
             {/* min-w-0 so the bundle box, not the card, absorbs any shortfall. */}
             <div className="mt-4 min-w-0">
                 <OfferBundlePreview
-                    relatedProducts={crossSells.map((product) => ({
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        imageUrl: sanitizeMediaUrl(product.cover),
-                    }))}
-                    originalPrice={originalTotal}
-                    offerPrice={crossSellsPrice}
+                    mainProduct={offer.mainProduct}
+                    relatedProducts={offer.relatedProducts}
+                    mainLabel="المنتج"
+                    relatedLabel="المنتجات المرتبطة"
+                    offerPrice={offer.offerPrice}
                     showSavings
                     visibleCount={3}
                     variant="compact"

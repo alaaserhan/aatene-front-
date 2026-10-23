@@ -10,6 +10,11 @@ import { formatPrice } from "@/src/lib/format-price";
 import { cn } from "@/src/lib/utils";
 import { useInfiniteGetProducts } from "../../../products/hooks";
 import type { Product } from "../../../products/api";
+import {
+    getOfferExclusion,
+    getOfferItemPrice,
+    OFFER_EXCLUSION_LABELS,
+} from "../../offer-pricing";
 import type { CrossSellItem } from "../../types";
 
 const PER_PAGE = 10;
@@ -27,7 +32,8 @@ const toCrossSellItem = (product: Product): CrossSellItem => ({
     id: product.id,
     name: product.name,
     sku: product.sku,
-    price: product.price ?? 0,
+    // Unknown or ask-for-price stays null, never 0 — such products can't be picked.
+    price: getOfferItemPrice(product.price, product.ask_for_price),
     cover_url: product.cover_url,
     category_name: product.category?.name || product.category_name || "",
 });
@@ -59,6 +65,10 @@ export function ProductPicker({ mode, selected, onChange, excludeIds = [] }: Pro
 
     const handleToggle = (product: Product) => {
         const item = toCrossSellItem(product);
+        const isSelected = selected.some((current) => current.id === item.id);
+        // Excluded products can still be unticked — an offer saved before the
+        // rule may already hold one — but never ticked.
+        if (!isSelected && getOfferExclusion(product.price, product.ask_for_price)) return;
 
         if (mode === "single") {
             onChange(selected[0]?.id === item.id ? [] : [item]);
@@ -101,17 +111,22 @@ export function ProductPicker({ mode, selected, onChange, excludeIds = [] }: Pro
                     <div className="space-y-1.5">
                         {products.map((product) => {
                             const isSelected = selected.some((current) => current.id === product.id);
+                            const exclusion = getOfferExclusion(product.price, product.ask_for_price);
+                            const isBlocked = !!exclusion && !isSelected;
 
                             return (
                                 <button
                                     type="button"
                                     key={product.id}
                                     onClick={() => handleToggle(product)}
+                                    disabled={isBlocked}
+                                    title={isBlocked ? "لا يمكن إضافة منتج بدون سعر محدد إلى العرض" : undefined}
                                     className={cn(
                                         "flex w-full items-center justify-between gap-3 rounded-lg border p-2.5 text-start transition-colors",
                                         isSelected
                                             ? "border-c2-navy-500 bg-c2-navy-700-a08"
-                                            : "border-transparent bg-white hover:bg-c2-neutral-50"
+                                            : "border-transparent bg-white hover:bg-c2-neutral-50",
+                                        isBlocked && "cursor-not-allowed opacity-50 hover:bg-white"
                                     )}
                                 >
                                     <div className="flex min-w-0 items-center gap-3">
@@ -161,9 +176,15 @@ export function ProductPicker({ mode, selected, onChange, excludeIds = [] }: Pro
                                         </span>
                                     </div>
 
-                                    <span className="shrink-0 text-sm font-bold text-c2-neutral-800">
-                                        {formatPrice(product.price)} ₪
-                                    </span>
+                                    {exclusion ? (
+                                        <span className="shrink-0 text-xs text-c2-danger">
+                                            {OFFER_EXCLUSION_LABELS[exclusion]}
+                                        </span>
+                                    ) : (
+                                        <span className="shrink-0 text-sm font-bold text-c2-neutral-800">
+                                            {formatPrice(product.price)} ₪
+                                        </span>
+                                    )}
                                 </button>
                             );
                         })}

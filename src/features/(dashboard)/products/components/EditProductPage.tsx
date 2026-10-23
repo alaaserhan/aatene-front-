@@ -20,6 +20,7 @@ import { ProductFormAccordion } from "./sections/ProductFormAccordion";
 import { ProductKeywordsField } from "./sections/ProductKeywordsField";
 import { ProductSectionField } from "./sections/ProductSectionField";
 import { ProductSubmitBar } from "./sections/ProductSubmitBar";
+import { normalizeAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import {
   ProductVariationsFields,
   validateProductVariations,
@@ -214,6 +215,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             cover_url: cs.cover_url,
             category_name: cs.category_name || "",
             price: Number(cs.price) || 0,
+            ask_for_price: normalizeAskForPrice(cs.ask_for_price) === true,
           })
         );
 

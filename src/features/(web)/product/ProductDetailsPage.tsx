@@ -56,23 +56,20 @@ export default function ProductDetailsPage() {
                     product={product}
                     store={store}
                     attributes={attributes}
+                    // Renders nothing unless the product carries a showable offer.
                     crossSells={
-                        product.crossSells &&
-                        product.crossSells.length > 0 && (
-                            <CrossSellsSection
-                                crossSells={product.crossSells}
-                                crossSellsPrice={product.cross_sells_price}
-                                crossSellsName={crossSellsCopy.name}
-                                crossSellsDescription={crossSellsCopy.description}
-                                orderTarget={{
-                                    type: "store",
-                                    id: store.id,
-                                    productId: product.id,
-                                    bundleProductId: product.id,
-                                }}
-                                className="white-card mb-6"
-                            />
-                        )
+                        <CrossSellsSection
+                            product={product}
+                            crossSellsName={crossSellsCopy.name}
+                            crossSellsDescription={crossSellsCopy.description}
+                            orderTarget={{
+                                type: "store",
+                                id: store.id,
+                                productId: product.id,
+                                bundleProductId: product.id,
+                            }}
+                            className="white-card mb-6"
+                        />
                     }
                     shipping={
                         <ShippingPolicies

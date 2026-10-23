@@ -10,10 +10,12 @@ import {
     type CSSProperties,
     type ReactNode,
 } from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { formatPrice } from "@/src/lib/format-price";
 import { cn } from "@/src/lib/utils";
+import { getOfferPricing, parseOfferPrice, type BundleProduct } from "../offer-pricing";
 
 /** Fallback step when no card has been measured yet — one card plus its gap. */
 const FALLBACK_SCROLL_STEP = 152;
@@ -25,24 +27,25 @@ const FALLBACK_SCROLL_STEP = 152;
 const EDGE_TOLERANCE = 2;
 
 /**
- * The track's own metrics, in rem, mirroring the classes below: a `md:w-36`
- * card, the `w-4` plus sign between two cards, the `gap-2` between every pair
- * of children, and the frame's `md:px-5`. They exist so the box can be capped
- * at a card count instead of waiting for its container to run out of room.
- *
- * They only govern the desktop row — on mobile the box takes the full width it
- * is given and is swiped instead.
- */
-/**
  * A group caption's own height — the `text-sm` line box plus its `mb-2` — so
  * the totals can be pushed down by exactly what a caption adds above the box.
  */
 const LABEL_HEIGHT = "1.75rem";
 
+/**
+ * The track's own metrics, in rem, mirroring the classes below: a `md:w-36`
+ * card, the `w-4` plus sign between two cards, the `gap-2` between every pair
+ * of children (the edge spacers included), and the frame's `md:px-3`. They
+ * exist so the box can be capped at a card count instead of waiting for its
+ * container to run out of room.
+ *
+ * They only govern the desktop row — on mobile the box takes the full width it
+ * is given and is swiped instead.
+ */
 const CARD_REM = 9;
 const PLUS_REM = 1;
 const GAP_REM = 0.5;
-const BOX_PADDING_REM = 1.25;
+const BOX_PADDING_REM = 0.75;
 
 
 /**
@@ -69,7 +72,8 @@ function trackWidth(visible: number): string {
     const rem =
         visible * CARD_REM +
         (visible - 1) * PLUS_REM +
-        (2 * visible - 2) * GAP_REM +
+        // Between card and plus sign, plus one at each end before the spacers.
+        (2 * visible - 2 + 2) * GAP_REM +
         2 * BOX_PADDING_REM;
 
     return `calc(${rem}rem + 2px)`;
@@ -83,23 +87,31 @@ function trackWidth(visible: number): string {
  */
 export type BundleVariant = "default" | "compact";
 
-export interface BundleProduct {
-    id?: number | string;
-    name: string;
-    price?: string | number | null;
-    imageUrl?: string | null;
-}
+export type { BundleProduct };
 
 interface OfferBundlePreviewProps {
     /**
-     * The product the offer hangs on. Optional: screens that already name it
-     * elsewhere — the offer form, where it was picked two steps earlier — show
-     * the bundle and its price on their own.
+     * The product the offer hangs on. Required: its price is part of the
+     * "before" total, so a preview without it would understate that total.
      */
-    mainProduct?: BundleProduct | null;
-    relatedProducts: BundleProduct[];
-    originalPrice?: string | number | null;
+    mainProduct: BundleProduct;
+    /**
+     * Leaves the main product's card out while still pricing it in — for a
+     * host that shows that product right above, like the chat header.
+     */
+    showMainProduct?: boolean;
+    relatedProducts: (BundleProduct | null | undefined)[];
+    /**
+     * The "before" total is deliberately not a prop: it is computed here, by
+     * `getOfferPricing`, from the very products this preview renders.
+     */
     offerPrice?: string | number | null;
+    /**
+     * Shown under the original price while `offerPrice` is still empty — for
+     * the offer form, before the merchant has typed one. Without an offer price
+     * the original one stands as the total instead of a struck-out "0 ₪".
+     */
+    missingPriceHint?: string;
     /** Adds a "وفّر ..." chip next to the total whenever the offer saves money. */
     showSavings?: boolean;
     /** Optional captions over each group — the help sample labels them with its steps instead. */
@@ -139,15 +151,26 @@ function ProductPhoto({ product, className }: { product: BundleProduct; classNam
     );
 }
 
+/** Stretched over the whole card, so the photo and caption keep their own markup. */
+function CardLink({ product }: { product: BundleProduct }) {
+    if (!product.href) return null;
+
+    return <Link href={product.href} aria-label={product.name} className="absolute inset-0" />;
+}
+
 function ProductCaption({ product, className }: { product: BundleProduct; className?: string }) {
+    // Parsed exactly as the total parses it, so a card never prints a price
+    // ("0 ₪", say) that the total treats as unknown.
+    const price = parseOfferPrice(product.price);
+
     return (
         <figcaption className={className}>
             <p className="truncate text-[11px] leading-tight text-c2-neutral-500 md:text-xs">
                 {product.name}
             </p>
-            {product.price != null && product.price !== "" && (
+            {price !== null && (
                 <p className="mt-1 truncate text-xs leading-tight font-semibold text-c2-primary">
-                    {formatPrice(product.price)} ₪
+                    {formatPrice(price)} ₪
                 </p>
             )}
         </figcaption>
@@ -156,11 +179,11 @@ function ProductCaption({ product, className }: { product: BundleProduct; classN
 
 /**
  * Two cards fill the mobile track exactly: the width left over once the plus
- * sign (`w-4`) and the two `gap-2`s around it are taken out, halved. Percentages
- * resolve against the scroller's own content box, so this holds at every phone
- * width without a media query per size.
+ * sign (`w-4`), the two `gap-2`s around it and the `gap-2` before each edge
+ * spacer are taken out, halved. Percentages resolve against the scroller's own
+ * content box, so this holds at every phone width without a media query per size.
  */
-const MOBILE_CARD_WIDTH = "w-[calc((100%_-_2rem)/2)]";
+const MOBILE_CARD_WIDTH = "w-[calc((100%_-_3rem)/2)]";
 
 /** One bundled product inside the box: a photo over its name and price. */
 function BundleCard({ product, variant }: { product: BundleProduct; variant: BundleVariant }) {
@@ -169,14 +192,16 @@ function BundleCard({ product, variant }: { product: BundleProduct; variant: Bun
     return (
         <figure
             data-bundle-card
-            // The last card snaps by its end edge: snapping every card by its
-            // start leaves the final resting point short of the real scroll
-            // end, so the track would never report itself as finished.
+            // The scroll margin matches the track's gap, so a card snaps with
+            // that gap in view before it — the first one lands exactly on the
+            // leading spacer's snap point at 0. The track's ends snap to the
+            // spacers, see the scroller.
             className={cn(
-                "flex shrink-0 snap-start flex-col overflow-hidden rounded-lg border bg-white last:snap-end",
+                "relative flex shrink-0 snap-start flex-col overflow-hidden rounded-lg border bg-white",
                 isCompact
-                    ? "w-25 border-c2-primary"
-                    : cn("border-c2-neutral-200 sm:w-32 md:w-36", MOBILE_CARD_WIDTH)
+                    ? "w-25 scroll-ms-1 border-c2-primary"
+                    : cn("scroll-ms-2 border-c2-neutral-200 sm:w-32 md:w-36", MOBILE_CARD_WIDTH),
+                product.href && !isCompact && "transition-colors hover:border-c2-primary"
             )}
         >
             <ProductPhoto product={product} className={isCompact ? "h-20 w-full" : "h-23 w-full"} />
@@ -184,27 +209,44 @@ function BundleCard({ product, variant }: { product: BundleProduct; variant: Bun
                 product={product}
                 className={isCompact ? "px-1.5 pt-1 pb-1.5" : "px-2 pt-1.5 pb-2"}
             />
+            <CardLink product={product} />
         </figure>
     );
 }
 
 /**
- * The main product, which sits outside the dashed box and carries no frame. It
- * is a full-width row on mobile — a column of one card there would waste the
- * width and push the bundle off the first screen — and the familiar card from
- * md up, where its photo lines up with the box's top edge.
+ * The main product, which sits outside the bundle. It is a full-width row on
+ * mobile — a column of one card there would waste the width and push the
+ * bundle off the first screen — and a card from md up. In the default variant
+ * that card carries no frame and its photo lines up with the dashed box's top
+ * edge; in compact it matches the bundled cards' size, outlined in neutral so
+ * it doesn't read as one of them.
  */
-function MainProductCard({ product }: { product: BundleProduct }) {
+function MainProductCard({ product, variant }: { product: BundleProduct; variant: BundleVariant }) {
+    const isCompact = variant === "compact";
+
     return (
-        <figure className="flex w-full items-center gap-3 overflow-hidden rounded-lg md:w-36 md:flex-col md:items-stretch md:gap-0">
+        <figure
+            className={cn(
+                "relative flex w-full items-center gap-3 overflow-hidden rounded-lg md:flex-col md:items-stretch md:gap-0",
+                isCompact ? "md:w-25 md:border md:border-c2-neutral-200 md:bg-white" : "md:w-36"
+            )}
+        >
             <ProductPhoto
                 product={product}
-                className={cn("size-16 rounded-lg md:w-full md:rounded-none", MAIN_PHOTO_HEIGHT)}
+                className={cn(
+                    "size-16 rounded-lg md:w-full md:rounded-none",
+                    isCompact ? "md:h-20" : MAIN_PHOTO_HEIGHT
+                )}
             />
             <ProductCaption
                 product={product}
-                className="min-w-0 flex-1 md:flex-none md:px-2 md:pt-1.5 md:pb-2"
+                className={cn(
+                    "min-w-0 flex-1 md:flex-none",
+                    isCompact ? "md:px-1.5 md:pt-1 md:pb-1.5" : "md:px-2 md:pt-1.5 md:pb-2"
+                )}
             />
+            <CardLink product={product} />
         </figure>
     );
 }
@@ -270,9 +312,10 @@ function SliderArrow({
  */
 export function OfferBundlePreview({
     mainProduct,
-    relatedProducts,
-    originalPrice,
-    offerPrice,
+    showMainProduct = true,
+    relatedProducts: relatedProductsInput,
+    offerPrice: offerPriceInput,
+    missingPriceHint,
     showSavings = false,
     mainLabel,
     relatedLabel,
@@ -282,8 +325,17 @@ export function OfferBundlePreview({
     action,
     className,
 }: OfferBundlePreviewProps) {
-    const savings = Number(originalPrice) - Number(offerPrice);
-    const hasSavings = showSavings && Number.isFinite(savings) && savings > 0;
+    const { relatedProducts, originalPrice, offerPrice, savings } = getOfferPricing(
+        mainProduct,
+        relatedProductsInput,
+        offerPriceInput
+    );
+    // The "before" price is only struck out when there really is a saving: an
+    // unknown total, or one at or below the offer (a product got cheaper after
+    // the offer was set), must never be shown as the price it replaced.
+    const showOriginal = savings !== null;
+    // Before an offer price exists the original total stands in as the price.
+    const headlinePrice = offerPrice ?? originalPrice;
     const hasLabels = Boolean(mainLabel || relatedLabel);
     const isCompact = variant === "compact";
 
@@ -340,28 +392,45 @@ export function OfferBundlePreview({
         <div
             style={{ "--bundle-label-height": LABEL_HEIGHT } as CSSProperties}
             className={cn(
-                "flex w-full max-w-full min-w-0 flex-col gap-3 md:flex-row md:items-stretch",
+                "flex w-full max-w-full min-w-0 flex-col gap-3 md:flex-row md:items-stretch md:justify-center",
                 // Compact keeps every gap tight so the cards get the width.
                 isCompact ? "md:gap-2" : "md:gap-6",
                 className
             )}
         >
-            {/* min-w-0 so the bundle box, not the page, absorbs any shortfall. */}
+            {/* Sized to its content rather than stretched over the row: a
+                stretched group left the box wider than its cards, or a gap
+                between the box and the "=", whenever the row had room to spare.
+                min-w-0 so the bundle box, not the page, absorbs any shortfall. */}
             <div
                 className={cn(
-                    "flex min-w-0 flex-col gap-3 md:flex-1 md:flex-row md:items-stretch",
+                    "flex min-w-0 flex-col gap-3 md:flex-initial md:flex-row md:items-stretch",
                     isCompact ? "md:gap-2" : "md:gap-6"
                 )}
             >
-                {/* No "+" joins the main product to the box: the offer prices the
-                    bundled products only, the main one is just the anchor. */}
-                {mainProduct && (
-                    <div className="flex min-w-0 flex-col md:shrink-0">
-                        {mainLabel && <GroupLabel>{mainLabel}</GroupLabel>}
-                        {/* Top-aligned: both labels are the same height, so the photo
-                            below starts level with the dashed box's own top edge. */}
-                        <MainProductCard product={mainProduct} />
-                    </div>
+                {/* The offer prices the main product together with the bundled
+                    ones, so a "+" joins it to the box like any other term. */}
+                {showMainProduct && (
+                    <>
+                        <div className="flex min-w-0 flex-col md:shrink-0">
+                            {mainLabel && <GroupLabel>{mainLabel}</GroupLabel>}
+                            {/* Top-aligned: both labels are the same height, so the photo
+                                below starts level with the dashed box's own top edge. */}
+                            <MainProductCard product={mainProduct} variant={variant} />
+                        </div>
+
+                        <span
+                            aria-hidden="true"
+                            className={cn(
+                                "shrink-0 self-center font-bold text-c2-primary",
+                                isCompact ? "text-base" : "text-xl",
+                                // Centred on the box, not on the box plus its caption.
+                                hasLabels && "md:mt-(--bundle-label-height)"
+                            )}
+                        >
+                            +
+                        </span>
+                    </>
                 )}
 
                 {/* Capped at `visibleCount` cards from md up, so the fourth product
@@ -397,20 +466,17 @@ export function OfferBundlePreview({
                             </SliderArrow>
                         )}
 
-                        {/* The padding lives on the frame, not on the scroller: a
-                            scroller's own inline-end padding collapses once the
-                            content overflows, which left the last card flush
-                            against the border. Inset like this both sides hold. */}
+                        {/* The outer inset is the frame's padding plus the gap
+                            before each edge spacer inside the scroller. Never a
+                            margin on the outer cards: a card's own margin shifts
+                            its snap position, and the track then rests a few
+                            pixels past its start for good. */}
                         <div
                             className={cn(
                                 "h-full rounded-xl",
                                 isCompact
-                                    // Padding on the frame, never a margin on the
-                                    // outer cards: a card's own margin shifts its
-                                    // snap position, and the track then rests a
-                                    // few pixels past its start for good.
-                                    ? "min-w-0 flex-1 px-1"
-                                    : "border border-dashed border-c2-primary px-4 py-3 md:px-5"
+                                    ? "min-w-0 flex-1"
+                                    : "border border-dashed border-c2-primary px-2 py-3 md:px-3"
                             )}
                         >
                             <div
@@ -424,6 +490,18 @@ export function OfferBundlePreview({
                                     isCompact ? "gap-1" : "gap-2"
                                 )}
                             >
+                                {/* Zero-width edge spacers: the gap beside each
+                                    keeps the outer cards a few pixels inside the
+                                    scroller's clip edge. Flush against it, the
+                                    last card lost its end border whenever the
+                                    track stopped a fraction of a pixel short of
+                                    its true end. They are also the track's exact
+                                    start and end snap points, so it always comes
+                                    to rest at 0 and at the real scroll end. (A
+                                    scroller's own inline-end padding is no
+                                    substitute: it collapses once the content
+                                    overflows.) */}
+                                <span aria-hidden="true" className="w-0 shrink-0 snap-start self-stretch" />
                                 {relatedProducts.map((product, index) => (
                                     <Fragment key={product.id ?? product.name}>
                                         {index > 0 && (
@@ -439,6 +517,7 @@ export function OfferBundlePreview({
                                         <BundleCard product={product} variant={variant} />
                                     </Fragment>
                                 ))}
+                                <span aria-hidden="true" className="w-0 shrink-0 snap-end self-stretch" />
                             </div>
                         </div>
 
@@ -497,7 +576,9 @@ export function OfferBundlePreview({
             {showTotals && (
             <div
                 className={cn(
-                    "flex min-w-0 shrink flex-wrap items-center justify-center gap-x-3 gap-y-1",
+                    // The bundle group is the one that gives up width on the
+                    // row; the prices keep theirs.
+                    "flex min-w-0 shrink flex-wrap items-center justify-center gap-x-3 gap-y-1 md:shrink-0",
                     // The totals sit level with the box itself, not with the
                     // column that carries a caption above it — otherwise the "="
                     // lands half a caption higher than the slider arrows.
@@ -522,17 +603,29 @@ export function OfferBundlePreview({
                         )}
                     >
                         <span className="text-xl font-bold whitespace-nowrap text-c2-navy-900 md:text-2xl">
-                            {formatPrice(offerPrice)} ₪
+                            {headlinePrice !== null ? `${formatPrice(headlinePrice)} ₪` : "—"}
                         </span>
-                        {isCompact && (
-                            <span className="text-xs whitespace-nowrap text-c2-neutral-500">
-                                بدلاً من
-                            </span>
+                        {offerPrice !== null ? (
+                            showOriginal && (
+                                <>
+                                    {isCompact && (
+                                        <span className="text-xs whitespace-nowrap text-c2-neutral-500">
+                                            بدلاً من
+                                        </span>
+                                    )}
+                                    <span className="text-sm whitespace-nowrap text-c2-danger line-through">
+                                        {formatPrice(originalPrice)} ₪
+                                    </span>
+                                </>
+                            )
+                        ) : (
+                            missingPriceHint && (
+                                <span className="max-w-40 text-center text-xs text-c2-neutral-500">
+                                    {missingPriceHint}
+                                </span>
+                            )
                         )}
-                        <span className="text-sm whitespace-nowrap text-c2-danger line-through">
-                            {formatPrice(originalPrice)} ₪
-                        </span>
-                        {hasSavings && (
+                        {showSavings && savings !== null && (
                             <span className="text-xs font-semibold whitespace-nowrap text-c2-danger">
                                 وفّر {formatPrice(savings)} ₪
                             </span>

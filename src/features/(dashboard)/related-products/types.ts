@@ -34,7 +34,10 @@ export interface CrossSellingOffer {
     offer_image_url?: string | null;
     /** Bundle price after the discount. */
     offer_price?: string | number | null;
-    /** Summed price of the bundled products before the discount. */
+    /**
+     * Summed price before the discount: main product plus the bundled ones
+     * since that rule changed, the bundled ones only on older offers.
+     */
     offer_original_price?: string | number | null;
     /** "yyyy-MM-dd". */
     offer_due_date?: string | null;
@@ -49,9 +52,10 @@ export interface CrossSellingOffer {
     product_cover?: string | null;
     product_cover_url?: string | null;
     /**
-     * The main product's own price. It is not part of `offer_original_price`,
-     * which sums the bundled products only, and older responses may omit it —
-     * the preview then shows the product without a price.
+     * The main product's own price. Offers saved before the "before" total
+     * included it have an `offer_original_price` without it, so screens sum
+     * the total themselves. Older responses may omit it — the preview then
+     * falls back to the product's own record.
      */
     product_price?: string | number | null;
     product_price_after_discount?: string | number | null;

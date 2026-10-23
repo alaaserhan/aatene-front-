@@ -31,7 +31,13 @@ import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/follo
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
-import { OfferBundlePreview, type BundleProduct } from "@/src/features/(dashboard)/related-products/components/OfferBundlePreview";
+import { OfferBundlePreview } from "@/src/features/(dashboard)/related-products/components/OfferBundlePreview";
+import {
+    getOfferItemPrice,
+    getOfferPricing,
+    isOfferShowable,
+    type BundleProduct,
+} from "@/src/features/(dashboard)/related-products/offer-pricing";
 
 export default function ProductViewPage() {
     const params = useParams();
@@ -260,18 +266,19 @@ export default function ProductViewPage() {
         })
     );
 
-    // The offer bundles the cross-sold products only — the main product is the
-    // anchor, so its price stays out of the "before" total.
+    const bundleMainProduct: BundleProduct = {
+        id: raw.id,
+        name: raw.name,
+        price: getOfferItemPrice(raw.price, raw.ask_for_price),
+        imageUrl: coverUrl,
+    };
     const bundleProducts: BundleProduct[] = (raw.crossSells || []).map((crossSell) => ({
         id: crossSell.id,
         name: crossSell.name,
         price: crossSell.price,
         imageUrl: crossSell.cover_url,
     }));
-    const bundleOriginalPrice = bundleProducts.reduce(
-        (total, product) => total + (Number(product.price) || 0),
-        0
-    );
+    const bundlePricing = getOfferPricing(bundleMainProduct, bundleProducts, raw.cross_sells_price);
 
     const conditionLabel: Record<string, string> = {
         new: "جديد",
@@ -501,7 +508,7 @@ export default function ProductViewPage() {
                             </div>
 
                             {/* Offers & Discounts — the cross-selling bundle as the customer meets it */}
-                            {bundleProducts.length > 0 && (
+                            {isOfferShowable(bundlePricing) && (
                                 <div className="mt-10 pt-8">
                                     <h3 className="text-lg font-bold mb-6 text-[#1e3a52] text-right">العروض والتخفيضات</h3>
                                     {raw.cross_sells_name && (
@@ -509,17 +516,14 @@ export default function ProductViewPage() {
                                             {raw.cross_sells_name}
                                         </h4>
                                     )}
-                                    {/* min-w-0 so the bundle box, not the card, absorbs any
-                                        shortfall; w-fit from md up because the preview's own
-                                        row would otherwise stretch to the card's full width
-                                        and strand the total far from the capped bundle box. */}
-                                    <div className="min-w-0 md:mx-auto md:w-fit">
-                                        {/* No mainProduct: this is that product's own page. */}
+                                    {/* min-w-0 so the bundle box, not the card, absorbs any shortfall. */}
+                                    <div className="min-w-0">
                                         <OfferBundlePreview
-                                            relatedProducts={bundleProducts}
-                                            originalPrice={bundleOriginalPrice}
-                                            offerPrice={raw.cross_sells_price}
+                                            mainProduct={bundlePricing.mainProduct}
+                                            relatedProducts={bundlePricing.relatedProducts}
+                                            offerPrice={bundlePricing.offerPrice}
                                             showSavings
+                                            mainLabel="المنتج"
                                             relatedLabel="المنتجات المرتبطة"
                                         />
                                     </div>

@@ -49,16 +49,63 @@ Order for safety: `lint` → `typecheck` → `build`. No test framework exists i
 `src/features/(dashboard)/related-products/components/OfferBundlePreview.tsx` — the
 cross-selling offer as the customer sees it: the main product, the bundled products in
 a dashed box, and the discounted total. Used by the offers table preview dialog
-(`OfferPreviewDialog`), the create/edit wizard's last step (`create/OfferDiscountForm`)
-and the empty-state sample (`RelatedProductsHelp`). Reuse it instead of laying out a
-new bundle preview.
+(`OfferPreviewDialog`), the create/edit wizard's last step (`create/OfferDiscountForm`),
+the empty-state sample (`RelatedProductsHelp`), the dashboard product view, the public
+product page (`CrossSellsSection`), the store page's "عروض" tab (`StoreTabs`) and the
+chat header (`ChatBundleOffer`), and the product form's discount modal
+(`AddProductStep4`). Reuse it instead of laying out a new bundle preview.
+
+### Offer pricing — one source of truth (critical)
+
+Wrong offer prices have shipped before, from totals computed per screen. Every price an
+offer shows, validates or saves goes through
+[`offer-pricing.ts`](src/features/(dashboard)/related-products/offer-pricing.ts) —
+never compute an offer total, saving or "is there an offer" check inline.
+
+- **`getOfferPricing(main, related, offerPrice)`** → `{ mainProduct, relatedProducts,
+  originalPrice, offerPrice, savings, unpricedProducts }`. The "before" price is the
+  **main product + every bundled one**. A product with no usable price (missing, `0`,
+  unparsable, ask-for-price) makes `originalPrice` `null` — it is **never counted as 0**.
+  `savings` is only set when the offer is really below the total, so a stale total is
+  never struck out. Sums run in cents. It also drops null/nameless/duplicate bundled
+  products and the main product listed as its own cross-sell.
+- **"اطلب السعر" products can't join an offer** — as main or bundled product, even when
+  they still carry a price value. `getOfferExclusion(price, ask_for_price)` is the rule
+  (`"ask-for-price"` / `"no-price"` / `null`); `getOfferItemPrice(price, ask_for_price)`
+  maps an API product's price through it (excluded → `null`). Never pass a raw price into
+  `BundleProduct.price`. Both product pickers (`create/ProductPicker`,
+  `products/SelectProductsModal`) show excluded products disabled with
+  `OFFER_EXCLUSION_LABELS`. The offer endpoints don't say whether the *main* product is
+  ask-for-price, so the edit form calls `useOfferDetails(offer, { verifyMainProduct: true })`.
+  The backend is expected to enforce the same rule.
+- **`parseOfferPrice`** reads any API price; never `Number()`/`parseFloat` one yourself.
+  **`isOfferShowable`** decides whether a storefront screen shows the offer at all.
+- **Never read `offer_original_price` / `cross_sells_original_price` for display** — a
+  snapshot from the last save, stale once a price changes, and pre-change offers left
+  the main product out. The wizard still *sends* `pricing.originalPrice` as
+  `cross_sells_original_price`.
+- **Entry points, by data source** — use these instead of mapping fields by hand:
+  - storefront `Product` / `ProductInPageData` → `getStorefrontOffer(product, { linkMain })`
+    in `src/features/(web)/product/storefront-offer.ts` (list prices, ask-for-price → no price);
+  - an offer from the merchant API → `useOfferDetails(offer)` in `related-products/hooks.ts`
+    (detail merged over the row, main price filled from the product record when the offer
+    endpoint omits it; shared cache with the table, preview and edit dialogs);
+  - `CrossSellItem` state (the wizard) → `getDetailsPricing(main, related, price)`.
+- **Forms validate on the same object** they preview (`validateOfferDraft(draft, pricing)`):
+  no price → error, unknown total → error naming the unpriced products, no saving → error.
+  The pickers refuse excluded products up front, and the discount modal in
+  `AddProductStep4` won't open for an ask-for-price product.
 
 ```tsx
+const offer = getStorefrontOffer(product, { linkMain: false });
+if (!isOfferShowable(offer)) return null;
+
 <OfferBundlePreview
-    mainProduct={{ id, name, price, imageUrl }}   // optional — omit for bundle-only
-    relatedProducts={products}                     // BundleProduct[]
-    originalPrice={originalTotal}
-    offerPrice={discountedPrice}
+    mainProduct={offer.mainProduct}                // required
+    relatedProducts={offer.relatedProducts}
+    offerPrice={offer.offerPrice}                  // the total is computed inside — no prop for it
+    showMainProduct                                // false only where the card is already on screen (chat)
+    missingPriceHint="..."                         // forms: shown while the offer price is empty
     showSavings                                    // adds the "وفّر ... ₪" chip
     mainLabel="المنتج"                              // optional captions
     relatedLabel="المنتجات المرتبطة"
@@ -69,20 +116,25 @@ new bundle preview.
 />
 ```
 
-Map your data to `BundleProduct` (`{ id?, name, price?, imageUrl? }`) — note `imageUrl`,
-not the API's `cover_url`/`cover`.
+`BundleProduct` is `{ id?, name, price?, imageUrl?, href? }` — `imageUrl`, not the API's
+`cover_url`/`cover`; `href` turns the card into a link.
 
-- **Omit `mainProduct`** wherever the anchor product is already named on screen; the
-  slider and totals then stand alone. There is deliberately no `+` between the main
-  product and the box — the offer prices the bundled products only.
+- **`mainProduct` is required and a `+` joins it to the box** — the offer covers it.
+  Cards print prices through `parseOfferPrice`, so a card never shows a price the total
+  treats as unknown. With an unknown total and no offer price the headline reads "—".
+- **`missingPriceHint`** — while `offerPrice` is empty or 0 the original price stands
+  as the total (no struck-out "0 ₪") with this hint under it. For the offer forms.
 - **Responsive by itself.** One row from `md` up (main + box + total), stacked below it
   (main as a wide row, box full-width with exactly 2 cards per view, total last).
   Arrows are pointer-only; touch gets swipe plus dot indicators.
 - **`variant="compact"`** for tight columns (the product page's info card): no dashed
   frame, 100px cards each outlined in `--c2-primary`, arrows beside the track instead
   of over it, tighter card separators, and the totals stacked as price / "بدلاً من" /
-  old price. It is uncapped — the track takes the row's leftover width, so
-  `visibleCount` does not apply.
+  old price. The main product gets a same-size card outlined in neutral. It is
+  uncapped — the track takes the row's leftover width, so `visibleCount` does not apply. The wizard uses it too: in that dialog the framed
+  variant's side-by-side totals leave room for barely one card.
+- **The equation sizes itself to its content and centres in the row** from `md` up, so
+  hosts don't need a `w-fit` wrapper to keep the `=` next to the box.
 - **`action` renders under the prices, inside their column** — never as a `w-full` child
   of the totals row. A wrapping flex container's intrinsic width is the sum of all its
   children laid end to end, as if nothing wrapped, so a button that *paints* on its own
@@ -93,11 +145,14 @@ not the API's `cover_url`/`cover`.
   collapsible), so the equation is not spelled out twice.
 - **`visibleCount` is a cap, not a fixed width** — inside a narrow container the box
   shrinks and starts sliding sooner.
-- **Never put a margin on the outer cards.** The track is `snap-mandatory`, and a card's
-  margin shifts its snap position, so it rests a few pixels past the start for good and
-  the "previous" arrow never disables. Space the cards off the edges with padding on the
-  frame around the scroller instead — a scroller's own inline-end padding collapses once
-  the content overflows, which is why it lives on the frame and not on the track.
+- **Never put a margin on the outer cards, and keep the edge spacers.** The track is
+  `snap-mandatory`, and a card's margin shifts its snap position, so it rests a few pixels
+  past the start for good and the "previous" arrow never disables. The scroller instead
+  starts and ends with a zero-width spacer (`snap-start` / `snap-end`), and the gap beside
+  each keeps the outer cards off the clip edge — flush against it, the last card lost
+  its end border whenever the track stopped a fraction of a pixel short of its end. Cards
+  carry `scroll-ms-*` equal to the gap so they still snap on the spacers' grid. A
+  scroller's own inline-end padding is no substitute: it collapses once content overflows.
 - **The host must not block shrinking.** The component keeps `min-w-0` at every level,
   but its container has to as well. `DialogContent` is `display: grid`, and a grid item
   defaults to `min-width: auto`, so it grows past the dialog unless you add `min-w-0` to
