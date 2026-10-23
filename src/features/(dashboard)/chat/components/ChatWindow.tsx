@@ -24,7 +24,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AxiosError } from "axios";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
-import { BlockUserModal } from "./BlockUserModal";
 import { AddMemberModal } from "./AddMemberModal";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ConversationInfoPanel } from "./ConversationInfoPanel";
@@ -132,6 +131,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const otherParticipant = conversation.participants.find(
         p => !(p.participant_data.type === currentParticipantType && String(p.participant_data.id) === String(currentParticipantId))
     );
+    const isOtherStore = otherParticipant?.participant_data.type === "store";
 
     const isMeBlocked = conversation.who_blocked &&
         !(String(conversation.who_blocked.id) === String(currentParticipantId) &&
@@ -457,7 +457,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                     <span className="font-medium text-gray-700">
                                         {!isMeBlocked && conversation.can_chat === false
                                             ? (isUnblocking ? "جاري إلغاء الحظر..." : "إلغاء الحظر")
-                                            : "حظر المستخدم"}
+                                            : isOtherStore ? "حظر المتجر" : "حظر المستخدم"}
                                     </span>
                                 </DropdownMenuItem>
                             )}
@@ -873,27 +873,32 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                     description="هل أنت متأكد من حذف هذه المحادثة؟ لا يمكن التراجع عن هذا الإجراء."
                 />
 
-                {/* Block User Modal */}
-                <BlockUserModal
+                <ConfirmDeleteModal
                     isOpen={showBlockModal}
                     onClose={() => setShowBlockModal(false)}
                     isLoading={isBlocking}
-                    onConfirm={(reason) => {
+                    autoCloseOnConfirm={false}
+                    confirmPosition="start"
+                    confirmText="نعم، قم بالحظر"
+                    title={isOtherStore ? "هل أنت متأكد من حظر هذا المتجر؟" : "هل أنت متأكد من حظر هذا المستخدم؟"}
+                    description={isOtherStore
+                        ? "لن يتمكن المتجر من مراسلتك بعد الحظر، ويمكنك إلغاء الحظر لاحقاً من قائمة الحظر."
+                        : "لن يتمكن المستخدم من مراسلتك بعد الحظر، ويمكنك إلغاء الحظر لاحقاً من قائمة الحظر."}
+                    onConfirm={() => {
                         if (otherParticipant) {
                             blockUser({
                                 payload: {
                                     blocked_type: otherParticipant.participant_data.type,
                                     blocked_id: otherParticipant.participant_data.id,
-                                    reason: reason,
                                 },
                                 ignoreCookie
                             }, {
                                 onSuccess: () => {
-                                    toast.success("تم حظر المستخدم بنجاح");
+                                    toast.success(isOtherStore ? "تم حظر المتجر بنجاح" : "تم حظر المستخدم بنجاح");
                                     setShowBlockModal(false);
                                 },
                                 onError: (error) => {
-                                    toast.error(chatMutationErrorMessage(error, "فشل حظر المستخدم"));
+                                    toast.error(chatMutationErrorMessage(error, isOtherStore ? "فشل حظر المتجر" : "فشل حظر المستخدم"));
                                 },
                             });
                         }

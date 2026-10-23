@@ -4,9 +4,8 @@ import { useState, useEffect } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useGetBlockedUsers, useUnblockUser } from "../../hooks";
-import { cn } from "@/src/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "@/src/components/ui/avatar";
-import { Button } from "@/src/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 
 export default function BlockedTab() {
     const router = useRouter();
@@ -62,31 +61,16 @@ export default function BlockedTab() {
 
             <div className="border-b border-gray-100 mb-8 w-full" />
 
-            {/* Toggle Switcher */}
-            <div className="flex gap-4 mb-8 md:mb-[30px]">
-                <button
-                    onClick={() => handleTypeChange("store")}
-                    className={cn(
-                        "flex-1 min-h-10 py-2 text-sm rounded-full font-medium transition-all cursor-pointer",
-                        type === "store"
-                            ? "bg-blue-3 text-white shadow-md shadow-blue-900/10"
-                            : "bg-[#F3F6F9] text-blue-4 hover:bg-gray-100"
-                    )}
-                >
-                    متاجر
-                </button>
-                <button
-                    onClick={() => handleTypeChange("user")}
-                    className={cn(
-                        "flex-1 min-h-10 py-2 text-sm rounded-full font-medium transition-all cursor-pointer",
-                        type === "user"
-                            ? "bg-blue-3 text-white shadow-md shadow-blue-900/10"
-                            : "bg-[#F3F6F9] text-blue-4 hover:bg-gray-100"
-                    )}
-                >
-                    مستخدمون
-                </button>
-            </div>
+            <Tabs
+                value={type}
+                onValueChange={(value) => handleTypeChange(value as "store" | "user")}
+                className="mb-8 md:mb-7.5"
+            >
+                <TabsList className="w-full">
+                    <TabsTrigger value="store">متاجر</TabsTrigger>
+                    <TabsTrigger value="user">مستخدمون</TabsTrigger>
+                </TabsList>
+            </Tabs>
 
             {/* Search Bar */}
             <div className="relative mb-8">
@@ -145,7 +129,9 @@ export default function BlockedTab() {
                     ))
                 ) : (
                     <div className="text-center py-20 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
-                        <p className="text-gray-400 text-sm">لا يوجد أشخاص محظورين</p>
+                        <p className="text-gray-400 text-sm">
+                            {type === "store" ? "لا توجد متاجر محظورة" : "لا يوجد مستخدمون محظورون"}
+                        </p>
                     </div>
                 )}
             </div>
