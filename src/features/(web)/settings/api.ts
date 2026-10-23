@@ -217,6 +217,7 @@ export interface VerifyEmailUpdatePayload {
 }
 
 export interface UpdatePasswordPayload {
+    old_password: string;
     password: string;
     password_confirmation: string;
 }

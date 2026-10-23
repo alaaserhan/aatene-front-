@@ -94,7 +94,7 @@ export function StoriesList({
               </div>
               <div className="flex flex-col text-right">
                 <span className="font-medium text-blue-4 text-sm">نص</span>
-                <span className="text-xs text-gray-2 mt-0.5">قم بإضافة نص الي قصتك</span>
+                <span className="text-xs text-gray-2 mt-0.5">قم بإضافة نص إلى قصتك</span>
               </div>
             </DropdownMenuItem>
 
@@ -107,7 +107,7 @@ export function StoriesList({
               </div>
               <div className="flex flex-col text-right">
                 <span className="font-medium text-blue-4 text-sm">صورة او فيديو</span>
-                <span className="text-xs text-gray-2 mt-0.5">قم بإضافة صورة او فيديو الي قصتك</span>
+                <span className="text-xs text-gray-2 mt-0.5">قم بإضافة صورة او فيديو إلى قصتك</span>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
