@@ -16,6 +16,7 @@ export interface ServiceCompareItem {
     image_url: string | null;
     is_favorite: boolean;
     price: string;
+    ask_for_price?: boolean | number | string | null;
     execute_type: string;
     execute_count: string;
     review_rate: string;
@@ -34,6 +35,7 @@ export interface ProductCompareItem {
     is_favorite: boolean;
     in_compare: boolean;
     price: string;
+    ask_for_price?: boolean | number | string | null;
     price_after_discount: string;
     discount_present: number;
     review_rate: string | null;

@@ -1,10 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { toast } from "sonner";
 import { Star, Trash2, Maximize2, PlusCircle } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
+import { normalizeAskForPrice } from "@/src/lib/normalizeAskForPrice";
+import type { ChatTarget } from "@/src/lib/chat-links";
+import { useOpenChat } from "@/src/hooks/use-open-chat";
+import { getProductBySlug } from "@/src/features/(web)/product/api";
+import { getService } from "@/src/features/(web)/services/api";
+import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
 import {
     useGetProductCompareList,
     useGetServiceCompareList,
@@ -157,12 +165,68 @@ function TabCount({ count }: { count: number }) {
     );
 }
 
+// A missing or zero price is shown as "ask for price" even when the flag is off.
+function isAskForPrice(askForPrice: unknown, price: number) {
+    return normalizeAskForPrice(askForPrice) === true || !Number.isFinite(price) || price <= 0;
+}
+
+function toStoreId(value: number | string | null | undefined): number | null {
+    const id = Number(value);
+    return Number.isFinite(id) && id > 0 ? id : null;
+}
+
+// Compare items carry no store, so it is looked up on click before opening the chat.
+function AskForPriceButton({
+    resolveStoreId,
+    chatTarget,
+    fallbackHref,
+}: {
+    resolveStoreId: () => Promise<number | null>;
+    chatTarget: (storeId: number) => ChatTarget;
+    fallbackHref: string | null;
+}) {
+    const router = useRouter();
+    const { openChat, isOpening } = useOpenChat();
+    const [isResolving, setIsResolving] = useState(false);
+    const isBusy = isResolving || isOpening;
+
+    const handleClick = async () => {
+        let storeId: number | null = null;
+        setIsResolving(true);
+        try {
+            storeId = await resolveStoreId();
+        } catch {
+            toast.error("تعذر تحميل بيانات المتجر. حاول مرة أخرى.");
+        } finally {
+            setIsResolving(false);
+        }
+        if (!storeId) {
+            if (fallbackHref) router.push(fallbackHref);
+            else toast.error("لا يمكن فتح المحادثة لهذا العنصر.");
+            return;
+        }
+        openChat(chatTarget(storeId));
+    };
+
+    return (
+        <button
+            type="button"
+            disabled={isBusy}
+            onClick={handleClick}
+            className={cn(productAskForPriceButtonClassName, isBusy && "opacity-75 cursor-wait pointer-events-none")}
+        >
+            {isBusy ? "جاري الفتح…" : "اطلب السعر"}
+        </button>
+    );
+}
+
 // ─── Product Row ─────────────────────────────────────────────
 
 function ProductCompareRow({ item, onRemove }: { item: ProductCompareItem; onRemove: () => void }) {
     const price = parseFloat(item.price || "0");
     const priceAfterDiscount = parseFloat(item.price_after_discount || "0");
-    const hasDiscount = item.discount_present > 0;
+    const hasDiscount = item.discount_present > 0 && priceAfterDiscount > 0;
+    const askForPrice = isAskForPrice(item.ask_for_price, hasDiscount ? priceAfterDiscount : price);
     const rating = parseFloat(item.review_rate || "0");
     const reviewCount = parseInt(item.review_count || "0");
     const router = useRouter();
@@ -195,16 +259,30 @@ function ProductCompareRow({ item, onRemove }: { item: ProductCompareItem; onRem
 
             {/* Price */}
             <div className="flex-1 flex flex-col items-center justify-center gap-1">
-                <span className="text-2xl text-gray-700">
-                    {formatPrice(hasDiscount ? priceAfterDiscount : price)} ₪
-                </span>
-                {hasDiscount && (
-                    <div className="flex items-center gap-1">
-                        <span className="text-sm text-red-500 line-through">{formatPrice(price)} ₪</span>
-                        <span className="bg-black text-white text-xs font-medium px-3 py-0.5 rounded-full">
-                            {item.discount_present}% off
+                {askForPrice ? (
+                    <AskForPriceButton
+                        resolveStoreId={async () => {
+                            if (!item.slug) return null;
+                            const res = await getProductBySlug(item.slug);
+                            return res.status ? toStoreId(res.store?.id) : null;
+                        }}
+                        chatTarget={(storeId) => ({ type: "store", id: storeId, productId: item.id, askPrice: true })}
+                        fallbackHref={item.slug ? `/products/${item.slug}` : null}
+                    />
+                ) : (
+                    <>
+                        <span className="text-2xl text-gray-700">
+                            {formatPrice(hasDiscount ? priceAfterDiscount : price)} ₪
                         </span>
-                    </div>
+                        {hasDiscount && (
+                            <div className="flex items-center gap-1">
+                                <span className="text-sm text-red-500 line-through">{formatPrice(price)} ₪</span>
+                                <span className="bg-black text-white text-xs font-medium px-3 py-0.5 rounded-full">
+                                    {item.discount_present}% off
+                                </span>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
@@ -279,9 +357,20 @@ function ServiceCompareRow({ item, onRemove }: { item: ServiceCompareItem; onRem
 
             {/* Price */}
             <div className="flex-1 flex flex-col items-center justify-center gap-1">
-                <span className="text-2xl text-gray-700">
-                    {formatPrice(price)} ₪
-                </span>
+                {isAskForPrice(item.ask_for_price, price) ? (
+                    <AskForPriceButton
+                        resolveStoreId={async () => {
+                            const res = await getService(item.slug);
+                            return res.status ? toStoreId(res.service?.store?.id) : null;
+                        }}
+                        chatTarget={(storeId) => ({ type: "store", id: storeId, serviceId: item.id, askPrice: true })}
+                        fallbackHref={`/services/${item.slug}`}
+                    />
+                ) : (
+                    <span className="text-2xl text-gray-700">
+                        {formatPrice(price)} ₪
+                    </span>
+                )}
             </div>
 
             {/* Execute Type */}
