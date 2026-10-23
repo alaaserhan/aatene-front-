@@ -60,7 +60,7 @@ export interface StoreProfile {
     city_id: string | null;
     district_id: string | null;
     phone: string;
-    hide_phone: string;
+    hide_phone: string | number | boolean | null;
     whats_app: string;
     tiktok: string | null;
     facebook: string | null;

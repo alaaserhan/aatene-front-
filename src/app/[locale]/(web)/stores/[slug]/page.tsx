@@ -15,6 +15,7 @@ import {
     SITE_URL,
 } from "@/src/lib/seo.config";
 import { makeQueryClient } from "@/src/lib/queryClient";
+import { isPhoneHidden } from "@/src/lib/phone";
 
 type PageProps = {
     params: Promise<{ locale: string; slug: string }>;
@@ -58,7 +59,7 @@ function buildStoreJsonLd(store: StoreProfile, locale: string) {
         ...(store.logo_url && { logo: store.logo_url, image: store.logo_url }),
         ...(store.address && { address: store.address }),
         ...(store.email && { email: store.email }),
-        ...(store.phone && store.hide_phone !== "1" && { telephone: store.phone }),
+        ...(store.phone && !isPhoneHidden(store.hide_phone) && { telephone: store.phone }),
         ...(store.lat &&
             store.lng && {
                 geo: {

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GetWhoFavoritedResponse, StoreProfile, WhoFavoritedFavorite, WhoFavoritedUser } from "../api";
 import { cn } from "@/src/lib/utils";
+import { isPhoneHidden } from "@/src/lib/phone";
 import {
     MessageCircle,
     Star,
@@ -374,7 +375,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
 
     const followersCount = Number(store.followers_count || 0);
     const reviewCount = Number(store.review_count || 0);
-    const showPhone = Boolean(store.phone) && store.hide_phone !== "1";
+    const showPhone = Boolean(store.phone) && !isPhoneHidden(store.hide_phone);
 
     return (
         <>

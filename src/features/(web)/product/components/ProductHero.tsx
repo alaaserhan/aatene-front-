@@ -31,7 +31,7 @@ import { Attribute, AttributeOption, Product, Store } from "../api";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import type { ChatTarget } from "@/src/lib/chat-links";
 import { getAttributePlaceholder } from "@/src/lib/attribute-placeholder";
-import { maskPhone } from "@/src/lib/phone";
+import { isPhoneHidden, maskPhone } from "@/src/lib/phone";
 import { StorePhoneDialog } from "@/src/features/(web)/stores/components/StorePhoneDialog";
 
 const PLACEHOLDER_SRC = "/images/placeholders/product-placeholder.svg";
@@ -128,7 +128,9 @@ export default function ProductHero({
   );
   const discountPercent = product.discount_present ?? 0;
 
-  const storePhone = normalizeDisplayPhone(store.phone);
+  const storePhone = isPhoneHidden(store.hide_phone)
+    ? ""
+    : normalizeDisplayPhone(store.phone);
   const hasOptions = Boolean(attributes?.length);
 
   const chatTarget = (askPrice = false): ChatTarget => ({

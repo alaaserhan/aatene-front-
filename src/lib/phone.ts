@@ -72,6 +72,19 @@ export function joinPhoneCountryCode(
 }
 
 /**
+ * The store's "hide phone on profile" flag. The API is inconsistent about the
+ * type — "1", 1, true and "true" all mean hidden.
+ */
+export function isPhoneHidden(hidePhone: unknown): boolean {
+  return (
+    hidePhone === true ||
+    hidePhone === 1 ||
+    hidePhone === "1" ||
+    hidePhone === "true"
+  );
+}
+
+/**
  * Hide everything but the dial code ("+972 *** ***"). Local numbers saved
  * without a code get the default one, matching what StorePhoneDialog reveals.
  */

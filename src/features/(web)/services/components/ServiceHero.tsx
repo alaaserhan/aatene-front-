@@ -33,7 +33,7 @@ import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { Service, ServiceExtra } from "../api";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import type { ChatTarget } from "@/src/lib/chat-links";
-import { maskPhone } from "@/src/lib/phone";
+import { isPhoneHidden, maskPhone } from "@/src/lib/phone";
 import { StorePhoneDialog } from "@/src/features/(web)/stores/components/StorePhoneDialog";
 
 const EXECUTE_TYPE_LABELS: Record<string, string> = {
@@ -107,6 +107,11 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
     askPrice,
   });
 
+
+  const storePhone =
+    service.store?.phone && !isPhoneHidden(service.store.hide_phone)
+      ? service.store.phone
+      : "";
 
   const toggleExtra = (id: number) =>
     setSelectedExtras((prev) =>
@@ -186,13 +191,13 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
           )}
 
           <div className="flex flex-col gap-3">
-            {service.store?.phone && (
+            {storePhone && (
               <button
                 type="button"
                 onClick={() => setIsPhoneDialogOpen(true)}
                 className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity cursor-pointer"
               >
-                <span dir="ltr">{maskPhone(service.store.phone)}</span>
+                <span dir="ltr">{maskPhone(storePhone)}</span>
                 <Phone className="w-5 h-5" aria-hidden="true" />
               </button>
             )}
@@ -236,9 +241,9 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
         description="قم بمشاركة هذه الخدمة مع أصدقائك"
       />
 
-      {service.store?.phone && (
+      {storePhone && (
         <StorePhoneDialog
-          phone={service.store.phone}
+          phone={storePhone}
           open={isPhoneDialogOpen}
           onOpenChange={setIsPhoneDialogOpen}
         />

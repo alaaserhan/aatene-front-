@@ -170,6 +170,7 @@ export interface Store {
   name: string;
   status: string;
   phone: string | null;
+  hide_phone?: string | number | boolean | null;
   whats_app: string | null;
   email: string | null;
   address: string | null;
