@@ -233,8 +233,6 @@ export default function ProductHero({
             </div>
           </div>
 
-          {crossSells}
-
           {hasOptions && (
             <div className="flex flex-col gap-3 white-card mb-6">
               {attributes?.map((attr) => (
@@ -258,6 +256,8 @@ export default function ProductHero({
               ))}
             </div>
           )}
+
+          {crossSells}
 
           <div className="flex flex-col gap-3">
             {storePhone && (
