@@ -30,6 +30,7 @@ import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { Button } from "@/src/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/src/components/ui/dialog";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import type { ChatTarget } from "@/src/lib/chat-links";
 import MobileCollapsibleSection from "@/src/features/(web)/product/components/MobileCollapsibleSection";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
@@ -284,7 +285,7 @@ function OffersGrid({
                 <div className="flex flex-col">
                     {displayedProducts.map((p, idx) => (
                         <div key={p.id}>
-                            <OfferCard product={p} />
+                            <OfferCard product={p} storeId={storeId} />
                             {idx < displayedProducts.length - 1 && (
                                 <hr className="border-t border-gray-200 my-6" />
                             )}
@@ -305,7 +306,24 @@ function OffersGrid({
     );
 }
 
-function OfferCard({ product }: { product: ProductInPageData }) {
+function OrderOfferButton({ target, className }: { target: ChatTarget; className?: string }) {
+    return (
+        <ChatNowButton
+            unstyled
+            target={target}
+            label="اطلب العرض"
+            icon={null}
+            loadingReplacesLabel
+            iconClassName="size-4"
+            className={cn(
+                "inline-flex min-w-24 cursor-pointer items-center justify-center rounded-full bg-c2-primary px-4 py-1.5 text-sm leading-5 font-medium whitespace-nowrap text-white transition-colors hover:bg-c2-navy-600 disabled:opacity-60",
+                className
+            )}
+        />
+    );
+}
+
+function OfferCard({ product, storeId }: { product: ProductInPageData; storeId: number }) {
     const crossSellProducts = product.crossSells || [];
     const hasCrossSells = crossSellProducts.length > 0;
     const imageUrl = sanitizeMediaUrl(product.cross_sells_image_url || product.cover) || "/images/placeholders/product-placeholder.webp";
@@ -332,6 +350,13 @@ function OfferCard({ product }: { product: ProductInPageData }) {
         ? crossSellProducts.reduce((sum, p) => sum + parseFloat(p.price || "0"), 0)
         : null;
     const savings = originalTotal !== null ? originalTotal - parseFloat(mainPrice) : null;
+
+    const orderTarget: ChatTarget = {
+        type: "store",
+        id: storeId,
+        productId: product.id,
+        bundleProductId: hasCrossSells ? product.id : undefined,
+    };
 
     return (
         <div className="group">
@@ -425,6 +450,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                                             وفّر {formatPrice(savings)} ₪
                                         </span>
                                     )}
+                                    <OrderOfferButton target={orderTarget} className="mt-2" />
                                 </div>
                             </div>
                         </div>
@@ -433,9 +459,11 @@ function OfferCard({ product }: { product: ProductInPageData }) {
 
                 ) : (
 
-                    <Link href={`/products/${product.slug}`} className="block">
-                        <div className="flex flex-col-reverse sm:flex-row items-center gap-4">
-                            <div className="relative w-full sm:w-[160px] aspect-square rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                    <div className="flex flex-col-reverse sm:flex-row items-center gap-4">
+                            <Link
+                                href={`/products/${product.slug}`}
+                                className="relative block w-full sm:w-[160px] aspect-square rounded-xl overflow-hidden bg-gray-100 shrink-0"
+                            >
                                 <Image
                                     src={mainImageError ? "/images/placeholders/product-placeholder.webp" : imageUrl}
                                     alt={name}
@@ -443,8 +471,8 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                                     onError={() => setMainImageError(true)}
                                 />
-                            </div>
-                            <div className="flex flex-col gap-2 text-center sm:text-right flex-1" dir="rtl">
+                            </Link>
+                            <div className="flex flex-col gap-2 items-center sm:items-start text-center sm:text-right flex-1" dir="rtl">
                                 <div className="flex items-baseline gap-2 justify-center sm:justify-start flex-wrap">
                                     <span className="text-xl md:text-2xl font-bold text-gray-800">
                                         {formatPrice(mainPrice)}{" "}
@@ -459,9 +487,9 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                                         </>
                                     )}
                                 </div>
+                                <OrderOfferButton target={orderTarget} />
                             </div>
-                        </div>
-                    </Link>
+                    </div>
                 )}
             </div>
         </div>
