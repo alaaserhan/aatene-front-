@@ -28,7 +28,7 @@ export interface StoreInfoCardStore {
   name: string;
   logo_url?: string | null;
   city?: { name: string } | null;
-  review_rate?: string | null;
+  review_rate?: string | number | null;
   created_at?: string | null;
   am_i_following?: boolean;
 }
@@ -77,6 +77,7 @@ export default function StoreInfoCard({
   const storeHref = `/${lang}/stores/${store.slug}`;
   const location = store.city?.name || DEFAULT_LOCATION;
   const memberSince = formatMemberSince(store.created_at);
+  const rating = Number(store.review_rate) || 0;
 
   const handleFollowToggle = () => {
     if (!user) {
@@ -169,7 +170,9 @@ export default function StoreInfoCard({
           <Star className="size-4 text-[#2E2E2F]" />
           <div className="flex items-center gap-1">
             <span>تقييم البائع</span>
-            <span className="font-bold pt-px">{store.review_rate || "0"}</span>
+            <span className="font-bold pt-px">
+              {rating > 0 ? rating : "لا توجد تقييمات"}
+            </span>
           </div>
         </div>
       </div>
