@@ -85,14 +85,6 @@ export const useMayLike = () => {
     });
 };
 
-export const useMostPopularSingle = () => {
-    return useApiQuery({
-        queryKey: ["homeMostPopularSingle"],
-        queryFn: api.getMostPopularSingle,
-        staleTime,
-    });
-};
-
 export const useTodayOffers = () => {
     return useApiQuery({
         queryKey: ["homeTodayOffers"],

@@ -1,17 +1,12 @@
 "use client";
 
 import React from "react";
-import { Product } from "../types";
-import { useMostPopularSingle } from "../hooks";
+import { usePopularProducts } from "../hooks";
 import HomeProductsCarousel from "./HomeProductsCarousel";
 
-interface HomeCustomizedProductsProps {
-  products?: Product[];
-}
-
-export default function HomeCustomizedProducts({ products: initialProducts }: HomeCustomizedProductsProps) {
-  const { data: response } = useMostPopularSingle();
-  const products = initialProducts || response?.data || [];
+export default function HomeCustomizedProducts() {
+  const { data: response } = usePopularProducts();
+  const products = response?.data || [];
 
   return (
     <HomeProductsCarousel

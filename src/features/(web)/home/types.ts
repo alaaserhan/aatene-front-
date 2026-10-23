@@ -97,9 +97,6 @@ export type SelectedForYouResponse = ApiResponse<Product[]>;
 // GET /pages/v2/home/products/may-like
 export type MayLikeResponse = ApiResponse<Product[]>;
 
-// GET /pages/v2/home/products/most-popular-single
-export type MostPopularSingleResponse = ApiResponse<Product[]>;
-
 // ─────────────────────────────────────────────
 // OFFERS
 // ─────────────────────────────────────────────

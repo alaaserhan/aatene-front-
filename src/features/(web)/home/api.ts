@@ -59,11 +59,6 @@ export const getMayLike = async (): Promise<Types.MayLikeResponse> => {
     return data;
 };
 
-export const getMostPopularSingle = async (): Promise<Types.MostPopularSingleResponse> => {
-    const { data } = await api.get<Types.MostPopularSingleResponse>("/pages/v2/home/products/popular");
-    return data;
-};
-
 export const getTodayOffers = async (): Promise<Types.TodayOffersResponse> => {
     const { data } = await api.get<Types.TodayOffersResponse>("/pages/v2/home/offers/today");
     return data;
