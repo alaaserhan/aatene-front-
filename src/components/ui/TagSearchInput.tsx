@@ -1,9 +1,10 @@
 // src/components/ui/TagSearchInput.tsx
 "use client";
 
-import { KeyboardEvent, useEffect, useRef, useState } from "react";
+import { KeyboardEvent, useRef, useState } from "react";
 import { Loader2, Plus, Search } from "lucide-react";
 import { OptionTag } from "@/src/components/ui/OptionTag";
+import { Popover, PopoverAnchor, PopoverContent } from "@/src/components/ui/popover";
 import { cn } from "@/src/lib/utils";
 import { useDebounce } from "@/src/hooks/use-debounce";
 import { TagType } from "@/src/features/(dashboard)/tags/api";
@@ -26,6 +27,9 @@ interface TagSearchInputProps {
 }
 
 const PER_PAGE = 15;
+// Forms that host this input pin a fixed action bar to the viewport bottom;
+// keep the list clear of it so it flips above the input instead of hiding underneath.
+const STICKY_FOOTER_CLEARANCE = 100;
 
 /**
  * Tag input backed by the tags endpoint: suggests existing tags while typing
@@ -44,7 +48,7 @@ export function TagSearchInput({
 }: TagSearchInputProps) {
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
 
   const search = input.trim();
   const debouncedSearch = useDebounce(search, 400);
@@ -60,17 +64,6 @@ export function TagSearchInput({
     (tag) => tag.title.toLowerCase() === search.toLowerCase()
   );
   const canCreate = search.length > 0 && !hasExactMatch && !tags.includes(search);
-
-  // Close the dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const handleAdd = (value: string) => {
     const trimmed = value.trim();
@@ -94,8 +87,8 @@ export function TagSearchInput({
 
   return (
     <div className="space-y-4">
-      <div ref={containerRef} className="relative">
-        <div className="flex items-center gap-3">
+      <Popover open={showDropdown} onOpenChange={setIsOpen}>
+        <PopoverAnchor ref={anchorRef} className="flex items-center gap-3">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute top-1/2 start-3 w-4 h-4 -translate-y-1/2 text-gray-2" />
             <input
@@ -126,10 +119,19 @@ export function TagSearchInput({
           >
             {addLabel}
           </button>
-        </div>
 
-        {showDropdown && (
-          <div className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto rounded-sm border border-gray-200 bg-white shadow-lg">
+        </PopoverAnchor>
+
+        <PopoverContent
+          align="start"
+          collisionPadding={{ top: 8, bottom: STICKY_FOOTER_CLEARANCE }}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          onInteractOutside={(e) => {
+            if (anchorRef.current?.contains(e.target as Node)) e.preventDefault();
+          }}
+          className="w-(--radix-popover-trigger-width) max-h-[min(15rem,var(--radix-popover-content-available-height))] overflow-y-auto rounded-sm border-gray-200 bg-white p-0 shadow-lg"
+        >
             {canCreate && (
               <button
                 type="button"
@@ -163,9 +165,8 @@ export function TagSearchInput({
             {isFetching && suggestions.length === 0 && (
               <p className="px-4 py-3 text-sm text-gray-2">جاري البحث...</p>
             )}
-          </div>
-        )}
-      </div>
+        </PopoverContent>
+      </Popover>
 
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
