@@ -30,10 +30,13 @@ export default function HomeProductsCarousel({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: "left" | "right") => {
-    if (!scrollContainerRef.current) return;
-    // scroll by a full view so items land aligned with the 2/4-per-view sizing
-    const scrollAmount = scrollContainerRef.current.clientWidth;
-    scrollContainerRef.current.scrollBy({
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    // one card per click: card width + the flex gap
+    const firstItem = container.firstElementChild as HTMLElement | null;
+    const gap = parseFloat(getComputedStyle(container).columnGap) || 0;
+    const scrollAmount = firstItem ? firstItem.offsetWidth + gap : 300;
+    container.scrollBy({
       left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
     });
@@ -68,7 +71,7 @@ export default function HomeProductsCarousel({
               <div
                 key={product.id}
                 /* 2 per view on mobile, 4 on desktop — basis accounts for the gaps */
-                className="flex shrink-0 snap-start flex-col basis-[calc((100%-1rem)/2)] md:basis-[calc((100%-1.5rem)/2)] lg:basis-[calc((100%-6rem)/4)]"
+                className="flex shrink-0 snap-start flex-col basis-[calc((100%_-_1rem)/2)] md:basis-[calc((100%_-_1.5rem)/2)] lg:basis-[calc((100%_-_6rem)/4)]"
                 dir="rtl"
               >
                 <ProductCard
