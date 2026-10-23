@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useGetReportStats, useGetReports, useGetReportTypes } from "../hooks";
+import { useGetReportStats, useGetReports } from "../hooks";
 import { GetReportsParams } from "../api";
 import { Eye, Loader2, Search } from "lucide-react";
 import { formatDateTime } from "@/src/lib/date-helper";
@@ -46,7 +46,6 @@ export default function ReportInquiryPage() {
 
     const { data: statsData, isLoading: statsLoading, isError: statsError } = useGetReportStats();
     const { data: reportsData, isLoading: reportsLoading, isError: reportsError } = useGetReports(filters);
-    const { data: typesData } = useGetReportTypes();
 
     if (!isLoggedIn) {
         return (
@@ -57,7 +56,6 @@ export default function ReportInquiryPage() {
     }
 
     const reports = reportsData?.reports || [];
-    const reportTypes = typesData?.report_types || [];
 
     const handleSearch = () => {
         setFilters((prev) => ({ ...prev, content: searchValue || undefined }));
@@ -67,14 +65,6 @@ export default function ReportInquiryPage() {
         setFilters((prev) => ({
             ...prev,
             status: status ? (status as GetReportsParams["status"]) : undefined,
-        }));
-    };
-
-    const handleCategoryChange = (type: string) => {
-        setFilters((prev) => ({
-            ...prev,
-            type: type || undefined,
-            report_type_id: undefined,
         }));
     };
 
@@ -103,23 +93,6 @@ export default function ReportInquiryPage() {
             bgColor: "#d3ffdb",
             textColor: "#03b037",
         },
-    ];
-
-    // Supported types verified against /reports/my endpoint
-    const supportedReportTypes = [
-        { value: "store", label: "متاجر" },
-        { value: "customer", label: "عملاء" },
-        { value: "merchant", label: "تجار" },
-        { value: "product", label: "منتجات" },
-        { value: "service", label: "خدمات" },
-        { value: "requested_service", label: "الخدمات المطلوبة" },
-        { value: "comment", label: "تعليقات" },
-    ];
-
-    // Prepare dropdown options from backend-supported type values
-    const categoryOptions = [
-        { value: "", label: "الكل" },
-        ...supportedReportTypes,
     ];
 
     return (
@@ -167,22 +140,7 @@ export default function ReportInquiryPage() {
                             />
                         </div>
                     </div>
-                    {/* Category Filter - Leftmost in design but 3rd in RTL flow */}
-                    <div className="w-full md:w-[220px] space-y-2">
-                        <label className="text-sm font-medium block">الفئة</label>
-                        <div className="relative h-[45px]">
-                            <ReusableDropdown
-                                options={categoryOptions}
-                                value={filters.type || ""}
-                                onChange={handleCategoryChange}
-                                placeholder="الكل"
-                                className="h-full border-gray-200 rounded-md"
-                                dropdownPosition="bottom"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Status Filter - Middle */}
+                    {/* Status Filter */}
                     <div className="w-full md:w-[200px] space-y-2">
                         <label className="text-sm font-medium block">الحالة</label>
                         <div className="relative h-[45px]">
