@@ -336,8 +336,8 @@ function OfferCard({ product, storeId }: { product: ProductInPageData; storeId: 
         ? product.price
         : (product.discount_present > 0 ? product.price : null);
 
-    const mainPrice = product.cross_sells_original_price || fallbackMainPrice;
-    const oldPrice = product.cross_sells_price || fallbackOldPrice;
+    const mainPrice = product.cross_sells_price || fallbackMainPrice;
+    const oldPrice = product.cross_sells_original_price || fallbackOldPrice;
 
     // Pagination for cross-sell products (max 3 per page)
     const PAGE_SIZE = 3;
