@@ -141,7 +141,7 @@ function ServiceCard({ service, className, onFavoriteClick }: ServiceCardProps) 
             </div>
 
             <div className="p-4 flex flex-col flex-1">
-                <h3 className="font-semibold text-base text-right mb-2 leading-snug line-clamp-2 min-h-10 group-hover:text-[#3D5E83] transition-colors">
+                <h3 className="font-semibold text-base text-right mb-2 leading-snug line-clamp-2 min-h-[2lh] group-hover:text-[#3D5E83] transition-colors">
                     <CardLink href={href} className="after:rounded">
                         {service.title}
                     </CardLink>
@@ -170,7 +170,7 @@ function ServiceCard({ service, className, onFavoriteClick }: ServiceCardProps) 
                     )}
                 </div>
 
-                <div className="h-px bg-gray-200 w-full mb-2" />
+                <div className="h-px bg-gray-200 w-full mb-2 mt-auto" />
 
                 {/* Store info and rating share one row, wrapping to two lines when the card is narrow. */}
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">

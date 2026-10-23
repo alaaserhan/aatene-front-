@@ -71,7 +71,7 @@ export default function HomeProductsCarousel({
               <div
                 key={product.id}
                 /* 2 per view on mobile, 4 on desktop — basis accounts for the gaps */
-                className="flex shrink-0 snap-start flex-col basis-[calc((100%_-_1rem)/2)] md:basis-[calc((100%_-_1.5rem)/2)] lg:basis-[calc((100%_-_6rem)/4)]"
+                className="flex min-w-0 shrink-0 snap-start flex-col basis-[calc((100%_-_1rem)/2)] md:basis-[calc((100%_-_1.5rem)/2)] lg:basis-[calc((100%_-_6rem)/4)]"
                 dir="rtl"
               >
                 <ProductCard

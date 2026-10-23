@@ -66,8 +66,8 @@ const CARD_VARIANTS = {
         video: "absolute inset-0 rounded-[14px]",
         videoInner: "group-hover:scale-101 transition-transform duration-300",
         image: "object-cover object-center group-hover:scale-101 transition-transform duration-300 rounded-[14px]",
-        content: "flex flex-col px-0 py-3 text-right gap-1",
-        title: "font-bold text-base text-c2-navy-900 leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors",
+        content: "flex flex-1 flex-col px-0 py-3 text-right gap-1",
+        title: "font-bold text-base text-c2-navy-900 leading-snug line-clamp-2 min-h-[2lh] group-hover:text-blue-3 transition-colors",
         link: "after:rounded-[14px]",
     },
 } as const;
@@ -210,7 +210,7 @@ const ProductCard = memo(({
 
                 <RatingStars rating={rating} count={count} size="sm" />
 
-                <div className="mt-1">
+                <div className="mt-auto pt-1">
                     {shouldAskForPrice ? (
                         <button
                             type="button"

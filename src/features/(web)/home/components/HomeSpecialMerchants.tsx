@@ -60,7 +60,7 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
               <div
                 key={merchant.id}
                 /* Same widths as the stores search grid (2 / 3 / 4 columns) — basis accounts for the gaps */
-                className="flex shrink-0 snap-start flex-col basis-[calc((100%_-_0.75rem)/2)] md:basis-[calc((100%_-_3rem)/3)] lg:basis-[calc((100%_-_4.5rem)/4)]"
+                className="flex min-w-0 shrink-0 snap-start flex-col basis-[calc((100%_-_0.75rem)/2)] md:basis-[calc((100%_-_3rem)/3)] lg:basis-[calc((100%_-_4.5rem)/4)]"
               >
                 <StoreCard
                   // @ts-expect-error - Store types compatibility
