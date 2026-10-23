@@ -23,12 +23,10 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/src/components/ui/tabs";
-import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 import { useAuthStore } from "@/src/stores/auth-store";
 import {
   ChevronDown,
   ChevronLeft,
-  Flag,
   Loader2,
   Plus,
   PlusSquare,
@@ -569,9 +567,6 @@ function ServiceQASection({ service }: { service: Service }) {
 function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [isAnswersModalOpen, setIsAnswersModalOpen] = useState(false);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [isAnswerReportOpen, setIsAnswerReportOpen] = useState(false);
-  const [reportAnswerId, setReportAnswerId] = useState<number | null>(null);
 
   const displayAnswers = question.answers || [];
   const answersCount = Number(question.answers_count) || displayAnswers.length;
@@ -581,10 +576,6 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
     answersCount - (firstAnswer ? 1 : 0),
     0,
   );
-
-  const authSlug = useAuthStore((state) => state.user?.slug);
-  const isOwnQuestion = !!authSlug && authSlug === question.user?.slug;
-  const isOwnFirstAnswer = !!authSlug && authSlug === firstAnswer?.user?.slug;
 
   return (
     <div
@@ -596,15 +587,6 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
           {question.content}
         </h4>
         <div className="flex items-center gap-4 shrink-0">
-          {!isOwnQuestion && (
-            <button
-              onClick={() => setIsReportModalOpen(true)}
-              className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer text-xs"
-            >
-              <Flag className="w-3.5 h-3.5" />
-              بلغ عن إساءة
-            </button>
-          )}
           <button
             onClick={() => setShowReplyForm(!showReplyForm)}
             className="flex items-center gap-1.5 px-3 py-1.5 border border-[#456A8E] rounded-md text-xs text-[#456A8E] font-medium hover:bg-gray-50 transition-colors cursor-pointer"
@@ -647,18 +629,6 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
             </div>
             <div className="flex items-center gap-4 text-xs">
               <span className="text-gray-400">{firstAnswer.created_at}</span>
-              {!isOwnFirstAnswer && (
-                <button
-                  onClick={() => {
-                    setReportAnswerId(firstAnswer.id);
-                    setIsAnswerReportOpen(true);
-                  }}
-                  className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer"
-                >
-                  <Flag className="w-3.5 h-3.5" />
-                  بلغ عن إساءة
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -689,33 +659,7 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
         isOpen={isAnswersModalOpen}
         onClose={() => setIsAnswersModalOpen(false)}
         question={question}
-        onReportAnswer={(answerId) => {
-          setReportAnswerId(answerId);
-          setIsAnswerReportOpen(true);
-          setIsAnswersModalOpen(false);
-        }}
       />
-
-      {isReportModalOpen && (
-        <ReportAbuseModal
-          isOpen={isReportModalOpen}
-          onClose={() => setIsReportModalOpen(false)}
-          type="service_board_question"
-          id={question.id}
-        />
-      )}
-
-      {isAnswerReportOpen && reportAnswerId && (
-        <ReportAbuseModal
-          isOpen={isAnswerReportOpen}
-          onClose={() => {
-            setIsAnswerReportOpen(false);
-            setReportAnswerId(null);
-          }}
-          type="service_board_answer"
-          id={reportAnswerId}
-        />
-      )}
     </div>
   );
 }
@@ -788,19 +732,16 @@ function ServiceQAAnswersModal({
   isOpen,
   onClose,
   question,
-  onReportAnswer,
 }: {
   isOpen: boolean;
   onClose: () => void;
   question: ServiceBoardQuestion;
-  onReportAnswer: (answerId: number) => void;
 }) {
   const { data: answersData, isLoading } = useGetServiceBoardAnswers(
     question.id,
     isOpen,
   );
   const answers = answersData?.answers || question.answers || [];
-  const authSlug = useAuthStore((state) => state.user?.slug);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -847,21 +788,9 @@ function ServiceQAAnswersModal({
                         {ans.user?.name}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4 text-xs">
-                      <span className="text-gray-400" dir="ltr">
-                        {ans.created_at}
-                      </span>
-                      {!(authSlug && authSlug === ans.user?.slug) && (
-                        <button
-                          type="button"
-                          onClick={() => onReportAnswer(ans.id)}
-                          className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer"
-                        >
-                          <Flag className="w-3.5 h-3.5" />
-                          بلغ عن إساءة
-                        </button>
-                      )}
-                    </div>
+                    <span className="text-xs text-gray-400" dir="ltr">
+                      {ans.created_at}
+                    </span>
                   </div>
                 </div>
               ))}

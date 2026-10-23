@@ -8,6 +8,14 @@ import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { useStoreProducts } from "../hooks";
 import { useSearchServices } from "@/src/features/(web)/search/hooks";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+
+// order_by values accepted by /services/search
+const SERVICE_SORT_OPTIONS = [
+    { value: "review_rate_desc", label: "الأعلى تقييمًا" },
+    { value: "price_desc", label: "السعر: من الأعلى للأقل" },
+    { value: "price_asc", label: "السعر: من الأقل للأعلى" },
+];
 
 interface StoreProductsSectionProps {
     storeId: number;
@@ -20,6 +28,7 @@ export default function StoreProductsSection({ storeId, storeType, sections }: S
     const [page, setPage] = useState(1);
     const [searchInput, setSearchInput] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [sortBy, setSortBy] = useState<string | null>(null);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -31,14 +40,13 @@ export default function StoreProductsSection({ storeId, storeType, sections }: S
 
     const isService = storeType === "services" || storeType === "service";
 
-    // Products query
     const { data: productsData, isLoading: isLoadingProducts } = useStoreProducts(storeId, selectedSection, page, debouncedSearch, !isService);
 
-    // Services query
     const { data: servicesData, isLoading: isLoadingServices } = useSearchServices({
         store_id: storeId,
         search: debouncedSearch,
         section_id: selectedSection || undefined,
+        order_by: sortBy ?? undefined,
         page,
         per_page: 12
     }, isService);
@@ -111,6 +119,20 @@ export default function StoreProductsSection({ storeId, storeType, sections }: S
                             <Search className="w-5 h-5 text-white" />
                         </div>
                     </div>
+
+                    {isService && (
+                        <ReusableDropdown
+                            options={SERVICE_SORT_OPTIONS}
+                            value={sortBy}
+                            onChange={(value: string) => {
+                                setSortBy(value);
+                                setPage(1);
+                            }}
+                            placeholder="تصفية"
+                            className="w-full md:w-auto md:min-w-56 md:self-end"
+                            triggerClassName="h-11 rounded-full border-gray-300"
+                        />
+                    )}
 
                     {isLoading ? (
                         <div className="flex justify-center p-10">
