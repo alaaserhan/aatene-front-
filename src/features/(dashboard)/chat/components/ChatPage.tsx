@@ -1,9 +1,17 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { useConversations, useCreateConversation, useSendMessage } from "../hooks";
-import { Conversation } from "../api";
+import {
+    useConversation,
+    useConversationCounts,
+    useConversations,
+    useCreateConversation,
+    useSendMessage,
+} from "../hooks";
+import { Conversation, ConversationTypeFilter } from "../api";
 import { ConversationListSidebar, type ReadFilter } from "./ConversationListSidebar";
+import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
+import { useDebounce } from "@/src/hooks/use-debounce";
 import { ChatWindow } from "./ChatWindow";
 import { ChatEmptyState } from "./ChatEmptyState";
 import { CreateGroupModal } from "./CreateGroupModal";
@@ -75,7 +83,31 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const ignoreCookie = !isDashboard;
     const storeId = isDashboard ? Cookies.get("current_store_id") : undefined;
 
-    const { data, isLoading, isFetching, isError, refetch } = useConversations(storeId, ignoreCookie);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeFilter, setActiveFilter] = useState<ConversationTypeFilter>("all");
+    const [readFilter, setReadFilter] = useState<ReadFilter>("all");
+    const debouncedSearch = useDebounce(searchQuery.trim(), 400);
+
+    const {
+        data,
+        isLoading,
+        isFetching,
+        isError,
+        refetch,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useConversations(
+        { type: activeFilter, read: readFilter, search: debouncedSearch },
+        storeId,
+        ignoreCookie
+    );
+    const { data: countsData } = useConversationCounts(
+        { type: activeFilter, search: debouncedSearch },
+        storeId,
+        ignoreCookie
+    );
+    const counts = countsData?.counts;
     /**
      * `mutateAsync`, not `mutate`: React Query drops the per-call callbacks passed
      * to `mutate` when the observer is torn down before the request settles, which
@@ -84,9 +116,6 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const { mutateAsync: createConversationAsync } = useCreateConversation();
     const { mutateAsync: sendMessageAsync } = useSendMessage();
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const [activeFilter, setActiveFilter] = useState("all");
-    const [readFilter, setReadFilter] = useState<ReadFilter>("all");
     const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
     const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
     /** Keeps the selection from blanking out between the click and the URL / list catching up. */
@@ -96,21 +125,45 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     /** Target whose open already started — stops the conversation being created/messaged twice. */
     const handledOpenTargetRef = useRef<string | null>(null);
 
-    const allConversations = useMemo(() => data?.conversations || [], [data]);
+    /** Deduped: a new message moves a conversation up, so it can show on two pages at once. */
+    const allConversations = useMemo(() => {
+        const seen = new Set<number>();
+        const list: Conversation[] = [];
+        for (const page of data?.pages ?? []) {
+            for (const c of page.conversations ?? []) {
+                if (seen.has(c.id)) continue;
+                seen.add(c.id);
+                list.push(c);
+            }
+        }
+        return list;
+    }, [data]);
 
-    /** From the list, or from `pendingConversation` right after creation, before the refetch lands. */
+    const chatIdFromUrl = searchParams.get("chat");
+    const conversationFromList = useMemo(
+        () => (chatIdFromUrl ? allConversations.find((c) => String(c.id) === chatIdFromUrl) ?? null : null),
+        [chatIdFromUrl, allConversations]
+    );
+
+    /** The open chat may be on a page not loaded yet, or outside the current filter. */
+    const { data: conversationDetail, isFetching: isFetchingDetail } = useConversation(
+        chatIdFromUrl,
+        storeId,
+        ignoreCookie,
+        !conversationFromList
+    );
+
+    /** List first, then the detail fetch, then `pendingConversation` right after creation. */
     const activeConversation = useMemo(() => {
-        const chatId = searchParams.get("chat");
-        if (!chatId) return null;
-        const fromList = allConversations.find((c) => String(c.id) === chatId);
-        if (fromList) return fromList;
-        if (pendingConversation && String(pendingConversation.id) === chatId) {
+        if (!chatIdFromUrl) return null;
+        if (conversationFromList) return conversationFromList;
+        const detail = conversationDetail?.conversation;
+        if (detail && String(detail.id) === chatIdFromUrl) return detail;
+        if (pendingConversation && String(pendingConversation.id) === chatIdFromUrl) {
             return pendingConversation;
         }
         return null;
-    }, [searchParams, allConversations, pendingConversation]);
-
-    const chatIdFromUrl = searchParams.get("chat");
+    }, [chatIdFromUrl, conversationFromList, conversationDetail, pendingConversation]);
 
     /**
      * Arriving from a "chat now" button (`?type=store&id=…`): the target is known on
@@ -135,7 +188,9 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const isResolvingChatFromUrl =
         isOpeningTargetFromUrl ||
         Boolean(
-            chatIdFromUrl && !activeConversation && (isLoading || isFetching || isCreatingFromUrl)
+            chatIdFromUrl &&
+            !activeConversation &&
+            (isLoading || isFetching || isFetchingDetail || isCreatingFromUrl)
         );
 
     /**
@@ -212,19 +267,18 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     }, [searchParams, chatListPath, pathname, router]);
 
     useEffect(() => {
-        const chatId = searchParams.get("chat");
-        if (!chatId || !pendingConversation) return;
-        if (String(pendingConversation.id) !== chatId) return;
-        const fromList = allConversations.find((c) => String(c.id) === chatId);
-        if (fromList) setPendingConversation(null);
-    }, [searchParams, allConversations, pendingConversation]);
+        if (!chatIdFromUrl || !pendingConversation) return;
+        if (String(pendingConversation.id) !== chatIdFromUrl) return;
+        const detailId = conversationDetail?.conversation?.id;
+        if (conversationFromList || String(detailId) === chatIdFromUrl) setPendingConversation(null);
+    }, [chatIdFromUrl, conversationFromList, conversationDetail, pendingConversation]);
 
     useEffect(() => {
         if (!searchParams.get("chat")) setPendingConversation(null);
     }, [searchParams]);
 
     const handleFilterChange = useCallback((filter: string) => {
-        setActiveFilter(filter);
+        setActiveFilter(filter as ConversationTypeFilter);
         handleCloseChat();
     }, [handleCloseChat]);
 
@@ -406,47 +460,44 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         }
     }, [refetch, queryClient, router]);
 
-    const groupsCount = allConversations.filter(c => c.type === "group").length;
-    const directCount = allConversations.filter(c => c.type === "direct").length;
-    const allCount = allConversations.length;
+    const typeCounts = counts?.by_type;
+    const withCount = (label: string, n?: number) => (n === undefined ? label : `${label} (${n})`);
 
-    const sidebarOptions = [
-        { name: `جميع المحادثات (${allCount})`, value: "all" },
-        { name: `الرسائل المباشرة (${directCount})`, value: "direct" },
-        { name: `المجموعات (${groupsCount})`, value: "group" },
+    const typeFilters: { value: ConversationTypeFilter; sidebarLabel: string; mobileLabel: string }[] = [
+        { value: "all", sidebarLabel: "جميع المحادثات", mobileLabel: "الكل" },
+        { value: "direct", sidebarLabel: "الرسائل المباشرة", mobileLabel: "مباشرة" },
+        { value: "group", sidebarLabel: "المجموعات", mobileLabel: "مجموعات" },
     ];
 
+    const sidebarOptions = typeFilters.map((f) => ({
+        name: withCount(f.sidebarLabel, typeCounts?.[f.value]),
+        value: f.value,
+    }));
+
+    /**
+     * The server filters the list, so the open conversation can drop out of it — e.g.
+     * opening an unread chat marks it read under the "unread" tab. Keep it in the list
+     * so it doesn't vanish from under the cursor; same for a just-created one before
+     * the refetch includes it.
+     */
     const filteredConversations = useMemo(() => {
-        let list = allConversations;
-        /** A just-opened conversation shows in the list until the refetch includes it. */
-        if (pendingConversation) {
-            const exists = list.some((c) => String(c.id) === String(pendingConversation.id));
-            if (!exists) {
-                list = [pendingConversation, ...list];
-            }
-        }
-        return list.filter((conv) => {
-            let matchesSearch = true;
-            if (searchQuery) {
-                const name = conv.name || conv.participants[0]?.participant_data?.name || "";
-                matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase());
-            }
-            let matchesFilter = true;
-            if (activeFilter === "group") {
-                matchesFilter = conv.type === "group";
-            } else if (activeFilter === "direct") {
-                matchesFilter = conv.type === "direct";
-            }
-            return matchesSearch && matchesFilter;
-        });
-    }, [allConversations, pendingConversation, searchQuery, activeFilter]);
+        const sticky = activeConversation ?? pendingConversation;
+        if (!sticky || debouncedSearch) return allConversations;
+        if (activeFilter !== "all" && sticky.type !== activeFilter) return allConversations;
+        if (allConversations.some((c) => c.id === sticky.id)) return allConversations;
+        return [sticky, ...allConversations];
+    }, [allConversations, activeConversation, pendingConversation, debouncedSearch, activeFilter]);
 
     const shellHeight = "h-[calc(100vh-100px)] md:h-[calc(100vh-128px)]";
 
     const conversationListProps = {
         conversations: filteredConversations,
+        readCounts: counts?.by_read,
         isLoading: !data && isLoading,
         isError,
+        onLoadMore: fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
         selectedConversationId: activeConversation?.id ?? null,
         onSelectConversation: onSidebarConversationPress,
         getConversationHref,
@@ -460,14 +511,18 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
 
     /** On mobile there is no side-by-side pane, so the empty state replaces the list itself. */
     const showMobileEmptyState =
-        !isLoading && !isError && !searchQuery && filteredConversations.length === 0;
+        !isLoading &&
+        !isError &&
+        !searchQuery &&
+        readFilter === "all" &&
+        filteredConversations.length === 0;
 
     /**
      * "No groups yet" + create CTA belongs only to an actually empty group list.
      * With the group filter on and groups present, no selected conversation just
      * means nothing is open yet, so the generic tips pane is the right fallback.
      */
-    const showGroupsEmptyState = activeFilter === "group" && groupsCount === 0;
+    const showGroupsEmptyState = activeFilter === "group" && typeCounts?.group === 0;
 
     /** Shown instead of the conversation list as soon as a "chat now" target arrives. */
     const openingConversationState = (
@@ -478,37 +533,21 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     );
 
     const mobileTypeFilter = (
-        <div className="flex gap-2 p-2 bg-white rounded-t-lg border border-b-0 border-gray-200 overflow-x-auto shrink-0">
-            <button
-                type="button"
-                onClick={() => handleFilterChange("all")}
-                className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "all"
-                    ? "bg-blue-4 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-            >
-                الكل ({allCount})
-            </button>
-            <button
-                type="button"
-                onClick={() => handleFilterChange("direct")}
-                className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "direct"
-                    ? "bg-blue-4 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-            >
-                مباشرة ({directCount})
-            </button>
-            <button
-                type="button"
-                onClick={() => handleFilterChange("group")}
-                className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "group"
-                    ? "bg-blue-4 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-            >
-                مجموعات ({groupsCount})
-            </button>
+        <div className="p-2 bg-white rounded-t-lg border border-b-0 border-c2-neutral-200 overflow-x-auto shrink-0">
+            <Tabs value={activeFilter} onValueChange={handleFilterChange}>
+                <TabsList className="w-full">
+                    {typeFilters.map((f) => (
+                        <TabsTrigger key={f.value} value={f.value} className="gap-1.5">
+                            <span>{f.mobileLabel}</span>
+                            {typeCounts && (
+                                <span dir="ltr" className="font-digits leading-none text-xs">
+                                    {typeCounts[f.value]}
+                                </span>
+                            )}
+                        </TabsTrigger>
+                    ))}
+                </TabsList>
+            </Tabs>
         </div>
     );
 
@@ -599,12 +638,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             <CreateGroupModal
                 isOpen={showCreateGroupModal}
                 onClose={() => setShowCreateGroupModal(false)}
-                onSuccess={(conversationId) => {
-                    const newConv = allConversations.find(c => c.id === conversationId);
-                    if (newConv) {
-                        navigateToConversation(newConv);
-                    }
-                }}
+                onSuccess={(conversation) => navigateToConversation(conversation)}
                 ignoreCookie={ignoreCookie}
             />
         </div>

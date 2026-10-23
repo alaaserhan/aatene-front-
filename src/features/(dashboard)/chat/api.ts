@@ -96,10 +96,42 @@ export interface Conversation {
     } | null;
 }
 
+export type ConversationTypeFilter = "all" | "direct" | "group";
+export type ConversationReadFilter = "all" | "unread" | "read";
+
+export interface ConversationsQuery {
+    type?: ConversationTypeFilter;
+    read?: ConversationReadFilter;
+    search?: string;
+    page?: number;
+    perPage?: number;
+}
+
+export interface Pagination {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+}
+
 export interface GetConversationsResponse {
     status: boolean;
     message: string;
     conversations: Conversation[];
+    pagination?: Pagination;
+}
+
+export interface ConversationCounts {
+    /** Scoped by `search` only. */
+    by_type: Record<ConversationTypeFilter, number>;
+    /** Scoped by `type` and `search`, so the read tabs match the list under them. */
+    by_read: Record<ConversationReadFilter, number>;
+}
+
+export interface GetConversationCountsResponse {
+    status: boolean;
+    message: string;
+    counts: ConversationCounts;
 }
 
 export interface SendMessagePayload {
@@ -126,11 +158,51 @@ const getHeaders = (storeId?: number | string, ignoreCookie: boolean = false) =>
 
 // --- API Functions ---
 
-export const getConversations = async (storeId?: number | string, ignoreCookie: boolean = false): Promise<GetConversationsResponse> => {
+export const getConversations = async (
+    query: ConversationsQuery = {},
+    storeId?: number | string,
+    ignoreCookie: boolean = false
+): Promise<GetConversationsResponse> => {
     const headers = getHeaders(storeId, ignoreCookie);
     const { data } = await api.get<GetConversationsResponse>("/conversations", {
         headers,
+        params: {
+            type: query.type && query.type !== "all" ? query.type : undefined,
+            read: query.read && query.read !== "all" ? query.read : undefined,
+            search: query.search || undefined,
+            page: query.page ?? 1,
+            per_page: query.perPage ?? 20,
+        },
     });
+    return data;
+};
+
+export const getConversationCounts = async (
+    query: Pick<ConversationsQuery, "type" | "search"> = {},
+    storeId?: number | string,
+    ignoreCookie: boolean = false
+): Promise<GetConversationCountsResponse> => {
+    const headers = getHeaders(storeId, ignoreCookie);
+    const { data } = await api.get<GetConversationCountsResponse>("/conversations/counts", {
+        headers,
+        params: {
+            type: query.type && query.type !== "all" ? query.type : undefined,
+            search: query.search || undefined,
+        },
+    });
+    return data;
+};
+
+export const getConversation = async (
+    id: number | string,
+    storeId?: number | string,
+    ignoreCookie: boolean = false
+): Promise<{ status: boolean; message: string; conversation: Conversation }> => {
+    const headers = getHeaders(storeId, ignoreCookie);
+    const { data } = await api.get<{ status: boolean; message: string; conversation: Conversation }>(
+        `/conversations/${id}`,
+        { headers }
+    );
     return data;
 };
 

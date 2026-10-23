@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import { Conversation, Message } from "../api";
+import { Conversation, ConversationReadFilter, Message } from "../api";
 import { ParticipantAvatar } from "./ParticipantAvatar";
 import { cn } from "@/src/lib/utils";
 import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
@@ -14,7 +14,7 @@ import { User, Store, Users, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 
-export type ReadFilter = "all" | "unread" | "read";
+export type ReadFilter = ConversationReadFilter;
 
 const READ_FILTER_TABS: { value: ReadFilter; label: string }[] = [
     { value: "all", label: "الكل" },
@@ -22,12 +22,16 @@ const READ_FILTER_TABS: { value: ReadFilter; label: string }[] = [
     { value: "read", label: "مقروءة" },
 ];
 
-const isUnread = (conversation: Conversation) => conversation.unread_messages_count > 0;
-
 interface ConversationListSidebarProps {
+    /** Already filtered by the server (type, read state, search). */
     conversations: Conversation[];
+    /** Undefined while the counts endpoint is loading — the badges are hidden until then. */
+    readCounts?: Record<ReadFilter, number>;
     isLoading: boolean;
     isError: boolean;
+    onLoadMore?: () => void;
+    hasNextPage?: boolean;
+    isFetchingNextPage?: boolean;
     selectedConversationId: number | null;
     onSelectConversation: (conversation: Conversation) => void;
     /** When provided, rows navigate via `<Link>` — fixes the stale update with query params on desktop. */
@@ -109,8 +113,12 @@ function GroupAvatar({ conversation }: { conversation: Conversation }) {
 
 export function ConversationListSidebar({
     conversations,
+    readCounts,
     isLoading,
     isError,
+    onLoadMore,
+    hasNextPage,
+    isFetchingNextPage,
     selectedConversationId,
     onSelectConversation,
     getConversationHref,
@@ -175,27 +183,6 @@ export function ConversationListSidebar({
         }
     };
 
-    /**
-     * Counted from the same list the tabs filter, so each badge always matches the
-     * rows under it — the global unread endpoint ignores search and the type filter.
-     */
-    const counts = useMemo(() => {
-        const unread = conversations.filter(isUnread).length;
-        return { all: conversations.length, unread, read: conversations.length - unread };
-    }, [conversations]);
-
-    /**
-     * The open conversation stays in place even when it no longer matches the tab:
-     * opening an unread chat marks it read, and it shouldn't vanish from under the cursor.
-     */
-    const displayConversations = useMemo(() => {
-        if (readFilter === "all") return conversations;
-        const wantUnread = readFilter === "unread";
-        return conversations.filter(
-            (c) => c.id === selectedConversationId || isUnread(c) === wantUnread
-        );
-    }, [conversations, readFilter, selectedConversationId]);
-
     const scrollTargetDone = useRef<number | null>(null);
 
     useLayoutEffect(() => {
@@ -212,13 +199,16 @@ export function ConversationListSidebar({
         requestAnimationFrame(() => {
             el.scrollIntoView({ block: "nearest", behavior: "smooth" });
         });
-    }, [selectedConversationId, displayConversations]);
+    }, [selectedConversationId, conversations]);
 
     return (
         <GenericSidebarList
-            data={displayConversations}
+            data={conversations}
             isLoading={isLoading}
             isError={isError}
+            onLoadMore={onLoadMore}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
             searchQuery={searchQuery}
             headerAction={
                 onCreateGroup ? (
@@ -245,12 +235,14 @@ export function ConversationListSidebar({
                         {READ_FILTER_TABS.map((tab) => (
                             <TabsTrigger key={tab.value} value={tab.value} className="group gap-2">
                                 <span>{tab.label}</span>
-                                <span
-                                    dir="ltr"
-                                    className="font-digits leading-none px-1.5 py-1 rounded text-xs font-medium bg-c2-neutral-50 text-c2-neutral-500 group-data-[state=active]:bg-c2-navy-50 group-data-[state=active]:text-c2-primary"
-                                >
-                                    {counts[tab.value]}
-                                </span>
+                                {readCounts && (
+                                    <span
+                                        dir="ltr"
+                                        className="font-digits leading-none px-1.5 py-1 rounded text-xs font-medium bg-c2-neutral-50 text-c2-neutral-500 group-data-[state=active]:bg-c2-navy-50 group-data-[state=active]:text-c2-primary"
+                                    >
+                                        {readCounts[tab.value]}
+                                    </span>
+                                )}
                             </TabsTrigger>
                         ))}
                     </TabsList>
@@ -308,7 +300,7 @@ export function ConversationListSidebar({
                                     {getMessagePreview(lastMessage)}
                                 </p>
                                 {conversation.unread_messages_count > 0 && (
-                                    <span className="bg-red-600 font-baseline-fix text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-medium shrink-0 px-1">
+                                    <span dir="ltr" className="bg-red-600 font-digits leading-none text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-medium shrink-0 px-1">
                                         {conversation.unread_messages_count}
                                     </span>
                                 )}

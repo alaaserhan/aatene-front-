@@ -5,18 +5,66 @@ import * as api from "./api";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { toast } from "sonner";
 
+/** List, counts and detail all live under this prefix, so one invalidation refreshes them together. */
 const QK = {
     conversations: ["conversations"] as const,
 };
 
-export const useConversations = (storeId?: number | string, ignoreCookie: boolean = false, enabled: boolean = true) => {
+const CONVERSATIONS_PER_PAGE = 20;
+
+export const useConversations = (
+    query: Omit<api.ConversationsQuery, "page" | "perPage">,
+    storeId?: number | string,
+    ignoreCookie: boolean = false,
+    enabled: boolean = true
+) => {
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+    return useInfiniteQuery({
+        queryKey: [...QK.conversations, "list", storeId, ignoreCookie, query.type, query.read, query.search],
+        queryFn: ({ pageParam }) =>
+            api.getConversations({ ...query, page: pageParam, perPage: CONVERSATIONS_PER_PAGE }, storeId, ignoreCookie),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage: api.GetConversationsResponse) => {
+            const p = lastPage.pagination;
+            return p && p.current_page < p.last_page ? p.current_page + 1 : undefined;
+        },
+        enabled: enabled && isLoggedIn,
+        staleTime: 30 * 1000,
+    });
+};
+
+export const useConversationCounts = (
+    query: Pick<api.ConversationsQuery, "type" | "search">,
+    storeId?: number | string,
+    ignoreCookie: boolean = false
+) => {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
     return useQuery({
-        queryKey: [...QK.conversations, storeId, ignoreCookie],
-        queryFn: () => api.getConversations(storeId, ignoreCookie),
-        enabled: enabled && isLoggedIn,
+        queryKey: [...QK.conversations, "counts", storeId, ignoreCookie, query.type, query.search],
+        queryFn: () => api.getConversationCounts(query, storeId, ignoreCookie),
+        enabled: isLoggedIn,
         staleTime: 30 * 1000,
+        placeholderData: (previous) => previous,
+    });
+};
+
+/** For a conversation opened by URL that isn't in the pages loaded so far. */
+export const useConversation = (
+    id: number | string | null,
+    storeId?: number | string,
+    ignoreCookie: boolean = false,
+    enabled: boolean = true
+) => {
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+    return useQuery({
+        queryKey: [...QK.conversations, "detail", String(id), storeId, ignoreCookie],
+        queryFn: () => api.getConversation(id as number | string, storeId, ignoreCookie),
+        enabled: enabled && isLoggedIn && !!id,
+        staleTime: 30 * 1000,
+        retry: 0,
     });
 };
 
@@ -51,7 +99,6 @@ export const useSendMessage = () => {
             api.sendMessage(payload, ignoreCookie),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
-            queryClient.invalidateQueries({ queryKey: ["conversations"] });
             queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
             queryClient.invalidateQueries({ queryKey: ["total-unread"] });
         },

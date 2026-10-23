@@ -9,7 +9,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { usePreviousParticipants, useCreateConversation } from "../hooks";
-import { ParticipantData } from "../api";
+import { Conversation, ParticipantData } from "../api";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import { toast } from "sonner";
 import { ParticipantAvatar } from "./ParticipantAvatar";
@@ -17,7 +17,7 @@ import { ParticipantAvatar } from "./ParticipantAvatar";
 interface CreateGroupModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess?: (conversationId: number) => void;
+    onSuccess?: (conversation: Conversation) => void;
     ignoreCookie?: boolean;
 }
 
@@ -99,7 +99,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: C
                     setGroupName("");
                     setSelectedParticipants(new Set());
                     onClose();
-                    onSuccess?.(data.conversation.id);
+                    onSuccess?.(data.conversation);
                 },
             }
         );
