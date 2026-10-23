@@ -56,7 +56,7 @@ export default function ComparePage() {
     };
 
     const columns = compareType === "products"
-        ? ["المنتج", "الوصف", "السعر", "رسوم التوصيل", "التقييمات", "الإجراءات"]
+        ? ["المنتج", "الوصف", "السعر", "التقييمات", "الإجراءات"]
         : ["الخدمة", "الوصف", "السعر", "التقييمات", "الإجراءات"];
 
     return (
@@ -206,11 +206,6 @@ function ProductCompareRow({ item, onRemove }: { item: ProductCompareItem; onRem
                         </span>
                     </div>
                 )}
-            </div>
-
-            {/* Delivery Fee */}
-            <div className="flex-1 text-center text-base text-black">
-                {formatPrice(price)} ₪
             </div>
 
             {/* Rating */}

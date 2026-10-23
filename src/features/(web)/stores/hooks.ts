@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { useApiQuery } from "@/src/hooks/use-api-query";
@@ -85,10 +85,13 @@ export const useStoreServices = (storeId: number, sectionId: number | null, page
     });
 };
 
-export const useStoreWhoFavorited = (slug: string, enabled: boolean = true) => {
+export const STORE_WHO_FAVORITED_PER_PAGE = 10;
+
+export const useStoreWhoFavorited = (slug: string, page: number = 1, enabled: boolean = true) => {
     return useApiQuery({
-        queryKey: ["storeWhoFavorited", slug],
-        queryFn: () => getStoreWhoFavorited(slug),
+        queryKey: ["storeWhoFavorited", slug, page],
+        queryFn: () => getStoreWhoFavorited(slug, { page, per_page: STORE_WHO_FAVORITED_PER_PAGE }),
         enabled: !!slug && enabled,
+        placeholderData: keepPreviousData,
     });
 };

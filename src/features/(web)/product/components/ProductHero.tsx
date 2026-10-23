@@ -338,7 +338,14 @@ export default function ProductHero({
   );
 }
 
-/** Days : hours : minutes left on the discount; hidden once it has expired. */
+function dayUnit(days: number) {
+  if (days === 2) return "يومان";
+  if (days >= 3 && days <= 10) return "أيام";
+  if (days >= 11) return "يومًا";
+  return "يوم";
+}
+
+/** Days : hours : minutes left on the discount; days drop out on the last day, and it hides once expired. */
 function OfferCountdown({
   endDate,
   className,
@@ -374,10 +381,14 @@ function OfferCountdown({
         className,
       )}
     >
-      <span dir="ltr" className="font-digits leading-none">
-        {days}
-      </span>
-      يوم :
+      {days > 0 && (
+        <>
+          <span dir="ltr" className="font-digits leading-none">
+            {days}
+          </span>
+          {dayUnit(days)} :
+        </>
+      )}
       <span dir="ltr" className="font-digits leading-none">
         {pad(hours)} : {pad(minutes)}
       </span>

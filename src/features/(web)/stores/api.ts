@@ -290,10 +290,14 @@ export interface WhoFavoritedUser {
 export interface GetWhoFavoritedResponse {
     status: boolean;
     message: string;
+    total: number;
     users: WhoFavoritedUser[];
 }
 
-export const getStoreWhoFavorited = async (slug: string): Promise<GetWhoFavoritedResponse> => {
-    const { data } = await api.get<GetWhoFavoritedResponse>(`/stores/${slug}/who-favorited`);
+export const getStoreWhoFavorited = async (
+    slug: string,
+    params: { page?: number; per_page?: number } = {}
+): Promise<GetWhoFavoritedResponse> => {
+    const { data } = await api.get<GetWhoFavoritedResponse>(`/stores/${slug}/who-favorited`, { params });
     return data;
 };

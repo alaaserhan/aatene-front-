@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { StoreProfile, WhoFavoritedFavorite, WhoFavoritedUser } from "../api";
+import { GetWhoFavoritedResponse, StoreProfile, WhoFavoritedFavorite, WhoFavoritedUser } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
     MessageCircle,
@@ -30,7 +30,8 @@ import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButt
 import { useQueryClient } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
-import { useStoreWhoFavorited } from "../hooks";
+import { STORE_WHO_FAVORITED_PER_PAGE, useStoreWhoFavorited } from "../hooks";
+import { Pagination } from "@/src/components/ui/Pagination";
 import { useUser } from "@/src/auth/session";
 import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
@@ -213,33 +214,33 @@ function WhoFavoritedSection({
     isOpen: boolean;
     onClose: () => void;
 }) {
-    const { data, isLoading } = useStoreWhoFavorited(slug, isOpen);
+    const [page, setPage] = useState(1);
+    const { data, isLoading } = useStoreWhoFavorited(slug, page, isOpen);
     const queryClient = useQueryClient();
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const [pendingUserId, setPendingUserId] = useState<number | null>(null);
     const currentUser = useUser();
 
-    const users = data?.users || [];
+    const users = data?.users ?? [];
+    const total = Number(data?.total ?? 0);
+    const totalPages = Math.ceil(total / STORE_WHO_FAVORITED_PER_PAGE);
 
     const handleFollowToggle = (user: WhoFavoritedUser) => {
         setPendingUserId(user.id);
+        const isCurrentlyFollowing = Boolean(user.am_i_following);
 
-        // Read the real follow state from the cache before mutating it
-        const currentCache = queryClient.getQueryData<any>(["storeWhoFavorited", slug]);
-        const currentUser = currentCache?.users?.find((u: WhoFavoritedUser) => u.id === user.id);
-        const isCurrentlyFollowing = currentUser ? currentUser.am_i_following : user.am_i_following;
-
-        // Optimistic update: flip am_i_following immediately in cache
-        queryClient.setQueryData(["storeWhoFavorited", slug], (old: any) => {
-            if (!old) return old;
-            return {
-                ...old,
-                users: old.users.map((u: WhoFavoritedUser) =>
-                    u.id === user.id ? { ...u, am_i_following: !isCurrentlyFollowing } : u
-                ),
-            };
-        });
+        // Optimistic flip. Matched by prefix because the real key also ends with page and locale.
+        queryClient.setQueriesData<GetWhoFavoritedResponse>(
+            { queryKey: ["storeWhoFavorited", slug] },
+            (old) =>
+                old && {
+                    ...old,
+                    users: old.users.map((u) =>
+                        u.id === user.id ? { ...u, am_i_following: !isCurrentlyFollowing } : u
+                    ),
+                }
+        );
 
         const onDone = () => {
             setPendingUserId(null);
@@ -268,7 +269,7 @@ function WhoFavoritedSection({
                     <div>
                         <h2 className="text-xl md:text-2xl font-bold">من تابع هذا المتجر؟</h2>
                         <p className="text-sm text-gray-400 mt-1">
-                            {users.length} من الأشخاص تابعوا المتجر
+                            {total.toLocaleString("en-US")} من الأشخاص تابعوا المتجر
                         </p>
                     </div>
                     <button
@@ -298,6 +299,15 @@ function WhoFavoritedSection({
                                 isSelf={currentUser != null && Number(currentUser.id) === Number(user.id)}
                             />
                         ))}
+                        {totalPages > 1 && (
+                            <div className="mt-6 flex justify-center dir-ltr">
+                                <Pagination
+                                    currentPage={page}
+                                    totalPages={totalPages}
+                                    onPageChange={setPage}
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
