@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import { ar, arSA } from "date-fns/locale";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AxiosError } from "axios";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
@@ -672,7 +673,35 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                                 "max-w-[85%] sm:max-w-[75%] rounded-xl p-3 px-4 text-sm",
                                                 isMe ? "bg-blue-5 " : "bg-white  border border-gray-100 shadow-sm"
                                             )}>
-                                                {msg.body && <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>}
+                                                {msg.files_url && msg.files_url.length > 0 && (
+                                                    <div className={cn(
+                                                        "grid gap-2",
+                                                        msg.files_url.length === 1 ? "grid-cols-1" :
+                                                            msg.files_url.length === 2 ? "grid-cols-2" :
+                                                                "grid-cols-3"
+                                                    )}>
+                                                        {msg.files_url.map((url: string, i: number) => (
+                                                            <Image
+                                                                key={i}
+                                                                src={url}
+                                                                alt={`صورة مرفقة ${i + 1}`}
+                                                                width={400}
+                                                                height={96}
+                                                                onClick={() => setMediaViewerState({ isOpen: true, media: msg.files_url!, initialIndex: i })}
+                                                                className="rounded-lg w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {msg.body && (
+                                                    <p className={cn(
+                                                        "leading-relaxed whitespace-pre-wrap",
+                                                        msg.files_url && msg.files_url.length > 0 && "mt-2"
+                                                    )}>
+                                                        {msg.body}
+                                                    </p>
+                                                )}
 
                                                 {msg.service && (
                                                     <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
@@ -721,25 +750,6 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                                                 <span className="text-[10px] text-gray-400 mr-1">({msg.product.review_count})</span>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                )}
-
-                                                {msg.files_url && msg.files_url.length > 0 && (
-                                                    <div className={cn(
-                                                        "grid gap-2 ",
-                                                        msg.files_url.length === 1 ? "grid-cols-1" :
-                                                            msg.files_url.length === 2 ? "grid-cols-2" :
-                                                                "grid-cols-3"
-                                                    )}>
-                                                        {msg.files_url.map((url: string, i: number) => (
-                                                            <img
-                                                                key={i}
-                                                                src={url}
-                                                                alt=""
-                                                                onClick={() => setMediaViewerState({ isOpen: true, media: msg.files_url!, initialIndex: i })}
-                                                                className="rounded-lg w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                                            />
-                                                        ))}
                                                     </div>
                                                 )}
                                             </div>
