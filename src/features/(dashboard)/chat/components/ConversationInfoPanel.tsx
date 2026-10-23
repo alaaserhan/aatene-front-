@@ -1,12 +1,13 @@
 "use client";
 
-import { Conversation, ConversationFile } from "../api";
-import { useConversationFiles } from "../hooks";
-import { X, Download, FileText, User, Store, Loader2 } from "lucide-react";
+import { Conversation, ConversationFile, ParticipantData } from "../api";
+import { useConversationFiles, useRemoveParticipant } from "../hooks";
+import { X, Download, FileText, User, Store, Loader2, UserMinus } from "lucide-react";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import Link from "next/link";
 import { useState } from "react";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { ParticipantAvatar } from "./ParticipantAvatar";
 
 interface ConversationInfoPanelProps {
@@ -14,6 +15,9 @@ interface ConversationInfoPanelProps {
     isOpen: boolean;
     onClose: () => void;
     ignoreCookie: boolean;
+    /** Shows a remove action on every member except the current participant. */
+    canRemoveMembers?: boolean;
+    currentParticipant?: { type: "user" | "store"; id?: string };
 }
 
 function getFileNameFromUrl(url: string): string {
@@ -43,8 +47,26 @@ function getProfileLink(participantData: { type: "user" | "store"; slug?: string
     return `/profile/${participantData.slug || participantData.id}`;
 }
 
-export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCookie }: ConversationInfoPanelProps) {
+export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCookie, canRemoveMembers = false, currentParticipant }: ConversationInfoPanelProps) {
     const { data: filesData, isLoading: filesLoading } = useConversationFiles(conversation.id, ignoreCookie, isOpen);
+    const { mutate: removeParticipant, isPending: isRemoving } = useRemoveParticipant();
+    const [memberToRemove, setMemberToRemove] = useState<ParticipantData | null>(null);
+
+    const handleRemoveMember = () => {
+        if (!memberToRemove) return;
+        removeParticipant(
+            {
+                conversationId: conversation.id,
+                payload: { type: memberToRemove.type, id: memberToRemove.id },
+                ignoreCookie,
+            },
+            {
+                onSuccess: (data) => {
+                    if (data.status !== false) setMemberToRemove(null);
+                },
+            }
+        );
+    };
     const [mediaViewerState, setMediaViewerState] = useState<{ isOpen: boolean; media: string[]; initialIndex: number }>({
         isOpen: false,
         media: [],
@@ -103,33 +125,47 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
                             <div className="space-y-1">
                                 {participants.map((participant) => {
                                     const pData = participant.participant_data;
+                                    const isCurrent = currentParticipant?.type === pData.type &&
+                                        String(currentParticipant.id) === String(pData.id);
                                     return (
-                                        <Link
-                                            key={participant.id}
-                                            href={getProfileLink(pData)}
-                                            className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-colors group"
-                                        >
-                                            <ParticipantAvatar
-                                                src={pData.avatar}
-                                                size={40}
-                                                className="bg-blue-5 border border-gray-100 shrink-0"
-                                                fallback={
-                                                    pData.type === "store" ? (
-                                                        <Store className="w-5 h-5 text-blue-3" aria-hidden="true" />
-                                                    ) : (
-                                                        <User className="w-5 h-5 text-blue-3" aria-hidden="true" />
-                                                    )
-                                                }
-                                            />
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-sm font-medium  truncate group-hover:text-blue-3 transition-colors">
-                                                    {pData.name || (pData.type === "store" ? "متجر" : "مستخدم")}
-                                                </p>
-                                                <p className="text-xs text-gray-400">
-                                                    {pData.type === "store" ? "متجر" : "مستخدم"}
-                                                </p>
-                                            </div>
-                                        </Link>
+                                        <div key={participant.id} className="flex items-center gap-1">
+                                            <Link
+                                                href={getProfileLink(pData)}
+                                                className="flex flex-1 min-w-0 items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-colors group"
+                                            >
+                                                <ParticipantAvatar
+                                                    src={pData.avatar}
+                                                    size={40}
+                                                    className="bg-blue-5 border border-gray-100 shrink-0"
+                                                    fallback={
+                                                        pData.type === "store" ? (
+                                                            <Store className="w-5 h-5 text-blue-3" aria-hidden="true" />
+                                                        ) : (
+                                                            <User className="w-5 h-5 text-blue-3" aria-hidden="true" />
+                                                        )
+                                                    }
+                                                />
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-sm font-medium  truncate group-hover:text-blue-3 transition-colors">
+                                                        {pData.name || (pData.type === "store" ? "متجر" : "مستخدم")}
+                                                    </p>
+                                                    <p className="text-xs text-gray-400">
+                                                        {pData.type === "store" ? "متجر" : "مستخدم"}
+                                                    </p>
+                                                </div>
+                                            </Link>
+                                            {canRemoveMembers && !isCurrent && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setMemberToRemove(pData)}
+                                                    aria-label={`إزالة ${pData.name || "العضو"} من المجموعة`}
+                                                    title="إزالة من المجموعة"
+                                                    className="p-2 rounded-lg text-c2-neutral-500 hover:text-c2-danger hover:bg-c2-red-500-a10 transition-colors shrink-0 cursor-pointer"
+                                                >
+                                                    <UserMinus className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </div>
                                     );
                                 })}
                             </div>
@@ -228,6 +264,18 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
                 onClose={() => setMediaViewerState(prev => ({ ...prev, isOpen: false }))}
                 media={mediaViewerState.media}
                 initialIndex={mediaViewerState.initialIndex}
+            />
+
+            <ConfirmDeleteModal
+                isOpen={!!memberToRemove}
+                onClose={() => setMemberToRemove(null)}
+                onConfirm={handleRemoveMember}
+                title={`هل تريد إزالة ${memberToRemove?.name || "هذا العضو"} من المجموعة؟`}
+                description="لن يتمكن من قراءة رسائل المجموعة أو إرسالها بعد إزالته، ويمكنك إضافته مرة أخرى لاحقًا."
+                confirmText="نعم، قم بالإزالة"
+                confirmPosition="start"
+                isLoading={isRemoving}
+                autoCloseOnConfirm={false}
             />
         </>
     );

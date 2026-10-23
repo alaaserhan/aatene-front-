@@ -42,7 +42,7 @@ export function NotificationTemplatesTable({ data, isLoading, onEdit }: Notifica
                 <thead className="bg-gray-50 font-medium text-gray-500">
                     <tr>
                         <th className="px-6 py-4 whitespace-nowrap text-start">عنوان القالب</th>
-                        <th className="px-6 py-4 whitespace-nowrap text-center">تم الانشاء</th>
+                        <th className="px-6 py-4 whitespace-nowrap text-center">تم الإنشاء</th>
                         <th className="px-6 py-4 whitespace-nowrap text-start">عمليات</th>
                     </tr>
                 </thead>

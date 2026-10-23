@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import * as api from "./api";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { toast } from "sonner";
 
 const QK = {
     conversations: ["conversations"] as const,
@@ -143,7 +144,30 @@ export const useAddParticipant = () => {
     });
 };
 
-export const usePreviousParticipants = (ignoreCookie: boolean = false, name?: string) => {
+export const useRemoveParticipant = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationKey: ["remove-participant"],
+        retry: 0,
+        mutationFn: ({ conversationId, payload, ignoreCookie }: { conversationId: number | string; payload: api.AddParticipantPayload; ignoreCookie?: boolean }) =>
+            api.removeParticipant(conversationId, payload, ignoreCookie),
+        onSuccess: (data) => {
+            if (data.status === false) {
+                toast.error(data.message || "تعذّر إزالة العضو");
+                return;
+            }
+            toast.success("تمت إزالة العضو من المجموعة");
+            return queryClient.invalidateQueries({ queryKey: QK.conversations });
+        },
+        onError: (error) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            toast.error((error as any)?.response?.data?.message || "تعذّر إزالة العضو");
+        },
+    });
+};
+
+export const usePreviousParticipants =(ignoreCookie: boolean = false, name?: string) => {
     return useInfiniteQuery({
         queryKey: ["previous-participants", ignoreCookie, name],
         queryFn: ({ pageParam = 1 }) => api.getPreviousParticipants(pageParam, 15, ignoreCookie, name),

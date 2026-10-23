@@ -41,8 +41,8 @@ export function ReportsTable({ reports, isLoading, showStore = true, emptyMessag
                         {showStore && (
                             <th className="hidden md:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">ضد من</th>
                         )}
-                        <th className="hidden sm:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">تم الانشاء</th>
-                        <th className="hidden md:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">تاريخ الانشاء</th>
+                        <th className="hidden sm:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">تم الإنشاء</th>
+                        <th className="hidden md:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">تاريخ الإنشاء</th>
                         <th className="px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">حالة الشكوى</th>
                     </tr>
                 </thead>

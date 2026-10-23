@@ -140,8 +140,8 @@ export function AddStoryModal({
             {storyToEdit ?
               "تعديل القصة"
               : currentMode === "text" ?
-                "انشاء قصة نصية"
-                : "انشاء قصة مصورة"}
+                "إنشاء قصة نصية"
+                : "إنشاء قصة مصورة"}
           </DialogTitle>
         </DialogHeader>
 

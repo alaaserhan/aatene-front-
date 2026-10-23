@@ -407,7 +407,7 @@ export function CreateNotificationModal({
                 },
                 onError: (error) => {
                     console.error(error);
-                    toast.error("حدث خطأ اثناء انشاء الاشعار");
+                    toast.error("حدث خطأ اثناء إنشاء الاشعار");
                 }
             });
         }

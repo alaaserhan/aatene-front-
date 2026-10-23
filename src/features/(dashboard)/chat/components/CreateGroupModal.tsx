@@ -117,7 +117,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: C
             <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0 overflow-hidden " dir="rtl">
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5/50">
                     <DialogTitle className="text-lg font-semibold ">
-                        انشاء مجموعة
+                        إنشاء مجموعة
                     </DialogTitle>
                 </div>
 
@@ -211,7 +211,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: C
                         disabled={isCreating || !groupName.trim() || selectedParticipants.size === 0}
                         className="px-6 py-2 rounded-md bg-blue-3 text-white font-medium hover:bg-blue-4 transition-colors h-auto"
                     >
-                        {isCreating ? "جاري الإنشاء..." : "انشاء"}
+                        {isCreating ? "جاري الإنشاء..." : "إنشاء"}
                     </Button>
                 </div>
             </DialogContent>

@@ -73,8 +73,8 @@ export function LatestsProducts() {
                             <th className="py-3 px-4 text-right text-xs font-medium ">رقم المنتج</th>
                             <th className="hidden sm:table-cell py-3 px-4 text-center text-xs font-medium ">حالة الطلب</th>
                             <th className="hidden sm:table-cell py-3 px-4 text-center text-xs font-medium ">التاجر</th>
-                            <th className="hidden md:table-cell py-3 px-4 text-center text-xs font-medium ">تم الانشاء</th>
-                            <th className="py-3 px-4 text-center text-xs font-medium ">تاريخ الانشاء</th>
+                            <th className="hidden md:table-cell py-3 px-4 text-center text-xs font-medium ">تم الإنشاء</th>
+                            <th className="py-3 px-4 text-center text-xs font-medium ">تاريخ الإنشاء</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">

@@ -71,10 +71,10 @@ export function CreateHighlightModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl p-6 rounded-2xl bg-white z-[10010]" overlayClassName="z-[10005]" dir="rtl">
-        <VisuallyHidden><DialogTitle>{highlightToEdit ? "تعديل المجموعة" : "انشاء مجموعة جديدة"}</DialogTitle></VisuallyHidden>
+        <VisuallyHidden><DialogTitle>{highlightToEdit ? "تعديل المجموعة" : "إنشاء مجموعة جديدة"}</DialogTitle></VisuallyHidden>
         <div className="space-y-6">
           <h3 className="text-lg font-bold  text-right">
-            {highlightToEdit ? "تعديل المجموعة" : "انشاء مجموعة جديدة"}
+            {highlightToEdit ? "تعديل المجموعة" : "إنشاء مجموعة جديدة"}
           </h3>
 
           <FormInput

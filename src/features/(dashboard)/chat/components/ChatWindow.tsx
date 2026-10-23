@@ -913,6 +913,8 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                     isOpen={showInfoPanel}
                     onClose={() => setShowInfoPanel(false)}
                     ignoreCookie={ignoreCookie}
+                    canRemoveMembers={String(conversation.owner_id) === String(user?.id)}
+                    currentParticipant={{ type: currentParticipantType, id: currentParticipantId }}
                 />
             )}
         </div>
