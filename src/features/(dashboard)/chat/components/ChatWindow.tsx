@@ -515,11 +515,12 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
 
                     if (linkedProduct) {
                         /**
-                         * "اطلب الآن" carries the product id it was pressed on,
-                         * so the offer only shows on that conversation and not
-                         * on whichever one the user opens next.
+                         * The offer shows to both sides whenever the product has
+                         * one — the merchant never gets the `bundle` param. It
+                         * only opens the offer expanded for the customer who
+                         * pressed "اطلب الآن" on it.
                          */
-                        const showsBundle =
+                        const openedFromBundle =
                             searchParams.get(CHAT_BUNDLE_PARAM) === String(linkedProduct.id);
 
                         return (
@@ -546,8 +547,12 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                 </div>
                             </div>
 
-                            {showsBundle && linkedProduct.slug && (
-                                <ChatBundleOffer slug={linkedProduct.slug} />
+                            {linkedProduct.slug && (
+                                <ChatBundleOffer
+                                    key={linkedProduct.id}
+                                    slug={linkedProduct.slug}
+                                    defaultOpen={openedFromBundle}
+                                />
                             )}
                             </>
                         );

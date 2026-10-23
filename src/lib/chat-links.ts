@@ -21,9 +21,10 @@ export interface ChatTarget {
   /** Marks the conversation as a price inquiry. */
   askPrice?: boolean;
   /**
-   * Opens the conversation with the product's bundle offer pinned under the
-   * product card, read-only. Carries the product id rather than a flag so the
-   * card only shows on the conversation the offer belongs to.
+   * Opens the conversation with the product's bundle offer expanded. The offer
+   * is pinned for both sides regardless; this only decides its initial state.
+   * Carries the product id rather than a flag so it only expands on the
+   * conversation the offer belongs to.
    */
   bundleProductId?: number | string | null;
 }

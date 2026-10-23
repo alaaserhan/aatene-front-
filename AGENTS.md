@@ -123,13 +123,16 @@ are redirected to login first. Reuse it instead of pushing a chat URL by hand.
 - **`ChatTarget.productId` / `serviceId`** seed the conversation with that item —
   `ChatPage` posts a message instead of just creating the conversation, and `ChatWindow`
   pins the item as a card above the thread.
-- **`ChatTarget.bundleProductId`** additionally pins the product's cross-sell offer under
-  that card, read-only ([`ChatBundleOffer`](src/features/(dashboard)/chat/components/ChatBundleOffer.tsx),
-  collapsed to one line so the header does not eat a phone screen). It travels as the
-  `bundle` query param, deliberately **not** listed in `CHAT_TARGET_PARAMS`: those are
-  stripped once the conversation exists and the URL becomes `?chat=…`, and this one has
-  to outlive them. It carries the product id rather than a flag so the offer only shows
-  on the conversation it belongs to.
+- **The linked product's cross-sell offer** is pinned under that card, read-only, for
+  both the customer and the merchant whenever the product has one
+  ([`ChatBundleOffer`](src/features/(dashboard)/chat/components/ChatBundleOffer.tsx),
+  collapsed to one line so the header does not eat a phone screen).
+  **`ChatTarget.bundleProductId`** only opens it expanded. It travels as the `bundle`
+  query param, deliberately **not** listed in `CHAT_TARGET_PARAMS`: those are stripped
+  once the conversation exists and the URL becomes `?chat=…`, and this one has to
+  outlive them. It carries the product id rather than a flag so it only expands on the
+  conversation it belongs to. Never gate the offer's visibility on the param — the
+  merchant's dashboard chat never receives it.
 - **`loadingReplacesLabel`** keeps the label in place but `invisible` and spins over it —
   for buttons whose box must not move while the chat opens. Without it the spinner is
   added beside the label and the button grows.

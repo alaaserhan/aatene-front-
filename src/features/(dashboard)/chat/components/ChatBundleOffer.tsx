@@ -11,11 +11,13 @@ import { cn, sanitizeMediaUrl } from "@/src/lib/utils";
 interface ChatBundleOfferProps {
     /** Slug of the conversation's linked product, used to load its offer. */
     slug: string;
+    /** Starts expanded — for the customer who pressed "اطلب الآن" on the offer. */
+    defaultOpen?: boolean;
 }
 
 /**
- * The bundle offer the customer pressed "اطلب الآن" on, pinned under the
- * conversation's product card. Read-only, and collapsed to a single line: the
+ * The linked product's bundle offer, pinned under the conversation's product
+ * card for both the customer and the merchant. Read-only, and collapsed to a single line: the
  * chat header already spends a row on the product, and a second full card
  * would push the messages themselves off a phone screen. The summary carries
  * what the offer is and what it costs; the products are one tap away.
@@ -23,8 +25,8 @@ interface ChatBundleOfferProps {
  * Renders nothing while the product loads or when it carries no offer, so the
  * header stays exactly as it was for every other conversation.
  */
-export function ChatBundleOffer({ slug }: ChatBundleOfferProps) {
-    const [isOpen, setIsOpen] = useState(false);
+export function ChatBundleOffer({ slug, defaultOpen = false }: ChatBundleOfferProps) {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
     const { data } = useGetProductBySlug(slug);
     const product = data?.product;
 
