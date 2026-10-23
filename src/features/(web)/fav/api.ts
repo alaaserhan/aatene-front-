@@ -16,7 +16,7 @@ export interface FavoriteList {
 export interface FavoriteItem {
     id: number;
     favs_type: string;
-    /** قد يكون null إن حُذف المخزن/المنتج أو لم يُحمَّل من الـ API */
+    /** Null when the store/product was deleted or the API did not load it. */
     favs: {
         id: number;
         slug: string;
@@ -38,7 +38,7 @@ export interface FavoriteItem {
 export interface CreateListPayload {
     name: string;
     description: string;
-    type: "store" | "product" | "service" | "blog";
+    type: "store" | "product" | "service";
     is_private: 0 | 1;
 }
 

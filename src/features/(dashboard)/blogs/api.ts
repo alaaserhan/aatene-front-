@@ -18,7 +18,6 @@ export interface Blog {
     description: string;
     content: BlogContent[];
     store_id: string;
-    favorites_count: number;
     review_rate: number;
     review_count: number;
     published_at: string;

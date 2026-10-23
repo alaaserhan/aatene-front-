@@ -13,7 +13,6 @@ import { useState, useRef, useEffect } from "react";
 import {
     Star,
     MessageCircle,
-    Heart,
     Link2,
     MessageSquare,
     Store as StoreIcon,
@@ -23,10 +22,6 @@ import {
 } from "lucide-react";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
-import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
-import { useQueryClient } from "@tanstack/react-query";
-import { blogsKeys } from "../hooks";
-import { cn } from "@/src/lib/utils";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
@@ -292,35 +287,6 @@ export default function BlogDetailsPage() {
     const formRef = useRef<ReviewFormRef>(null);
     const addReview = useAddBlogReview();
 
-    // Favorites handling
-    const addToFavorites = useAddToFavorites();
-    const removeFromFavorites = useRemoveFromFavorites();
-    const queryClient = useQueryClient();
-
-    const handleToggleFavorite = () => {
-        if (!blog) return;
-
-        mutationCallback({ favs_type: "blog", favs_id: String(blog.id) });
-    };
-
-    const mutationCallback = (payload: { favs_type: string, favs_id: string }) => {
-        if (blog?.is_favorite) {
-            removeFromFavorites.mutate(payload, {
-                onSuccess: () => {
-                    queryClient.invalidateQueries({ queryKey: blogsKeys.detail(blog.id) });
-                    queryClient.invalidateQueries({ queryKey: blogsKeys.detail(slug) });
-                }
-            });
-        } else {
-            addToFavorites.mutate(payload, {
-                onSuccess: () => {
-                    queryClient.invalidateQueries({ queryKey: blogsKeys.detail(blog!.id) });
-                    queryClient.invalidateQueries({ queryKey: blogsKeys.detail(slug) });
-                }
-            });
-        }
-    };
-
     const handleSubmitReview = async (data: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
         const formData = new FormData();
         formData.append("content", data.content);
@@ -440,18 +406,6 @@ export default function BlogDetailsPage() {
                     {/* Share + Actions Bar */}
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-8">
-                            <div
-                                className="relative right-2 cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={handleToggleFavorite}
-                            >
-                                <Heart
-                                    className={cn("w-6 h-6 transition-colors", blog.is_favorite ? "fill-red-500 text-red-500" : "text-gray-700")}
-                                    strokeWidth={1.5}
-                                />
-                                <span className="absolute pt-1 -top-2 -right-4 bg-[#395a7d] text-white sm:text-[11px] text-[8px] font-normal px-1.5 py-0 rounded-full min-w-[25px] flex items-center justify-center border-2 border-white">
-                                    {blog.favorites_count || "0"}
-                                </span>
-                            </div>
                             <div
                                 className="relative cursor-pointer hover:opacity-80 transition-opacity"
                                 onClick={() => {

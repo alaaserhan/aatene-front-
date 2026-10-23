@@ -72,7 +72,6 @@ const FAV_ROUTE_SEGMENT: Record<string, string> = {
     product: "products",
     service: "services",
     store: "stores",
-    blog: "blogs",
 };
 
 type LinkableFavorite = WhoFavoritedFavorite & {

@@ -12,7 +12,7 @@ import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 interface FavoriteButtonProps {
     id: number | string;
-    type: "product" | "service" | "store" | "blog"; // Using specific types
+    type: "product" | "service" | "store";
     isFavorite?: boolean;
     className?: string; // For button styling
     iconClassName?: string; // For image size control

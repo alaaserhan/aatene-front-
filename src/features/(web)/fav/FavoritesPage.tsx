@@ -5,14 +5,20 @@ import { usePathname, useSearchParams } from "next/navigation";
 import FavoritesSidebar from "./components/FavoritesSidebar";
 import FavoritesContent from "./components/FavoritesContent";
 
-export type FavoritesType = "all" | "product" | "store" | "service" | "blog";
+const FAVORITES_TYPES = ["all", "product", "store", "service"] as const;
+export type FavoritesType = (typeof FAVORITES_TYPES)[number];
+
+const isFavoritesType = (value: string | null): value is FavoritesType =>
+    FAVORITES_TYPES.includes(value as FavoritesType);
 
 export default function FavoritesPage() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
     // 1. Maintain local state for selectedType to provide instant, lag-free UI updates
-    const urlType = (searchParams.get("type") as FavoritesType) || "all";
+    // Unknown values (e.g. old `?type=blog` links) fall back to "all".
+    const rawType = searchParams.get("type");
+    const urlType: FavoritesType = isFavoritesType(rawType) ? rawType : "all";
     const [prevUrlType, setPrevUrlType] = useState<FavoritesType>(urlType);
     const [selectedType, setSelectedType] = useState<FavoritesType>(urlType);
 

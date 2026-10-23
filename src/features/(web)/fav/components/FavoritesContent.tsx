@@ -16,8 +16,6 @@ import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { Store } from "@/src/features/(web)/search/api";
 import { Service } from "@/src/features/(web)/services/api";
-import { BlogCard } from "@/src/features/(web)/blogs/components/BlogCard";
-import { Blog } from "@/src/features/(web)/blogs/types";
 import { Pencil, Search, Plus, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { cn } from "@/src/lib/utils";
@@ -99,20 +97,17 @@ export default function FavoritesContent({
     const totalItems = currentData?.total || 0;
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
-    // Blogs come back with `title` instead of `name`
-    const getFavoriteLabel = (item: FavoriteItem) =>
-        item.favs?.name ?? (item.favs as unknown as Blog | null)?.title ?? "";
-
     // Client-side search filtering
     const filteredFavorites = searchQuery.trim()
         ? favoritesList.filter((item) =>
-            getFavoriteLabel(item).toLowerCase().includes(searchQuery.trim().toLowerCase())
+            (item.favs?.name ?? "").toLowerCase().includes(searchQuery.trim().toLowerCase())
         )
         : favoritesList;
 
+    // Articles can no longer be favorited; drop any rows left over from before.
     const visibleFavorites = filteredFavorites.filter(
         (item): item is FavoriteItem & { favs: NonNullable<FavoriteItem["favs"]> } =>
-            item.favs != null
+            item.favs != null && item.favs_type !== "blog"
     );
 
     // Handle list badge click
@@ -279,21 +274,6 @@ export default function FavoritesContent({
                             }
                             if (item.favs_type === "service") {
                                 return <ServiceCard key={item.id} service={item.favs as unknown as Service} />;
-                            }
-                            if (item.favs_type === "blog") {
-                                const blog = item.favs as unknown as Blog;
-                                return (
-                                    <BlogCard
-                                        key={item.id}
-                                        blog={{
-                                            ...blog,
-                                            // Fall back to the generic favorite fields when the API
-                                            // returns the shared favorite shape instead of a full blog
-                                            title: blog.title ?? item.favs.name,
-                                            thumbnail_url: blog.thumbnail_url ?? item.favs.cover,
-                                        }}
-                                    />
-                                );
                             }
                             return (
                                 <ProductCard

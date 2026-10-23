@@ -38,7 +38,7 @@ export interface ProductCardProps {
     isFavorite?: boolean;
     onFavoriteClick?: (id: number | string) => void;
     className?: string;
-    type?: "product" | "store" | "service" | "blog";
+    type?: "product" | "store" | "service";
     /** Links "ask for price" to the store chat; when omitted, it opens the product page. */
     storeId?: number | string;
     /**

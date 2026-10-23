@@ -16,9 +16,7 @@ export default function FavoritesSidebar({
         { label: "جميع العناصر", value: "all" },
         { label: "المنتجات المفضلة", value: "product" },
         { label: "المتاجر المفضلة", value: "store" },
-        { label: "الخدمات المفضلة", value: "service" },
-        { label: "المدونات المفضلة", value: "blog" },
-    ];
+        { label: "الخدمات المفضلة", value: "service" },    ];
 
     return (
         <div className=" border border-gray-200 rounded-md p-4 flex flex-col gap-4">

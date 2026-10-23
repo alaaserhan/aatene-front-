@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, Heart } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Blog } from "../types";
@@ -46,14 +46,6 @@ export function BlogCard({ blog, isHero = false }: { blog: Blog; isHero?: boolea
                                         <MessageCircle className="w-5 h-5 text-gray-900" strokeWidth={1.5} />
                                         <span className="absolute -top-2 border-2 border-white -right-4 bg-blue-3 text-white text-[8px] md:text-[9px] font-medium px-2 py-px rounded-full min-w-[24px] flex items-center justify-center">
                                             {blog.review_count ?? 0}
-                                        </span>
-                                    </div>
-
-                                    {/* Heart Icon with Badge */}
-                                    <div className="relative">
-                                        <Heart className="w-5 h-5 text-gray-900" strokeWidth={1.5} />
-                                        <span className="absolute -top-2 border-2 border-white -right-4 bg-blue-3 text-white text-[8px] md:text-[9px] font-medium px-2 py-px rounded-full min-w-[20px] flex items-center justify-center">
-                                            {blog.favorites_count ?? 0}
                                         </span>
                                     </div>
                                 </div>

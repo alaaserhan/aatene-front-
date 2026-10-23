@@ -240,7 +240,7 @@ export const getStoreServices = async (params: { store_id: number; section_id?: 
 
 export interface WhoFavoritedFavorite {
     id: number;
-    /** "product" | "service" | "store" | "blog" — `favs` is shaped by this type. */
+    /** "product" | "service" | "store" (legacy rows may still be "blog") — `favs` is shaped by this type. */
     favs_type: string;
     favs_id: string;
     /**

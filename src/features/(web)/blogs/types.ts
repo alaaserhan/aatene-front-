@@ -52,10 +52,8 @@ export interface Blog {
     owner_type?: string;
     review_rate: string | null;
     review_count: string | null;
-    favorites_count: string | number;
     created_at: string;
     updated_at: string;
-    is_favorite?: boolean;
 }
 
 export interface BlogReviewUser {

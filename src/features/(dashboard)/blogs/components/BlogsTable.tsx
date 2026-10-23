@@ -44,7 +44,6 @@ export function BlogsTable({
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100 text-right">
               <th className="px-6 py-4 text-start text-sm font-bold text-gray-500 w-[30%] min-w-[220px] whitespace-nowrap">عنوان المقال</th>
-              <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">المفضلة</th>
               <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">التقييم</th>
               <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">التعليقات</th>
               <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">تاريخ النشر</th>
@@ -58,10 +57,6 @@ export function BlogsTable({
                   <span className="text-sm font-semibold text-blue-4 hover:text-blue-6 cursor-pointer transition-colors line-clamp-1">
                     {blog.title}
                   </span>
-                </td>
-
-                <td className="px-6 py-4 text-center">
-                  <span className="text-sm font-medium text-gray-500">{blog.favorites_count || 0}</span>
                 </td>
 
                 <td className="px-6 py-4 text-center">

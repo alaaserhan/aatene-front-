@@ -24,7 +24,7 @@ export interface CollectionFormData {
 interface CreateCollectionModalProps {
     isOpen: boolean;
     onClose: () => void;
-    type: "product" | "store" | "service" | "blog" | "all";
+    type: "product" | "store" | "service" | "all";
     editData?: FavoriteList | null;
 }
 

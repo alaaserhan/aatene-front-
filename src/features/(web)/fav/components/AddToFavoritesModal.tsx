@@ -16,7 +16,7 @@ import { cn } from "@/src/lib/utils";
 interface AddToFavoritesModalProps {
     isOpen: boolean;
     onClose: () => void;
-    type: "product" | "service" | "store" | "blog"; // Using specific types
+    type: "product" | "service" | "store";
     itemId: number | string;
     isFavorite?: boolean;
     onSuccess?: () => void;
