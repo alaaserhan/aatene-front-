@@ -73,13 +73,13 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
             />
 
             <div className={`
-                fixed md:absolute inset-y-0 left-0
+                fixed md:absolute inset-y-0 inset-s-0
                 w-[80vw] sm:w-80 lg:w-96
-                bg-white border-r border-gray-200
+                bg-white border-e border-gray-200
                 z-50 md:z-20
                 flex flex-col h-full
                 shadow-2xl
-                animate-in slide-in-from-left duration-300 rtl:animate-in rtl:slide-in-from-right
+                animate-in slide-in-from-start duration-300
             `}>
                 <div className="flex items-center justify-between p-4 border-b border-gray-100">
                     <h2 className="font-bold text-lg">دليل</h2>
