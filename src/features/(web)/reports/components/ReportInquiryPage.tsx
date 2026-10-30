@@ -210,10 +210,6 @@ export default function ReportInquiryPage() {
                                                 <span className=" font-medium text-blue-3 text-sm ">{report.uuid}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <span className=" text-[#626262]">الفئة :</span>
-                                                <span className=" font-medium text-blue-3 text-sm">{report.report_type?.name || "—"}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
                                                 <span className=" text-[#626262]">التاريخ :</span>
                                                 <span className=" font-medium text-blue-3 text-sm ">
                                                     {formatDateTime(report.created_at)}
