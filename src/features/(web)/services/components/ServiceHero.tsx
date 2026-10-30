@@ -328,11 +328,7 @@ function ExtraOption({
   onToggle: () => void;
 }) {
   return (
-    <button
-      type="button"
-      role="checkbox"
-      aria-checked={isSelected}
-      onClick={onToggle}
+    <label
       className={cn(
         "w-full border rounded-lg p-3 flex items-center gap-3 text-start cursor-pointer transition-colors",
         isSelected
@@ -340,31 +336,31 @@ function ExtraOption({
           : "border-gray-200 hover:border-gray-300",
       )}
     >
-      <Checkbox checked={isSelected} />
+      <Checkbox checked={isSelected} onCheckedChange={onToggle} />
 
       <span className="flex flex-col gap-2">
         <span className="font-medium text-sm text-c2-navy-1000">
           {extra.title}
         </span>
-        <div className="flex items-center gap-3">
+        <span className="flex items-center gap-3">
           <Price
             value={extra.price}
             size="sm"
             className="text-c2-primary font-bold"
           />
-          <div className="flex items-center gap-1 text-xs font-medium text-[#80859B]">
+          <span className="flex items-center gap-1 text-xs font-medium text-[#80859B]">
             <Clock4 className="w-4 h-4 mb-1" aria-hidden="true" />
 
-            <div className="flex items-center gap-1">
+            <span className="flex items-center gap-1">
               <span>{extra.execute_count}</span>
               <span>
                 {EXECUTE_TYPE_LABELS[extra.execute_type] || extra.execute_type}
               </span>
-            </div>
-          </div>
-        </div>
+            </span>
+          </span>
+        </span>
       </span>
-    </button>
+    </label>
   );
 }
 
