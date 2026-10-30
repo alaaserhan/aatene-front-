@@ -8,7 +8,7 @@ import {
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { usePreviousParticipants, useAddParticipant } from "../hooks";
-import { Participant, ParticipantData } from "../api";
+import { Conversation, Participant, ParticipantData } from "../api";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
 import { cn } from "@/src/lib/utils";
@@ -20,9 +20,10 @@ interface AddMemberModalProps {
     conversationId: number;
     ignoreCookie?: boolean;
     members?: Participant[];
+    onAdded?: (conversation: Conversation) => void;
 }
 
-export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie, members = [] }: AddMemberModalProps) {
+export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie, members = [], onAdded }: AddMemberModalProps) {
     const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
 
     const { data: participantsData, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = usePreviousParticipants(ignoreCookie);
@@ -84,6 +85,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie, 
                         toast.success("تم إضافة العضو بنجاح");
                         setSelectedParticipant(null);
                         onClose();
+                        if (data.conversation) onAdded?.(data.conversation);
                     } else {
                         toast.error(data.message || data.errors || "حدث خطأ أثناء إضافة العضو");
                     }

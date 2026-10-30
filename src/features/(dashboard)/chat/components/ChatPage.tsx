@@ -588,6 +588,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                                 key={activeConversation.id}
                                 conversation={activeConversation}
                                 onClose={handleCloseChat}
+                                onOpenConversation={navigateToConversation}
                                 context={context}
                             />
                         )}
@@ -622,6 +623,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                             key={activeConversation.id}
                             conversation={activeConversation}
                             onClose={handleCloseChat}
+                            onOpenConversation={navigateToConversation}
                             context={context}
                         />
                     ) : isResolvingChatFromUrl ? (

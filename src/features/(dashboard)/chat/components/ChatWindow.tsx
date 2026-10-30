@@ -36,6 +36,8 @@ import { ParticipantAvatar } from "./ParticipantAvatar";
 interface ChatWindowProps {
     conversation: Conversation;
     onClose?: () => void;
+    /** Opens another conversation, e.g. the group a private chat becomes once a member is added. */
+    onOpenConversation?: (conversation: Conversation) => void;
     context?: "web" | "dashboard";
 }
 
@@ -86,7 +88,7 @@ function ChatMessagePriceLine({ price }: { price: string | number | null | undef
     return <p className="text-xs text-blue-3 font-medium mt-1">{formatPrice(chatPriceNumeric(price))} ₪</p>;
 }
 
-export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindowProps) {
+export function ChatWindow({ conversation, onClose, onOpenConversation, context = "web" }: ChatWindowProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const user = useAuthStore((state) => state.user);
@@ -860,6 +862,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                     conversationId={conversation.id}
                     ignoreCookie={ignoreCookie}
                     members={conversation.participants}
+                    onAdded={onOpenConversation}
                 />
 
                 {/* Confirm Delete Modal */}
