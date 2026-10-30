@@ -149,18 +149,19 @@ export function LoginForm() {
       className="mx-auto flex w-full max-w-[1018px] flex-col overflow-hidden rounded-[10px] border border-[#e8e8e8] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.05)] lg:h-[580px] lg:flex-row"
       dir="ltr"
     >
-      {/* يسار: صورة Figma */}
       <div className="relative order-2 hidden h-[240px] w-full shrink-0 overflow-hidden sm:h-[300px] lg:order-1 lg:block lg:h-[580px] lg:w-[509px]">
         <Image
           src="/images/login-hero.webp"
           alt=""
           fill
+          sizes="509px"
+          loading="eager"
+          fetchPriority="high"
           className="pointer-events-none object-cover object-center select-none"
           draggable={false}
         />
       </div>
 
-      {/* يمين: النموذج */}
       <div
         className="order-1 flex w-full flex-col justify-center gap-7 p-8 sm:p-9 lg:order-2 lg:h-[580px] lg:w-[509px] lg:shrink-0 lg:gap-[33px] lg:p-[50px]"
         dir="rtl"
