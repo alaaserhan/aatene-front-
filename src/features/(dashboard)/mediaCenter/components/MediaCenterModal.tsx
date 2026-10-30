@@ -1,7 +1,7 @@
 // src/features/(dashboard)/mediaCenter/components/MediaCenterModal.tsx
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,8 +11,8 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { ScrollArea, ScrollBar } from "@/src/components/ui/scroll-area";
-import { cn, isVideoFile } from "@/src/lib/utils";
+import { ScrollArea } from "@/src/components/ui/scroll-area";
+import { cn } from "@/src/lib/utils";
 import { X, Search, Upload } from "lucide-react";
 import { MediaGrid } from "./MediaGrid";
 import { MediaUploadArea } from "./MediaUploadArea";
@@ -20,9 +20,9 @@ import { useGetMediaList, useUploadMedia } from "../hooks";
 import { MediaItem as MediaItemType } from "../api";
 import { toast } from "sonner";
 import {
-  getUploadTypeForTab,
+  getUploadType,
+  matchesAccept,
   mediaSelectionLimitNoun,
-  resolveAllowedMediaTabs,
 } from "@/src/lib/media-center-types";
 
 interface MediaCenterModalProps {
@@ -52,56 +52,26 @@ export function MediaCenterModal({
   const [selectedItems, setSelectedItems] = useState<MediaItemType[]>([]);
   const [showUploadArea, setShowUploadArea] = useState(false);
 
-  const mediaTypes = useMemo(
-    () => resolveAllowedMediaTabs(allowedMediaTypes),
-    [allowedMediaTypes]
-  );
-
-  // Initialize state properly or use a key
-  const [activeType, setActiveType] = useState(() =>
-    mediaTypes[0]?.value || "gallery"
-  );
-
-  useEffect(() => {
-    // Reset only if open changes to true to avoid unnecessary renders
-    if (open) {
-      const initialType = mediaTypes[0]?.value || "gallery";
-      setActiveType(initialType);
-    }
-  }, [open, mediaTypes]);
-
-  const activeTab =
-    mediaTypes.find((t) => t.value === activeType) ?? mediaTypes[0];
-
-  const activeTypeLabel = activeTab?.label ?? "هذا القسم";
-
+  // No `type` filter: the list spans every storage folder, so the same library shows
+  // up in every picker. Folders say where a file was uploaded from, not what it is.
   const params = useMemo(() => {
     const p = new URLSearchParams();
     if (searchQuery) {
       p.set("search", searchQuery);
     }
-    if (activeType) {
-      p.set("type", activeType);
-    }
     return p;
-  }, [searchQuery, activeType]);
+  }, [searchQuery]);
 
   const { data: mediaData, isLoading, isFetching, error } = useGetMediaList(params, open);
-  // Tabs are storage folders, not file kinds — a video uploaded elsewhere can sit in
-  // the "image" folder. An image-only picker (e.g. a store logo) must not offer it.
-  const imagesOnly = useMemo(() => {
-    const tokens = accept.split(",").map((t) => t.trim()).filter(Boolean);
-    return tokens.length > 0 && tokens.every((t) => t.startsWith("image/"));
-  }, [accept]);
   const mediaItems: MediaItemType[] = useMemo(() => {
     const items: MediaItemType[] = mediaData?.data?.data ?? [];
-    return imagesOnly ? items.filter((item) => !isVideoFile(item.file_name || item.url)) : items;
-  }, [mediaData, imagesOnly]);
+    return items.filter((item) => matchesAccept(item.file_name || item.url, accept));
+  }, [mediaData, accept]);
 
   const uploadMutation = useUploadMedia();
 
   const handleUpload = async (files: FileList) => {
-    const fileType = getUploadTypeForTab(activeType);
+    const fileType = getUploadType(allowedMediaTypes);
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -146,17 +116,11 @@ export function MediaCenterModal({
     }
   };
 
-  const handleTypeChange = (type: string) => {
-    setActiveType(type);
-    setSearchQuery("");
-  };
-
   const handleClose = () => {
     onOpenChange(false);
     setSelectedItems([]);
     setSearchQuery("");
     setShowUploadArea(false);
-    setActiveType(mediaTypes[0]?.value || "gallery");
   };
 
   const selectionBar =
@@ -266,42 +230,7 @@ export function MediaCenterModal({
           </div>
 
           <div className="flex flex-col gap-2 px-3 sm:px-4">
-            {activeTab?.description && (
-              <p className="text-xs text-gray-2 leading-relaxed bg-gray-50 border border-gray-100 rounded-md p-2.5">
-                {activeTab.description}
-              </p>
-            )}
-          <div className="flex flex-col lg:flex-row justify-between gap-3 sm:gap-4 pb-1">
-            <div className="flex-1 lg:flex-none overflow-hidden">
-              <ScrollArea className="w-full max-w-full">
-                <div className="flex gap-2 pb-1 w-max ">
-                  {mediaTypes.map((type) => {
-                    const Icon = type.icon;
-                    const isActive = activeType === type.value;
-
-                    return (
-                      <button
-                        key={type.value}
-                        type="button"
-                        aria-pressed={isActive}
-                        aria-label={type.label ?? (type.value === "image" ? "صور" : type.value)}
-                        onClick={() => handleTypeChange(type.value)}
-                        className={cn(
-                          "cursor-pointer px-3 py-2 min-h-[36px] text-xs font-medium transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 shrink-0 rounded-md border touch-manipulation",
-                          isActive
-                            ? "bg-blue-3 text-white border-blue-3 shadow-sm"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-200"
-                        )}
-                      >
-                        <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden />
-                        {type.label ? <span>{type.label}</span> : null}
-                      </button>
-                    );
-                  })}
-                </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-            </div>
+          <div className="flex flex-col lg:flex-row justify-end gap-3 sm:gap-4 pb-1">
             <div className="flex flex-col gap-3 w-full lg:w-auto">
               <div className="flex flex-wrap items-center gap-2 justify-center lg:justify-start">
                 <Button
@@ -345,8 +274,8 @@ export function MediaCenterModal({
               isLoading={isLoading || isFetching}
               error={error ? "حدث خطأ أثناء تحميل الملفات" : null}
               selectionLimit={selectionLimit}
-              emptyTitle={`لا توجد ملفات في «${activeTypeLabel}»`}
-              emptyHint="جرّب تبويباً آخر أو اضغط «رفع ملف» لإضافة صورة جديدة"
+              emptyTitle="لا توجد ملفات بعد"
+              emptyHint="اضغط «رفع ملف» لإضافة صورة جديدة"
             />
           </ScrollArea>
 

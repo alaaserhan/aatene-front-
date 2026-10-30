@@ -1,16 +1,8 @@
-import type { LucideIcon } from "lucide-react";
-import {
-  File,
-  FileSpreadsheet,
-  FileText,
-  Grid3X3,
-  Image as ImageIcon,
-  User,
-} from "lucide-react";
+import { isVideoFile } from "@/src/lib/utils";
 
 /**
- * أنواع الميديا التي يدعمها الباكند (MediaCenterHelper::$allowedTypes).
- * لا يوجد نوع `video` منفصل — الفيديو يُرفع ويُخزَّن ضمن `gallery`.
+ * Folders the backend accepts on upload (MediaCenterHelper::$allowedTypes).
+ * There is no separate `video` folder — videos are stored under `gallery`.
  */
 export const BACKEND_MEDIA_TYPES = [
   "chat-files",
@@ -27,62 +19,33 @@ export const BACKEND_MEDIA_TYPES = [
 
 export type BackendMediaType = (typeof BACKEND_MEDIA_TYPES)[number];
 
-export interface MediaTabConfig {
-  value: string;
-  /** إن وُجد يُعرض بجانب الأيقونة؛ وإلا تبويب بأيقونة فقط */
-  label?: string;
-  icon: LucideIcon;
-  /** يظهر تحت التبويبات عند التفعيل */
-  description?: string;
-}
-
-/** تبويبات الميديا المعروضة في الواجهة (مطابقة للباكند فقط) */
-export const MEDIA_TAB_CONFIGS: MediaTabConfig[] = [
-  { value: "pdf", label: "ملفات PDF", icon: FileText },
-  { value: "word", label: "ملفات Word", icon: FileText },
-  { value: "excel", label: "ملفات Excel", icon: FileSpreadsheet },
-  { value: "file", label: "ملفات", icon: File },
-  { value: "avatar", label: "أفاتار", icon: User },
-  { value: "gallery", label: "المعرض", icon: Grid3X3 },
-  { value: "image", icon: ImageIcon },
-];
-
-const TAB_BY_VALUE = new Map(MEDIA_TAB_CONFIGS.map((t) => [t.value, t]));
-
 /**
- * يحوّل القيم القادمة من المكوّنات (قد تتضمن `video` قديماً) إلى تبويبات الباكند.
- * `video` → `gallery` فقط (بدون تبويب مكرر).
+ * Folder a picker uploads into: the first backend folder it allows (`video` → `gallery`).
+ * The folder only decides where the file is stored — the library lists every folder,
+ * so a file uploaded from one screen can be picked from any other.
  */
-export function resolveAllowedMediaTabs(input?: string[]): MediaTabConfig[] {
-  if (!input?.length) {
-    return MEDIA_TAB_CONFIGS;
-  }
-
-  const normalized = new Set<string>();
-  for (const raw of input) {
-    if (raw === "video") {
-      normalized.add("gallery");
-      continue;
-    }
-    if (TAB_BY_VALUE.has(raw) || BACKEND_MEDIA_TYPES.includes(raw as BackendMediaType)) {
-      normalized.add(raw);
-    }
-  }
-
-  if (normalized.size === 0) {
-    return [{ ...TAB_BY_VALUE.get("gallery")! }];
-  }
-
-  return MEDIA_TAB_CONFIGS.filter((tab) => normalized.has(tab.value));
-}
-
-/** نوع الرفع الفعلي المرسل للـ API */
-export function getUploadTypeForTab(tabType: string): string {
-  if (tabType === "video") return "gallery";
-  if (BACKEND_MEDIA_TYPES.includes(tabType as BackendMediaType)) {
-    return tabType;
+export function getUploadType(allowed?: string[]): string {
+  for (const raw of allowed ?? []) {
+    const type = raw === "video" ? "gallery" : raw;
+    if (BACKEND_MEDIA_TYPES.includes(type as BackendMediaType)) return type;
   }
   return "gallery";
+}
+
+const IMAGE_EXTENSIONS = /\.(png|jpe?g|webp|gif|avif|svg|bmp|ico|heic|heif)$/i;
+
+/**
+ * Whether a library file fits the picker's `accept` — by kind (image / video), not exact MIME.
+ * Only known image and video extensions pass; anything else is hidden.
+ */
+export function matchesAccept(urlOrName: string, accept: string): boolean {
+  const tokens = accept.split(",").map((t) => t.trim()).filter(Boolean);
+  if (tokens.length === 0) return true;
+
+  const path = (urlOrName || "").split("?")[0] || "";
+  const kind = isVideoFile(path) ? "video/" : IMAGE_EXTENSIONS.test(path) ? "image/" : null;
+  if (!kind) return false;
+  return tokens.some((t) => t.startsWith(kind));
 }
 
 export function allowsGalleryVideos(allowed?: string[]): boolean {
