@@ -17,6 +17,11 @@ const OBJECT_FIT_CLASS: Record<ObjectFit, string> = {
     "scale-down": "object-scale-down",
 };
 
+// WebKit (Safari and every iOS browser) paints nothing for a paused video until it seeks.
+function withFirstFrameHint(src: string) {
+    return src.includes("#") ? src : `${src}#t=0.1`;
+}
+
 export interface VideoOrImageNextProps {
     /** Media URL. Images vs. videos are auto-detected from the file extension. */
     src?: string | null;
@@ -92,7 +97,7 @@ export function VideoOrImageNext({
     if (isVideo && !failed) {
         return (
             <video
-                src={src as string}
+                src={withFirstFrameHint(src as string)}
                 poster={poster}
                 aria-label={alt}
                 className={cn(fillClass, className)}
