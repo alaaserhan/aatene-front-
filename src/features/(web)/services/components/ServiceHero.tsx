@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
+import MobileCollapsibleSection from "@/src/features/(web)/product/components/MobileCollapsibleSection";
 import { Service, ServiceExtra } from "../api";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import type { ChatTarget } from "@/src/lib/chat-links";
@@ -187,7 +188,15 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
           )}
 
           {service.store && (
-            <StoreInfoCard store={service.store} className="mb-6" />
+            <MobileCollapsibleSection
+              title="معلومات عن البائع"
+              className="mb-6 max-md:mt-0"
+            >
+              <StoreInfoCard
+                store={service.store}
+                className="max-md:mt-4 max-md:rounded-none max-md:border-0 max-md:p-0 max-md:shadow-none"
+              />
+            </MobileCollapsibleSection>
           )}
 
           <div className="flex flex-col gap-3">
