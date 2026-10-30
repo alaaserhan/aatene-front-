@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { CategoryWithProducts } from "@/src/features/(web)/home/types";
 import { useLanguage } from "@/src/hooks/use-language";
+import { scrollCarouselByItem } from "@/src/lib/scroll-carousel";
 import HomeViewAllLink from "./HomeViewAllLink";
 import HomeCarouselNav from "./HomeCarouselNav";
 
@@ -15,15 +16,8 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
     const lang = useLanguage();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const scroll = (direction: "left" | "right") => {
-        if (!scrollContainerRef.current) return;
-        // scroll by a full view so items land aligned with the 2/4-per-view sizing
-        const scrollAmount = scrollContainerRef.current.clientWidth;
-        scrollContainerRef.current.scrollBy({
-            left: direction === "left" ? -scrollAmount : scrollAmount,
-            behavior: "smooth",
-        });
-    };
+    const scroll = (direction: "left" | "right") =>
+        scrollCarouselByItem(scrollContainerRef.current, direction);
 
     return (
         <section className="py-2 mb-8 last:mb-0" dir="rtl">

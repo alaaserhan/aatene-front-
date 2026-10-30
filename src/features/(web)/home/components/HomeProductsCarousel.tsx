@@ -5,6 +5,7 @@ import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { Product } from "../types";
 import { cn } from "@/src/lib/utils";
+import { scrollCarouselByItem } from "@/src/lib/scroll-carousel";
 import HomeViewAllLink from "./HomeViewAllLink";
 import HomeCarouselNav from "./HomeCarouselNav";
 
@@ -29,18 +30,8 @@ export default function HomeProductsCarousel({
 }: HomeProductsCarouselProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const scroll = (direction: "left" | "right") => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    // one card per click: card width + the flex gap
-    const firstItem = container.firstElementChild as HTMLElement | null;
-    const gap = parseFloat(getComputedStyle(container).columnGap) || 0;
-    const scrollAmount = firstItem ? firstItem.offsetWidth + gap : 300;
-    container.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
-  };
+  const scroll = (direction: "left" | "right") =>
+    scrollCarouselByItem(scrollContainerRef.current, direction);
 
   if (!products?.length) return null;
 

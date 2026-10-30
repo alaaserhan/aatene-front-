@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { Banner } from "../types";
 import { cn, isVideoFile } from "@/src/lib/utils";
+import { scrollCarouselByItem } from "@/src/lib/scroll-carousel";
 import LazyBannerVideo from "./LazyBannerVideo";
 
 interface HomeMultiBannersProps {
@@ -44,14 +45,8 @@ export default function HomeMultiBanners({ banners }: HomeMultiBannersProps) {
         scrollRef.current.scrollLeft = scrollLeft - walk;
     };
 
-    const scroll = (direction: "left" | "right") => {
-        if (!scrollRef.current) return;
-        const scrollAmount = 400;
-        scrollRef.current.scrollBy({
-            left: direction === "left" ? -scrollAmount : scrollAmount,
-            behavior: "smooth",
-        });
-    };
+    const scroll = (direction: "left" | "right") =>
+        scrollCarouselByItem(scrollRef.current, direction);
 
     return (
         <section className="py-8 md:py-16 w-full relative group/section">

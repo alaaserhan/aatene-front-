@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { StoreInPageData } from "@/src/features/(web)/product/types";
+import { scrollCarouselByItem } from "@/src/lib/scroll-carousel";
 import { useSpecialMerchants } from "../hooks";
 import type { Merchant } from "../types";
 import HomeViewAllLink from "./HomeViewAllLink";
@@ -27,14 +28,8 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
   const merchants = response?.data || [];
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const scroll = (direction: "left" | "right") => {
-    if (!scrollContainerRef.current) return;
-    const scrollAmount = 350;
-    scrollContainerRef.current.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
-  };
+  const scroll = (direction: "left" | "right") =>
+    scrollCarouselByItem(scrollContainerRef.current, direction);
 
   if (!merchants || merchants.length === 0) return null;
 

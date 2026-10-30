@@ -5,6 +5,7 @@ import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { Service } from "../types";
 import { cn } from "@/src/lib/utils";
+import { scrollCarouselByItem } from "@/src/lib/scroll-carousel";
 import HomeViewAllLink from "./HomeViewAllLink";
 import HomeCarouselNav from "./HomeCarouselNav";
 
@@ -27,14 +28,8 @@ export default function HomeServicesCarousel({
 }: HomeServicesCarouselProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const scroll = (direction: "left" | "right") => {
-    if (!scrollContainerRef.current) return;
-    const scrollAmount = 300;
-    scrollContainerRef.current.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
-  };
+  const scroll = (direction: "left" | "right") =>
+    scrollCarouselByItem(scrollContainerRef.current, direction);
 
   if (!services?.length) return null;
 
