@@ -16,8 +16,8 @@ interface PriceProps {
 /** Displays a formatted price with the shekel sign. */
 export function Price({ value, size = "lg", className }: PriceProps) {
   return (
-    <p className={cn(sizeClassName[size], className)}>
+    <span className={cn("block", sizeClassName[size], className)}>
       {formatPrice(value)} ₪
-    </p>
+    </span>
   );
 }
