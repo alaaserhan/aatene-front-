@@ -102,12 +102,11 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         storeId,
         ignoreCookie
     );
-    const { data: countsData } = useConversationCounts(
+    const { data: counts } = useConversationCounts(
         { type: activeFilter, search: debouncedSearch },
         storeId,
         ignoreCookie
     );
-    const counts = countsData?.counts;
     /**
      * `mutateAsync`, not `mutate`: React Query drops the per-call callbacks passed
      * to `mutate` when the observer is torn down before the request settles, which

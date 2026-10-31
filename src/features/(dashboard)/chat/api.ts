@@ -128,10 +128,9 @@ export interface ConversationCounts {
     by_read: Record<ConversationReadFilter, number>;
 }
 
-export interface GetConversationCountsResponse {
+export interface GetConversationCountsResponse extends ConversationCounts {
     status: boolean;
     message: string;
-    counts: ConversationCounts;
 }
 
 export interface SendMessagePayload {
