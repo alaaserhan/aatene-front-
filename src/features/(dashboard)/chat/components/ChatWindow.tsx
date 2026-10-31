@@ -174,8 +174,8 @@ export function ChatWindow({ conversation, onClose, onOpenConversation, context 
     useEffect(() => {
         if (serverMessages.length > 0) {
             const lastMessage = serverMessages[serverMessages.length - 1];
-            const isMyMessage = lastMessage.sender_data.participant_type === currentParticipantType &&
-                String(lastMessage.sender_data.participant_id) === String(currentParticipantId);
+            const isMyMessage = lastMessage.sender_data?.participant_type === currentParticipantType &&
+                String(lastMessage.sender_data?.participant_id) === String(currentParticipantId);
 
             if (!isMyMessage) {
                 markSeen({ id: lastMessage.id, ignoreCookie });
@@ -644,23 +644,25 @@ export function ChatWindow({ conversation, onClose, onOpenConversation, context 
                         >
                             <div className="space-y-4 pb-4">
                                 {serverMessages.map((msg, index) => {
-                                    const isMe = msg.sender_data.participant_type === currentParticipantType &&
-                                        String(msg.sender_data.participant_id) === String(currentParticipantId);
+                                    const sender = msg.sender_data;
+                                    const isMe = !!sender &&
+                                        sender.participant_type === currentParticipantType &&
+                                        String(sender.participant_id) === String(currentParticipantId);
 
                                     // Find sender name from participants list (for group chat)
-                                    const senderParticipant = conversation.type === "group" && !isMe
+                                    const senderParticipant = conversation.type === "group" && !isMe && sender
                                         ? conversation.participants.find(
-                                            p => p.participant_data.type === msg.sender_data.participant_type &&
-                                                String(p.participant_data.id) === String(msg.sender_data.participant_id)
+                                            p => p.participant_data.type === sender.participant_type &&
+                                                String(p.participant_data.id) === String(sender.participant_id)
                                         )
                                         : null;
-                                    const senderName = senderParticipant?.participant_data.name;
+                                    const senderName = senderParticipant?.participant_data.name || "عضو";
                                     const senderAvatar = senderParticipant?.participant_data.avatar;
 
                                     return (
                                         <div key={msg.id || index} className={cn("flex flex-col w-full", isMe ? "items-start" : "items-end")}>
                                             {/* Sender name & avatar for group messages */}
-                                            {conversation.type === "group" && !isMe && senderName && (
+                                            {conversation.type === "group" && !isMe && (
                                                 <div className="flex items-center gap-1.5 mb-1 px-1">
                                                     <ParticipantAvatar
                                                         src={senderAvatar}

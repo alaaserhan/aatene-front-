@@ -69,7 +69,8 @@ export interface Message {
     product_id: string | null;
     variation_id: string | null;
     service_id: string | null;
-    sender_data: SenderData;
+    // Null once the sender has been removed from the group.
+    sender_data: SenderData | null;
     product: MessageProduct | null;
     variation: unknown | null;
     service: MessageService | null;
