@@ -1,6 +1,6 @@
 "use client";
 
-import { Conversation, ConversationFile, ParticipantData } from "../api";
+import { Conversation, ConversationFile, Participant } from "../api";
 import { useConversationFiles, useRemoveParticipant } from "../hooks";
 import { X, Download, FileText, User, Store, Loader2, UserMinus } from "lucide-react";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
@@ -50,14 +50,14 @@ function getProfileLink(participantData: { type: "user" | "store"; slug?: string
 export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCookie, canRemoveMembers = false, currentParticipant }: ConversationInfoPanelProps) {
     const { data: filesData, isLoading: filesLoading } = useConversationFiles(conversation.id, ignoreCookie, isOpen);
     const { mutate: removeParticipant, isPending: isRemoving } = useRemoveParticipant();
-    const [memberToRemove, setMemberToRemove] = useState<ParticipantData | null>(null);
+    const [memberToRemove, setMemberToRemove] = useState<Participant | null>(null);
 
     const handleRemoveMember = () => {
         if (!memberToRemove) return;
         removeParticipant(
             {
                 conversationId: conversation.id,
-                payload: { type: memberToRemove.type, id: memberToRemove.id },
+                participantId: memberToRemove.id,
                 ignoreCookie,
             },
             {
@@ -157,7 +157,7 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
                                             {canRemoveMembers && !isCurrent && (
                                                 <button
                                                     type="button"
-                                                    onClick={() => setMemberToRemove(pData)}
+                                                    onClick={() => setMemberToRemove(participant)}
                                                     aria-label={`إزالة ${pData.name || "العضو"} من المجموعة`}
                                                     title="إزالة من المجموعة"
                                                     className="p-2 rounded-lg text-c2-neutral-500 hover:text-c2-danger hover:bg-c2-red-500-a10 transition-colors shrink-0 cursor-pointer"
@@ -270,7 +270,7 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
                 isOpen={!!memberToRemove}
                 onClose={() => setMemberToRemove(null)}
                 onConfirm={handleRemoveMember}
-                title={`هل تريد إزالة ${memberToRemove?.name || "هذا العضو"} من المجموعة؟`}
+                title={`هل تريد إزالة ${memberToRemove?.participant_data.name || "هذا العضو"} من المجموعة؟`}
                 description="لن يتمكن من قراءة رسائل المجموعة أو إرسالها بعد إزالته، ويمكنك إضافته مرة أخرى لاحقًا."
                 confirmText="نعم، قم بالإزالة"
                 confirmPosition="start"

@@ -197,8 +197,8 @@ export const useRemoveParticipant = () => {
     return useMutation({
         mutationKey: ["remove-participant"],
         retry: 0,
-        mutationFn: ({ conversationId, payload, ignoreCookie }: { conversationId: number | string; payload: api.AddParticipantPayload; ignoreCookie?: boolean }) =>
-            api.removeParticipant(conversationId, payload, ignoreCookie),
+        mutationFn: ({ conversationId, participantId, ignoreCookie }: { conversationId: number | string; participantId: number | string; ignoreCookie?: boolean }) =>
+            api.removeParticipant(conversationId, participantId, ignoreCookie),
         onSuccess: (data) => {
             if (data.status === false) {
                 toast.error(data.message || "تعذّر إزالة العضو");

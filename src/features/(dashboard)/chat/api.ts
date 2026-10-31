@@ -346,11 +346,11 @@ export const addParticipant = async (conversationId: number | string, payload: A
     return data;
 };
 
-export const removeParticipant = async (conversationId: number | string, payload: AddParticipantPayload, ignoreCookie: boolean = false): Promise<{ status: boolean; message: string }> => {
+export const removeParticipant = async (conversationId: number | string, participantId: number | string, ignoreCookie: boolean = false): Promise<{ status: boolean; message: string }> => {
     const headers = getHeaders(undefined, ignoreCookie);
     const { data } = await api.delete<{ status: boolean; message: string }>(
-        `/conversations/${conversationId}/participants`,
-        { headers, data: payload }
+        `/conversations/${conversationId}/participants/${participantId}`,
+        { headers }
     );
     return data;
 };
