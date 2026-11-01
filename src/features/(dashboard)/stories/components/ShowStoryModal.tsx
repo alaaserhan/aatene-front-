@@ -8,8 +8,11 @@ import {
     ChevronLeft,
     MoreHorizontal,
     Link as LinkIcon,
+    Volume2,
+    VolumeX,
 } from "lucide-react";
 import { Story, CreateStoryPayload } from "../api";
+import { useStoryVideoPlayback } from "../hooks";
 import { MediaItem } from "@/src/features/(dashboard)/mediaCenter/api";
 import { cn, isVideoFile } from "@/src/lib/utils";
 import {
@@ -67,7 +70,6 @@ export function ShowStoryModal({
     const rafRef = useRef<number>(0);
     const startTimeRef = useRef<number>(0);
     const pausedElapsedRef = useRef<number>(0);
-    const videoRef = useRef<HTMLVideoElement>(null);
 
     const isPaused = isMenuOpen || isEditModalOpen;
 
@@ -161,13 +163,11 @@ export function ShowStoryModal({
     }, [isOpen, isPaused, storyDuration, activeIndex, goToNext]);
 
     const activeStory = stories?.[activeIndex];
-
-    useEffect(() => {
-        if (isOpen && activeStory?.image && isVideoFile(activeStory.image) && videoRef.current) {
-            videoRef.current.currentTime = 0;
-            videoRef.current.play().catch(err => console.log("Video play error:", err));
-        }
-    }, [activeIndex, isOpen, activeStory?.image]);
+    const isActiveVideo = !!activeStory?.image && isVideoFile(activeStory.image);
+    const { videoRef, isMuted, toggleMute } = useStoryVideoPlayback(
+        isOpen && isActiveVideo ? activeStory.id : null,
+        isPaused
+    );
 
     if (!stories || stories.length === 0) return null;
 
@@ -275,9 +275,8 @@ export function ShowStoryModal({
                                                         ref={isActive ? videoRef : null}
                                                         src={story.image}
                                                         className="w-full h-full object-cover"
-                                                        muted
+                                                        muted={!isActive || isMuted}
                                                         playsInline
-                                                        autoPlay={isActive}
                                                         preload="metadata"
                                                         onLoadedMetadata={isActive ? handleVideoDuration : undefined}
                                                     />
@@ -329,6 +328,16 @@ export function ShowStoryModal({
                                                         </div>
 
                                                         <div className="flex items-center gap-1">
+                                                        {isActiveVideo && (
+                                                            <button
+                                                                onClick={toggleMute}
+                                                                aria-label={isMuted ? "تشغيل الصوت" : "كتم الصوت"}
+                                                                className="p-2 bg-black/20 cursor-pointer hover:bg-black/40 rounded-full transition-colors backdrop-blur-md"
+                                                            >
+                                                                {isMuted ? <VolumeX className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-white" />}
+                                                            </button>
+                                                        )}
+
                                                         {showActions && (
                                                             <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                                                                 <PopoverTrigger asChild>
@@ -361,7 +370,6 @@ export function ShowStoryModal({
                                                             </Popover>
                                                         )}
 
-                                                        {/* زر الإغلاق داخل القصة - موبايل فقط */}
                                                         <button
                                                             onClick={onClose}
                                                             className="md:hidden p-2 bg-black/20 cursor-pointer hover:bg-black/40 rounded-full transition-colors backdrop-blur-md"
