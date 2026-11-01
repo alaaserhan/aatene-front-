@@ -6,16 +6,18 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-/** مسار ملف أو URL كامل — يستبعد query string لاكتشاف الامتداد (مثل file.mp4?token=) */
+/** Accepts a file name or a full URL; the query string is ignored so `file.mp4?token=` still matches. */
 export const isVideoFile = (urlOrName: string) => {
     const path = (urlOrName || "").split("?")[0] || "";
     return /\.(mp4|webm|ogg|mov|m4v|mkv|av1|avi|wmv|3gp|3gpp|3gpp2|mp2t)$/i.test(path);
 };
 
-/**
- * يُصلح URL الصور القادمة من الباكند عندما يكون APP_URL=http://localhost
- * يستبدل http://localhost بـ API base URL الحقيقي
- */
+/** WebKit (Safari and every iOS browser) paints nothing for a paused video until it seeks. */
+export function withFirstFrameHint(src: string) {
+    return src.includes("#") ? src : `${src}#t=0.1`;
+}
+
+/** Backend media URLs carry http://localhost when the backend's APP_URL is unset; swap in the real API origin. */
 export const fixMediaUrl = (url: string): string => {
     if (!url) return url;
     try {
@@ -27,8 +29,8 @@ export const fixMediaUrl = (url: string): string => {
 };
 
 /**
- * يُرقّي روابط http إلى https بشكل ثابت (SSR و CSR متطابقان).
- * يقلّل حظر المحتوى المختلط على Safari/iOS عند عرض الشعار والوسائط من CDN.
+ * Upgrades http links to https deterministically (same result on SSR and CSR),
+ * which avoids Safari/iOS blocking CDN logos and media as mixed content.
  */
 export function upgradeHttpToHttps(url: string): string {
     if (!url || typeof url !== "string") return url;
@@ -36,7 +38,6 @@ export function upgradeHttpToHttps(url: string): string {
     return url;
 }
 
-/** مسارات الـ placeholder لكل نوع */
 const PLACEHOLDER_PATHS = {
     product: "/images/placeholders/product-placeholder.svg",
     store: "/images/placeholders/store-placeholder.svg",
@@ -45,14 +46,10 @@ const PLACEHOLDER_PATHS = {
 
 type PlaceholderType = keyof typeof PLACEHOLDER_PATHS;
 
-/**
- * ترجع مسار الصورة الافتراضية حسب نوع العنصر
- */
 export function getPlaceholder(type: PlaceholderType = "product"): string {
     return PLACEHOLDER_PATHS[type] ?? PLACEHOLDER_PATHS.product;
 }
 
-/** ينفذ fixMediaUrl + upgradeHttpToHttps معًا */
 export function sanitizeMediaUrl(url: string | null | undefined): string {
     if (!url) return "";
     let normalized = url;
@@ -62,7 +59,6 @@ export function sanitizeMediaUrl(url: string | null | undefined): string {
     return upgradeHttpToHttps(fixMediaUrl(normalized));
 }
 
-/** يجهز مصدر الصورة مع fallback */
 export function resolveImageSrc(
     src: string | null | undefined,
     failedSrc: string | null,
@@ -76,18 +72,17 @@ export function resolveImageSrc(
 
 
 /**
- * يزيل وسوم HTML من النص بطريقة آمنة ويفك تشفير الرموز الأساسية
+ * Strips HTML tags safely and decodes the common entities.
  */
 export function stripHtmlTags(html: string | null | undefined): string {
     if (!html) return "";
 
-    // تطهير النص أولاً للحماية من الهجمات
     const cleanHtml = DOMPurify.sanitize(html, {
-        ALLOWED_TAGS: [], // إزالة جميع الوسوم
+        ALLOWED_TAGS: [],
         KEEP_CONTENT: true,
     });
 
-    // فك تشفير الرموز الشائعة (DOMPurify يتعامل مع معظمها ولكن للاحتياط)
+    // DOMPurify decodes most entities already; these are a safety net.
     return cleanHtml
         .replace(/&nbsp;/g, " ")
         .replace(/&amp;/g, "&")

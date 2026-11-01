@@ -6,7 +6,7 @@ import { Plus, Type, Image as ImageIcon } from "lucide-react";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { StoreHighlight } from "../api";
-import { isVideoFile } from "@/src/lib/utils";
+import { isVideoFile, withFirstFrameHint } from "@/src/lib/utils";
 import api from "@/src/lib/axios";
 import {
     DropdownMenu,
@@ -143,7 +143,7 @@ export default function StoreStoriesSection({
                                             <div className="relative w-full h-full">
                                                 {isVideoFile(lastStory.image) ? (
                                                     <video
-                                                        src={lastStory.image}
+                                                        src={withFirstFrameHint(lastStory.image)}
                                                         className="w-full h-full object-cover"
                                                         muted
                                                         playsInline

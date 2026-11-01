@@ -1,16 +1,21 @@
 "use client";
 
-import React, { Suspense, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { Story } from "../types";
-const ShowStoryModal = dynamic(() => import("@/src/features/(dashboard)/stories/components/ShowStoryModal").then(mod => mod.ShowStoryModal), { ssr: false });
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useStoryOwners } from "../hooks";
 import { StoriesSkeleton } from "./HomeSkeletons";
-import dynamic from "next/dynamic";
-import { isVideoFile } from "@/src/lib/utils";
+import { isVideoFile, withFirstFrameHint } from "@/src/lib/utils";
+
+const loadStoryViewer = () => import("@/src/features/(dashboard)/stories/components/ShowStoryModal");
+const ShowStoryModal = dynamic(() => loadStoryViewer().then(mod => mod.ShowStoryModal), { ssr: false });
+
+// Marks history entries this strip pushed, so closing can pop them instead of stacking more.
+const STORY_HISTORY_KEY = "storyViewer";
 
 interface StoryOwner {
     id: number;
@@ -31,7 +36,6 @@ interface HomeStoriesProps {
 }
 
 function StoryModalController({ owners }: { owners: StoryOwner[] }) {
-    const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
@@ -51,9 +55,14 @@ function StoryModalController({ owners }: { owners: StoryOwner[] }) {
     }
 
     const handleCloseModal = () => {
+        if (window.history.state?.[STORY_HISTORY_KEY]) {
+            window.history.back();
+            return;
+        }
+        // Opened from a shared link: there is no entry of ours to pop.
         const params = new URLSearchParams(searchParams.toString());
         params.delete('storyId');
-        router.push(`${pathname}${params.size > 0 ? '?' + params.toString() : ''}`, { scroll: false });
+        window.history.replaceState(null, "", `${pathname}${params.size > 0 ? '?' + params.toString() : ''}`);
     };
 
     if (selectedOwnerIndex === null || !owners[selectedOwnerIndex]) return null;
@@ -70,7 +79,6 @@ function StoryModalController({ owners }: { owners: StoryOwner[] }) {
 }
 
 export default function HomeStories({ initialOwners }: HomeStoriesProps) {
-    const router = useRouter();
     const pathname = usePathname();
 
     const { data: ownersRes, isLoading } = useStoryOwners();
@@ -83,12 +91,20 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
     const [scrollLeft, setScrollLeft] = useState(0);
     const [hasDragged, setHasDragged] = useState(false);
 
+    useEffect(() => {
+        const id = setTimeout(loadStoryViewer, 1500);
+        return () => clearTimeout(id);
+    }, []);
+
     const handleSelectOwner = (index: number) => {
         const owner = owners[index];
         if (!owner.stories || owner.stories.length === 0) return;
 
+        // Native history, not router.push: the home page renders dynamically, so a
+        // router navigation re-renders the whole page on the server before the
+        // viewer can open. Next keeps useSearchParams in sync with pushState.
         const firstStoryId = owner.stories[0].id;
-        router.push(`${pathname}?storyId=${firstStoryId}`, { scroll: false });
+        window.history.pushState({ [STORY_HISTORY_KEY]: true }, "", `${pathname}?storyId=${firstStoryId}`);
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
@@ -199,7 +215,7 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
                                             {firstStory.image ? (
                                                 isVideoFile(firstStory.image) ? (
                                                     <video
-                                                        src={firstStory.image}
+                                                        src={withFirstFrameHint(firstStory.image)}
                                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                         muted
                                                         playsInline

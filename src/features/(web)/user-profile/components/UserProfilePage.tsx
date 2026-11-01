@@ -7,7 +7,7 @@ import { Star, Loader2, UserPlus, Plus, Search, UserMinus, User as UserIcon, Mor
 import { useUserProfile, useUserProfilePageData } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
-import { cn, isVideoFile } from "@/src/lib/utils";
+import { cn, isVideoFile, withFirstFrameHint } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useFollowUserOrStore, useUnfollowUserOrStore, useCreateHighlight, useGetStories } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -349,7 +349,7 @@ function HighlightsSection({ highlights, isOwnProfile, onAddHighlight }: {
                                             <div className="relative w-full h-full">
                                                 {isVideoFile(lastStory.image) ? (
                                                     <video
-                                                        src={lastStory.image}
+                                                        src={withFirstFrameHint(lastStory.image)}
                                                         className="w-full h-full object-cover"
                                                         muted
                                                         playsInline

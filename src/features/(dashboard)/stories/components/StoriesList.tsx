@@ -6,7 +6,7 @@ import { Plus, Type, Image as ImageIcon } from "lucide-react";
 import { Story } from "../api";
 import { StoryItem } from "./StoryItem";
 import { AddStoryModal } from "./AddStoryModal";
-import { ShowStoryModal } from "./ShowStoryModal"; // ✅ 1. استيراد مودال العرض
+import { ShowStoryModal } from "./ShowStoryModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,13 +40,11 @@ export function StoriesList({
   // State for direct media picker (skip Add modal for new media story)
   const [isDirectMediaPickerOpen, setIsDirectMediaPickerOpen] = useState(false);
 
-  // ✅ 2. States for Show Modal
   const [isShowModalOpen, setIsShowModalOpen] = useState(false);
   const [initialStoryIndex, setInitialStoryIndex] = useState(0);
 
   const handleOpenAdd = (mode: "text" | "media") => {
     if (mode === "media") {
-      // فتح منتقي الوسائط مباشرة بدون Add modal وسيط
       setIsDirectMediaPickerOpen(true);
     } else {
       setAddMode("text");
@@ -55,17 +53,9 @@ export function StoriesList({
     }
   };
 
-  // ✅ 3. دالة فتح القصة عند الضغط عليها
   const handleStoryClick = (index: number) => {
     setInitialStoryIndex(index);
     setIsShowModalOpen(true);
-  };
-
-  // Function to handle update from ShowStoryModal which passes payload directly
-  const handleUpdateFromModal = (payload: any, onSuccess?: () => void) => {
-    if (initialStoryIndex !== null && stories[initialStoryIndex]) {
-      onUpdateStory(stories[initialStoryIndex].id, payload, onSuccess);
-    }
   };
 
   return (
@@ -76,7 +66,6 @@ export function StoriesList({
           <h2 className="text-lg font-bold ">القصص ( {stories.length} )</h2>
         </div>
 
-        {/* Dropdown إضافة قصة */}
         <DropdownMenu dir="rtl">
           <DropdownMenuTrigger asChild>
             <Button className="bg-blue-3 text-white hover:bg-[#2c425e] gap-2 px-6">
@@ -86,7 +75,7 @@ export function StoriesList({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 p-2 rounded-lg border border-gray-200 shadow-none bg-white">
             <DropdownMenuItem
-              onSelect={() => handleOpenAdd("text")} // يفضل استخدام onSelect بدلاً من onClick في القوائم
+              onSelect={() => handleOpenAdd("text")}
               className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg focus:bg-gray-50"
             >
               <div className="bg-blue-5 p-2 rounded">
@@ -99,7 +88,7 @@ export function StoriesList({
             </DropdownMenuItem>
 
             <DropdownMenuItem
-              onSelect={() => handleOpenAdd("media")} // يفضل استخدام onSelect
+              onSelect={() => handleOpenAdd("media")}
               className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg mt-1 focus:bg-gray-50"
             >
               <div className="bg-blue-5 p-2 rounded">
@@ -165,14 +154,13 @@ export function StoriesList({
         multiple={false}
       />
 
-      {/* ✅ 5. عرض مودال عرض القصص */}
       <ShowStoryModal
         isOpen={isShowModalOpen}
         onClose={() => setIsShowModalOpen(false)}
         stories={stories}
         initialIndex={initialStoryIndex}
         onDelete={onDeleteStory}
-        onSave={handleUpdateFromModal}
+        onSave={onUpdateStory}
         isPending={isPending}
         MediaPickerComponent={MediaPickerComponent}
       />

@@ -2,7 +2,7 @@
 
 import { useState, type VideoHTMLAttributes } from "react";
 import Image, { type ImageProps } from "next/image";
-import { cn, isVideoFile } from "@/src/lib/utils";
+import { cn, isVideoFile, withFirstFrameHint } from "@/src/lib/utils";
 
 const DEFAULT_FALLBACK_SRC = "/placeholder.png";
 
@@ -16,11 +16,6 @@ const OBJECT_FIT_CLASS: Record<ObjectFit, string> = {
     none: "object-none",
     "scale-down": "object-scale-down",
 };
-
-// WebKit (Safari and every iOS browser) paints nothing for a paused video until it seeks.
-function withFirstFrameHint(src: string) {
-    return src.includes("#") ? src : `${src}#t=0.1`;
-}
 
 export interface VideoOrImageNextProps {
     /** Media URL. Images vs. videos are auto-detected from the file extension. */
