@@ -24,11 +24,11 @@ export function StoriesTab() {
 
     const { mutate: createStory, isPending: isCreatingStory } = useCreateStory();
     const { mutate: updateStory, isPending: isUpdatingStory } = useUpdateStory();
-    const { mutate: deleteStory } = useDeleteStory();
+    const { mutate: deleteStory, isPending: isDeletingStory } = useDeleteStory();
 
     const { mutate: createHighlight, isPending: isCreatingHighlight } = useCreateHighlight();
     const { mutate: updateHighlight, isPending: isUpdatingHighlight } = useUpdateHighlight();
-    const { mutate: deleteHighlight } = useDeleteHighlight();
+    const { mutate: deleteHighlight, isPending: isDeletingHighlight } = useDeleteHighlight();
 
     const isStoryPending = isCreatingStory || isUpdatingStory;
     const isHighlightPending = isCreatingHighlight || isUpdatingHighlight;
@@ -58,7 +58,6 @@ export function StoriesTab() {
                     onCreateHighlight={(payload, onSuccess) => {
                         createHighlight(payload, {
                             onSuccess: () => {
-                                // toast is handled in hook but we can add extra if needed
                                 onSuccess?.();
                             }
                         });
@@ -70,12 +69,11 @@ export function StoriesTab() {
                             }
                         });
                     }}
-                    onDeleteHighlight={(id) => {
-                        deleteHighlight(id, {
-                            onSuccess: () => { /* toast handled in hook */ }
-                        });
+                    onDeleteHighlight={(id, onSuccess) => {
+                        deleteHighlight(id, { onSuccess: () => onSuccess() });
                     }}
                     isPending={isHighlightPending}
+                    isDeleting={isDeletingHighlight}
                 />
             </div>
 
@@ -97,10 +95,11 @@ export function StoriesTab() {
                             }
                         });
                     }}
-                    onDeleteStory={(id) => {
-                        deleteStory(id);
+                    onDeleteStory={(id, onSuccess) => {
+                        deleteStory(id, { onSuccess: () => onSuccess() });
                     }}
                     isPending={isStoryPending}
+                    isDeleting={isDeletingStory}
                     MediaPickerComponent={SimpleMediaPicker}
                 />
             </div>

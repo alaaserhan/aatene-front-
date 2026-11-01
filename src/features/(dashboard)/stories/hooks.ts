@@ -47,7 +47,9 @@ export function useStoryVideoPlayback(activeVideoKey: number | string | null, is
 
     video.pause();
     return () => {
-      if (video.isConnected) video.play().catch(() => {});
+      // Only resume the story we paused: when unpausing comes with a move to
+      // another story, the ref already points at the new one, which plays itself.
+      if (video.isConnected && video === videoRef.current) video.play().catch(() => {});
     };
   }, [isPaused]);
 

@@ -18,7 +18,6 @@ import { Loader2 } from "lucide-react";
 import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState";
 import Cookies from "js-cookie";
 import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/components/MediaCenterModal";
-import { toast } from "sonner";
 
 export function StoriesPage() {
   const storeId = Number(Cookies.get("current_store_id"));
@@ -26,15 +25,14 @@ export function StoriesPage() {
   const { data: storiesData, isLoading: storiesLoading } = useGetStories(storeId, { enabled: hasStore });
   const { data: highlightsData, isLoading: highlightsLoading } = useGetHighlights(storeId, { enabled: hasStore });
 
-  // Story Mutations
+  // The mutation hooks own the success/error toasts.
   const { mutate: createStory, isPending: isCreatingStory } = useCreateStory();
   const { mutate: updateStory, isPending: isUpdatingStory } = useUpdateStory();
-  const { mutate: deleteStory } = useDeleteStory(); // isPending is not typically needed for delete in the list unless we want to show loading on the specific item, but StoriesList handles optimistic UI or we can pass it if we want.
+  const { mutate: deleteStory, isPending: isDeletingStory } = useDeleteStory();
 
-  // Highlight Mutations
   const { mutate: createHighlight, isPending: isCreatingHighlight } = useCreateHighlight();
   const { mutate: updateHighlight, isPending: isUpdatingHighlight } = useUpdateHighlight();
-  const { mutate: deleteHighlight } = useDeleteHighlight();
+  const { mutate: deleteHighlight, isPending: isDeletingHighlight } = useDeleteHighlight();
 
   const isStoryPending = isCreatingStory || isUpdatingStory;
   const isHighlightPending = isCreatingHighlight || isUpdatingHighlight;
@@ -63,69 +61,42 @@ export function StoriesPage() {
     );
   }
 
-  // Handlers for Stories
-  const handleCreateStory = (payload: any, onSuccess?: () => void) => {
-    createStory({ payload, storeId: String(storeId) }, {
-      onSuccess: () => {
-        toast.success("تم إنشاء القصة بنجاح");
-        onSuccess?.();
-      }
-    });
-  };
-
   return (
     <div className="flex flex-col gap-4 p-4 md:p-6">
       <Breadcrumb items={breadcrumbItems} />
 
-      {/* قسم القصص المميزة (Highlights) */}
       <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
         <HighlightsSection
           highlights={highlightsData?.data || []}
-          stories={storiesData?.data || []} // نحتاج القصص لإنشاء هايلايت جديد
+          stories={storiesData?.data || []}
           onCreateHighlight={(payload, onSuccess) => {
-            createHighlight({ payload, storeId: String(storeId) }, {
-              onSuccess: () => {
-                toast.success("تم إنشاء القصة المميزة بنجاح");
-                onSuccess?.();
-              }
-            });
+            createHighlight({ payload, storeId: String(storeId) }, { onSuccess: () => onSuccess?.() });
           }}
           onUpdateHighlight={(id, payload, onSuccess) => {
-            updateHighlight({ id: String(id), payload, storeId: String(storeId) }, {
-              onSuccess: () => {
-                toast.success("تم تحديث القصة المميزة بنجاح");
-                onSuccess?.();
-              }
-            });
+            updateHighlight({ id: String(id), payload, storeId: String(storeId) }, { onSuccess: () => onSuccess?.() });
           }}
-          onDeleteHighlight={(id) => {
-            deleteHighlight({ id: String(id), storeId: String(storeId) }, {
-              onSuccess: () => { toast.success("تم حذف القصة المميزة بنجاح"); }
-            });
+          onDeleteHighlight={(id, onSuccess) => {
+            deleteHighlight({ id: String(id), storeId: String(storeId) }, { onSuccess: () => onSuccess?.() });
           }}
           isPending={isHighlightPending}
+          isDeleting={isDeletingHighlight}
         />
       </div>
 
-      {/* قسم القصص (Stories) */}
       <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 min-h-[300px]">
         <StoriesList
           stories={storiesData?.data || []}
-          onCreateStory={handleCreateStory}
-          onUpdateStory={(id, payload, onSuccess) => {
-            updateStory({ id: String(id), payload, storeId: String(storeId) }, {
-              onSuccess: () => {
-                toast.success("تم تحديث القصة بنجاح");
-                onSuccess?.();
-              }
-            });
+          onCreateStory={(payload, onSuccess) => {
+            createStory({ payload, storeId: String(storeId) }, { onSuccess: () => onSuccess?.() });
           }}
-          onDeleteStory={(id) => {
-            deleteStory({ id: String(id), storeId: String(storeId) }, {
-              onSuccess: () => { toast.success("تم حذف القصة بنجاح"); }
-            });
+          onUpdateStory={(id, payload, onSuccess) => {
+            updateStory({ id: String(id), payload, storeId: String(storeId) }, { onSuccess: () => onSuccess?.() });
+          }}
+          onDeleteStory={(id, onSuccess) => {
+            deleteStory({ id: String(id), storeId: String(storeId) }, { onSuccess: () => onSuccess?.() });
           }}
           isPending={isStoryPending}
+          isDeleting={isDeletingStory}
           MediaPickerComponent={MediaCenterModal}
         />
       </div>

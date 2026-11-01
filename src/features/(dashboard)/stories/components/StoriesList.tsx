@@ -19,8 +19,9 @@ interface StoriesListProps {
   stories: Story[];
   onCreateStory: (payload: any, onSuccess?: () => void) => void;
   onUpdateStory: (id: number, payload: any, onSuccess?: () => void) => void;
-  onDeleteStory: (id: number) => void;
+  onDeleteStory: (id: number, onSuccess: () => void) => void;
   isPending: boolean;
+  isDeleting: boolean;
   MediaPickerComponent: React.ComponentType<any>;
 }
 
@@ -30,6 +31,7 @@ export function StoriesList({
   onUpdateStory,
   onDeleteStory,
   isPending,
+  isDeleting,
   MediaPickerComponent
 }: StoriesListProps) {
   // States for Add Modal
@@ -117,7 +119,7 @@ export function StoriesList({
         <div className="flex flex-col gap-4">
           {[...stories].reverse().map((story, index) => (
             <div key={story.id} onClick={() => handleStoryClick(stories.length - 1 - index)} className="cursor-pointer">
-              <StoryItem story={story} onDelete={onDeleteStory} />
+              <StoryItem story={story} onDelete={onDeleteStory} isDeleting={isDeleting} />
             </div>
           ))}
         </div>
@@ -160,6 +162,7 @@ export function StoriesList({
         stories={stories}
         initialIndex={initialStoryIndex}
         onDelete={onDeleteStory}
+        isDeleting={isDeleting}
         onSave={onUpdateStory}
         isPending={isPending}
         MediaPickerComponent={MediaPickerComponent}

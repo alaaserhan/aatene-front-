@@ -10,15 +10,15 @@ import { isVideoFile } from "@/src/lib/utils";
 
 interface StoryItemProps {
   story: Story;
-  onDelete: (id: number) => void;
+  onDelete: (id: number, onSuccess: () => void) => void;
+  isDeleting: boolean;
 }
 
-export function StoryItem({ story, onDelete }: StoryItemProps) {
+export function StoryItem({ story, onDelete, isDeleting }: StoryItemProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const handleDelete = () => {
-    onDelete(story.id);
-    setDeleteOpen(false);
+    onDelete(story.id, () => setDeleteOpen(false));
   };
 
   const timeAgo = getRelativeTimeArabic(story.created_at);
@@ -79,6 +79,9 @@ export function StoryItem({ story, onDelete }: StoryItemProps) {
           onConfirm={handleDelete}
           title="حذف القصة"
           description="هل أنت متأكد من حذف هذه القصة؟ لا يمكن التراجع عن هذا الإجراء."
+          confirmPosition="start"
+          isLoading={isDeleting}
+          autoCloseOnConfirm={false}
         />
       </div>
     </>

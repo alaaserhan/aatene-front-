@@ -13,7 +13,7 @@ import {
 import { toast } from "sonner";
 import { AddStoryModal } from "./AddStoryModal";
 import { StoryViewer } from "./StoryViewer";
-import { ConfirmationDialog } from "@/src/components/ui/ConfirmationDialog";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 interface MediaPickerProps {
     open: boolean;
@@ -28,11 +28,16 @@ interface ShowStoryModalProps {
     onClose: () => void;
     stories: Story[];
     initialIndex: number;
-    onDelete?: (id: number) => void;
+    onDelete?: (id: number, onSuccess: () => void) => void;
+    isDeleting?: boolean;
     onSave?: (storyId: number, payload: CreateStoryPayload, onSuccess?: () => void) => void;
     isPending?: boolean;
     MediaPickerComponent?: React.ComponentType<MediaPickerProps>;
     showActions?: boolean;
+    heading?: string;
+    groupKey?: string | number;
+    onNextGroup?: () => void;
+    onPrevGroup?: () => void;
 }
 
 export function ShowStoryModal({
@@ -41,10 +46,15 @@ export function ShowStoryModal({
     stories,
     initialIndex,
     onDelete,
+    isDeleting = false,
     onSave,
     isPending = false,
     MediaPickerComponent,
-    showActions = true
+    showActions = true,
+    heading,
+    groupKey,
+    onNextGroup,
+    onPrevGroup,
 }: ShowStoryModalProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -66,8 +76,10 @@ export function ShowStoryModal({
 
     const handleDelete = () => {
         if (!onDelete || !targetStory) return;
-        onDelete(targetStory.id);
-        if (stories.length === 1) onClose();
+        onDelete(targetStory.id, () => {
+            setIsConfirmDeleteOpen(false);
+            if (stories.length === 1) onClose();
+        });
     };
 
     const renderActions = (story: Story) => (
@@ -116,20 +128,27 @@ export function ShowStoryModal({
                 isOpen={isOpen}
                 onClose={onClose}
                 title="عرض القصة"
+                heading={heading}
                 stories={stories}
                 initialIndex={initialIndex}
+                groupKey={groupKey}
+                onNextGroup={onNextGroup}
+                onPrevGroup={onPrevGroup}
                 isPaused={isMenuOpen || isEditModalOpen || isConfirmDeleteOpen}
                 renderActions={showActions ? renderActions : undefined}
             />
 
-            <ConfirmationDialog
+            <ConfirmDeleteModal
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)}
                 onConfirm={handleDelete}
                 title="هل أنت متأكد من حذف القصة؟"
                 description="لا يمكن التراجع عن هذا الإجراء بعد الحذف."
+                confirmPosition="start"
+                isLoading={isDeleting}
+                autoCloseOnConfirm={false}
                 overlayClassName="z-[10001]"
-                contentClassName="sm:max-w-md z-[10002]"
+                className="z-[10002]"
             />
 
             {targetStory && isEditModalOpen && onSave && MediaPickerComponent && (

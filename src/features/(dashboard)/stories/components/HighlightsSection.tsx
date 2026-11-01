@@ -13,8 +13,9 @@ interface HighlightsSectionProps {
   stories: Story[];
   onCreateHighlight: (payload: any, onSuccess?: () => void) => void;
   onUpdateHighlight: (id: number, payload: any, onSuccess?: () => void) => void;
-  onDeleteHighlight: (id: number) => void;
+  onDeleteHighlight: (id: number, onSuccess: () => void) => void;
   isPending: boolean;
+  isDeleting: boolean;
 }
 
 export function HighlightsSection({
@@ -23,7 +24,8 @@ export function HighlightsSection({
   onCreateHighlight,
   onUpdateHighlight,
   onDeleteHighlight,
-  isPending
+  isPending,
+  isDeleting
 }: HighlightsSectionProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -129,6 +131,7 @@ export function HighlightsSection({
         highlight={selectedHighlight}
         allStories={stories}
         onDelete={onDeleteHighlight}
+        isDeleting={isDeleting}
         onSave={handleUpdateFromModal}
         isPending={isPending}
       />

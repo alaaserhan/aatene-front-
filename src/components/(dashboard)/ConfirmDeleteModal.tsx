@@ -11,6 +11,7 @@ import {
   DialogDescription,
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
+import { cn } from "@/src/lib/utils";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ interface ConfirmDeleteModalProps {
   description?: string;
   confirmText?: string;
   cancelText?: string;
-  variant?: "delete" | "restore"; // نوع العملية
+  variant?: "delete" | "restore";
   /** Where the confirm button sits in the footer row. Defaults to "end". */
   confirmPosition?: "start" | "end";
   /** Keeps the modal open and both buttons disabled while the action runs. */
@@ -30,6 +31,9 @@ interface ConfirmDeleteModalProps {
    * caller closes it itself once the request resolves.
    */
   autoCloseOnConfirm?: boolean;
+  /** Lets the modal stack above another full-screen dialog (e.g. the story viewer). */
+  overlayClassName?: string;
+  className?: string;
 }
 
 export function ConfirmDeleteModal({
@@ -44,6 +48,8 @@ export function ConfirmDeleteModal({
   confirmPosition = "end",
   isLoading = false,
   autoCloseOnConfirm = true,
+  overlayClassName,
+  className,
 }: ConfirmDeleteModalProps) {
   if (!isOpen) return null;
 
@@ -52,7 +58,6 @@ export function ConfirmDeleteModal({
     if (autoCloseOnConfirm) onClose();
   };
 
-  // تحديد الألوان حسب نوع العملية
   const colors = variant === "delete" 
     ? {
         bg: "bg-red-100",
@@ -69,7 +74,7 @@ export function ConfirmDeleteModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={() => { if (!isLoading) onClose(); }}>
-      <DialogContent className="sm:max-w-md" dir="rtl">
+      <DialogContent overlayClassName={overlayClassName} className={cn("sm:max-w-md", className)} dir="rtl">
         <DialogHeader className="flex flex-col items-center pt-4">
           <div className={`w-24 h-24 rounded-full ${colors.bg} flex items-center justify-center mb-6`}>
             <div className={`w-16 h-16 rounded-full ${colors.bgInner} flex items-center justify-center`}>

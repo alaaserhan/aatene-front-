@@ -11,14 +11,15 @@ import {
 } from "@/src/components/ui/popover";
 import { CreateHighlightModal } from "./CreateHighlightModal";
 import { StoryViewer } from "./StoryViewer";
-import { ConfirmationDialog } from "@/src/components/ui/ConfirmationDialog";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 interface ShowHighlightModalProps {
     isOpen: boolean;
     onClose: () => void;
     highlight: Highlight | null;
     allStories: Story[];
-    onDelete: (id: number) => void;
+    onDelete: (id: number, onSuccess: () => void) => void;
+    isDeleting?: boolean;
     onSave: (payload: CreateHighlightPayload, onSuccess?: () => void) => void;
     isPending: boolean;
 }
@@ -29,6 +30,7 @@ export function ShowHighlightModal({
     highlight,
     allStories,
     onDelete,
+    isDeleting = false,
     onSave,
     isPending
 }: ShowHighlightModalProps) {
@@ -41,9 +43,10 @@ export function ShowHighlightModal({
     const highlightStories = [...highlight.stories].reverse();
 
     const handleDelete = () => {
-        onDelete(highlight.id);
-        onClose();
-        setIsMenuOpen(false);
+        onDelete(highlight.id, () => {
+            setIsConfirmDeleteOpen(false);
+            onClose();
+        });
     };
 
     const handleEdit = () => {
@@ -92,14 +95,17 @@ export function ShowHighlightModal({
                 )}
             />
 
-            <ConfirmationDialog
+            <ConfirmDeleteModal
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)}
                 onConfirm={handleDelete}
                 title="هل أنت متأكد من حذف المجموعة؟"
                 description="لا يمكن التراجع عن هذا الإجراء بعد الحذف."
+                confirmPosition="start"
+                isLoading={isDeleting}
+                autoCloseOnConfirm={false}
                 overlayClassName="z-[10001]"
-                contentClassName="sm:max-w-md z-[10002]"
+                className="z-[10002]"
             />
 
             <CreateHighlightModal

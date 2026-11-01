@@ -54,26 +54,53 @@ function StoryModalController({ owners }: { owners: StoryOwner[] }) {
         }
     }
 
+    const urlWithStory = (storyId: number | null) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (storyId === null) params.delete('storyId');
+        else params.set('storyId', String(storyId));
+        return `${pathname}${params.size > 0 ? '?' + params.toString() : ''}`;
+    };
+
     const handleCloseModal = () => {
         if (window.history.state?.[STORY_HISTORY_KEY]) {
             window.history.back();
             return;
         }
         // Opened from a shared link: there is no entry of ours to pop.
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete('storyId');
-        window.history.replaceState(null, "", `${pathname}${params.size > 0 ? '?' + params.toString() : ''}`);
+        window.history.replaceState(null, "", urlWithStory(null));
     };
 
     if (selectedOwnerIndex === null || !owners[selectedOwnerIndex]) return null;
 
+    const findOwnerWithStories = (step: 1 | -1) => {
+        for (let i = selectedOwnerIndex + step; i >= 0 && i < owners.length; i += step) {
+            if (owners[i].stories?.length) return i;
+        }
+        return null;
+    };
+
+    // Replace, not push: moving between stores stays one history entry, so Back still closes the viewer.
+    const showOwner = (index: number | null) => {
+        if (index === null) return undefined;
+        return () => {
+            const ownEntry = !!window.history.state?.[STORY_HISTORY_KEY];
+            window.history.replaceState({ [STORY_HISTORY_KEY]: ownEntry }, "", urlWithStory(owners[index].stories[0].id));
+        };
+    };
+
+    const owner = owners[selectedOwnerIndex];
+
     return (
         <ShowStoryModal
-            isOpen={selectedOwnerIndex !== null}
+            isOpen
             onClose={handleCloseModal}
-            stories={owners[selectedOwnerIndex].stories}
+            stories={owner.stories}
             initialIndex={initialStoryIndex}
             showActions={false}
+            heading={owner.name || owner.slug}
+            groupKey={owner.id}
+            onNextGroup={showOwner(findOwnerWithStories(1))}
+            onPrevGroup={showOwner(findOwnerWithStories(-1))}
         />
     );
 }
@@ -103,8 +130,9 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
         // Native history, not router.push: the home page renders dynamically, so a
         // router navigation re-renders the whole page on the server before the
         // viewer can open. Next keeps useSearchParams in sync with pushState.
-        const firstStoryId = owner.stories[0].id;
-        window.history.pushState({ [STORY_HISTORY_KEY]: true }, "", `${pathname}?storyId=${firstStoryId}`);
+        const params = new URLSearchParams(window.location.search);
+        params.set('storyId', String(owner.stories[0].id));
+        window.history.pushState({ [STORY_HISTORY_KEY]: true }, "", `${pathname}?${params.toString()}`);
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
