@@ -23,10 +23,10 @@ export default function LandingHero() {
         <section className="relative overflow-hidden bg-white">
             <LandingHeader />
             <MaxWidthWrapper className="relative z-10 grid items-center gap-8 pb-12 pt-8 lg:grid-cols-2 lg:gap-6 lg:pb-20 lg:pt-16">
-                <div aria-hidden className="absolute inset-0 hidden lg:block">
-                    <div className="absolute inset-0 bg-c2-navy-75 [clip-path:polygon(50%_0,100%_0,100%_100%,47%_100%,75%_50%)]" />
-                    <div className="absolute inset-y-0 left-full w-screen bg-c2-navy-75" />
-                </div>
+                <div
+                    aria-hidden
+                    className="absolute inset-0 hidden bg-c2-navy-75 [clip-path:polygon(50%_0,100%_0,100%_100%,47%_100%,75%_50%)] lg:block"
+                />
                 <div className="relative flex flex-col items-center gap-6 text-center">
                     <h1 className="text-[28px] font-bold leading-[1.55] text-c2-navy-700 md:text-5xl md:leading-[1.4] lg:text-[56px]">
                         {HERO.title}
