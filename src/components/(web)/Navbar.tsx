@@ -18,7 +18,7 @@ import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
 import { useCompareCount } from "@/src/features/(web)/compares/hooks";
 import { upgradeHttpToHttps, fixMediaUrl } from "@/src/lib/utils";
 
-const Logo = () => {
+export const Logo = () => {
   const lang = useLanguage();
   const { settings } = useSettingsStore();
   const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
