@@ -7,10 +7,10 @@ import LandingImage from "./LandingImage";
 
 function LandingHeader() {
     return (
-        <header className="relative z-20">
+        <header className="relative z-20 bg-c2-navy-100">
             <MaxWidthWrapper className="flex h-18 items-center justify-between md:h-20">
                 <Logo />
-                <CreateStoreLink className="rounded-xl bg-c2-primary px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 md:px-8">
+                <CreateStoreLink className="rounded-full bg-c2-primary px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 md:px-8">
                     {HEADER_CTA}
                 </CreateStoreLink>
             </MaxWidthWrapper>
