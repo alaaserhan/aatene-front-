@@ -105,11 +105,15 @@
   --c2-navy-610-a5: #3c5d800d;
   --c2-navy-600: #3d5e83;
   --c2-navy-500: #406896;
+  /* greyed navy — merchant landing hero description */
+  --c2-navy-560: #47567f;
   --c2-navy-300: #8b96a5;
   /* light navy tint — highlighted panel rows (activation toggle strip) */
   --c2-navy-100: #c8d7e8;
   /* palest navy tint — table header rows and similar flat surfaces */
   --c2-navy-50: #eef2f6;
+  /* pale navy surface — merchant landing hero clipped backdrop */
+  --c2-navy-75: #ebeff4;
   /* vivid blue accent — active/hovered nav links */
   --c2-blue-500: #3076ff;
   /* navy at low alpha — tinted surfaces (unread rows, icon chips) */
@@ -247,8 +251,10 @@
   --color-c2-navy-610-a5: var(--c2-navy-610-a5);
   --color-c2-navy-600: var(--c2-navy-600);
   --color-c2-navy-500: var(--c2-navy-500);
+  --color-c2-navy-560: var(--c2-navy-560);
   --color-c2-navy-300: var(--c2-navy-300);
   --color-c2-navy-100: var(--c2-navy-100);
+  --color-c2-navy-75: var(--c2-navy-75);
   --color-c2-navy-50: var(--c2-navy-50);
   --color-c2-blue-500: var(--c2-blue-500);
   --color-c2-navy-700-a08: var(--c2-navy-700-a08);
