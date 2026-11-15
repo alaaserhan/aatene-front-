@@ -15,7 +15,7 @@ export default function BenefitsSection() {
                         <span className="text-c2-primary">{title.brand}</span>
                         {title.after}
                     </h2>
-                    <p className="max-w-2xl text-base leading-relaxed text-c2-slate-800-a70 md:text-lg">
+                    <p className="max-w-2xl text-[16px] leading-relaxed text-c2-slate-800-a70 md:text-lg">
                         {BENEFITS.description}
                     </p>
                 </div>

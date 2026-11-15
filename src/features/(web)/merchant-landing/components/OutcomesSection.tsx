@@ -14,7 +14,7 @@ export default function OutcomesSection() {
                         <span className="text-c2-primary">{title.brand}</span>
                         {title.after}
                     </h2>
-                    <p className="text-base leading-relaxed font-medium text-c2-slate-800-a70 md:text-lg">
+                    <p className="text-[16px] leading-relaxed font-medium text-c2-slate-800-a70 md:text-lg">
                         {OUTCOMES.description}
                     </p>
                 </div>

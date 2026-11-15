@@ -39,7 +39,7 @@ export default function LandingHero() {
                         <h1 className="text-[30px] font-bold leading-[1.55] text-c2-navy-700 md:text-5xl md:leading-[1.4] lg:text-[42px] xl:text-[56px]">
                             {HERO.title}
                         </h1>
-                        <p className="max-w-161.25 text-base leading-relaxed font-normal text-c2-navy-560 md:text-xl md:leading-[1.8] xl:text-2xl">
+                        <p className="max-w-161.25 text-[16px] leading-relaxed font-normal text-c2-navy-560 md:text-xl md:leading-[1.8] xl:text-2xl">
                             {HERO.description}
                         </p>
                         <CreateStoreButton label={HERO.cta} className="mt-4 rounded-full bg-c2-navy-700" />

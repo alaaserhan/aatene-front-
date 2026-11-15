@@ -13,7 +13,7 @@ export default function ComingSoonSection() {
                         {title.before}
                         <span className="text-c2-primary">{title.brand}</span>
                     </h2>
-                    <p className="max-w-2xl text-base font-medium leading-relaxed text-c2-slate-800-a70 md:text-lg">
+                    <p className="max-w-2xl text-[16px] font-medium leading-relaxed text-c2-slate-800-a70 md:text-lg">
                         {COMING_SOON.description}
                     </p>
                 </div>

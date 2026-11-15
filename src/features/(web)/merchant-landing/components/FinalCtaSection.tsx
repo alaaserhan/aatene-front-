@@ -19,7 +19,7 @@ export default function FinalCtaSection() {
                         <h2 className="mb-6 text-[26px] font-bold leading-normal text-c2-navy-700 md:text-[52px] md:leading-[1.35]">
                             {FINAL_CTA.title}
                         </h2>
-                        <p className="mb-6 text-base font-medium leading-relaxed text-c2-slate-700 md:text-lg">
+                        <p className="mb-6 text-[16px] font-medium leading-relaxed text-c2-slate-700 md:text-lg">
                             {FINAL_CTA.description}
                         </p>
                         <CreateStoreButton label={FINAL_CTA.cta} className="rounded-full" />
