@@ -1,5 +1,5 @@
-import "../landing-motion.css";
 import { LANDING_TOP_ID } from "../motion";
+import { LANDING_MOTION_CSS } from "../motion-styles";
 import BenefitsSection from "./BenefitsSection";
 import ComingSoonSection from "./ComingSoonSection";
 import FinalCtaSection from "./FinalCtaSection";
@@ -16,6 +16,10 @@ export default function MerchantLandingPage() {
             tabIndex={-1}
             className="ml-landing min-h-screen overflow-x-clip bg-white outline-none max-md:[&_.container]:px-[20px]!"
         >
+            {/* React hoists it into <head> and renders it once, however often the page mounts. */}
+            <style href="merchant-landing-motion" precedence="default">
+                {LANDING_MOTION_CSS}
+            </style>
             <LandingHero />
             <TrustStrip />
             <BenefitsSection />
