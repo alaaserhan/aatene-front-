@@ -8,13 +8,13 @@ export default function OutcomesSection() {
     return (
         <section className="py-10 md:py-20">
             <MaxWidthWrapper className="flex flex-col gap-6">
-                <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
+                <div className="mx-auto flex flex-col items-center gap-4 text-center">
                     <h2 className="text-2xl font-bold leading-snug text-c2-navy-975 md:text-[40px] md:leading-[1.4]">
                         {title.before}
                         <span className="text-c2-primary">{title.brand}</span>
                         {title.after}
                     </h2>
-                    <p className="max-w-2xl text-base leading-relaxed font-medium text-c2-slate-800-a70 md:text-lg">
+                    <p className="text-base leading-relaxed font-medium text-c2-slate-800-a70 md:text-lg">
                         {OUTCOMES.description}
                     </p>
                 </div>
