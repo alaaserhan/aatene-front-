@@ -17,7 +17,7 @@ export default function TrustStrip() {
                     />
                     <ul className="flex flex-col items-start gap-5 md:flex-row md:items-center md:justify-between md:gap-8">
                         {TRUST_POINTS.map((point) => (
-                            <li key={point} className="flex items-center gap-3 text-lg font-bold text-white md:text-2xl">
+                            <li key={point} className="flex items-center gap-3 text-[18px] font-bold text-white md:text-2xl">
                                 <CheckBadge className="bg-white text-c2-navy-700" />
                                 {point}
                             </li>

@@ -28,10 +28,10 @@ export default function OutcomesSection() {
                                 <LandingImage asset={item.image} className="max-h-full w-auto object-contain" />
                             </div>
                             <div className="flex flex-col gap-1.5 text-center md:gap-2">
-                                <h3 className="text-base font-bold leading-snug text-c2-navy-850 md:text-2xl">
+                                <h3 className="text-[16px] font-bold leading-snug text-c2-navy-850 md:text-2xl">
                                     {item.title}
                                 </h3>
-                                <p className="text-sm leading-relaxed font-medium text-c2-navy-560 md:text-base">
+                                <p className="text-[13px] leading-relaxed font-medium text-c2-navy-560 md:text-base">
                                     {item.description}
                                 </p>
                             </div>

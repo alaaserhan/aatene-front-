@@ -60,8 +60,8 @@ function ContentToolItem({ card }: { card: ComingSoonCard }) {
                     <Icon className="size-6" strokeWidth={2} />
                 </span>
                 <div className="flex min-w-0 flex-col">
-                    <h3 className="mb-1 text-lg font-medium text-c2-neutral-950">{card.title}</h3>
-                    <p className="text-sm font-normal leading-relaxed text-c2-navy-560">{card.description}</p>
+                    <h3 className="mb-1 text-[12px] font-medium text-c2-neutral-950 md:text-lg">{card.title}</h3>
+                    <p className="text-[12px] font-normal leading-relaxed text-c2-navy-560 md:text-sm">{card.description}</p>
                 </div>
             </div>
         </article>

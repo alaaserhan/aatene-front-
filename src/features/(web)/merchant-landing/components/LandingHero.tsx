@@ -42,7 +42,7 @@ export default function LandingHero() {
                         <p className="max-w-161.25 text-[16px] leading-relaxed font-normal text-c2-navy-560 md:text-xl md:leading-[1.8] xl:text-2xl">
                             {HERO.description}
                         </p>
-                        <CreateStoreButton label={HERO.cta} className="mt-4 rounded-full bg-c2-navy-700" />
+                        <CreateStoreButton label={HERO.cta} className="mt-4 rounded-full bg-c2-navy-700 text-[18px]" />
                     </div>
                     {/* From lg the mockup is sized by the hero's height and anchored to the
                         column's start edge, so it bleeds off the far side of the viewport

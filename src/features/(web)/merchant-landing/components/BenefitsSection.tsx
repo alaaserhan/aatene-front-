@@ -31,10 +31,10 @@ export default function BenefitsSection() {
                             )}
                         >
                             <LandingImage asset={item.image} className="mb-4 size-15 object-contain" />
-                            <h3 className="mb-3 text-lg font-bold leading-snug text-c2-navy-975 md:text-xl">
+                            <h3 className="mb-3 text-[20px] font-bold leading-snug text-c2-navy-975 md:text-xl">
                                 {item.title}
                             </h3>
-                            <p className="text-base leading-relaxed font-normal text-c2-navy-560">
+                            <p className="text-[16px] leading-relaxed font-normal text-c2-navy-560">
                                 {item.description}
                             </p>
                         </article>
