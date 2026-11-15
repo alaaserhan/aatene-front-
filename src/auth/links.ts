@@ -1,4 +1,4 @@
-/** يقرأها `LoginForm` لعرض رسالة بعد إعادة التوجيه من إجراء يتطلب تسجيل دخول */
+/** Read by `LoginForm` to explain the redirect after an action that needs a signed-in user. */
 export const LOGIN_AUTH_REQUIRED_REASON = "auth_required";
 
 /** Query param carrying the page to return to once the user is authenticated. */
@@ -7,7 +7,18 @@ export const LOGIN_REDIRECT_PARAM = "redirect";
 const LOCALES = new Set(["ar", "en", "he"]);
 
 /** Auth screens are never valid return targets — they would loop back here. */
-const AUTH_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password"];
+const AUTH_PATHS = [
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/open-store/register",
+];
+
+/** The merchant sign-up page linked from the "open store" landing. */
+export function merchantSignupPath(locale: LocaleInput): string {
+  return `/${normalizeLocale(locale)}/open-store/register`;
+}
 
 /** Callers pass `useParams()` values, which are typed `string | string[]`. */
 export type LocaleInput = string | string[] | undefined | null;

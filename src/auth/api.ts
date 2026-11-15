@@ -5,6 +5,7 @@ import {
   AccountResponse,
   LoginCredentials,
   LogoutResponse,
+  MerchantRegisterData,
   RegisterData,
   SendCodePayload,
   SendCodeResponse,
@@ -66,6 +67,13 @@ export const loginUser = async (credentials: LoginCredentials): Promise<AuthResp
 
 export const registerUser = async (userData: RegisterData): Promise<AuthResponse> => {
   const { data } = await api.post<AuthResponse>("/auth/register", userData);
+  return withNormalizedUser(data);
+};
+
+export const registerMerchant = async (
+  merchantData: MerchantRegisterData
+): Promise<AuthResponse> => {
+  const { data } = await api.post<AuthResponse>("/auth/register-merchant", merchantData);
   return withNormalizedUser(data);
 };
 

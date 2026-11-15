@@ -24,7 +24,7 @@ export interface User {
 
   // Image URLs — backend is inconsistent; normalizeUser keeps `*_url` URL-shaped
   avatar_url?: string | null;
-  /** رابط صورة الغلاف (تعاد من ProfileResource كـ `cover` — نحتفظ بالاثنين للتوافق) */
+  /** Cover image URL. ProfileResource returns it as `cover`; both are kept for compatibility. */
   cover?: string | null;
   cover_url?: string | null;
 
@@ -124,6 +124,26 @@ export interface RegisterData {
   email: string;
   phone: string;
   password?: string;
+  device_token?: string | null;
+  device_name?: string | null;
+}
+
+export type Gender = "male" | "female";
+
+/** POST /auth/register-merchant — creates the account as a merchant straight away. */
+export interface MerchantRegisterData {
+  first_name: string;
+  last_name: string;
+  email: string;
+  /** "+972XXXXXXXXX" or "05XXXXXXXX" — the backend rejects any other shape. */
+  phone: string;
+  city_id: number;
+  /** YYYY-MM-DD, before today. */
+  date_of_birth: string;
+  gender: Gender;
+  password: string;
+  password_confirmation: string;
+  /** The backend only stores the device when both device fields are sent. */
   device_token?: string | null;
   device_name?: string | null;
 }
