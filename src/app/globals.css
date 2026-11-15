@@ -85,6 +85,8 @@
   --c2-slate-600: #6a7282;
   /* darkest slate — modal/dialog headings */
   --c2-slate-950: #0f172b;
+  /* slate-800 at 70% — merchant landing section descriptions */
+  --c2-slate-800-a70: #1e293bb2;
   /* page-subtitle copy — the helper line under a screen title */
   --c2-neutral-680: #444444;
   --c2-neutral-800: #2d2d2d;
@@ -96,6 +98,8 @@
 
   /* navy (brand blue family, incl. primary) */
   --c2-navy-1000: #010b38;
+  /* deep navy — merchant landing section/card headings */
+  --c2-navy-975: #0f203c;
   --c2-navy-950: #141f2c;
   --c2-navy-900: #203246;
   --c2-navy-700: #2d496a;
@@ -116,6 +120,8 @@
   --c2-navy-75: #ebeff4;
   /* vivid blue accent — active/hovered nav links */
   --c2-blue-500: #3076ff;
+  /* palest blue surface — alternating merchant landing benefit cards */
+  --c2-blue-50: #f0f7ff;
   /* navy at low alpha — tinted surfaces (unread rows, icon chips) */
   --c2-navy-700-a08: #2d496a14;
   /* 10% tint of navy-500 — bulk-action / selection bars above a table */
@@ -238,12 +244,14 @@
   --color-c2-slate-550: var(--c2-slate-550);
   --color-c2-slate-600: var(--c2-slate-600);
   --color-c2-slate-950: var(--c2-slate-950);
+  --color-c2-slate-800-a70: var(--c2-slate-800-a70);
   --color-c2-neutral-680: var(--c2-neutral-680);
   --color-c2-neutral-800: var(--c2-neutral-800);
   --color-c2-neutral-900: var(--c2-neutral-900);
   --color-c2-neutral-950: var(--c2-neutral-950);
   --color-c2-neutral-1000: var(--c2-neutral-1000);
   --color-c2-navy-1000: var(--c2-navy-1000);
+  --color-c2-navy-975: var(--c2-navy-975);
   --color-c2-navy-950: var(--c2-navy-950);
   --color-c2-navy-900: var(--c2-navy-900);
   --color-c2-navy-700: var(--c2-navy-700);
@@ -257,6 +265,7 @@
   --color-c2-navy-75: var(--c2-navy-75);
   --color-c2-navy-50: var(--c2-navy-50);
   --color-c2-blue-500: var(--c2-blue-500);
+  --color-c2-blue-50: var(--c2-blue-50);
   --color-c2-navy-700-a08: var(--c2-navy-700-a08);
   --color-c2-navy-500-a10: var(--c2-navy-500-a10);
   --color-c2-ink-900: var(--c2-ink-900);

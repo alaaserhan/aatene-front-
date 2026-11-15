@@ -46,39 +46,34 @@ export const TRUST_POINTS = [
     "بدون عمولة على المبيعات",
 ];
 
-export type BenefitTone = "navy" | "sky" | "white" | "muted";
-
 export const BENEFITS = {
-    title: "ما الذي ستستفيده عند فتح متجرك على أعطيني؟",
+    /** The title is split so the brand name can take the brand color. */
+    title: { before: "شو رح تستفيد لما تفتح متجرك على ", brand: "أعطيني", after: "؟" },
     description: "مع أعطيني، تزداد فرص ظهور منتجاتك وخدماتك أمام من يبحثون عمّا تقدّمه.",
     items: [
         {
-            tone: "navy" as BenefitTone,
             title: "زبائن جدد يكتشفون عملك",
             description:
-                "يظهر متجرك أمام الباحثين عن منتجات وخدمات مثل التي تقدّمها، فتصل إلى زبائن لم يكونوا ليعرفوك من قبل.",
-            image: asset("benefit-new-customers.webp", "", 61, 61),
+                "مع أعطيني، متجرك أمام الباحثين عن منتجات وخدمات مثل التي تقدّمها، فتصل إلى زبائن لم يكونوا ليعرفوك من قبل.",
+            image: asset("benefit-new-customers.png", "", 57, 57),
         },
         {
-            tone: "sky" as BenefitTone,
             title: "كل منتجاتك وخدماتك في مكان واحد",
             description:
                 "بدلًا من إرسال الصور والأسعار لكل زبون على حدة، اعرض كل التفاصيل في متجرك، ودع الزبائن يطّلعون على ما تقدّمه في أي وقت.",
-            image: asset("benefit-one-place.webp", "", 61, 61),
+            image: asset("benefit-one-place.png", "", 61, 61),
         },
         {
-            tone: "white" as BenefitTone,
             title: "تواصل أسهل مع الزبائن",
             description:
                 "استقبل رسائل الزبائن وطلبات الأسعار في مكان واحد، وتابع استفساراتهم بسهولة.",
-            image: asset("benefit-contact.webp", "", 61, 61),
+            image: asset("benefit-contact.png", "", 61, 61),
         },
         {
-            tone: "muted" as BenefitTone,
             title: "متجر منظّم يعكس عملك",
             description:
                 "دع الزبائن يتعرّفون على مشروعك من خلال صور المنتجات والمعلومات الواضحة والتقييمات المتاحة، ليختاروا ما يناسبهم بثقة أكبر.",
-            image: asset("benefit-organized.webp", "", 61, 61),
+            image: asset("benefit-organized.png", "", 61, 61),
         },
     ],
 };
