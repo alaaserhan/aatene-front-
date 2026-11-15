@@ -9,6 +9,7 @@ import UserMenu from "./UserMenu";
 import MobileNav from "./MobileNav";
 import { SearchBar } from "./SearchBar";
 import { NavIconButton } from "./NavIconButton";
+import { TryOnNavEntry } from "@/src/features/(web)/virtual-try-on/components/TryOnNavEntry";
 import { NotificationDropdown } from "@/src/components/shared/NotificationDropdown";
 import { useAuth } from "@/src/auth";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -53,6 +54,7 @@ const NavIcons = () => {
 
   return (
     <>
+      <NotificationDropdown />
       <Link href={`/${lang}/compare`} aria-label="المقارنات">
         <NavIconButton tabIndex={-1} count={compareCount} badgeTone="neutral">
           <ArrowUpDown className="size-5" />
@@ -65,13 +67,14 @@ const NavIcons = () => {
         </NavIconButton>
       </Link>
 
+      <TryOnNavEntry />
+
       <Link href={`/${lang}/chat`} aria-label="الرسائل">
         <NavIconButton tabIndex={-1} count={unreadCount}>
           <MessageCircleMore className="size-5" />
         </NavIconButton>
       </Link>
 
-      <NotificationDropdown />
     </>
   );
 };

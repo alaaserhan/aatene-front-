@@ -11,7 +11,7 @@ import { notificationBodyToText } from "@/src/lib/utils";
 
 interface NotificationListProps {
     notifications: DashboardNotification[];
-    onItemClick: () => void;
+    onItemClick: (notification: DashboardNotification) => void;
     onViewAllClick: () => void;
 }
 
@@ -39,7 +39,7 @@ export function NotificationList({ notifications, onItemClick, onViewAllClick }:
                             className={`group w-full rounded-lg p-3 outline-none cursor-pointer transition-colors flex items-start gap-3 text-start hover:bg-c2-neutral-50 ${
                                 notification.seen ? "" : "bg-c2-navy-700-a08"
                             }`}
-                            onClick={onItemClick}
+                            onClick={() => onItemClick(notification)}
                         >
                             <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-c2-navy-700-a08 text-c2-primary">
                                 <Bell className="size-4.5" />

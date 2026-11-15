@@ -17,6 +17,8 @@ import { getProductBySlug } from "@/src/features/(web)/product/api";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "./productAskForPriceButton";
 import { HoverPlayVideo } from "@/src/components/ui/HoverPlayVideo";
+import { TryOnProductEntry } from "@/src/features/(web)/virtual-try-on/components/TryOnProductEntry";
+import { productImageActionClassName } from "./productImageAction";
 
 function normalizeStoreId(v: number | string | undefined | null): number | null {
     if (v === undefined || v === null || v === "") return null;
@@ -174,7 +176,7 @@ const ProductCard = memo(({
                     />
                 )}
 
-                <div className="absolute top-3 left-3 z-2 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+                <div className={cn(productImageActionClassName, "left-3 top-3")}>
                     <FavoriteButton
                         id={id}
                         type={type}
@@ -195,6 +197,7 @@ const ProductCard = memo(({
                         -{discountPercent}%
                     </div>
                 )}
+                {type === "product" && <TryOnProductEntry productId={Number(id)} variant="card" className="left-3 top-16" />}
             </div>
 
             <div className={styles.content} dir="rtl">

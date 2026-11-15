@@ -4,6 +4,8 @@ import { Suspense, useState, useEffect } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronLeft, Menu, X, Search } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import { TryOnNavEntry } from "@/src/features/(web)/virtual-try-on/components/TryOnNavEntry";
 import { usePathname } from "next/navigation";
 import { SearchBar } from "./SearchBar";
 import UserMenu from "./UserMenu";
@@ -109,8 +111,9 @@ export default function MobileNav() {
 
         <Link href={`/${lang}`} className="flex min-w-0 max-w-[45%] shrink-0 justify-center overflow-hidden">
           {showRemoteMobileLogo && mobileLogoUrl ? (
-            <img
+            <Image
               src={mobileLogoUrl}
+              unoptimized
               className="mx-auto h-8 max-h-8 max-w-full object-contain"
               alt={settings?.name || "logo"}
               width={150}
@@ -119,11 +122,12 @@ export default function MobileNav() {
               onError={() => setFailedMobileLogoUrl(mobileLogoUrl)}
             />
           ) : (
-            <img src="/black.svg" className="mx-auto h-8 max-w-full object-contain" alt="logo" width={120} height={32} style={{ width: "auto", height: "2rem" }} />
+            <Image src="/black.svg" className="mx-auto h-8 max-w-full object-contain" alt="logo" width={120} height={32} style={{ width: "auto", height: "2rem" }} />
           )}
         </Link>
 
         <div className="flex shrink-0 items-center gap-0.5">
+          {isLoggedIn && <TryOnNavEntry />}
 
           <button
             className="p-2 hover:bg-gray-100 rounded-md cursor-pointer text-c2-primary"
@@ -160,7 +164,7 @@ export default function MobileNav() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="hover:scale-105 transition-transform duration-200"
                   >
-                    <img src="/black.svg" className="h-8 w-auto" alt="logo" />
+                    <Image src="/black.svg" className="h-8 w-auto" alt="أعطيني" width={120} height={32} />
                   </Link>
                   <button
                     onClick={toggleMobileMenu}
@@ -194,7 +198,7 @@ export default function MobileNav() {
                           >
                             <div className="flex items-center gap-4">
                               <div className={navIconClass(isActive(`/${lang}/chat`))}>
-                                <img src="/icons/chat.svg" alt="Messages" className="h-7 w-7" />
+                                <Image src="/icons/chat.svg" alt="Messages" className="h-7 w-7" width={28} height={28} />
                               </div>
                               <span className="font-medium">الرسائل</span>
                             </div>
@@ -210,7 +214,7 @@ export default function MobileNav() {
                           >
                             <div className="flex items-center gap-4">
                               <div className={navIconClass(isActive(`/${lang}/favourites`))}>
-                                <img src="/icons/heart.svg" alt="Favorites" className="h-7 w-7" />
+                                <Image src="/icons/heart.svg" alt="Favorites" className="h-7 w-7" width={28} height={28} />
                               </div>
                               <span className="font-medium">المفضلة</span>
                             </div>
@@ -226,7 +230,7 @@ export default function MobileNav() {
                           >
                             <div className="flex items-center gap-4">
                               <div className={`relative ${navIconClass(isActive(`/${lang}/compare`))}`}>
-                                <img src="/icons/Compare.svg" alt="Compare" className="h-7 w-7" />
+                                <Image src="/icons/Compare.svg" alt="Compare" className="h-7 w-7" width={28} height={28} />
                                 <NavIconBadge count={compareCount} tone="neutral" />
                               </div>
                               <span className="font-medium">المقارنات</span>
@@ -243,7 +247,7 @@ export default function MobileNav() {
                           >
                             <div className="flex items-center gap-4">
                               <div className={`relative ${navIconClass(isActive(`/${lang}/notifications`))}`}>
-                                <img src="/icons/Notification.svg" alt="Notifications" className="h-7 w-7" />
+                                <Image src="/icons/Notification.svg" alt="Notifications" className="h-7 w-7" width={28} height={28} />
                                 {unreadCount > 0 && (
                                   <Badge
                                     className="absolute bg-red-600 font-baseline-fix -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"

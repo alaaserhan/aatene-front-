@@ -4,7 +4,7 @@ import { ScrollArea, ScrollBar } from "@/src/components/ui/scroll-area";
 import { VideoOrImageNext } from "@/src/components/ui/VideoOrImageNext";
 import { cn } from "@/src/lib/utils";
 import { Play } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 export type MediaItem = { type: "image" | "video"; url: string };
 
@@ -18,6 +18,8 @@ interface MediaGalleryProps {
   /** When set, the main media becomes clickable and opens a full-screen preview. */
   onOpen?: (index: number) => void;
   className?: string;
+  /** Actions anchored to the main media, independently of the thumbnail strip. */
+  mediaOverlay?: ReactNode;
 }
 
 /**
@@ -33,6 +35,7 @@ export function MediaGallery({
   fallbackSrc,
   onOpen,
   className,
+  mediaOverlay,
 }: MediaGalleryProps) {
   const currentMedia = items[activeIndex];
   const hasGallery = items.length > 1;
@@ -138,6 +141,7 @@ export function MediaGallery({
             )}
           </button>
         )}
+        {mediaOverlay}
       </div>
     </div>
   );

@@ -31,6 +31,7 @@ const MERCHANT_BLOCKED_SEGMENTS = new Set([
   'categories',
   'permissions',
   'settings',
+  'virtual-try-on',
   'contacts',
 ]);
 
@@ -129,6 +130,7 @@ export default function proxy(request: NextRequest) {
     '/requested-services/create',
     '/requested-services/edit',
     '/settings',
+    '/virtual-try-on',
   ];
 
   const isProtectedWebRoute = protectedWebRoutes.some((route) => {
@@ -224,12 +226,10 @@ export default function proxy(request: NextRequest) {
   // return I18nMiddleware(request);
   const i18nResponse = I18nMiddleware(request);
 
-  // Cache-Control: private, no-cache يسمح بـ bfcache (عكس no-store الذي يمنعه)
   i18nResponse.headers.set("Cache-Control", "private, no-cache");
 
   i18nResponse.headers.set("x-pathname", stripLocalePrefix(pathname));
 
-  // منع الـ redirect loop على iOS
   if (
     i18nResponse.status === 301 ||
     i18nResponse.status === 302 ||

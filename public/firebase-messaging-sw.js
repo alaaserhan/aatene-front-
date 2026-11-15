@@ -77,7 +77,9 @@ self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
     const data = event.notification.data || {};
-    const targetUrl = data.conversation_id
+    const targetUrl = data.type === 'try_on_generation' && typeof data.uuid === 'string' && data.uuid
+        ? `/ar/virtual-try-on?generation=${encodeURIComponent(data.uuid)}`
+        : data.conversation_id
         ? `/chat?chat=${data.conversation_id}`
         : '/';
 

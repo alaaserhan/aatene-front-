@@ -33,6 +33,7 @@ import type { ChatTarget } from "@/src/lib/chat-links";
 import { getAttributePlaceholder } from "@/src/lib/attribute-placeholder";
 import { isPhoneHidden, maskPhone } from "@/src/lib/phone";
 import { StorePhoneDialog } from "@/src/features/(web)/stores/components/StorePhoneDialog";
+import { TryOnProductEntry } from "@/src/features/(web)/virtual-try-on/components/TryOnProductEntry";
 
 const PLACEHOLDER_SRC = "/images/placeholders/product-placeholder.svg";
 
@@ -159,6 +160,7 @@ export default function ProductHero({
       />
 
       <div className="flex flex-col lg:flex-row gap-8">
+        <div className="relative min-w-0 lg:w-[55%] lg:self-start lg:sticky lg:top-24">
         <MediaGallery
           items={allMedia}
           title={product.name}
@@ -166,8 +168,9 @@ export default function ProductHero({
           onSelect={setSelectedIndex}
           onOpen={() => setIsPreviewOpen(true)}
           fallbackSrc={PLACEHOLDER_SRC}
-          className="lg:w-[55%] lg:self-start lg:sticky lg:top-24"
+          mediaOverlay={<TryOnProductEntry productId={product.id} className="absolute right-4 top-4" />}
         />
+        </div>
 
         {/* Details — min-w-0 so the bundle card's slider can shrink here. */}
         <div className="flex-1 min-w-0">
