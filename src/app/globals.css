@@ -110,6 +110,8 @@
   --c2-navy-975: #0f203c;
   --c2-navy-950: #141f2c;
   --c2-navy-900: #203246;
+  /* merchant landing outcome card titles */
+  --c2-navy-850: #1c335e;
   /* saturated navy — merchant landing showcase heading and list */
   --c2-navy-800: #1a4269;
   --c2-navy-700: #2d496a;
@@ -277,6 +279,7 @@
   --color-c2-navy-975: var(--c2-navy-975);
   --color-c2-navy-950: var(--c2-navy-950);
   --color-c2-navy-900: var(--c2-navy-900);
+  --color-c2-navy-850: var(--c2-navy-850);
   --color-c2-navy-800: var(--c2-navy-800);
   --color-c2-navy-700: var(--c2-navy-700);
   --color-c2-navy-610: var(--c2-navy-610);
