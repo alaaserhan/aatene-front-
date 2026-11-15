@@ -7,7 +7,7 @@ import { Flag } from "lucide-react";
 import { RequestedService } from "../types";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
-import { stripHtmlTags } from "@/src/lib/utils";
+import { stripHtmlTags } from "@/src/lib/sanitize";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useUser } from "@/src/auth/session";
 import { isOwnRequestedService } from "../utils";

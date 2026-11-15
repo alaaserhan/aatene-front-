@@ -8,7 +8,8 @@ import { ar } from "date-fns/locale";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { toLocal } from "@/src/lib/date-helper";
-import { isHtmlContent, notificationBodyToText } from "@/src/lib/utils";
+import { isHtmlContent } from "@/src/lib/utils";
+import { notificationBodyToText } from "@/src/lib/sanitize";
 import { NotificationBodyModal } from "@/src/components/shared/NotificationBodyModal";
 import type { DashboardNotification } from "../api";
 

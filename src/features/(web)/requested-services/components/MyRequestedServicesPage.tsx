@@ -10,7 +10,8 @@ import { DeleteRequestedServiceButton } from "./DeleteRequestedServiceButton";
 
 import Link from "next/link";
 import Image from "next/image";
-import { cn, stripHtmlTags } from "@/src/lib/utils";
+import { cn } from "@/src/lib/utils";
+import { stripHtmlTags } from "@/src/lib/sanitize";
 import { useLanguage } from "@/src/hooks/use-language";
 
 const PER_PAGE = 10;

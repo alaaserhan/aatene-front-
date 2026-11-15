@@ -6,7 +6,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/src/components/ui/dialog";
-import { sanitizeHtmlDocument } from "@/src/lib/utils";
+import { sanitizeHtmlDocument } from "@/src/lib/sanitize";
 
 interface NotificationBodyModalProps {
     isOpen: boolean;

@@ -1,4 +1,4 @@
-import { sanitizeHtml } from "@/src/lib/utils";
+import { sanitizeHtml } from "@/src/lib/sanitize";
 
 type SafeHTMLProps = {
   html: string | null | undefined;

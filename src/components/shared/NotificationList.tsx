@@ -7,7 +7,7 @@ import { toLocal } from "@/src/lib/date-helper";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { Button } from "@/src/components/ui/button";
 import type { DashboardNotification } from "@/src/features/(web)/notifications/api";
-import { notificationBodyToText } from "@/src/lib/utils";
+import { notificationBodyToText } from "@/src/lib/sanitize";
 
 interface NotificationListProps {
     notifications: DashboardNotification[];
