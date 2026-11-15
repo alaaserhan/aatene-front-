@@ -1,6 +1,7 @@
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { cn } from "@/src/lib/utils";
 import { BENEFITS } from "../content";
+import { staggerStyle } from "../motion";
 import LandingImage from "./LandingImage";
 
 export default function BenefitsSection() {
@@ -9,7 +10,7 @@ export default function BenefitsSection() {
     return (
         <section className="py-10 md:py-20">
             <MaxWidthWrapper className="flex flex-col gap-8">
-                <div className="mx-auto flex flex-col items-center gap-4 text-center">
+                <div className="ml-reveal mx-auto flex flex-col items-center gap-4 text-center">
                     <h2 className="max-w-3xl text-[26px] font-bold leading-snug text-c2-navy-975 md:text-[40px] md:leading-[1.4]">
                         {title.before}
                         <span className="text-c2-primary">{title.brand}</span>
@@ -23,8 +24,9 @@ export default function BenefitsSection() {
                     {BENEFITS.items.map((item, index) => (
                         <article
                             key={item.title}
+                            style={staggerStyle(index)}
                             className={cn(
-                                "flex flex-col rounded-3xl border p-6 transition-transform hover:-translate-y-1 lg:min-h-78 lg:p-7",
+                                "ml-reveal flex flex-col rounded-3xl border p-6 transition-transform hover:-translate-y-1 lg:min-h-78 lg:p-7",
                                 index % 2 === 0
                                     ? "border-c2-blue-50 bg-c2-blue-50"
                                     : "border-c2-neutral-200 bg-white",

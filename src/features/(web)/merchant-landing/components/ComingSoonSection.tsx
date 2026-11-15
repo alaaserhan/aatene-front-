@@ -8,7 +8,7 @@ export default function ComingSoonSection() {
     return (
         <section className="py-10 md:py-20">
             <MaxWidthWrapper className="flex flex-col gap-6 md:gap-8">
-                <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
+                <div className="ml-reveal mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
                     <h2 className="text-[26px] font-bold leading-snug text-c2-navy-975 md:text-[40px] md:leading-[1.4]">
                         {title.before}
                         <span className="text-c2-primary">{title.brand}</span>
@@ -17,8 +17,12 @@ export default function ComingSoonSection() {
                         {COMING_SOON.description}
                     </p>
                 </div>
-                <ToolCarousel group="contentTools" />
-                <ToolCarousel group="creativeTools" />
+                <div className="ml-reveal">
+                    <ToolCarousel group="contentTools" />
+                </div>
+                <div className="ml-reveal">
+                    <ToolCarousel group="creativeTools" />
+                </div>
             </MaxWidthWrapper>
         </section>
     );
