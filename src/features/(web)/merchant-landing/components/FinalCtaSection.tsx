@@ -6,15 +6,23 @@ export default function FinalCtaSection() {
     return (
         <section className="py-10 md:py-20">
             <MaxWidthWrapper>
-                <div className="relative isolate overflow-hidden rounded-[32px] bg-c2-primary px-5 py-12 text-center md:px-16 md:py-20">
-                    <span aria-hidden className="absolute -end-24 -top-24 -z-10 size-96 rounded-full bg-white/10 blur-3xl" />
-                    <span aria-hidden className="absolute -bottom-40 -start-24 -z-10 size-96 rounded-full bg-c2-navy-500/40 blur-3xl" />
-                    <div className="mx-auto flex max-w-4xl flex-col items-center gap-5 md:gap-6">
-                        <h2 className="text-2xl font-bold leading-normal text-white md:text-5xl md:leading-[1.35]">
+                <div className="relative isolate overflow-hidden rounded-3xl border-2 border-dashed border-c2-navy-700 bg-[linear-gradient(90deg,var(--c2-navy-100)_2.42%,var(--c2-navy-90)_51.21%,var(--c2-navy-100)_100%)] px-5 py-12 text-center md:px-16 md:py-20">
+                    <span
+                        aria-hidden
+                        className="absolute -bottom-44 -start-28 -z-10 size-72 rounded-full border border-c2-navy-300 md:-bottom-72 md:-start-57 md:size-114"
+                    />
+                    <span
+                        aria-hidden
+                        className="absolute -bottom-52 start-0 -z-10 size-64 rounded-full border border-c2-navy-300 md:-bottom-78 md:size-102"
+                    />
+                    <div className="mx-auto flex max-w-4xl flex-col items-center">
+                        <h2 className="mb-6 text-3xl font-bold leading-normal text-c2-navy-700 md:text-[52px] md:leading-[1.35]">
                             {FINAL_CTA.title}
                         </h2>
-                        <p className="text-sm leading-relaxed text-c2-navy-100 md:text-lg">{FINAL_CTA.description}</p>
-                        <CreateStoreButton label={FINAL_CTA.cta} variant="inverse" className="mt-2" />
+                        <p className="mb-6 text-base font-medium leading-relaxed text-c2-slate-700 md:text-lg">
+                            {FINAL_CTA.description}
+                        </p>
+                        <CreateStoreButton label={FINAL_CTA.cta} className="rounded-full" />
                     </div>
                 </div>
             </MaxWidthWrapper>
