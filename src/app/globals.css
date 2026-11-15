@@ -99,6 +99,8 @@
   --c2-neutral-900: #222222;
   /* near-black body copy — detail-row values */
   --c2-neutral-950: #1c1c1c;
+  /* cool near-black — merchant landing creative tool card copy */
+  --c2-neutral-975: #16181d;
   /* pure black — detail-row icons and similar flat glyphs */
   --c2-neutral-1000: #000000;
 
@@ -132,6 +134,11 @@
   --c2-blue-500: #3076ff;
   /* palest blue surface — alternating merchant landing benefit cards */
   --c2-blue-50: #f0f7ff;
+  /* merchant landing creative tool cards — the solid end of each card's image fade */
+  --c2-sky-400: #7cc7fb;
+  --c2-sky-300: #9acdef;
+  --c2-sand-200: #f9e1c1;
+  --c2-taupe-200: #dfcec3;
   /* navy at low alpha — tinted surfaces (unread rows, icon chips) */
   --c2-navy-700-a08: #2d496a14;
   /* navy at 10% — merchant landing tool-card icon chips */
@@ -264,6 +271,7 @@
   --color-c2-neutral-800: var(--c2-neutral-800);
   --color-c2-neutral-900: var(--c2-neutral-900);
   --color-c2-neutral-950: var(--c2-neutral-950);
+  --color-c2-neutral-975: var(--c2-neutral-975);
   --color-c2-neutral-1000: var(--c2-neutral-1000);
   --color-c2-navy-1000: var(--c2-navy-1000);
   --color-c2-navy-975: var(--c2-navy-975);
@@ -283,6 +291,10 @@
   --color-c2-navy-25: var(--c2-navy-25);
   --color-c2-blue-500: var(--c2-blue-500);
   --color-c2-blue-50: var(--c2-blue-50);
+  --color-c2-sky-400: var(--c2-sky-400);
+  --color-c2-sky-300: var(--c2-sky-300);
+  --color-c2-sand-200: var(--c2-sand-200);
+  --color-c2-taupe-200: var(--c2-taupe-200);
   --color-c2-navy-700-a08: var(--c2-navy-700-a08);
   --color-c2-navy-700-a10: var(--c2-navy-700-a10);
   --color-c2-navy-500-a10: var(--c2-navy-500-a10);

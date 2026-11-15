@@ -1,16 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import {
-    CalendarCheck2,
-    Camera,
-    Eraser,
-    GalleryHorizontal,
-    Link,
-    Palette,
-    PenTool,
-    Shirt,
-    Sparkles,
-    Zap,
-} from "lucide-react";
+import { CalendarCheck2, Link, Palette, Sparkles, Zap } from "lucide-react";
 
 /** Files live in `public/merchant-landing/`; a missing file renders a labelled placeholder. */
 export type LandingAsset = {
@@ -94,6 +83,19 @@ export type ComingSoonCard = {
     soon?: boolean;
 };
 
+/**
+ * No icon: the image fades into the card's own color through `gradient`, and the copy sits on that fade.
+ * The stops are the design's, rescaled to the full card: taken as-is they turn solid near 60% of the
+ * height and bury the lower half of the image.
+ */
+export type CreativeToolCard = {
+    title: string;
+    description: string;
+    image: LandingAsset;
+    gradient: string;
+    soon?: boolean;
+};
+
 export const COMING_SOON = {
     title: { before: "قريبًا على ", brand: "أعطيني" },
     description:
@@ -137,40 +139,34 @@ export const COMING_SOON = {
     ] satisfies ComingSoonCard[],
     creativeTools: [
         {
+            title: "مونتاج احترافي",
+            description: "حوّل لقطاتك إلى فيديوهات جذابة باحترافية.",
+            image: asset("tool-video-editing.png", "", 1254, 1254),
+            gradient: "linear-gradient(180deg, transparent 61.5%, var(--c2-sand-200) 84%)",
+            soon: true,
+        },
+        {
             title: "صانع الكاروسيل",
             description: "أنشئ كاروسيلًا جذابًا يعرض أفكارك بطريقة مميزة.",
-            icon: GalleryHorizontal,
-            image: asset("tool-carousel-maker.webp", "", 304, 230),
+            image: asset("tool-carousel-maker.png", "", 1254, 1254),
+            gradient: "linear-gradient(180.78deg, transparent 53%, var(--c2-sky-400) 82.5%)",
             soon: true,
         },
         {
-            title: "تنسيق الأزياء",
-            description: "نسّق إطلالاتك واختر القطع المناسبة بسهولة.",
-            icon: Shirt,
-            image: asset("tool-fashion-styling.webp", "", 304, 230),
-            soon: true,
-        },
-        {
-            title: "مصمم جرافيك",
+            title: "مصمم الجرافيك",
             description: "صمّم محتوى احترافيًا يعبّر عن علامتك التجارية.",
-            icon: PenTool,
-            image: asset("tool-graphic-designer.webp", "", 304, 230),
+            image: asset("tool-graphic-designer.png", "", 1254, 1254),
+            gradient: "linear-gradient(180.76deg, transparent 53%, var(--c2-sky-300) 83.4%)",
             soon: true,
         },
         {
             title: "مصوّر احترافي",
             description: "أنشئ صورًا احترافية لمنتجاتك بسهولة.",
-            icon: Camera,
-            image: asset("tool-photographer.webp", "", 304, 230),
+            image: asset("tool-photographer.png", "", 1254, 1254),
+            gradient: "linear-gradient(180.74deg, transparent 53%, var(--c2-taupe-200) 84.2%)",
             soon: true,
         },
-        {
-            title: "إزالة الخلفية",
-            description: "أزل الخلفية من صورك في ثوانٍ.",
-            icon: Eraser,
-            image: asset("tool-background-removal.webp", "", 304, 230),
-        },
-    ] satisfies ComingSoonCard[],
+    ] satisfies CreativeToolCard[],
 };
 
 export const OUTCOMES = {
