@@ -24,10 +24,10 @@ export default function OutcomesSection() {
                             key={item.title}
                             className="flex flex-col rounded-3xl border border-s-6 border-c2-navy-700 bg-c2-blue-50 p-6"
                         >
-                            <div className="mb-4 flex h-20 items-center">
+                            <div className="mb-4 flex h-20 items-center justify-center">
                                 <LandingImage asset={item.image} className="max-h-full w-auto object-contain" />
                             </div>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 text-center">
                                 <h3 className="text-xl font-bold leading-snug text-c2-navy-850 md:text-2xl">
                                     {item.title}
                                 </h3>
