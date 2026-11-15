@@ -4,7 +4,7 @@ import CreateStoreButton from "./CreateStoreButton";
 
 export default function FinalCtaSection() {
     return (
-        <section className="py-10 md:py-20">
+        <section className="pb-12 md:pb-[90px]">
             <MaxWidthWrapper>
                 <div className="relative isolate overflow-hidden rounded-3xl border-2 border-dashed border-c2-navy-700 bg-[linear-gradient(90deg,var(--c2-navy-100)_2.42%,var(--c2-navy-90)_51.21%,var(--c2-navy-100)_100%)] px-5 py-12 text-center md:px-16 md:py-20">
                     <span

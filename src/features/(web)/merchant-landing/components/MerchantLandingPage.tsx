@@ -9,7 +9,7 @@ import WhatsAppButton from "./WhatsAppButton";
 
 export default function MerchantLandingPage() {
     return (
-        <main className="min-h-screen overflow-x-clip bg-white">
+        <main className="min-h-screen overflow-x-clip bg-white max-md:[&_.container]:px-[20px]!">
             <LandingHero />
             <TrustStrip />
             <BenefitsSection />

@@ -7,7 +7,7 @@ export default function BenefitsSection() {
     const { title } = BENEFITS;
 
     return (
-        <section className="py-10 md:py-16">
+        <section className="py-10 md:py-20">
             <MaxWidthWrapper className="flex flex-col gap-8">
                 <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
                     <h2 className="text-2xl font-bold leading-snug text-c2-navy-975 md:text-[40px] md:leading-[1.4]">

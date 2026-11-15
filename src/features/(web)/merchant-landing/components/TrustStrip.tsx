@@ -4,7 +4,7 @@ import CheckBadge from "./CheckBadge";
 
 export default function TrustStrip() {
     return (
-        <section className="py-6 md:py-16">
+        <section className="pt-10 md:pt-20">
             <MaxWidthWrapper>
                 <div className="relative isolate overflow-hidden rounded-2xl bg-c2-navy-700 px-6 py-8 md:px-14 md:py-20">
                     <span
