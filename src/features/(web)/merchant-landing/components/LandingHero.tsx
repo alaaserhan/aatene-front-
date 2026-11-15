@@ -25,7 +25,11 @@ export default function LandingHero() {
             <MaxWidthWrapper className="relative z-10 grid items-center gap-8 pb-12 pt-8 lg:grid-cols-2 lg:gap-6 lg:pb-20 lg:pt-16">
                 <div
                     aria-hidden
-                    className="absolute inset-0 hidden bg-c2-navy-75 [clip-path:polygon(62%_0,100%_0,100%_100%,59%_100%,82%_50%)] lg:block"
+                    className="absolute inset-0 hidden lg:block"
+                    style={{
+                        background:
+                            "conic-gradient(from 0deg at 85% 45%, var(--c2-navy-75) 0deg 214.6deg, transparent 215.2deg 320.8deg, var(--c2-navy-75) 321.4deg)",
+                    }}
                 />
                 <div className="relative flex flex-col items-center gap-6 text-center">
                     <h1 className="text-[28px] font-bold leading-[1.55] text-c2-navy-700 md:text-5xl md:leading-[1.4] lg:text-[56px]">
