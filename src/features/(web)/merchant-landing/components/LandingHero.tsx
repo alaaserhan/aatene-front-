@@ -36,7 +36,7 @@ export default function LandingHero() {
                 />
                 <MaxWidthWrapper className="relative grid w-full flex-1 content-center items-center gap-10 py-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:content-stretch lg:gap-8 lg:py-12">
                     <div className="relative z-10 flex min-w-0 flex-col items-center gap-4 text-center">
-                        <h1 className="text-[28px] font-bold leading-[1.55] text-c2-navy-700 md:text-5xl md:leading-[1.4] lg:text-[42px] xl:text-[56px]">
+                        <h1 className="text-[30px] font-bold leading-[1.55] text-c2-navy-700 md:text-5xl md:leading-[1.4] lg:text-[42px] xl:text-[56px]">
                             {HERO.title}
                         </h1>
                         <p className="max-w-161.25 text-base leading-relaxed font-normal text-c2-navy-560 md:text-xl md:leading-[1.8] xl:text-2xl">

@@ -8,7 +8,7 @@ export default function ShowcaseSection() {
         <section className="bg-c2-navy-25 py-10 md:py-[90px]">
             <MaxWidthWrapper className="flex flex-col gap-6 md:gap-10 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-col lg:max-w-122 xl:max-w-none">
-                    <h2 className="mb-4 text-2xl xl:whitespace-nowrap font-bold leading-snug text-c2-navy-800 md:text-[40px] md:leading-[1.5]">
+                    <h2 className="mb-4 text-[26px] xl:whitespace-nowrap font-bold leading-snug text-c2-navy-800 md:text-[40px] md:leading-[1.5]">
                         {SHOWCASE.title}
                     </h2>
                     <ul className="flex flex-col gap-6">

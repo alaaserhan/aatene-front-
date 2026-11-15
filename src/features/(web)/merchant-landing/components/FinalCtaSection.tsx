@@ -16,7 +16,7 @@ export default function FinalCtaSection() {
                         className="absolute -bottom-52 start-0 -z-10 size-64 rounded-full border border-c2-navy-300 md:-bottom-78 md:size-102"
                     />
                     <div className="mx-auto flex max-w-4xl flex-col items-center">
-                        <h2 className="mb-6 text-3xl font-bold leading-normal text-c2-navy-700 md:text-[52px] md:leading-[1.35]">
+                        <h2 className="mb-6 text-[26px] font-bold leading-normal text-c2-navy-700 md:text-[52px] md:leading-[1.35]">
                             {FINAL_CTA.title}
                         </h2>
                         <p className="mb-6 text-base font-medium leading-relaxed text-c2-slate-700 md:text-lg">
