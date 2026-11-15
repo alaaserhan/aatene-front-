@@ -1,6 +1,5 @@
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { Logo } from "@/src/components/(web)/Navbar";
-import { cn } from "@/src/lib/utils";
 import { HEADER_CTA, HERO } from "../content";
 import { riseStyle } from "../motion";
 import CreateStoreButton from "./CreateStoreButton";
@@ -35,7 +34,7 @@ export default function LandingHero() {
                             "conic-gradient(from 0deg at calc(50% + min(35%, 490px)) 45%, var(--c2-navy-75) 0deg 214.6deg, transparent 215.2deg 320.8deg, var(--c2-navy-75) 321.4deg)",
                     }}
                 />
-                <MaxWidthWrapper className="relative grid w-full flex-1 content-center items-center gap-10 py-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:content-stretch lg:gap-8 lg:py-12">
+                <MaxWidthWrapper className="grid w-full flex-1 content-center items-center gap-10 py-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:content-stretch lg:gap-8 lg:py-12">
                     <div className="relative z-10 flex min-w-0 flex-col items-center gap-4 text-center">
                         <h1 className="ml-rise text-[30px] font-bold leading-[1.55] text-c2-navy-700 md:text-5xl md:leading-[1.4] lg:text-[42px] xl:text-[56px]">
                             {HERO.title}
@@ -50,26 +49,22 @@ export default function LandingHero() {
                             <CreateStoreButton label={HERO.cta} className="rounded-full bg-c2-navy-700 text-[18px]" />
                         </div>
                     </div>
-                    {/* From lg the mockup is sized by the hero's height and anchored to the
-                        column's start edge, so it bleeds off the far side of the viewport
-                        instead of shrinking to the column or reaching under the text.
-                        From 2400px the side margin is too wide for a convincing bleed (only the
-                        laptop's edge would be clipped), so the mockup is instead fitted whole
-                        into the space between the viewport edge and the text. The width adds
-                        that margin to the column: 700px is half the container's max width.
-                        The breakpoint is written in rem on purpose: Tailwind emits a px
-                        breakpoint before the rem-based `lg:` rules, which then override it. */}
-                    <div className="ml-slide-in relative min-w-0 lg:self-stretch">
-                        <LandingImage
-                            asset={HERO.mockup}
-                            priority
-                            sizes="(min-width: 150rem) 1304px, (min-width: 1024px) 85vw, 100vw"
-                            className={cn(
-                                "ml-float mx-auto w-full max-w-2xl",
-                                "lg:absolute lg:start-0 lg:top-1/2 lg:mx-0 lg:h-[min(92%,47vw)] lg:max-h-180 lg:w-auto lg:max-w-none lg:-translate-y-1/2",
-                                "min-[150rem]:h-[92%] min-[150rem]:w-[calc(100%_+_50vw_-_700px_-_2rem)] min-[150rem]:object-contain ltr:min-[150rem]:object-left rtl:min-[150rem]:object-right",
-                            )}
-                        />
+                    {/* The asset is pre-cropped on its left edge, so that edge must sit flush with
+                        the viewport. Below lg the negative margin cancels the container's padding
+                        and side margin; from lg the mockup is positioned against the full-width
+                        hero body instead of the grid column. The slide-in lives on an inner
+                        wrapper because a transformed ancestor would capture the absolute box. */}
+                    <div className="min-w-0 me-[calc(50%_-_50vw)] lg:me-0">
+                        <div className="lg:absolute lg:end-0 lg:top-1/2 lg:aspect-1809/1800 lg:h-[min(88%,47vw)] lg:-translate-y-1/2">
+                            <div className="ml-slide-in h-full">
+                                <LandingImage
+                                    asset={HERO.mockup}
+                                    priority
+                                    sizes="(min-width: 1024px) 47vw, min(100vw, 672px)"
+                                    className="ml-float ms-auto w-full max-w-2xl lg:h-full lg:max-w-none"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </MaxWidthWrapper>
             </div>
