@@ -6,7 +6,7 @@ import { MerchantSignupForm } from "@/src/auth/components/MerchantSignupForm";
 import { MaintenanceGuard } from "@/src/components/providers/MaintenanceGuard";
 
 export const metadata: Metadata = {
-    title: "إنشاء حساب تاجر | أعطيني",
+    title: "إنشاء حساب تاجر",
     description: "أنشئ حساب التاجر الخاص بك على أعطيني وابدأ بإعداد متجرك الإلكتروني مجانًا.",
     robots: { index: false, follow: false },
 };
