@@ -1,10 +1,46 @@
+import { getImageProps } from "next/image";
+import { preload } from "react-dom";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
-import { Logo } from "@/src/components/(web)/Navbar";
-import { HEADER_CTA, HERO } from "../content";
+import { Logo } from "@/src/components/(web)/Logo";
+import { assetSrcSet, HEADER_CTA, HERO } from "../content";
 import { riseStyle } from "../motion";
 import CreateStoreButton from "./CreateStoreButton";
 import CreateStoreLink from "./CreateStoreLink";
-import LandingImage from "./LandingImage";
+
+/** From lg the mockup is 47vw at most and never taller than 88% of the 920px hero body. */
+const MOCKUP_SIZES = "(min-width: 1024px) min(47vw, 810px), min(100vw, 672px)";
+
+/**
+ * The page's LCP image. `<Image priority>` would preload the full-size file and drop any
+ * `srcSet`, so the candidates go on a `<source>` and the preload is issued by hand.
+ */
+function HeroMockup() {
+    const { mockup } = HERO;
+    const srcSet = assetSrcSet(mockup);
+    const { props } = getImageProps({
+        src: mockup.src,
+        alt: mockup.alt,
+        width: mockup.width,
+        height: mockup.height,
+        loading: "eager",
+        fetchPriority: "high",
+        className: "ml-float ms-auto h-auto w-full max-w-2xl lg:h-full lg:max-w-none",
+    });
+
+    preload(mockup.src, {
+        as: "image",
+        imageSrcSet: srcSet,
+        imageSizes: MOCKUP_SIZES,
+        fetchPriority: "high",
+    });
+
+    return (
+        <picture className="contents">
+            <source srcSet={srcSet} sizes={MOCKUP_SIZES} type="image/webp" />
+            <img {...props} alt={mockup.alt} />
+        </picture>
+    );
+}
 
 function LandingHeader() {
     return (
@@ -57,12 +93,7 @@ export default function LandingHero() {
                     <div className="min-w-0 me-[calc(50%_-_50vw)] lg:me-0">
                         <div className="lg:absolute lg:end-0 lg:top-1/2 lg:aspect-1809/1800 lg:h-[min(88%,47vw)] lg:-translate-y-1/2">
                             <div className="ml-slide-in h-full">
-                                <LandingImage
-                                    asset={HERO.mockup}
-                                    priority
-                                    sizes="(min-width: 1024px) 47vw, min(100vw, 672px)"
-                                    className="ml-float ms-auto w-full max-w-2xl lg:h-full lg:max-w-none"
-                                />
+                                <HeroMockup />
                             </div>
                         </div>
                     </div>

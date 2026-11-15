@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpDown, Heart, MessageCircleMore } from "lucide-react";
 
+import { Logo } from "./Logo";
 import UserMenu from "./UserMenu";
 import MobileNav from "./MobileNav";
 import { SearchBar } from "./SearchBar";
@@ -12,36 +11,9 @@ import { NavIconButton } from "./NavIconButton";
 import { NotificationDropdown } from "@/src/components/shared/NotificationDropdown";
 import { useAuth } from "@/src/auth";
 import { useLanguage } from "@/src/hooks/use-language";
-import { useSettingsStore } from "@/src/stores/settings-store";
 import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
 import { useCompareCount } from "@/src/features/(web)/compares/hooks";
-import { upgradeHttpToHttps, fixMediaUrl } from "@/src/lib/utils";
-
-export const Logo = () => {
-  const lang = useLanguage();
-  const { settings } = useSettingsStore();
-  const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
-
-  const logoUrl = settings?.logo_url
-    ? upgradeHttpToHttps(fixMediaUrl(settings.logo_url))
-    : null;
-  const useRemoteLogo = !!logoUrl && failedLogoUrl !== logoUrl;
-
-  return (
-    <Link href={`/${lang}`} className="flex shrink-0 items-center">
-      <Image
-        src={useRemoteLogo ? logoUrl : "/black.svg"}
-        className="h-10 w-auto object-contain"
-        alt={(useRemoteLogo && settings?.name) || "logo"}
-        width={150}
-        height={40}
-        priority
-        onError={useRemoteLogo ? () => setFailedLogoUrl(logoUrl) : undefined}
-      />
-    </Link>
-  );
-};
 
 const NavIcons = () => {
   const lang = useLanguage();

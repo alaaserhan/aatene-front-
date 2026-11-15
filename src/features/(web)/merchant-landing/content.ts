@@ -7,21 +7,39 @@ export type LandingAsset = {
     alt: string;
     width: number;
     height: number;
+    /** Widths of the narrower copies saved beside `src` as `<name>-<width>.<ext>`. */
+    widths?: number[];
 };
 
-const asset = (file: string, alt: string, width: number, height: number): LandingAsset => ({
+const asset = (file: string, alt: string, width: number, height: number, widths?: number[]): LandingAsset => ({
     src: `/merchant-landing/${file}`,
     alt,
     width,
     height,
+    widths,
 });
+
+/**
+ * Image optimization is off site-wide (`images.unoptimized`), so `next/image` never emits a
+ * `srcset`; responsive copies are pre-generated and listed here instead.
+ */
+export const assetSrcSet = ({ src, width, widths = [] }: LandingAsset) => {
+    const dot = src.lastIndexOf(".");
+    return [...widths.map((w) => `${src.slice(0, dot)}-${w}${src.slice(dot)} ${w}w`), `${src} ${width}w`].join(", ");
+};
 
 export const HERO = {
     title: "افتح متجرك الإلكتروني مجانًا، وسهّل على زبائن جدد اكتشاف منتجاتك وخدماتك.",
     description:
         "مع أعطيني، صار عندك مكان واحد تعرض فيه منتجاتك أو خدماتك بالصور والأسعار والتفاصيل، وتسهل على الزبائن اكتشاف متجرك والتواصل معك.",
     cta: "أنشئ متجرك الآن",
-    mockup: asset("hero-mockup-cropped.webp", "صفحة متجر على أعطيني تظهر على الحاسوب والهاتف", 1809, 1800),
+    mockup: asset(
+        "hero-mockup-cropped.webp",
+        "صفحة متجر على أعطيني تظهر على الحاسوب والهاتف",
+        1809,
+        1800,
+        [640, 960, 1280],
+    ),
 };
 
 export const HEADER_CTA = "أنشئ متجرك مجانًا";
@@ -143,28 +161,28 @@ export const COMING_SOON = {
         {
             title: "مونتاج احترافي",
             description: "حوّل لقطاتك إلى فيديوهات جذابة باحترافية.",
-            image: asset("tool-video-editing.png", "", 1254, 1254),
+            image: asset("tool-video-editing.webp", "", 960, 960),
             gradient: "linear-gradient(180deg, transparent 61.5%, var(--c2-sand-200) 84%)",
             soon: true,
         },
         {
             title: "صانع الكاروسيل",
             description: "أنشئ كاروسيلًا جذابًا يعرض أفكارك بطريقة مميزة.",
-            image: asset("tool-carousel-maker.png", "", 1254, 1254),
+            image: asset("tool-carousel-maker.webp", "", 960, 960),
             gradient: "linear-gradient(180.78deg, transparent 53%, var(--c2-sky-400) 82.5%)",
             soon: true,
         },
         {
             title: "مصمم جرافيك",
             description: "صمّم محتوى احترافيًا يعبر عن علامتك التجارية.",
-            image: asset("tool-graphic-designer.png", "", 1254, 1254),
+            image: asset("tool-graphic-designer.webp", "", 960, 960),
             gradient: "linear-gradient(180.76deg, transparent 53%, var(--c2-sky-300) 83.4%)",
             soon: true,
         },
         {
             title: "مصور احترافي",
             description: "أنشئ صورًا احترافية لمنتجاتك بسهولة.",
-            image: asset("tool-photographer.png", "", 1254, 1254),
+            image: asset("tool-photographer.webp", "", 960, 960),
             gradient: "linear-gradient(180.74deg, transparent 53%, var(--c2-taupe-200) 84.2%)",
             soon: true,
         },
