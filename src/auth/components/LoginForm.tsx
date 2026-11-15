@@ -18,7 +18,12 @@ import { useLogin } from "../hooks";
 import { getFCMToken } from "@/src/lib/firebase";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { LOGIN_AUTH_REQUIRED_REASON, authLinkQuery, readPostLoginRedirect } from "../links";
+import {
+  LOGIN_AUTH_REQUIRED_REASON,
+  authLinkQuery,
+  consumeOAuthError,
+  readPostLoginRedirect,
+} from "../links";
 import { BASE_URL } from "@/src/lib/config";
 import { useLanguage } from "@/src/hooks/use-language";
 
@@ -102,6 +107,13 @@ export function LoginForm() {
       const nextQuery = searchParams.toString();
       const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}`;
       window.history.replaceState({}, "", nextUrl);
+    }
+
+    const oauthError = consumeOAuthError();
+    if (oauthError) {
+      queueMicrotask(() => {
+        toast.error(oauthError);
+      });
     }
 
     if (tokenParam) {

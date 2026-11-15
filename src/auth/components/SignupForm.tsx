@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import { ApiError } from "../types";
 import { useLanguage } from "@/src/hooks/use-language";
 import { BASE_URL } from "@/src/lib/config";
-import { authLinkQuery, readPostLoginRedirect } from "../links";
+import { authLinkQuery, consumeOAuthError, readPostLoginRedirect } from "../links";
 
 const signupSchema = z
   .object({
@@ -116,6 +116,13 @@ export function SignupForm() {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const tokenParam = searchParams.get("token");
+
+    const oauthError = consumeOAuthError();
+    if (oauthError) {
+      queueMicrotask(() => {
+        toast.error(oauthError);
+      });
+    }
 
     if (tokenParam) {
       setAuthCookies({ token: tokenParam });
