@@ -1,17 +1,14 @@
 import type { LucideIcon } from "lucide-react";
 import {
-    Box,
-    CalendarCheck,
+    CalendarCheck2,
     Camera,
     Eraser,
-    FolderMinus,
     GalleryHorizontal,
-    Link2,
+    Link,
     Palette,
     PenTool,
     Shirt,
     Sparkles,
-    WandSparkles,
     Zap,
 } from "lucide-react";
 
@@ -98,33 +95,27 @@ export type ComingSoonCard = {
 };
 
 export const COMING_SOON = {
-    title: "قريبًا على أعطيني",
+    title: { before: "قريبًا على ", brand: "أعطيني" },
     description:
         "نعمل على أدوات جديدة تغطي رحلة محتواك كاملة، من الهوية البصرية إلى النشر والمتابعة.",
     contentTools: [
         {
-            title: "تابع محتواك من مكان واحد",
-            description: "أنشئ محتواك، وتابع ما أُنجز وما يزال قيد الإنشاء.",
-            icon: FolderMinus,
-            image: asset("soon-content-tracking.webp", "", 302, 254),
+            title: "حدّد هويتك المرئية",
+            description: "اختر ألوان محتواك ونمطه في ثوانٍ لتضمن تناسق حسابك بالكامل.",
+            icon: Palette,
+            image: asset("soon-visual-identity.webp", "", 302, 254),
         },
         {
-            title: "أضف منتجاتك أو خدماتك",
-            description: "احفظ معلومات منتجاتك مرة واحدة واستخدمها في كل منشور.",
-            icon: Box,
-            image: asset("soon-products.webp", "", 302, 254),
+            title: "خطة محتوى شهرية",
+            description: "نظّم محتواك وجدوِله باحترافية لترتاح طوال الشهر.",
+            icon: CalendarCheck2,
+            image: asset("soon-content-plan.webp", "", 302, 254),
         },
         {
-            title: "اجعل وصف منتجك أكثر احترافية",
-            description: "حوّل معلومات منتجاتك وخدماتك إلى وصف احترافي واضح وجاهز للنشر.",
-            icon: WandSparkles,
-            image: asset("soon-description.webp", "", 302, 254),
-        },
-        {
-            title: "حوّل أفكارك إلى محتوى جاهز",
-            description: "استخدم مولّد المحتوى الذكي لإنشاء منشورات احترافية تناسب منتجاتك وخدماتك.",
-            icon: Sparkles,
-            image: asset("soon-content-generator.webp", "", 302, 254),
+            title: "رابطي",
+            description: "أنشئ صفحة روابط تجمع كل قنواتك في رابط واحد.",
+            icon: Link,
+            image: asset("soon-link-page.webp", "", 302, 254),
         },
         {
             title: "النشر عبر منصات التواصل",
@@ -133,22 +124,10 @@ export const COMING_SOON = {
             image: asset("soon-publishing.webp", "", 302, 254),
         },
         {
-            title: "رابطي",
-            description: "أنشئ صفحة روابط تجمع كل قنواتك في رابط واحد.",
-            icon: Link2,
-            image: asset("soon-link-page.webp", "", 302, 254),
-        },
-        {
-            title: "خطة محتوى شهرية",
-            description: "نظّم محتواك وجدوِله باحترافية لترتاح طوال الشهر.",
-            icon: CalendarCheck,
-            image: asset("soon-content-plan.webp", "", 302, 254),
-        },
-        {
-            title: "حدّد هويتك المرئية",
-            description: "اختر ألوان محتواك ونمطه في ثوانٍ لتضمن تناسق حسابك بالكامل.",
-            icon: Palette,
-            image: asset("soon-visual-identity.webp", "", 302, 254),
+            title: "حوّل أفكارك إلى محتوى جاهز",
+            description: "استخدم مولّد المحتوى الذكي لإنشاء منشورات احترافية تناسب منتجاتك وخدماتك.",
+            icon: Sparkles,
+            image: asset("soon-content-generator.webp", "", 302, 254),
         },
     ] satisfies ComingSoonCard[],
     creativeTools: [

@@ -132,6 +132,8 @@
   --c2-blue-50: #f0f7ff;
   /* navy at low alpha — tinted surfaces (unread rows, icon chips) */
   --c2-navy-700-a08: #2d496a14;
+  /* navy at 10% — merchant landing tool-card icon chips */
+  --c2-navy-700-a10: #2d496a1a;
   /* 10% tint of navy-500 — bulk-action / selection bars above a table */
   --c2-navy-500-a10: #4068961a;
 
@@ -279,6 +281,7 @@
   --color-c2-blue-500: var(--c2-blue-500);
   --color-c2-blue-50: var(--c2-blue-50);
   --color-c2-navy-700-a08: var(--c2-navy-700-a08);
+  --color-c2-navy-700-a10: var(--c2-navy-700-a10);
   --color-c2-navy-500-a10: var(--c2-navy-500-a10);
   --color-c2-ink-900: var(--c2-ink-900);
   --color-c2-red-800: var(--c2-red-800);

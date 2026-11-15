@@ -42,12 +42,12 @@ export default function ToolCarousel({ group }: { group: "contentTools" | "creat
                                 ) : null}
                             </div>
                             <div className="flex flex-1 items-start gap-3 p-4 md:p-5">
-                                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-c2-navy-50 text-c2-primary">
-                                    <Icon className="size-5" />
+                                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-c2-navy-700-a10 p-2 text-c2-navy-700">
+                                    <Icon className="size-6" strokeWidth={2} />
                                 </span>
-                                <div className="flex min-w-0 flex-col gap-1.5">
-                                    <h3 className="text-base font-bold text-c2-navy-950 md:text-lg">{card.title}</h3>
-                                    <p className="text-sm leading-relaxed text-c2-neutral-600">{card.description}</p>
+                                <div className="flex min-w-0 flex-col">
+                                    <h3 className="mb-1 text-lg font-medium text-c2-neutral-950">{card.title}</h3>
+                                    <p className="text-sm font-normal leading-relaxed text-c2-navy-560">{card.description}</p>
                                 </div>
                             </div>
                         </article>
