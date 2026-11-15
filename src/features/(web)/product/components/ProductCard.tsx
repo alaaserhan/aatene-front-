@@ -63,7 +63,7 @@ const CARD_VARIANTS = {
     c2: {
         root: "flex w-full flex-col group relative isolate transition-all",
         media: "relative block w-full shrink-0 card-shadow bg-gray-100 aspect-square rounded-[14px]",
-        video: "absolute inset-0 rounded-[14px]",
+        video: "absolute inset-0 isolate overflow-hidden rounded-[14px]",
         videoInner: "group-hover:scale-101 transition-transform duration-300",
         image: "object-cover object-center group-hover:scale-101 transition-transform duration-300 rounded-[14px]",
         content: "flex flex-1 flex-col px-0 py-3 text-right gap-1",
