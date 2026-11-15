@@ -18,7 +18,7 @@ export default function HomeTodayOffers({ products: initialProducts }: HomeToday
       title="تخفيضات"
       products={products}
       viewAllHref="/products?has_discount=1"
-      className="py-12 bg-gray-50 bg-linear-to-b from-gray-50 to-white"
+      className="py-5 md:py-12 bg-gray-50 bg-linear-to-b from-gray-50 to-white"
     />
   );
 }

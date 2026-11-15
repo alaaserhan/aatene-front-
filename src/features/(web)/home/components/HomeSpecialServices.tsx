@@ -22,7 +22,7 @@ export default function HomeSpecialServices({ services: initialServices }: HomeS
       title="الخدمات الأعلى تقييمًا"
       services={services}
       showViewAll={true}
-      className="pb-12 pt-12 lg:pt-20 bg-white"
+      className="py-5 md:pb-12 md:pt-12 lg:pt-20 bg-white"
     />
   );
 }

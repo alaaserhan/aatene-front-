@@ -17,10 +17,9 @@ export default function HomeCategoriesWithProducts({ categories: initialCategori
     if (!categories || categories.length === 0) return null;
 
     return (
-        <section className="py-12 bg-gray-50/50">
-            
+        <section className="py-5 md:py-12 bg-gray-50/50">
             <MaxWidthWrapper>
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-6 md:gap-8">
                     {categories.map((category) => (
                         <HomeCategorySection key={category.id} category={category} />
                     ))}

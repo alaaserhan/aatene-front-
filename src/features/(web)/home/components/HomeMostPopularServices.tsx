@@ -24,7 +24,7 @@ export default function HomeMostPopularServices({ services: initialServices }: H
     <HomeServicesCarousel
       title="الخدمات الأكثر استخدامًا"
       services={services}
-      className="py-12 bg-white"
+      className="py-5 md:py-12 bg-white"
     />
   );
 }

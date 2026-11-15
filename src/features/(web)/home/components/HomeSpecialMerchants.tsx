@@ -34,9 +34,9 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
   if (!merchants || merchants.length === 0) return null;
 
   return (
-    <section className="py-8 relative overflow-hidden" dir="rtl">
+    <section className="py-5 md:py-8 relative overflow-hidden" dir="rtl">
       <MaxWidthWrapper className="relative z-20">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
           <h2 className="heading-3">
             المتاجر الأعلى تقييمًا
           </h2>
@@ -48,7 +48,7 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
 
           <div
             ref={scrollContainerRef}
-            className="flex w-full flex-row flex-nowrap items-stretch overflow-x-auto gap-3 md:gap-6 pb-8 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto overscroll-x-contain"
+            className="flex w-full flex-row flex-nowrap items-stretch overflow-x-auto gap-3 md:gap-6 pb-3 md:pb-8 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto overscroll-x-contain"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {merchants.map((merchant) => (

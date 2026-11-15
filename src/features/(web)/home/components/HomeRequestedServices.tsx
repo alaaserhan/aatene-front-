@@ -20,9 +20,9 @@ export default function HomeRequestedServices({ requests: initialRequests }: Hom
   const hasRequests = requests.length > 0;
 
   return (
-    <section className="py-12 bg-gray-50 bg-linear-to-b from-white to-gray-50" dir="rtl">
+    <section className="py-5 md:py-12 bg-gray-50 bg-linear-to-b from-white to-gray-50" dir="rtl">
       <MaxWidthWrapper>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
           <h2 className="heading-3">
             طلبات الخدمات الغير موجودة
           </h2>

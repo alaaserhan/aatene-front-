@@ -29,7 +29,7 @@ export default function HomeSingleBanner({ banner, className }: HomeSingleBanner
     return (
         // Vertical padding lives on the section, not on `.container`: the global
         // `.container` rule sets `padding: 0 1rem` and silently drops any `py-*`.
-        <section className={cn("py-6 md:py-8", className)}>
+        <section className={cn("py-4 md:py-8", className)}>
             <div className="container">
                 <div className="px-2 md:px-0">
                     <Link

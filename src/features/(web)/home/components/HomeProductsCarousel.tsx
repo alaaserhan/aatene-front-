@@ -36,9 +36,9 @@ export default function HomeProductsCarousel({
   if (!products?.length) return null;
 
   return (
-    <section className={cn("py-8 relative", className)} dir="rtl">
+    <section className={cn("py-5 md:py-8 relative", className)} dir="rtl">
       <MaxWidthWrapper className="relative z-20 ">
-        <div className="mb-6 flex items-start justify-between gap-3 sm:items-center">
+        <div className="mb-4 md:mb-6 flex items-start justify-between gap-3 sm:items-center">
           <h2
             className={cn(
               "heading-3",
@@ -55,7 +55,7 @@ export default function HomeProductsCarousel({
 
           <div
             ref={scrollContainerRef}
-            className="flex w-full flex-row flex-nowrap items-stretch gap-4 overflow-x-auto overscroll-x-contain scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto pb-8 md:gap-6 lg:gap-8"
+            className="flex w-full flex-row flex-nowrap items-stretch gap-4 overflow-x-auto overscroll-x-contain scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto pb-3 md:pb-8 md:gap-6 lg:gap-8"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {products.map((product) => (
