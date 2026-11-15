@@ -132,10 +132,13 @@ export const updateFavoriteList = async (
 };
 
 export const deleteFavoriteList = async (
-    id: number | string
+    id: number | string,
+    deleteItems: boolean
 ): Promise<BaseResponse> => {
     const endpoint = `/favorite-lists/${id}`;
-    const { data } = await api.delete<BaseResponse>(endpoint);
+    const { data } = await api.delete<BaseResponse>(endpoint, {
+        params: { delete_items: deleteItems ? 1 : 0 },
+    });
     return data;
 };
 

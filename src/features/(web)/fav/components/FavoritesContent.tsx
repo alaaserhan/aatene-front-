@@ -41,6 +41,7 @@ export default function FavoritesContent({
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteItems, setDeleteItems] = useState(false);
 
     const { mutate: deleteList, isPending: isDeletingList } = useDeleteFavoriteList();
 
@@ -124,17 +125,24 @@ export default function FavoritesContent({
     };
 
     const handleDeleteList = () => {
+        // Always start from the non-destructive choice.
+        setDeleteItems(false);
         setIsDeleteModalOpen(true);
     };
 
+    const listHasItems = totalItems > 0;
+
     const confirmDelete = () => {
         if (!selectedListId) return;
-        deleteList(selectedListId, {
-            onSuccess: () => {
-                setSelectedListId(null);
-                setIsDeleteModalOpen(false);
+        deleteList(
+            { id: selectedListId, deleteItems: listHasItems && deleteItems },
+            {
+                onSuccess: () => {
+                    setSelectedListId(null);
+                    setIsDeleteModalOpen(false);
+                },
             }
-        });
+        );
     };
 
     if (isLoading) {
@@ -150,7 +158,7 @@ export default function FavoritesContent({
                         المفضلة
                     </h1>
                     <p className="text-[#6B7280] text-sm md:text-base">
-                        احفظ منتجاتك ومحلاتك المفضلة في مكان واحد، وارجع لها وقت ما تحتاج بسهولة.
+                        احفظ منتجاتك ومحلاتك المفضلة في مكان واحد، وعُد إليها بسهولة متى احتجت.
                     </p>
                 </div>
                 {/* Add New Collection Button - Only show if not "all" */}
@@ -321,10 +329,59 @@ export default function FavoritesContent({
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
-                title="هل أنت متأكد من حذف هذه المجموعة؟"
-                description="لا يمكن التراجع عن هذا الإجراء بعد التأكيد."
-                confirmText={isDeletingList ? "جاري الحذف..." : "حذف المجموعة"}
-            />
+                title={`حذف مجموعة «${lists.find((l) => l.id === selectedListId)?.name ?? ""}»؟`}
+                description={
+                    listHasItems
+                        ? "اختر ما تريد فعله بالعناصر المحفوظة في هذه المجموعة."
+                        : "لا يمكن التراجع عن هذا الإجراء بعد التأكيد."
+                }
+                confirmText={listHasItems && deleteItems ? "حذف المجموعة وعناصرها" : "حذف المجموعة"}
+                confirmPosition="start"
+                isLoading={isDeletingList}
+                autoCloseOnConfirm={false}
+            >
+                {listHasItems && (
+                    <fieldset className="flex flex-col gap-3" disabled={isDeletingList}>
+                        <legend className="sr-only">ماذا تريد أن تفعل بالعناصر؟</legend>
+
+                        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-c2-neutral-200 p-4 text-start transition-colors has-[:checked]:border-c2-navy-700 has-[:checked]:bg-c2-navy-25">
+                            <input
+                                type="radio"
+                                name="delete-items"
+                                checked={!deleteItems}
+                                onChange={() => setDeleteItems(false)}
+                                className="mt-1 size-4 shrink-0 cursor-pointer accent-c2-navy-700"
+                            />
+                            <span className="flex flex-col gap-1">
+                                <span className="text-sm font-semibold text-c2-navy-900">
+                                    حذف المجموعة فقط
+                                </span>
+                                <span className="text-xs text-c2-neutral-600">
+                                    تبقى العناصر (<span className="font-digits" dir="ltr">{totalItems}</span>) في مفضلتك ضمن «جميع العناصر».
+                                </span>
+                            </span>
+                        </label>
+
+                        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-c2-neutral-200 p-4 text-start transition-colors has-[:checked]:border-c2-danger has-[:checked]:bg-c2-red-500-a10">
+                            <input
+                                type="radio"
+                                name="delete-items"
+                                checked={deleteItems}
+                                onChange={() => setDeleteItems(true)}
+                                className="mt-1 size-4 shrink-0 cursor-pointer accent-c2-danger"
+                            />
+                            <span className="flex flex-col gap-1">
+                                <span className="text-sm font-semibold text-c2-danger">
+                                    حذف المجموعة وعناصرها
+                                </span>
+                                <span className="text-xs text-c2-neutral-600">
+                                    تُزال العناصر (<span className="font-digits" dir="ltr">{totalItems}</span>) من المفضلة نهائيًا، ولا يمكن التراجع عن ذلك.
+                                </span>
+                            </span>
+                        </label>
+                    </fieldset>
+                )}
+            </ConfirmDeleteModal>
         </div>
     );
 }

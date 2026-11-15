@@ -1,6 +1,7 @@
 // src/features/(dashboard)/cities/components/ConfirmDeleteModal.tsx
 "use client";
 
+import type { ReactNode } from "react";
 import { X, AlertTriangle, Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -34,6 +35,8 @@ interface ConfirmDeleteModalProps {
   /** Lets the modal stack above another full-screen dialog (e.g. the story viewer). */
   overlayClassName?: string;
   className?: string;
+  /** Extra content between the description and the buttons (e.g. delete options). */
+  children?: ReactNode;
 }
 
 export function ConfirmDeleteModal({
@@ -50,6 +53,7 @@ export function ConfirmDeleteModal({
   autoCloseOnConfirm = true,
   overlayClassName,
   className,
+  children,
 }: ConfirmDeleteModalProps) {
   if (!isOpen) return null;
 
@@ -88,6 +92,8 @@ export function ConfirmDeleteModal({
             {description || " لا يمكنك التراجع عن هذا الإجراء بعد التأكيد."}
           </DialogDescription>
         </DialogHeader>
+
+        {children}
 
         <DialogFooter
           className={`flex-col gap-2 sm:justify-start pt-4 ${
