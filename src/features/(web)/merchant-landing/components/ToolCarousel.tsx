@@ -36,7 +36,7 @@ export default function ToolCarousel({ group }: { group: "contentTools" | "creat
                             <div className="relative bg-c2-navy-50">
                                 <LandingImage asset={card.image} className="w-full rounded-none border-0" />
                                 {card.soon ? (
-                                    <Badge className="absolute start-3 top-3 rounded-full bg-c2-primary px-3 py-1 text-xs text-white">
+                                    <Badge className="absolute start-2.5 top-2.5 rounded-full border-0 bg-c2-neutral-420 px-6 py-1 text-base font-bold text-white">
                                         {SOON_LABEL}
                                     </Badge>
                                 ) : null}

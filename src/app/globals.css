@@ -71,6 +71,8 @@
   --c2-neutral-500: #7b7b7b;
   /* muted descriptions under a nav/menu link label */
   --c2-neutral-450: #8e8e8e;
+  /* "coming soon" badge over merchant landing tool cards */
+  --c2-neutral-420: #999999;
   /* store header action icons (phone, chat) */
   --c2-neutral-550: #717171;
   /* store header review counter */
@@ -247,6 +249,7 @@
   --color-c2-neutral-700: var(--c2-neutral-700);
   --color-c2-neutral-500: var(--c2-neutral-500);
   --color-c2-neutral-450: var(--c2-neutral-450);
+  --color-c2-neutral-420: var(--c2-neutral-420);
   --color-c2-neutral-550: var(--c2-neutral-550);
   --color-c2-neutral-560: var(--c2-neutral-560);
   --color-c2-slate-50: var(--c2-slate-50);
