@@ -11,6 +11,7 @@ import {
     getRequestedServiceComments,
     addRequestedServiceComment,
     getMyRequestedServices,
+    deleteRequestedService,
 } from "./api";
 import {
     CreateRequestedServicePayload,
@@ -70,7 +71,22 @@ export const useUpdateRequestedService = () => {
     });
 };
 
-export const useRequestedServiceComments = (slug: string | number) => {
+export const useDeleteRequestedService = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string | number) => deleteRequestedService(id),
+        onSuccess: (data) => {
+            toast.success(data?.message || "تم حذف الطلب بنجاح");
+            queryClient.invalidateQueries({ queryKey: ["requested-services"] });
+            queryClient.invalidateQueries({ queryKey: ["my-requested-services"] });
+            // Mark only: refetching the open details page would 404 before it navigates away.
+            queryClient.invalidateQueries({ queryKey: ["requested-service"], refetchType: "none" });
+        },
+    });
+};
+
+export const useRequestedServiceComments =(slug: string | number) => {
     return useApiQuery({
         queryKey: ["requested-service-comments", slug],
         queryFn: () => getRequestedServiceComments(slug),

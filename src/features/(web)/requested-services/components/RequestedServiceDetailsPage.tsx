@@ -16,7 +16,8 @@ import { useUser } from "@/src/auth/session";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
-import { isRequestedServiceOwner } from "../utils";
+import { isOwnRequestedService } from "../utils";
+import { DeleteRequestedServiceButton } from "./DeleteRequestedServiceButton";
 
 function CommentCard({
     comment,
@@ -216,6 +217,7 @@ export default function RequestedServiceDetailsPage() {
     const { data: commentsData } = useRequestedServiceComments(slug);
     const [isStatusAlertDismissed, setIsStatusAlertDismissed] = useState(false);
     const currentUser = useUser();
+    const router = useRouter();
 
     const [mediaViewerState, setMediaViewerState] = useState<{
         isOpen: boolean;
@@ -255,7 +257,7 @@ export default function RequestedServiceDetailsPage() {
     }
 
     const { record: service, latestActivity } = serviceData;
-    const isOwnService = isRequestedServiceOwner(service.user?.id, currentUser?.id);
+    const isOwnService = isOwnRequestedService(service, currentUser?.id);
     const comments = commentsData?.reviews || [];
     const totalComments = commentsData?.total || 0;
 
@@ -289,7 +291,12 @@ export default function RequestedServiceDetailsPage() {
                 <h1 className="text-2xl md:text-3xl font-medium ">
                     {service.title}
                 </h1>
-                {!isOwnService && (
+                {isOwnService ? (
+                    <DeleteRequestedServiceButton
+                        serviceId={service.id}
+                        onDeleted={() => router.replace(`/${lang}/my/requested-services`)}
+                    />
+                ) : (
                     <ReportAbuse type="requested_service" id={service.id}>
                         <button
                             className="flex cursor-pointer items-center gap-2 bg-red-600 text-white text-xs font-medium px-4 py-2 rounded-md shrink-0 border border-red-100"

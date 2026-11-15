@@ -10,7 +10,8 @@ import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { stripHtmlTags } from "@/src/lib/utils";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useUser } from "@/src/auth/session";
-import { isRequestedServiceOwner } from "../utils";
+import { isOwnRequestedService } from "../utils";
+import { DeleteRequestedServiceButton } from "./DeleteRequestedServiceButton";
 
 interface RequestedServiceCardProps {
   service: RequestedService;
@@ -24,7 +25,7 @@ export default function RequestedServiceCard({
   const lang = useLanguage();
   const user = service.user;
   const currentUser = useUser();
-  const isOwnService = isRequestedServiceOwner(user?.id, currentUser?.id);
+  const isOwnService = isOwnRequestedService(service, currentUser?.id);
 
   return (
     <div
@@ -53,8 +54,10 @@ export default function RequestedServiceCard({
               {service.title}
             </h3>
 
-            {!isOwnService && (
-              <div className="pointer-events-auto shrink-0">
+            <div className="pointer-events-auto shrink-0">
+              {isOwnService ? (
+                <DeleteRequestedServiceButton serviceId={service.id} variant="link" />
+              ) : (
                 <ReportAbuse type="requested_service" id={service.id}>
                   <button
                     type="button"
@@ -64,8 +67,8 @@ export default function RequestedServiceCard({
                     <span>بلغ عن إساءة</span>
                   </button>
                 </ReportAbuse>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <p className="text-gray-2 text-sm leading-[1.7] line-clamp-2 text-right">
