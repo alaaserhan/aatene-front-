@@ -56,7 +56,7 @@ const CARD_VARIANTS = {
         video: "absolute inset-0",
         videoInner: "group-hover:scale-105 transition-transform duration-300",
         image: "object-cover object-center group-hover:scale-105 transition-transform duration-300",
-        content: "flex flex-col px-3 pt-2.5 pb-3 text-right gap-1.5",
+        content: "flex flex-1 flex-col px-3 pt-2.5 pb-3 text-right gap-1.5",
         title: "font-medium text-sm leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors min-h-10",
         link: "after:rounded-2xl",
     },
