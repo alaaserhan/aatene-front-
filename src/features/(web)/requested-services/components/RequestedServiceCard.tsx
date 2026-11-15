@@ -9,6 +9,8 @@ import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { stripHtmlTags } from "@/src/lib/utils";
 import { useLanguage } from "@/src/hooks/use-language";
+import { useUser } from "@/src/auth/session";
+import { isRequestedServiceOwner } from "../utils";
 
 interface RequestedServiceCardProps {
   service: RequestedService;
@@ -21,6 +23,8 @@ export default function RequestedServiceCard({
 }: RequestedServiceCardProps) {
   const lang = useLanguage();
   const user = service.user;
+  const currentUser = useUser();
+  const isOwnService = isRequestedServiceOwner(user?.id, currentUser?.id);
 
   return (
     <div
@@ -49,17 +53,19 @@ export default function RequestedServiceCard({
               {service.title}
             </h3>
 
-            <div className="pointer-events-auto shrink-0">
-              <ReportAbuse type="requested_service" id={service.id}>
-                <button
-                  type="button"
-                  className="flex cursor-pointer items-center gap-1 text-[#F00] font-medium text-xs hover:underline shrink-0"
-                >
-                  <Flag className="w-3 h-3" />
-                  <span>بلغ عن إساءة</span>
-                </button>
-              </ReportAbuse>
-            </div>
+            {!isOwnService && (
+              <div className="pointer-events-auto shrink-0">
+                <ReportAbuse type="requested_service" id={service.id}>
+                  <button
+                    type="button"
+                    className="flex cursor-pointer items-center gap-1 text-[#F00] font-medium text-xs hover:underline shrink-0"
+                  >
+                    <Flag className="w-3 h-3" />
+                    <span>بلغ عن إساءة</span>
+                  </button>
+                </ReportAbuse>
+              </div>
+            )}
           </div>
 
           <p className="text-gray-2 text-sm leading-[1.7] line-clamp-2 text-right">
