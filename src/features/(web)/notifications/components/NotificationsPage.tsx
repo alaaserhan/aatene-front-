@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useLanguage } from "@/src/hooks/use-language";
+import { getTryOnNotificationHref } from "@/src/features/(web)/virtual-try-on/notification-links";
 import { useMyNotifications, useMarkNotificationsAsSeen, useDeleteNotification } from "../hooks";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { formatDistanceToNow } from "date-fns";
@@ -13,6 +16,7 @@ import { NotificationBodyModal } from "@/src/components/shared/NotificationBodyM
 import type { DashboardNotification } from "../api";
 
 export default function NotificationsPage() {
+    const locale = useLanguage();
     const [page, setPage] = useState(1);
     const { data, isLoading } = useMyNotifications(page, 6);
     const { mutate: markAsSeen } = useMarkNotificationsAsSeen();
@@ -56,6 +60,7 @@ export default function NotificationsPage() {
                 ) : (
                     notifications.map((notification) => {
                         const isVisuallyUnseen = !notification.seen || visuallyUnseenIds.has(notification.id);
+                        const tryOnHref = getTryOnNotificationHref(notification, locale);
                         return (
                             <div
                                 key={notification.id}
@@ -92,6 +97,7 @@ export default function NotificationsPage() {
                                     </p>
 
                                     <div>
+                                        {tryOnHref && <Link href={tryOnHref} className="mb-3 inline-flex rounded-lg bg-blue-3 px-4 py-2 text-sm font-medium text-white">عرض نتيجة التجربة</Link>}
                                         {notification.title && <h3 className={`font-medium text-base mb-1 ${isVisuallyUnseen ? 'text-[#395A7D]' : 'text-gray-800'}`}>{notification.title}</h3>}
                                         <p className={`text-sm whitespace-pre-wrap leading-relaxed ${isVisuallyUnseen ? 'text-gray-700' : 'text-gray-500'}`}>
                                             {notificationBodyToText(notification.body)}

@@ -30,7 +30,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 export default function SettingsPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const activeTab = (searchParams.get("tab") as SettingsTab) || "account";
+    const requestedTab = searchParams.get("tab");
+    const activeTab: SettingsTab = requestedTab === "try-on" ? "account" : (requestedTab as SettingsTab) || "account";
 
     const setActiveTab = (tab: SettingsTab) => {
         const params = new URLSearchParams(searchParams.toString());

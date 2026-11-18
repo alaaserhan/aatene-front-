@@ -8,6 +8,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
 import { getNotificationPermission } from "@/src/lib/notification-support";
+import { getTryOnNotificationHref } from "@/src/features/(web)/virtual-try-on/notification-links";
+import { useLanguage } from "@/src/hooks/use-language";
 
 let notificationAudio: HTMLAudioElement | null = null;
 let audioUnlocked = false;
@@ -39,6 +41,7 @@ const playNotificationSound = () => {
 };
 
 const useFCMToken = () => {
+    const locale = useLanguage();
     const [fcmToken, setFcmToken] = useState<string | null>(null);
     const [notificationPermissionStatus, setNotificationPermissionStatus] = useState<NotificationPermission | null>(null);
 
@@ -48,7 +51,6 @@ const useFCMToken = () => {
                 if (typeof window !== "undefined" && "serviceWorker" in navigator) {
                     const permission = getNotificationPermission();
 
-                    // iOS Safari: Notification API غير مدعوم
                     if (permission === null) return;
 
                     if (permission !== "granted") {
@@ -90,10 +92,11 @@ const useFCMToken = () => {
             unsubscribe = onMessage(msg, (payload: MessagePayload) => {
                 console.log("[FCM Hook] Foreground message received:", payload);
 
-                // دائماً نُحدِّث الـ queries بغض النظر عن التكرار
                 queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
                 queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
                 queryClient.invalidateQueries({ queryKey: ["total-unread"] });
+                const tryOnHref = getTryOnNotificationHref(payload.data, locale);
+                if (tryOnHref) void queryClient.invalidateQueries({ queryKey: ["try-on"] });
 
                 if (isDuplicateMessage(payload)) {
                     console.log("[FCM Hook] Duplicate foreground message, skipping toast");
@@ -104,14 +107,14 @@ const useFCMToken = () => {
                 const title = payload.notification?.title || payload.data?.title || "New Notification";
                 const body = payload.notification?.body || payload.data?.body;
 
-                toast.info(title, { description: body });
+                toast.info(title, { description: body, ...(tryOnHref ? { action: { label: "عرض التجربة", onClick: () => router.push(tryOnHref) } } : {}) });
             });
         });
 
         return () => {
             if (unsubscribe) unsubscribe();
         };
-    }, [queryClient, router]);
+    }, [queryClient, router, locale]);
 
     useEffect(() => {
         let isMounted = true;
@@ -120,6 +123,7 @@ const useFCMToken = () => {
                 if (!isMounted) return;
                 if (event.data && event.data.type === 'FCM_MESSAGE_RECEIVED') {
                     const swPayload = event.data.payload || {};
+                    if (getTryOnNotificationHref(swPayload, locale)) void queryClient.invalidateQueries({ queryKey: ["try-on"] });
                     console.log("[FCM Hook] SW message received:", swPayload);
                     if (isDuplicateMessage(swPayload)) {
                         console.log("[FCM Hook] Duplicate SW message, skipping toast");
@@ -139,7 +143,7 @@ const useFCMToken = () => {
                 navigator.serviceWorker.removeEventListener('message', handler);
             };
         }
-    }, [queryClient]);
+    }, [queryClient, locale]);
 
     return { fcmToken, notificationPermissionStatus };
 };

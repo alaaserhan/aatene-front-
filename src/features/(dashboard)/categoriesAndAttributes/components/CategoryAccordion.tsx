@@ -8,6 +8,7 @@ import { cn } from "@/src/lib/utils";
 import { Category, Attribute, AttributeOption } from "../api";
 import { useGetSubCategories } from "../hooks";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { DressableToggle } from "@/src/features/(dashboard)/virtual-try-on/components/DressableToggle";
 
 const LEVEL_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
 
@@ -23,7 +24,7 @@ function AttributeOptionRow({
   onDelete,
   level,
 }: AttributeOptionRowProps) {
-  // ✅ التحقق من الصلاحية
+
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.user_type === "admin";
 
@@ -32,7 +33,7 @@ function AttributeOptionRow({
       className="flex items-center gap-1 p-2 border border-input rounded mb-2 me-[calc(var(--indent)*0.75rem)] sm:me-[calc(var(--indent)*3.5rem)]"
       style={{ "--indent": level } as React.CSSProperties}
     >
-      {/* ✅ إخفاء زر الحذف لغير الأدمن */}
+
       {isAdmin && (
         <button
           onClick={onDelete}
@@ -98,7 +99,6 @@ function AttributeAccordionContent(props: AttributeProps) {
   const hasOptions = attribute.options.length > 0;
   const isActive = attribute.is_active === true || attribute.is_active === "1";
 
-  // ✅ التحقق من الصلاحية
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.user_type === "admin";
 
@@ -108,7 +108,7 @@ function AttributeAccordionContent(props: AttributeProps) {
         className="flex items-center gap-1 p-2 border border-input rounded mb-2 hover:bg-gray-50 transition-colors me-[calc(var(--indent)*0.75rem)] sm:me-[calc(var(--indent)*3.5rem)]"
         style={{ "--indent": level } as React.CSSProperties}
       >
-        {/* ✅ إخفاء زر الحذف */}
+
         {isAdmin && (
           <button
             onClick={() => onDelete(attribute.id)}
@@ -124,7 +124,7 @@ function AttributeAccordionContent(props: AttributeProps) {
           </button>
         )}
 
-        {/* ✅ إخفاء زر التعديل */}
+
         {isAdmin && (
           <button
             onClick={() => onEdit(attribute)}
@@ -159,7 +159,7 @@ function AttributeAccordionContent(props: AttributeProps) {
           )}
         </div>
 
-        {/* ✅ تعطيل زر تغيير الحالة لغير الأدمن */}
+
         <button
           type="button"
           onClick={() => isAdmin && onToggleStatus(attribute.id, !isActive, "attribute")}
@@ -236,7 +236,6 @@ function CategoryAccordionContent(props: CategoryProps) {
   const hasSubCategories = subCategoriesCount > 0;
   const isActive = category.is_active === true || category.is_active === "1";
 
-  // ✅ التحقق من الصلاحية
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.user_type === "admin";
 
@@ -279,7 +278,7 @@ function CategoryAccordionContent(props: CategoryProps) {
           />
         )}
 
-        {/* ✅ إخفاء زر الحذف */}
+
         {isAdmin && (
           <button
             onClick={() => onDelete(category.id)}
@@ -295,7 +294,7 @@ function CategoryAccordionContent(props: CategoryProps) {
           </button>
         )}
 
-        {/* ✅ إخفاء زر التعديل */}
+
         {isAdmin && (
           <button
             onClick={() => onEdit(category)}
@@ -311,7 +310,7 @@ function CategoryAccordionContent(props: CategoryProps) {
           </button>
         )}
 
-        {/* ✅ إخفاء زر إضافة قسم فرعي */}
+
         {isAdmin && (
           <button
             onClick={() => onAddSubCategory(category.id, category?.name)}
@@ -333,6 +332,10 @@ function CategoryAccordionContent(props: CategoryProps) {
               />
             </svg>
           </button>
+        )}
+
+        {category.type === "product" && Number(category.parent_id) > 0 && (
+          <DressableToggle key={`${category.id}-${category.is_dressable}`} categoryId={category.id} isSubCategory initialValue={category.is_dressable === true || category.is_dressable === "1" || category.is_dressable === 1} />
         )}
 
         {category.type === "product" && images.length > 0 && (
@@ -396,7 +399,7 @@ function CategoryAccordionContent(props: CategoryProps) {
           )}
           </div>
 
-        {/* ✅ تعطيل زر تغيير الحالة لغير الأدمن */}
+
         <button
           type="button"
           onClick={() => isAdmin && onToggleStatus(category.id, !isActive, "category")}

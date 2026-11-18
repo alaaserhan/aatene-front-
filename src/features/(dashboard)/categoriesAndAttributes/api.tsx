@@ -11,6 +11,7 @@ export interface Category {
   images_urls: string[] | null;
   type: string;
   is_active: boolean | "0" | "1";
+  is_dressable?: boolean | "0" | "1" | 0 | 1;
   parent_id: string | null;
   subCategories: Category[];
   sub_categories_count?: string;
@@ -229,7 +230,7 @@ export interface AttributeUpdatePayload {
   is_active?: "0" | "1";
 }
 
-/** قائمة السمات في شاشة الربط — المربوطة بالفئة تظهر أولاً (order_by_category في الباكند) */
+/** Build link-screen attribute parameters with category matches first. */
 export function buildLinkAttributesListParams(categoryId: number): URLSearchParams {
   const params = new URLSearchParams();
   params.set("per_page", "1000");
@@ -328,7 +329,6 @@ export const deleteAttribute = async (
   return data;
 };
 
-// حذف خيار سمة (Soft Delete - يظهر في المحذوفات)
 export const deleteAttributeOption = async (
   id: string | number
 ): Promise<BaseResponse> => {

@@ -35,6 +35,8 @@ export interface Settings {
   is_app_under_construction?: boolean | number | string;
   is_app_needs_update?: boolean | number | string;
   is_chat_bot_allowed?: boolean | number | string;
+  is_try_on_active?: boolean | number | string;
+  try_on_coins_per_generation?: number;
 }
 
 export interface GetSettingsResponse {
@@ -71,6 +73,8 @@ export interface UpdateSettingsPayload {
   is_app_under_construction?: boolean;
   is_app_needs_update?: boolean;
   is_chat_bot_allowed?: boolean;
+  is_try_on_active?: boolean;
+  try_on_coins_per_generation?: number;
 }
 
 export const getSettings = async (): Promise<GetSettingsResponse> => {

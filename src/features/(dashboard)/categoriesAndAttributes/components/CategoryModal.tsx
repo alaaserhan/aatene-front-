@@ -1,5 +1,6 @@
 // src/features/(dashboard)/categoriesAndAttributes/components/CategoryModal.tsx
 "use client";
+import { DressableToggle } from "@/src/features/(dashboard)/virtual-try-on/components/DressableToggle";
 
 import { useState, useMemo, useEffect } from "react";
 import { Loader2, ChevronLeft } from "lucide-react";
@@ -181,6 +182,7 @@ export function CategoryModal({
         </DialogHeader>
 
         <div className="px-4 pb-4 space-y-6">
+
           {breadcrumbPath.length > 0 && (
             <nav className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 rounded-md px-3 py-2">
               {breadcrumbPath.map((item, idx) => (
@@ -211,6 +213,10 @@ export function CategoryModal({
               className="w-full px-4 py-3 border-gray-300 rounded-xs focus:ring-2 focus:ring-blue-3 focus:border-transparent"
             />
           </div>
+
+          {mode === "edit" && category && activeType === "product" && Number(category.parent_id) > 0 && (
+            <DressableToggle variant="field" key={`${category.id}-${category.is_dressable}`} categoryId={category.id} isSubCategory initialValue={category.is_dressable === true || category.is_dressable === "1" || category.is_dressable === 1} />
+          )}
 
           {activeType === "product" && (
             <div className="space-y-3">
