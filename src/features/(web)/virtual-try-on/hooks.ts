@@ -26,7 +26,6 @@ export function useTryOnInfo() {
     queryFn: ({ signal }) => tryOnApi.getInfo(signal),
     enabled: isLoggedIn,
     staleTime: 30_000,
-    refetchOnMount: "always",
     refetchOnWindowFocus: "always",
     refetchInterval: 60_000,
   });

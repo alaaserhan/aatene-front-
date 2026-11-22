@@ -50,7 +50,7 @@ export function TryOnProductEntry({ productId, className, variant = "default" }:
   }
 
   return <>
-    <Button type="button" variant="ghost" size="icon" className={cn(variant === "card" ? productImageActionClassName : "relative z-20 size-12 rounded-full bg-white/55 p-3 shadow-[0_1px_3px_rgba(0,0,0,0.3),0_4px_8px_3px_rgba(0,0,0,0.15)] backdrop-blur-sm hover:bg-white/85", className)} aria-label={`تجربة ${product.name} على صورتك`} title="جرّب المنتج عليك" onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (insufficientBalance) setRechargeOpen(true); else setOpen(true); }}><TryOnIcon name={variant === "card" ? "nav" : "entry"} /></Button>
+    <Button type="button" variant="ghost" size="icon" className={cn(variant === "card" ? productImageActionClassName : "relative z-20 size-12 rounded-full bg-white/55 p-3 shadow-[0_1px_3px_rgba(0,0,0,0.3),0_4px_8px_3px_rgba(0,0,0,0.15)] backdrop-blur-sm hover:bg-white/85", className)} aria-label={`تجربة ${product.name} على صورتك`} title="جرّب المنتج عليك" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setOpen(true); }}><TryOnIcon name={variant === "card" ? "nav" : "entry"} /></Button>
     <TryOnRechargeDialog open={rechargeOpen && data.is_active} onOpenChange={setRechargeOpen} />
     <Dialog open={open && data.is_active} onOpenChange={(next) => { if (!add.isPending) setOpen(next); }}>
       <DialogContent dir="rtl" showCloseButton={false} className="max-h-[90dvh] min-w-0 gap-0 overflow-y-auto rounded-3xl p-0 shadow-[0_25px_60px_-15px_rgba(10,20,32,0.8)] sm:max-w-218" overlayClassName="backdrop-blur-[13.1px]">
