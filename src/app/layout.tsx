@@ -58,17 +58,17 @@ export const metadata: Metadata = {
 const pingAr = localFont({
   src: [
     {
-      path: "./fonts/PingAR+LT-Regular.otf",
+      path: "./fonts/pingar-lt-regular.otf",
       weight: "400",
       style: "normal",
     },
     {
-      path: "./fonts/PingAR+LT-Medium.otf",
+      path: "./fonts/pingar-lt-medium.otf",
       weight: "500",
       style: "normal",
     },
     {
-      path: "./fonts/PingAR+LT-Bold.otf",
+      path: "./fonts/pingar-lt-bold.otf",
       weight: "700",
       style: "normal",
     },
