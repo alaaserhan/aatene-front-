@@ -42,7 +42,7 @@ export function useServiceForm(initialValues?: Partial<ServiceFormValues>) {
   const validateBasic = useCallback((): ServiceFormErrors => {
     const next: ServiceFormErrors = {};
 
-    if (!values.title.trim()) next.title = "عنوان الخدمة مطلوب";
+    if (!values.title.trim()) next.title = "اسم الخدمة مطلوب";
     if (values.images.length === 0)
       next.images = "صورة الخدمة مطلوبة، أضف صورة واحدة على الأقل";
     if (!values.category_id) next.category_id = "الفئة مطلوبة";

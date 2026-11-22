@@ -190,7 +190,7 @@ export interface UserReviewsResponse {
     reviews_summary: ReviewsSummary;
 }
 
-/** `GET /ai-support/user/profile/{chat_id}` — ملف مستخدم واتساب/إنستغرام (api1) */
+/** `GET /ai-support/user/profile/{chat_id}` — WhatsApp/Instagram user profile (api1). */
 export interface AiSupportUserProfileReviewItem {
     id: number;
     rating: number;
@@ -471,7 +471,10 @@ export type WebConversationState = "active" | "waiting" | "with_agent" | "awaiti
 export interface WebConversationUser {
     id: number;
     name: string;
-    /** يطابق `users.ai_support_bot_active` — إذا كان false لا يُستدعى الويبهوك لرد البوت */
+    /** Storage path; use `avatar_url` for display. */
+    avatar?: string | null;
+    avatar_url?: string | null;
+    /** Mirrors `users.ai_support_bot_active` — when false, the bot-reply webhook is not called. */
     ai_support_bot_active?: boolean;
 }
 
@@ -497,7 +500,6 @@ export interface WebConversationsResponse {
     data: WebConversation[];
 }
 
-/** استجابة `GET .../conversations/{id}` — محادثة واحدة */
 export interface WebConversationSingleResponse {
     status: boolean;
     message: string;
@@ -507,6 +509,8 @@ export interface WebConversationSingleResponse {
 export interface WebMessageSender {
     id: number;
     full_name: string;
+    avatar?: string | null;
+    avatar_url?: string | null;
 }
 
 export interface WebMessage {
@@ -560,14 +564,14 @@ export interface WebMissedQuestionsResponse {
     data: WebMissedQuestion[];
 }
 
-/** مطابق لـ `ConversationService::getAnalytics()` — محادثات/رسائل/تقييمات مسار الويب (webhook → Laravel). */
+/** Mirrors `ConversationService::getAnalytics()` — web-channel conversations/messages/ratings (webhook → Laravel). */
 export interface WebAnalyticsResponse {
     status: boolean;
     message: string;
     conversations: {
         total: number;
         needs_human: number;
-        /** محادثات needs_human = false — يطابق منطق الباك للشريحة «البوت يرد» */
+        /** Conversations with needs_human = false — the backend's "bot replies" slice. */
         done_by_bot: number;
     };
     messages: {
@@ -575,7 +579,7 @@ export interface WebAnalyticsResponse {
     };
     ratings: {
         average: number;
-        /** مفاتيح 1…5 كما يخرجها JSON من Laravel */
+        /** Keys "1"…"5", as Laravel serializes them. */
         distribution: Record<string, number>;
     };
 }
@@ -583,9 +587,8 @@ export interface WebAnalyticsResponse {
 export interface GetWebConversationsParams {
     state?: WebConversationState;
     unresolved_human_support?: boolean;
-    /** يطابق فلتر الباك needs_human (محادثات تحتاج تدخل بشري) */
     needs_human?: boolean;
-    /** يطابق عمود `ai_support_conversations.platform` (مثلاً `web` أو `mobile`) */
+    /** `ai_support_conversations.platform`, e.g. `web` or `mobile`. */
     platform?: string;
     per_page?: number;
     page?: number;
@@ -595,7 +598,7 @@ export interface GetWebMessagesParams {
     conversationId: number;
     page?: number;
     per_page?: number;
-    /** إذا `false` لا يُستدعى طلب الرسائل (قبل التأكد من وجود المحادثة في Laravel) */
+    /** `false` holds the request until the conversation is confirmed to exist in Laravel. */
     enabled?: boolean;
 }
 
@@ -647,7 +650,7 @@ export const webResolveConversation = async (conversationId: number): Promise<We
     return data;
 };
 
-/** يعكس تفعيل رد البوت للمستخدم المرتبط بالمحادثة (PATCH toggle-bot). */
+/** Toggles bot replies for the user linked to the conversation. */
 export const webToggleBot = async (conversationId: number): Promise<WebResolveResponse> => {
     const { data } = await mainApi.patch<WebResolveResponse>(
         `${WEB_ADMIN_BASE}/conversations/${conversationId}/toggle-bot`
@@ -673,10 +676,10 @@ export const getWebAnalytics = async (): Promise<WebAnalyticsResponse> => {
 };
 
 // ─── Knowledge Bank ───────────────────────────────────────────────────────────
-/** قيم platform في `ai_support_knowledge_bank` — ما يمرّره الفرونت لـ scopeSearch والـ store */
+/** `ai_support_knowledge_bank.platform` values, sent to scopeSearch and store. */
 export type KnowledgeBankPlatform = "web" | "mobile";
 
-/** يطابق واجهة الإضافة و Laravel `StoreKnowledgeRequest` */
+/** Must match Laravel's `StoreKnowledgeRequest`. */
 export const KNOWLEDGE_BANK_ACCEPT_INPUT =
     ".txt,.doc,.docx,.csv,text/plain,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
@@ -696,7 +699,7 @@ function knowledgeBankExtension(fileName: string): string | null {
     );
 }
 
-/** يطابق `max:10240` (كيلوبايت) في لارافيل = 10 ميجابايت */
+/** Laravel's `max:10240` (KB) = 10 MB. */
 export const KNOWLEDGE_BANK_MAX_FILE_BYTES = 10240 * 1024;
 
 export function knowledgeBankPlatformFromSearchParam(value: string | null): KnowledgeBankPlatform {
@@ -714,7 +717,7 @@ export function prepareKnowledgeUploadFile(file: File): File {
     });
 }
 
-/** رسالة خطأ عربية أو null إن كان الملف مقبولاً للرفع */
+/** Returns a user-facing error message, or null when the file can be uploaded. */
 export function validateKnowledgeBankFile(file: File): string | null {
     // Extension only: browsers report .doc/.docx/.csv inconsistently (octet-stream,
     // application/zip, application/vnd.ms-excel), and prepareKnowledgeUploadFile
@@ -914,7 +917,7 @@ export interface UserAnalyticsResponse {
     data: UserAnalyticsSummary[];
 }
 
-/** استجابة `GET analytics/users/{userId}` — الحقول في الجذر (returnData merge) */
+/** `GET analytics/users/{userId}` — fields sit at the root (returnData merge). */
 export interface LaravelSingleUserAnalyticsResponse {
     status: boolean;
     message: string;

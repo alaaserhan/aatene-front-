@@ -74,6 +74,8 @@ function AppStoreButtons({
   );
 }
 
+const SHOW_APP_DOWNLOAD = false;
+
 const Footer = () => {
   const lang = useLanguage();
   const { settings } = useSettingsStore();
@@ -190,12 +192,16 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="block lg:hidden">
-            <h4 className="mb-4 text-center text-base font-bold sm:text-right">احصل على التطبيق</h4>
-            <AppStoreButtons googlePlayUrl={googlePlayUrl} appStoreUrl={appStoreUrl} isMobile />
-          </div>
+          {SHOW_APP_DOWNLOAD && (
+            <div className="block lg:hidden">
+              <h4 className="mb-4 text-center text-base font-bold sm:text-right">احصل على التطبيق</h4>
+              <AppStoreButtons googlePlayUrl={googlePlayUrl} appStoreUrl={appStoreUrl} isMobile />
+            </div>
+          )}
 
-          <div className="col-span-1 pt-4 sm:col-span-2 lg:col-span-7 lg:pt-0">
+          <div
+            className={`col-span-1 pt-4 sm:col-span-2 lg:pt-0 ${SHOW_APP_DOWNLOAD ? "lg:col-span-7" : "lg:col-span-9"}`}
+          >
             <div className="grid grid-cols-2 gap-6 text-center sm:grid-cols-4 lg:gap-8 lg:text-right">
               {navigationSections.map((section, idx) => (
                 <div key={idx} className="space-y-3">
@@ -221,10 +227,12 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="hidden lg:col-span-2 lg:block">
-            <h4 className="mb-3 text-base font-bold">احصل على التطبيق</h4>
-            <AppStoreButtons googlePlayUrl={googlePlayUrl} appStoreUrl={appStoreUrl} />
-          </div>
+          {SHOW_APP_DOWNLOAD && (
+            <div className="hidden lg:col-span-2 lg:block">
+              <h4 className="mb-3 text-base font-bold">احصل على التطبيق</h4>
+              <AppStoreButtons googlePlayUrl={googlePlayUrl} appStoreUrl={appStoreUrl} />
+            </div>
+          )}
         </div>
       </div>
 

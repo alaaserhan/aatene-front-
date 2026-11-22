@@ -6,6 +6,7 @@ import { Loader2, User, Store } from "lucide-react";
 import { useGetPlatformUsers, useGetApi4Users, useGetDeletedUsers, useGetWebConversations } from "../hooks";
 import { PlatformType, WebConversation, WebConversationState } from "../api";
 import { cn } from "@/src/lib/utils";
+import { ParticipantAvatar } from "@/src/features/(dashboard)/chat/components/ParticipantAvatar";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { useEchoChannel } from "@/src/hooks/use-echo-channel";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,6 +25,7 @@ function UserCard({
   time,
   lastMessage,
   type,
+  avatarUrl,
 }: {
   isSelected: boolean;
   onClick: () => void;
@@ -31,6 +33,7 @@ function UserCard({
   time?: string;
   lastMessage?: string;
   type?: string;
+  avatarUrl?: string | null;
 }) {
   return (
     <div
@@ -41,13 +44,13 @@ function UserCard({
       )}
     >
       <div className="relative shrink-0">
-        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-blue-4 text-blue-3">
-          {type === "store" ? (
-            <Store className="w-6 h-6" />
-          ) : (
-            <User className="w-6 h-6" />
-          )}
-        </div>
+        <ParticipantAvatar
+          src={avatarUrl}
+          size={48}
+          alt={name}
+          className="bg-gray-200 border border-blue-4 text-blue-3"
+          fallback={type === "store" ? <Store className="w-6 h-6" /> : <User className="w-6 h-6" />}
+        />
       </div>
 
       <div className="flex-1 min-w-0">
@@ -104,7 +107,7 @@ function WebsiteChatList({
   selectedChatId,
   onSelectChat,
   needsHuman,
-  /** فلتر Laravel `platform`؛ مثال: `mobile` لمحادثات التطبيق */
+  /** Laravel `platform` filter, e.g. `mobile` for app conversations. */
   platformFilter,
 }: {
   selectedChatId: string | null;
@@ -155,7 +158,7 @@ function WebsiteChatList({
     );
   }
 
-  /** محادثة بدون مستخدم في DB = سجل يتيم (حساب محذوف أو بيانات قديمة) — لا نعرضها */
+  /** A conversation with no user is an orphan (deleted account or legacy data) — hide it. */
   const conversations: WebConversation[] = (data?.data || []).filter((conv) => conv.user != null);
 
   return (
@@ -172,6 +175,7 @@ function WebsiteChatList({
                 isSelected={selectedChatId === String(conv.id)}
                 onClick={() => onSelectChat(String(conv.id))}
                 name={conv.user?.name || "مستخدم"}
+                avatarUrl={conv.user?.avatar_url}
                 time={conv.last_message_at ?? undefined}
                 lastMessage={conv.latest_message?.message_text ?? undefined}
               />
@@ -324,7 +328,7 @@ function StandardChatList({
 }
 
 export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman }: ChatListSidebarProps) {
-  /** يطابق عمود Laravel `ai_support_conversations.platform` (`web` افتراضي إنشاء المحادثة من الموقع، `mobile` من التطبيق) */
+  /** Laravel's `ai_support_conversations.platform`: `web` for site conversations, `mobile` for the app. */
   if (platform === "website") {
     return (
       <WebsiteChatList

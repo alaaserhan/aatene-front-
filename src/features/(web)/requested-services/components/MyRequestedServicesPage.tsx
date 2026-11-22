@@ -6,9 +6,12 @@ import { Pagination } from "@/src/components/ui/Pagination";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { Search, CirclePlus } from "lucide-react";
 import { RequestedService } from "../types";
+import { DeleteRequestedServiceButton } from "./DeleteRequestedServiceButton";
 
 import Link from "next/link";
-import { cn, stripHtmlTags } from "@/src/lib/utils";
+import Image from "next/image";
+import { cn } from "@/src/lib/utils";
+import { stripHtmlTags } from "@/src/lib/sanitize";
 import { useLanguage } from "@/src/hooks/use-language";
 
 const PER_PAGE = 10;
@@ -37,11 +40,13 @@ function MyRequestedServiceCard({ service }: { service: RequestedService }) {
   const user = service.user;
 
   return (
-    <Link
-      href={`/${lang}/requested-services/${service.slug}`}
-      className="border border-gray-200 rounded-xl p-5 flex flex-col md:flex-row items-start justify-between gap-5 cursor-pointer"
-    >
-      <div className="flex-1 flex flex-col gap-3 w-full">
+    <div className="group relative border border-gray-200 rounded-xl p-5 flex flex-col md:flex-row items-start justify-between gap-5 hover:border-blue-2 transition-colors">
+      <Link
+        href={`/${lang}/requested-services/${service.slug}`}
+        className="absolute inset-0 z-[1] rounded-xl"
+        aria-label={`عرض تفاصيل: ${service.title}`}
+      />
+      <div className="relative z-[2] pointer-events-none flex-1 flex flex-col gap-3 w-full">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium text-blue-3 group-hover:underline transition-colors line-clamp-1">
             {service.title}
@@ -62,17 +67,21 @@ function MyRequestedServiceCard({ service }: { service: RequestedService }) {
 
         <div className="flex items-center gap-4 text-xs text-gray-400 mt-2">
           <span className="flex items-center gap-1.5">
-            <img
+            <Image
               src="/icons/Time.svg"
-              alt="Time"
+              alt=""
+              width={16}
+              height={16}
               className="w-4 h-4 opacity-60"
             />
             <span>{getRelativeTimeArabic(service.created_at)}</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <img
+            <Image
               src="/icons/Profile.svg"
-              alt="User"
+              alt=""
+              width={16}
+              height={16}
               className="w-4 h-4 opacity-60"
             />
             <span>
@@ -82,7 +91,7 @@ function MyRequestedServiceCard({ service }: { service: RequestedService }) {
         </div>
       </div>
 
-      <div className="shrink-0 flex md:flex-col items-center md:items-end justify-between md:justify-start w-full md:w-auto mt-2 md:mt-0">
+      <div className="relative z-[2] pointer-events-none shrink-0 flex md:flex-col items-center md:items-end justify-between md:justify-start gap-3 w-full md:w-auto md:self-stretch mt-2 md:mt-0">
         <span
           className={cn(
             "px-4 py-1.5 rounded-full text-xs font-medium border transition-colors",
@@ -91,8 +100,11 @@ function MyRequestedServiceCard({ service }: { service: RequestedService }) {
         >
           {statusInfo.label}
         </span>
+        <div className="pointer-events-auto md:mt-auto">
+          <DeleteRequestedServiceButton serviceId={service.id} variant="link" />
+        </div>
       </div>
-    </Link>
+    </div>
   );
 }
 

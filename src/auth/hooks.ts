@@ -6,12 +6,13 @@ import { toast } from "sonner";
 import {
   loginUser,
   registerUser,
+  registerMerchant,
   sendCode,
   resendCode,
   verifyCode,
   resetPassword,
 } from "./api";
-import type { LoginCredentials, RegisterData } from "./types";
+import type { LoginCredentials, MerchantRegisterData, RegisterData } from "./types";
 import { useLanguage } from "@/src/hooks/use-language";
 import { signIn, signOut } from "./actions";
 import { authLinkQuery, readPostLoginRedirect } from "./links";
@@ -71,15 +72,37 @@ export const useRegister = () => {
       }),
     onSuccess: (data) => {
       signIn({ token: data.token, user: data.user, queryClient });
-
-      // First-run flags for the post-signup notification prompt.
-      if (typeof window !== "undefined") {
-        localStorage.setItem("new_user_registered", "true");
-        localStorage.removeItem("notification_prompt_dismissed");
-        localStorage.setItem("notifications_enabled", "false");
-      }
-
+      markNewRegistration();
       router.replace(readPostLoginRedirect(lang));
+    },
+  });
+};
+
+/** First-run flags for the post-signup notification prompt. */
+function markNewRegistration(): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("new_user_registered", "true");
+  localStorage.removeItem("notification_prompt_dismissed");
+  localStorage.setItem("notifications_enabled", "false");
+}
+
+/** Merchant sign-up from the "open store" landing — lands on store creation. */
+export const useRegisterMerchant = () => {
+  const router = useRouter();
+  const lang = useLanguage();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (merchantData: MerchantRegisterData) =>
+      registerMerchant({
+        ...merchantData,
+        device_token: merchantData.device_token || getOrCreateDeviceToken(),
+        device_name: merchantData.device_name || "Web",
+      }),
+    onSuccess: (data) => {
+      signIn({ token: data.token, user: data.user, queryClient });
+      markNewRegistration();
+      router.replace(`/${lang}/admin/stores/add`);
     },
   });
 };

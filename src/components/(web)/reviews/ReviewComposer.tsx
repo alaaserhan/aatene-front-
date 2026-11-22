@@ -2,9 +2,13 @@
 
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
 import { MessageSquarePlus, Star, User } from "lucide-react";
+import { toast } from "sonner";
 import { sanitizeMediaUrl } from "@/src/lib/utils";
 import { useUser } from "@/src/auth/session";
+import { getAuthTokenClient } from "@/src/auth/cookies";
+import { loginUrl } from "@/src/auth/links";
 import { ReviewForm, type ReviewFormRef } from "./ReviewForm";
 import type { ReviewSubmitPayload } from "./types";
 
@@ -26,11 +30,18 @@ export const ReviewComposer = forwardRef<ReviewFormRef, ReviewComposerProps>(fun
     ref,
 ) {
     const user = useUser();
+    const router = useRouter();
+    const { locale: lang } = useParams();
     const [isOpen, setIsOpen] = useState(defaultOpen);
     const containerRef = useRef<HTMLDivElement>(null);
     const formRef = useRef<ReviewFormRef>(null);
 
     const open = () => {
+        if (!getAuthTokenClient()) {
+            toast.error("يجب تسجيل الدخول أولاً لإضافة تقييم");
+            router.push(loginUrl(lang));
+            return;
+        }
         setIsOpen(true);
         // Focus once the form has mounted
         setTimeout(() => formRef.current?.focusTextarea(), 0);

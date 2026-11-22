@@ -12,7 +12,7 @@ export default function HomeCustomizedProducts() {
     <HomeProductsCarousel
       title="المنتجات الأكثر استخدامًا"
       products={products}
-      className="py-12 bg-white"
+      className="py-5 md:py-12 bg-white"
     />
   );
 }

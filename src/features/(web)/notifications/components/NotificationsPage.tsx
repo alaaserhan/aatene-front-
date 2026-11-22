@@ -11,7 +11,8 @@ import { ar } from "date-fns/locale";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { toLocal } from "@/src/lib/date-helper";
-import { isHtmlContent, notificationBodyToText } from "@/src/lib/utils";
+import { isHtmlContent } from "@/src/lib/utils";
+import { notificationBodyToText } from "@/src/lib/sanitize";
 import { NotificationBodyModal } from "@/src/components/shared/NotificationBodyModal";
 import type { DashboardNotification } from "../api";
 
@@ -64,10 +65,9 @@ export default function NotificationsPage() {
                         return (
                             <div
                                 key={notification.id}
-                                className={`bg-white border rounded-xl p-3 md:p-4 flex flex-col gap-4 relative group transition-all duration-300 border-gray-100 hover:border-gray-200 ${isVisuallyUnseen ? ' bg-blue-50/40 shadow-sm' : ' shadow-xs'}`}
+                                className={`bg-white border rounded-xl p-3 md:p-4 flex items-start gap-3 group transition-all duration-300 border-gray-100 hover:border-gray-200 ${isVisuallyUnseen ? ' bg-blue-50/40 shadow-sm' : ' shadow-xs'}`}
                             >
-                                <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
-                                    {/* Unread Indicator */}
+                                <div className="order-last flex items-center gap-2 shrink-0">
                                     {isVisuallyUnseen && (
                                         <div className="flex items-center gap-2 shrink-0">
                                             <span className="relative flex h-2 w-2">
@@ -78,6 +78,8 @@ export default function NotificationsPage() {
                                         </div>
                                     )}
                                     <button
+                                        type="button"
+                                        aria-label="حذف التنبيه"
                                         onClick={(e) => {
                                             e.preventDefault();
                                             deleteNotification(notification.id);
@@ -90,7 +92,7 @@ export default function NotificationsPage() {
 
                                 </div>
 
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-2 flex-1 min-w-0 break-words">
                                     <p className="text-xs font-medium text-gray-400 flex items-center gap-1.5">
                                         <span className={`w-1.5 h-1.5 rounded-full ${isVisuallyUnseen ? 'bg-blue-400' : 'bg-gray-300'}`}></span>
                                         {notification.created_at ? formatDistanceToNow(toLocal(notification.created_at), { addSuffix: true, locale: ar }) : 'الآن'}

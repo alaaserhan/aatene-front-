@@ -28,6 +28,7 @@ export interface RequestedService {
     services_follows_rules: boolean | null;
     have_searched_for_services_before: boolean | null;
     user?: RequestedServiceUser;
+    is_owner?: boolean;
     reject_reason: string | null;
     reports_count: string;
     comments_count: string;

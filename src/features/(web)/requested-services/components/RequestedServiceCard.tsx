@@ -7,8 +7,11 @@ import { Flag } from "lucide-react";
 import { RequestedService } from "../types";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
-import { stripHtmlTags } from "@/src/lib/utils";
+import { stripHtmlTags } from "@/src/lib/sanitize";
 import { useLanguage } from "@/src/hooks/use-language";
+import { useUser } from "@/src/auth/session";
+import { isOwnRequestedService } from "../utils";
+import { DeleteRequestedServiceButton } from "./DeleteRequestedServiceButton";
 
 interface RequestedServiceCardProps {
   service: RequestedService;
@@ -21,6 +24,8 @@ export default function RequestedServiceCard({
 }: RequestedServiceCardProps) {
   const lang = useLanguage();
   const user = service.user;
+  const currentUser = useUser();
+  const isOwnService = isOwnRequestedService(service, currentUser?.id);
 
   return (
     <div
@@ -50,15 +55,19 @@ export default function RequestedServiceCard({
             </h3>
 
             <div className="pointer-events-auto shrink-0">
-              <ReportAbuse type="requested_service" id={service.id}>
-                <button
-                  type="button"
-                  className="flex cursor-pointer items-center gap-1 text-[#F00] font-medium text-xs hover:underline shrink-0"
-                >
-                  <Flag className="w-3 h-3" />
-                  <span>بلغ عن إساءة</span>
-                </button>
-              </ReportAbuse>
+              {isOwnService ? (
+                <DeleteRequestedServiceButton serviceId={service.id} variant="link" />
+              ) : (
+                <ReportAbuse type="requested_service" id={service.id}>
+                  <button
+                    type="button"
+                    className="flex cursor-pointer items-center gap-1 text-[#F00] font-medium text-xs hover:underline shrink-0"
+                  >
+                    <Flag className="w-3 h-3" />
+                    <span>بلغ عن إساءة</span>
+                  </button>
+                </ReportAbuse>
+              )}
             </div>
           </div>
 

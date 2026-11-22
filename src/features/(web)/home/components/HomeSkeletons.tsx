@@ -26,17 +26,17 @@ export const StoriesSkeleton = () => (
     </section>
 );
 
-/** يطابق شكل HomeServicesCarousel لتجنب أخطاء hydration مع Suspense */
+/** Mirrors HomeServicesCarousel's shape to avoid hydration mismatches under Suspense. */
 export const ServicesCarouselSkeleton = ({ showViewAll = true }: { showViewAll?: boolean }) => (
-    <section className="py-8 relative overflow-hidden py-12 bg-white" dir="rtl">
+    <section className="py-5 md:py-12 relative overflow-hidden bg-white" dir="rtl">
         <MaxWidthWrapper className="relative z-20">
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center justify-between mb-4 md:mb-10">
                 <div className="h-8 w-64 bg-gray-200 animate-pulse rounded-md" />
                 {showViewAll ? (
                     <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-full shrink-0" />
                 ) : null}
             </div>
-            <div className="flex flex-row flex-nowrap gap-3 md:gap-6 overflow-hidden pb-4">
+            <div className="flex flex-row flex-nowrap gap-3 md:gap-6 overflow-hidden pb-3 md:pb-4">
                 {[1, 2, 3, 4].map((i) => (
                     <div
                         key={i}
@@ -49,9 +49,9 @@ export const ServicesCarouselSkeleton = ({ showViewAll = true }: { showViewAll?:
 );
 
 export const ServicesGridSkeleton = () => (
-    <section className="py-12 bg-white" dir="rtl">
+    <section className="py-5 md:py-12 bg-white" dir="rtl">
         <MaxWidthWrapper>
-            <div className="flex flex-col mb-10">
+            <div className="flex flex-col mb-4 md:mb-10">
                 <div className="h-8 w-64 bg-gray-200 animate-pulse mb-2 rounded-md" />
                 <div className="h-5 w-96 bg-gray-100 animate-pulse rounded-md" />
             </div>
@@ -93,17 +93,17 @@ export const MultiBannersSkeleton = () => (
     </MaxWidthWrapper>
 );
 
-/** يطابق HomeProductsCarousel (تم اختياره لأجلك) */
+/** Mirrors HomeProductsCarousel. */
 export const ProductsCarouselSkeleton = ({ showViewAll = true }: { showViewAll?: boolean }) => (
-    <section className="py-8 relative overflow-hidden pb-12 pt-4 bg-linear-to-b from-gray-50 to-white" dir="rtl">
+    <section className="py-5 md:pb-12 md:pt-4 relative overflow-hidden bg-linear-to-b from-gray-50 to-white" dir="rtl">
         <MaxWidthWrapper className="relative z-20">
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center justify-between mb-4 md:mb-10">
                 <div className="h-8 w-48 bg-gray-200 animate-pulse rounded-md" />
                 {showViewAll ? (
                     <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-full shrink-0" />
                 ) : null}
             </div>
-            <div className="flex overflow-x-auto gap-6 pb-8">
+            <div className="flex overflow-x-auto gap-4 md:gap-6 pb-3 md:pb-8">
                 {[1, 2, 3, 4].map((i) => (
                     <div
                         key={i}

@@ -21,6 +21,8 @@ import { Input } from "@/src/components/ui/input";
 import { cn } from "@/src/lib/utils";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { useEchoChannel } from "@/src/hooks/use-echo-channel";
+import Image from "next/image";
+import { ParticipantAvatar } from "@/src/features/(dashboard)/chat/components/ParticipantAvatar";
 
 interface WebChatConversationViewProps {
     conversationId: number;
@@ -235,6 +237,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         allMessages.find((m) => m.sender_type === "user")?.sender?.full_name ||
         "مستخدم";
 
+    const userAvatarUrl = conversationLoaded.user?.avatar_url;
     const webUserId = conversationLoaded.user?.id;
     const webPlatform =
         conversationLoaded.platform === "mobile" || conversationLoaded.platform === "app"
@@ -261,9 +264,13 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                     className="flex items-center gap-3 min-w-0 text-right rounded-lg transition-colors hover:bg-gray-50 disabled:cursor-default disabled:hover:bg-transparent"
                     title={webUserId ? "عرض إحصائيات المستخدم" : undefined}
                 >
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center border border-blue-4 overflow-hidden shrink-0">
-                        <img src="/icons/dashboard/user.svg" className="w-10 h-10 object-cover" alt="User" />
-                    </div>
+                    <ParticipantAvatar
+                        src={userAvatarUrl}
+                        size={40}
+                        alt={userName}
+                        className="bg-gray-200 border border-blue-4 shrink-0"
+                        fallback={<Image src="/icons/dashboard/user.svg" width={40} height={40} className="w-10 h-10 object-cover" alt="" />}
+                    />
                     <div className="min-w-0">
                         <h2 className={cn("text-base font-bold truncate", webUserId && "hover:text-blue-4")}>
                             {userName}
@@ -345,7 +352,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                                     className={cn(
                                         "flex w-full",
                                         isSequence ? "mt-1" : "mt-6",
-                                        /* زائر: يسار الشاشة في واجهة RTL | أدمن/بوت: يمين الشاشة */
+                                        /* Visitor on the left in RTL; admin/bot on the right. */
                                         isUser ? "justify-end" : "justify-start"
                                     )}
                                 >
@@ -360,14 +367,16 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                                             )}
 
                                             <div className="flex gap-3 items-start flex-row-reverse">
-                                                <div className={cn(
-                                                    "w-8 h-8 rounded-full bg-gray-200 shrink-0 flex items-center justify-center mt-1 border border-blue-200 overflow-hidden",
-                                                    isSequence && "invisible border-none"
-                                                )}>
-                                                    {!isSequence && (
-                                                        <User className="w-5 h-5 text-blue-3" />
-                                                    )}
-                                                </div>
+                                                {isSequence ? (
+                                                    <div className="w-8 h-8 shrink-0 mt-1 invisible" />
+                                                ) : (
+                                                    <ParticipantAvatar
+                                                        src={msg.sender?.avatar_url || userAvatarUrl}
+                                                        size={32}
+                                                        className="bg-gray-200 shrink-0 mt-1 border border-blue-200"
+                                                        fallback={<User className="w-5 h-5 text-blue-3" />}
+                                                    />
+                                                )}
 
                                                 <div className="bg-white p-3 px-4 rounded-2xl rounded-br-none shadow-sm border border-gray-100 text-sm leading-relaxed text-gray-800">
                                                     {text}
@@ -418,9 +427,12 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                             <div className="flex w-full justify-end mt-4 animate-in fade-in duration-300">
                                 <div className="flex flex-col gap-1 max-w-[85%] w-fit">
                                 <div className="flex gap-3 items-start flex-row-reverse">
-                                    <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 flex items-center justify-center mt-1 border border-blue-200 overflow-hidden">
-                                        <User className="w-4 h-4 text-blue-3" />
-                                    </div>
+                                    <ParticipantAvatar
+                                        src={userAvatarUrl}
+                                        size={32}
+                                        className="bg-gray-200 shrink-0 mt-1 border border-blue-200"
+                                        fallback={<User className="w-4 h-4 text-blue-3" />}
+                                    />
                                     <div className="bg-white px-4 py-3 rounded-2xl rounded-br-none text-sm text-gray-500 flex items-center gap-1.5 shadow-sm border border-gray-100">
                                         <span className="flex gap-1 items-center">
                                             <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />

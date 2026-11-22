@@ -4,7 +4,6 @@ import {
     CreateRequestedServiceResponse,
     GetRequestedServicesParams,
     GetRequestedServicesResponse,
-    // RequestedService, // Unused
     GetRequestedServiceCommentsResponse,
     AddRequestedServiceCommentResponse,
     GetRequestedServiceBySlugResponse,
@@ -53,6 +52,13 @@ export const updateRequestedService = async (
     const { data } = await api.put<CreateRequestedServiceResponse>(
         `/my/requested-services/${id}`,
         payload
+    );
+    return data;
+};
+
+export const deleteRequestedService = async (id: number | string) => {
+    const { data } = await api.delete<{ status: boolean; message: string }>(
+        `/my/requested-services/${id}`
     );
     return data;
 };

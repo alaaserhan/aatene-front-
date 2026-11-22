@@ -24,7 +24,7 @@ export default function HomeWeeklyOffers({ data: initialData }: HomeWeeklyOffers
     const displayItems = products.slice(0, 4);
 
     return (
-        <section className="py-8 bg-gray-50 bg-linear-to-b from-gray-50 to-white" dir="rtl">
+        <section className="py-5 md:py-8 bg-gray-50 bg-linear-to-b from-gray-50 to-white" dir="rtl">
             <MaxWidthWrapper>
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="flex flex-col lg:flex-row">

@@ -34,9 +34,9 @@ export default function HomeServicesCarousel({
   if (!services?.length) return null;
 
   return (
-    <section className={cn("py-8 relative overflow-hidden", className)} dir="rtl">
+    <section className={cn("py-5 md:py-8 relative overflow-hidden", className)} dir="rtl">
       <MaxWidthWrapper className="relative z-20">
-        <div className="mb-6 flex items-start justify-between gap-3 sm:items-center">
+        <div className="mb-4 md:mb-6 flex items-start justify-between gap-3 sm:items-center">
           <h2
             className={cn(
               "heading-3",
@@ -53,7 +53,7 @@ export default function HomeServicesCarousel({
 
           <div
             ref={scrollContainerRef}
-            className="flex w-full flex-row flex-nowrap items-stretch overflow-x-auto gap-3 md:gap-6 pb-4 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto overscroll-x-contain"
+            className="flex w-full flex-row flex-nowrap items-stretch overflow-x-auto gap-3 md:gap-6 pb-3 md:pb-4 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto overscroll-x-contain"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {services.map((service) => (

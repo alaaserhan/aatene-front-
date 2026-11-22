@@ -20,9 +20,9 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
         scrollCarouselByItem(scrollContainerRef.current, direction);
 
     return (
-        <section className="py-2 mb-8 last:mb-0" dir="rtl">
+        <section className="md:py-2 md:mb-8 md:last:mb-0" dir="rtl">
             {/* Header Row: Title & Action Buttons */}
-            <div className="flex items-start justify-between gap-3 mb-6 md:items-center">
+            <div className="flex items-start justify-between gap-3 mb-4 md:mb-6 md:items-center">
                 <h2 className="heading-3">
                     {category.name}
                 </h2>
@@ -41,7 +41,7 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
 
                 <div
                     ref={scrollContainerRef}
-                    className="flex w-full flex-row flex-nowrap items-stretch gap-4 overflow-x-auto overscroll-x-contain scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto pb-4 md:gap-6 lg:gap-8"
+                    className="flex w-full flex-row flex-nowrap items-stretch gap-4 overflow-x-auto overscroll-x-contain scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto pb-3 md:pb-4 md:gap-6 lg:gap-8"
                     style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
                 >
                     {category.products.map((product) => (

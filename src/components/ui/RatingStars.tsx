@@ -12,8 +12,8 @@ export interface RatingStarsProps {
 }
 
 const SIZES = {
-    sm: { star: "w-3 h-3", text: "text-[11px]" },
-    md: { star: "w-4 h-4", text: "text-sm" },
+    sm: { star: "w-3 h-3", text: "text-[11px]", row: "h-4" },
+    md: { star: "w-4 h-4", text: "text-sm", row: "h-5" },
 } as const;
 
 export function RatingStars({
@@ -25,7 +25,7 @@ export function RatingStars({
     emptyLabel = "لا توجد تقييمات",
     className,
 }: RatingStarsProps) {
-    const { star, text } = SIZES[size];
+    const { star, text, row } = SIZES[size];
     const hasRating = rating > 0 && count > 0;
 
     // Single accessible label so AT announces the rating as one unit
@@ -39,7 +39,7 @@ export function RatingStars({
             <p
                 role="img"
                 aria-label={label}
-                className={cn("flex items-center gap-1", className)}
+                className={cn("flex items-center gap-1", row, className)}
             >
                 <Star aria-hidden="true" className={cn(star, "text-gray-300")} />
                 <span className={cn(text, "text-gray-400 leading-1 pt-1")}>{emptyLabel}</span>
@@ -51,7 +51,7 @@ export function RatingStars({
         <p
             role="img"
             aria-label={label}
-            className={cn("flex items-center gap-1", className)}
+            className={cn("flex items-center gap-1", row, className)}
         >
             <span aria-hidden="true" className="flex items-center gap-0.5">
                 {Array.from({ length: maxStars }).map((_, i) => (

@@ -94,13 +94,27 @@ export const useUpdateFavoriteList = () => {
 export const useDeleteFavoriteList = () => {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: (id: number | string) => deleteFavoriteList(id),
-        onSuccess: (data) => {
-            toast.success(data.message || "تم حذف القائمة بنجاح");
-        },
-        onSettled: (_data, _error, id) => {
-            qc.invalidateQueries({ queryKey: QK.list() });
-            qc.invalidateQueries({ queryKey: QK.single(id) });
+        mutationFn: ({ id, deleteItems }: { id: number | string; deleteItems: boolean }) =>
+            deleteFavoriteList(id, deleteItems),
+        onSuccess: (data, { id, deleteItems }) => {
+            toast.success(
+                data.message ||
+                    (deleteItems ? "تم حذف المجموعة وعناصرها بنجاح" : "تم حذف المجموعة بنجاح")
+            );
+
+            // This runs before the caller's onSuccess deselects the list, so its
+            // queries are still mounted. Drop them first, or the invalidation below
+            // refetches the deleted list and gets a 404.
+            qc.removeQueries({ queryKey: QK.items(id) });
+            qc.removeQueries({ queryKey: QK.single(id) });
+
+            if (deleteItems) {
+                // Items left the favorites too, so every heart on every card is stale.
+                invalidateAfterViewerFlagChange(qc);
+                return;
+            }
+            qc.invalidateQueries({ queryKey: QK.all });
+            qc.invalidateQueries({ queryKey: QK.favorites.all });
         },
     });
 };

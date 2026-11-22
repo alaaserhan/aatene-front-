@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/src/auth";
-import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus, ExternalLink } from "lucide-react";
+import { LogOut, User, Store, Crown, Shield, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -83,7 +83,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
           )}
         </div>
         {isMobile && (
-          <ChevronRight size={16} className="text-gray-2 group-hover:text-primary" />
+          <ChevronLeft size={16} className="text-gray-2 group-hover:text-primary" />
         )}
       </Link>
     );

@@ -15,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
           "/*/login",
           "/*/signup",
           "/*/forgot-password",
+          "/*/open-store/register",
 
           "/*/chat",
           "/*/chat/",

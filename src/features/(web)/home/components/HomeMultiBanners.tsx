@@ -49,7 +49,7 @@ export default function HomeMultiBanners({ banners }: HomeMultiBannersProps) {
         scrollCarouselByItem(scrollRef.current, direction);
 
     return (
-        <section className="py-8 md:py-16 w-full relative group/section">
+        <section className="py-4 md:py-16 w-full relative group/section">
             <MaxWidthWrapper className="px-2 md:px-8 relative">
                 {/* Desktop Navigation Arrows */}
                 <div className="hidden md:block">
@@ -76,7 +76,7 @@ export default function HomeMultiBanners({ banners }: HomeMultiBannersProps) {
                     onMouseUp={handleMouseUp}
                     onMouseMove={handleMouseMove}
                     className={cn(
-                        "flex gap-4 items-center -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar pb-4 md:pb-0 select-none",
+                        "flex gap-4 items-center -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar pb-2 md:pb-0 select-none",
                         isDragging ? "cursor-grabbing" : "cursor-grab",
                         banners.length > 3 ? "snap-x snap-mandatory" : ""
                     )}

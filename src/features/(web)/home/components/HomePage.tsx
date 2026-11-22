@@ -128,7 +128,7 @@ export default function HomePage({
       </LazySection>
 
       {sixthBannerData && (
-        <HomeSingleBanner banner={sixthBannerData} className="pt-0 pb-12 md:pt-0 md:pb-12" />
+        <HomeSingleBanner banner={sixthBannerData} className="pt-0 pb-8 md:pt-0 md:pb-12" />
       )}
     </div>
   );

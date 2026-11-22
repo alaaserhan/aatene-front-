@@ -70,7 +70,7 @@ export function BasicInfoStep({ values, errors, setField, storeId }: BasicInfoSt
         {/* 1. Service title */}
         <div className="space-y-1" id="title">
           <FormInput
-            label="عنوان الخدمة"
+            label="اسم الخدمة"
             name="title"
             value={values.title}
             onChange={(e) => setField("title", e.target.value)}

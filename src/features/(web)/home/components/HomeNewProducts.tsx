@@ -18,7 +18,7 @@ export default function HomeNewProducts({ products: initialProducts }: HomeNewPr
       title="منتجات وصلت حديثًا"
       products={products}
       showViewAll
-      className="pb-12 pt-8 bg-linear-to-b from-gray-50 to-white"
+      className="py-5 md:pb-12 md:pt-8 bg-linear-to-b from-gray-50 to-white"
     />
   );
 }

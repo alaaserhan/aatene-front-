@@ -22,20 +22,19 @@ interface ImageGallerySelectorProps {
     emptyStateText?: string;
     emptyStateSubText?: string;
     mainImageLabel?: string;
-    /** تسمية العناصر غير الأولى (المعرض) */
+    /** Label for every item after the first. */
     galleryItemLabel?: string;
     showMainSelector?: boolean;
     showDragHint?: boolean;
     dragHintText?: string;
     itemWidth?: number;
     itemHeight?: number;
-    // containerMinHeight?: number; // لم نعد بحاجة لهذا الـ Prop بالشكل القديم
-    /** تبويبات الميديا؛ `video` يُحوَّل تلقائياً إلى `gallery` (مطابق للباكند) */
+    /** `video` maps to the backend's `gallery` folder. */
     allowedMediaTypes?: ("image" | "gallery" | "avatar" | "video")[];
+    /** When set, the first (main) slot only accepts images, never videos. */
     mainImageAllowedMediaTypes?: ("image" | "gallery" | "avatar")[];
     className?: string;
     required?: boolean;
-    /** نص منطقة الرفع في الميديا (يُفضَّل توضيح صور/فيديو) */
     uploadPrimaryText?: string;
     uploadSecondaryText?: string;
 }
@@ -58,7 +57,6 @@ export function ImageGallerySelector({
     dragHintText = "يمكنك سحب و افلات الصورة لإعادة ترتيب الصور",
     itemWidth = 240,
     itemHeight = 120,
-    // containerMinHeight = 190, // تم إزالته
     allowedMediaTypes = ["gallery"],
     mainImageAllowedMediaTypes,
     className,
@@ -69,30 +67,21 @@ export function ImageGallerySelector({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
     const dragItem = useRef<number | null>(null);
-    const itemMediaTypesRef = useRef<Record<string, string>>({});
 
     const items = value.map((file, index) => ({
         file,
         url: previews[index] || "",
     }));
 
+    // Judged by the file itself, not its `file_type`: that is the storage folder it was
+    // uploaded into, and the media library lists every folder in every picker.
     const isAllowedAsMain = (file: string, url: string) => {
-        if (mainImageAllowedMediaTypes && mainImageAllowedMediaTypes.length > 0) {
-            const fileType = itemMediaTypesRef.current[file] || itemMediaTypesRef.current[url];
-
-            if (fileType === "gallery") {
-                return null;
-            }
-
-            // إذا كان النوع معروفاً وغير مسموح به
-            if (
-              fileType &&
-              !mainImageAllowedMediaTypes.includes(
-                fileType as "image" | "gallery" | "avatar"
-              )
-            ) {
-                return "لا يمكن تعيين هذا النوع من الملفات كصورة رئيسية";
-            }
+        if (
+            mainImageAllowedMediaTypes &&
+            mainImageAllowedMediaTypes.length > 0 &&
+            (isVideoFile(url) || isVideoFile(file))
+        ) {
+            return "لا يمكن تعيين فيديو كصورة رئيسية، اختر صورة";
         }
 
         return null;
@@ -100,11 +89,6 @@ export function ImageGallerySelector({
 
     const handleAdd = (newFiles: MediaItem | MediaItem[]) => {
         const filesArray = Array.isArray(newFiles) ? newFiles : [newFiles];
-
-        filesArray.forEach(f => {
-            itemMediaTypesRef.current[f.file_name] = f.file_type;
-            itemMediaTypesRef.current[f.url] = f.file_type;
-        });
 
         const currentCount = items.length;
         const remainingSlots = maxFiles - currentCount;
@@ -218,7 +202,7 @@ export function ImageGallerySelector({
               ? "الموضع الأول وباقي المواضع: صور أو فيديو من تبويب الصور أو المعرض"
               : "PNG, JPG, WebP, SVG");
 
-    // الموضع الأول قد يكون صوراً فقط، لذلك لا نذكر الفيديو إلا حين يكون مسموحاً فعلاً
+    // The first slot may be image-only, so only mention video when it is really allowed.
     const emptyStateAllowsVideo = !firstSlotImageOnly && allowsGalleryVideos(allowedMediaTypes);
 
     const resolvedEmptyStateText =

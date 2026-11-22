@@ -16,19 +16,9 @@ import { Badge } from "@/src/components/ui/badge";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import { useCompareCount } from "@/src/features/(web)/compares/hooks";
 import { NavIconBadge } from "./NavIconButton";
+import { Sheet, SheetContent, SheetTitle } from "@/src/components/ui/sheet";
 
 import { upgradeHttpToHttps, fixMediaUrl } from "@/src/lib/utils";
-
-const menuVariants: Variants = {
-  closed: {
-    x: "100%",
-    transition: { type: "spring", stiffness: 300, damping: 30 },
-  },
-  open: {
-    x: "0%",
-    transition: { type: "spring", stiffness: 300, damping: 30 },
-  },
-};
 
 const overlayVariants: Variants = {
   closed: { opacity: 0 },
@@ -78,13 +68,10 @@ export default function MobileNav() {
   const showRemoteMobileLogo = Boolean(mobileLogoUrl && failedMobileLogoUrl !== mobileLogoUrl);
 
   useEffect(() => {
-    if (mobileMenuOpen || mobileSearchOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (!mobileSearchOpen) return;
+    document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
-  }, [mobileMenuOpen, mobileSearchOpen]);
+  }, [mobileSearchOpen]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -139,145 +126,137 @@ export default function MobileNav() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <>
-            <motion.div
-              className="fixed inset-0 bg-linear-to-br from-black/60 to-black/40 backdrop-blur-sm z-40"
-              variants={overlayVariants}
-              initial="closed"
-              animate="open"
-              exit="closed"
-              onClick={toggleMobileMenu}
-            />
-            <motion.div
-              className="fixed inset-y-0 right-0 w-4/5 max-w-sm bg-white z-50 shadow-2xl"
-              variants={menuVariants}
-              initial="closed"
-              animate="open"
-              exit="closed"
-            >
-              <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-6 bg-linear-to-r from-primary/5 to-primary/10 border-b border-gray-100">
-                  <Link
-                    href={`/${lang}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="hover:scale-105 transition-transform duration-200"
-                  >
-                    <Image src="/black.svg" className="h-8 w-auto" alt="أعطيني" width={120} height={32} />
-                  </Link>
-                  <button
-                    onClick={toggleMobileMenu}
-                    aria-label="إغلاق القائمة"
-                    className="p-2 hover:bg-white/50 rounded-full transition-all duration-200 hover:rotate-90 cursor-pointer"
-                  >
-                    <X size={24} className="text-gray-2" />
-                  </button>
-                </div>
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent
+          side="right"
+          dir="rtl"
+          showCloseButton={false}
+          aria-describedby={undefined}
+          overlayClassName="bg-linear-to-br from-black/60 to-black/40 backdrop-blur-sm"
+          className="w-4/5 max-w-sm sm:max-w-sm gap-0 p-0 bg-white shadow-2xl text-start"
+        >
+          <SheetTitle className="sr-only">القائمة</SheetTitle>
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between p-6 bg-linear-to-r from-primary/5 to-primary/10 border-b border-gray-100">
+              <Link
+                href={`/${lang}`}
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:scale-105 transition-transform duration-200"
+              >
+                <Image src="/black.svg" className="h-8 w-auto" alt="logo" width={120} height={32} />
+              </Link>
+              <button
+                onClick={toggleMobileMenu}
+                aria-label="إغلاق القائمة"
+                className="p-2 hover:bg-white/50 rounded-full transition-all duration-200 hover:rotate-90 cursor-pointer"
+              >
+                <X size={24} className="text-gray-2" />
+              </button>
+            </div>
 
-                {/* Content Section */}
-                <div className="flex-1 overflow-y-auto">
-                  <div className="flex flex-col">
-                    {/* Navigation Links */}
-                    <motion.div
-                      className="px-4 py-4 space-y-1"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <div className="mb-4">
-                        <h3 className="font-medium text-gray-2 uppercase tracking-wider mb-3">التصفح</h3>
-                      </div>
-
-                      {isLoggedIn && (
-                        <>
-                          <Link
-                            href={`/${lang}/chat`}
-                            className={navLinkClass(isActive(`/${lang}/chat`))}
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className={navIconClass(isActive(`/${lang}/chat`))}>
-                                <Image src="/icons/chat.svg" alt="Messages" className="h-7 w-7" width={28} height={28} />
-                              </div>
-                              <span className="font-medium">الرسائل</span>
-                            </div>
-                            <div className={navChevronClass(isActive(`/${lang}/chat`))}>
-                              <ChevronLeft size={16} className="text-gray-2" />
-                            </div>
-                          </Link>
-
-                          <Link
-                            href={`/${lang}/favourites`}
-                            className={navLinkClass(isActive(`/${lang}/favourites`))}
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className={navIconClass(isActive(`/${lang}/favourites`))}>
-                                <Image src="/icons/heart.svg" alt="Favorites" className="h-7 w-7" width={28} height={28} />
-                              </div>
-                              <span className="font-medium">المفضلة</span>
-                            </div>
-                            <div className={navChevronClass(isActive(`/${lang}/favourites`))}>
-                              <ChevronLeft size={16} className="text-gray-2" />
-                            </div>
-                          </Link>
-
-                          <Link
-                            href={`/${lang}/compare`}
-                            className={navLinkClass(isActive(`/${lang}/compare`))}
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className={`relative ${navIconClass(isActive(`/${lang}/compare`))}`}>
-                                <Image src="/icons/Compare.svg" alt="Compare" className="h-7 w-7" width={28} height={28} />
-                                <NavIconBadge count={compareCount} tone="neutral" />
-                              </div>
-                              <span className="font-medium">المقارنات</span>
-                            </div>
-                            <div className={navChevronClass(isActive(`/${lang}/compare`))}>
-                              <ChevronLeft size={16} className="text-gray-2" />
-                            </div>
-                          </Link>
-
-                          <Link
-                            href={`/${lang}/notifications`}
-                            className={navLinkClass(isActive(`/${lang}/notifications`))}
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className={`relative ${navIconClass(isActive(`/${lang}/notifications`))}`}>
-                                <Image src="/icons/Notification.svg" alt="Notifications" className="h-7 w-7" width={28} height={28} />
-                                {unreadCount > 0 && (
-                                  <Badge
-                                    className="absolute bg-red-600 font-baseline-fix -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
-                                    variant="destructive"
-                                  >
-                                    {unreadCount}
-                                  </Badge>
-                                )}
-                              </div>
-                              <span className="font-medium">الاشعارات</span>
-                            </div>
-                            <div className={navChevronClass(isActive(`/${lang}/notifications`))}>
-                              <ChevronLeft size={16} className="text-gray-2" />
-                            </div>
-                          </Link>
-                        </>
-                      )}
-                    </motion.div>
-
-                    {/* User Menu Section */}
-                    <div className="px-4 pb-4">
-                      <UserMenu isMobile={true} onClose={() => setMobileMenuOpen(false)} />
-                    </div>
+            {/* Content Section */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="flex flex-col">
+                {/* Navigation Links */}
+                <motion.div
+                  className="px-4 py-4 space-y-1"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div className="mb-4">
+                    <h3 className="font-medium text-gray-2 uppercase tracking-wider mb-3">التصفح</h3>
                   </div>
+
+                  {isLoggedIn && (
+                    <>
+                      <Link
+                        href={`/${lang}/chat`}
+                        className={navLinkClass(isActive(`/${lang}/chat`))}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={navIconClass(isActive(`/${lang}/chat`))}>
+                            <Image src="/icons/chat.svg" alt="" width={28} height={28} className="h-7 w-7" />
+                          </div>
+                          <span className="font-medium">الرسائل</span>
+                        </div>
+                        <div className={navChevronClass(isActive(`/${lang}/chat`))}>
+                          <ChevronLeft size={16} className="text-gray-2" />
+                        </div>
+                      </Link>
+
+                      <Link
+                        href={`/${lang}/favourites`}
+                        className={navLinkClass(isActive(`/${lang}/favourites`))}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={navIconClass(isActive(`/${lang}/favourites`))}>
+                            <Image src="/icons/heart.svg" alt="" width={28} height={28} className="h-7 w-7" />
+                          </div>
+                          <span className="font-medium">المفضلة</span>
+                        </div>
+                        <div className={navChevronClass(isActive(`/${lang}/favourites`))}>
+                          <ChevronLeft size={16} className="text-gray-2" />
+                        </div>
+                      </Link>
+
+                      <Link
+                        href={`/${lang}/compare`}
+                        className={navLinkClass(isActive(`/${lang}/compare`))}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`relative ${navIconClass(isActive(`/${lang}/compare`))}`}>
+                            <Image src="/icons/Compare.svg" alt="" width={28} height={28} className="h-7 w-7" />
+                            <NavIconBadge count={compareCount} tone="neutral" />
+                          </div>
+                          <span className="font-medium">المقارنات</span>
+                        </div>
+                        <div className={navChevronClass(isActive(`/${lang}/compare`))}>
+                          <ChevronLeft size={16} className="text-gray-2" />
+                        </div>
+                      </Link>
+
+                      <Link
+                        href={`/${lang}/notifications`}
+                        className={navLinkClass(isActive(`/${lang}/notifications`))}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`relative ${navIconClass(isActive(`/${lang}/notifications`))}`}>
+                            <Image src="/icons/Notification.svg" alt="" width={28} height={28} className="h-7 w-7" />
+                            {unreadCount > 0 && (
+                              <Badge
+                                className="absolute bg-red-600 font-baseline-fix -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                                variant="destructive"
+                              >
+                                {unreadCount}
+                              </Badge>
+                            )}
+                          </div>
+                          <span className="font-medium">الاشعارات</span>
+                        </div>
+                        <div className={navChevronClass(isActive(`/${lang}/notifications`))}>
+                          <ChevronLeft size={16} className="text-gray-2" />
+                        </div>
+                      </Link>
+                    </>
+                  )}
+                </motion.div>
+
+                {/* User Menu Section */}
+                <div className="px-4 pb-4">
+                  <UserMenu isMobile={true} onClose={() => setMobileMenuOpen(false)} />
                 </div>
               </div>
-            </motion.div>
-          </>
-        )}
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
 
+      <AnimatePresence>
         {mobileSearchOpen && (
           <>
             <motion.div

@@ -51,6 +51,7 @@ export {
 export {
   useLogin,
   useRegister,
+  useRegisterMerchant,
   useLogout,
   useSendCode,
   useResendCode,
@@ -62,6 +63,7 @@ export {
   getAccount,
   loginUser,
   registerUser,
+  registerMerchant,
   logoutUser,
   sendCode,
   resendCode,
@@ -77,6 +79,8 @@ export type {
   LogoutResponse,
   LoginCredentials,
   RegisterData,
+  MerchantRegisterData,
+  Gender,
   SendCodePayload,
   SendCodeResponse,
   ResendCodePayload,
@@ -98,4 +102,5 @@ export {
   postLoginRedirect,
   readPostLoginRedirect,
   authLinkQuery,
+  merchantSignupPath,
 } from "./links";
