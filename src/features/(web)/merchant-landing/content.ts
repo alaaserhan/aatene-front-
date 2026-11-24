@@ -50,6 +50,13 @@ export const TRUST_POINTS = [
     "بدون عمولة على المبيعات",
 ];
 
+export type BenefitItem = {
+    title: string;
+    description: string;
+    image: LandingAsset;
+    soon?: boolean;
+};
+
 export const BENEFITS = {
     /** The title is split so the brand name can take the brand color. */
     title: { before: "شو رح تستفيد لما تفتح متجرك على ", brand: "أعطيني", after: "؟" },
@@ -80,7 +87,14 @@ export const BENEFITS = {
                 "خلي الزبائن يتعرفوا على مشروعك من خلال صور المنتجات، والمعلومات الواضحة، والتقييمات المتاحة، حتى يقدروا يختاروا اللي يناسبهم بثقة أكبر.",
             image: asset("benefit-organized.png", "", 61, 61),
         },
-    ],
+        {
+            title: "استقبل حجوزات خدماتك بسهولة",
+            description:
+                "حدد مواعيد خدماتك، وخلي الزبائن يحجزوا مباشرة من متجرك، وتابع كل حجوزاتك بمكان واحد.",
+            image: asset("benefit-bookings.png", "", 61, 61),
+            soon: true,
+        },
+    ] satisfies BenefitItem[],
 };
 
 export const SHOWCASE = {
@@ -226,6 +240,6 @@ export const FINAL_CTA = {
     cta: "أنشئ متجرك الآن",
 };
 
-/** TODO: replace with the real support number (international format, digits only). */
-export const WHATSAPP_NUMBER = "";
+export const WHATSAPP_URL = "https://wa.me/message/LBM5FKHA3MKLI1";
 export const WHATSAPP_LABEL = "تواصل معنا عبر واتساب";
+export const SOON_LABEL = "قريبًا";

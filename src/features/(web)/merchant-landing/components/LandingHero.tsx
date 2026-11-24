@@ -42,9 +42,10 @@ function HeroMockup() {
     );
 }
 
-function LandingHeader() {
+/** Sits outside the hero: the hero's `overflow-hidden` would otherwise pin the sticky box inside it. */
+export function LandingHeader() {
     return (
-        <header className="relative z-20 bg-c2-navy-100">
+        <header className="sticky top-0 z-30 bg-c2-navy-100 shadow-[0_1px_0] shadow-c2-navy-700/10">
             <MaxWidthWrapper className="flex h-18 items-center justify-between md:h-20">
                 <Logo />
                 <CreateStoreLink className="rounded-full bg-c2-primary px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 md:px-8">
@@ -55,10 +56,10 @@ function LandingHeader() {
     );
 }
 
+/** The header is 4.5rem (5rem from md) tall, so header + hero still fill the first screen. */
 export default function LandingHero() {
     return (
-        <section className="relative flex min-h-svh flex-col overflow-hidden bg-white lg:min-h-[min(100svh,1000px)]">
-            <LandingHeader />
+        <section className="relative flex min-h-[calc(100svh_-_4.5rem)] flex-col overflow-hidden bg-white md:min-h-[calc(100svh_-_5rem)] lg:min-h-[calc(min(100svh,1000px)_-_5rem)]">
             <div className="relative flex flex-1 flex-col">
                 {/* The corner sits at 85% of the content column, not of the viewport: past the
                     container's 1400px max width it stops moving, so it stays behind the text. */}
