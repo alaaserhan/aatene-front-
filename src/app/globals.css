@@ -141,6 +141,11 @@
   /* merchant landing creative tool cards — the solid end of each card's image fade */
   --c2-sky-400: #7cc7fb;
   --c2-sky-300: #9acdef;
+  --c2-sky-320: #99caf6;
+  --c2-sky-250: #a5d3fb;
+  --c2-cyan-200: #a6e4f3;
+  --c2-periwinkle-300: #99b1f1;
+  --c2-neutral-100: #f5f5f5;
   --c2-sand-200: #f9e1c1;
   --c2-taupe-200: #dfcec3;
   /* navy at low alpha — tinted surfaces (unread rows, icon chips) */
@@ -299,6 +304,11 @@
   --color-c2-blue-50: var(--c2-blue-50);
   --color-c2-sky-400: var(--c2-sky-400);
   --color-c2-sky-300: var(--c2-sky-300);
+  --color-c2-sky-320: var(--c2-sky-320);
+  --color-c2-sky-250: var(--c2-sky-250);
+  --color-c2-cyan-200: var(--c2-cyan-200);
+  --color-c2-periwinkle-300: var(--c2-periwinkle-300);
+  --color-c2-neutral-100: var(--c2-neutral-100);
   --color-c2-sand-200: var(--c2-sand-200);
   --color-c2-taupe-200: var(--c2-taupe-200);
   --color-c2-navy-700-a08: var(--c2-navy-700-a08);
