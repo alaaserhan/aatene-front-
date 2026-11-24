@@ -1,6 +1,7 @@
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
+import { Badge } from "@/src/components/ui/badge";
 import { cn } from "@/src/lib/utils";
-import { BENEFITS } from "../content";
+import { BENEFITS, SOON_LABEL } from "../content";
 import { staggerStyle } from "../motion";
 import LandingImage from "./LandingImage";
 
@@ -20,18 +21,24 @@ export default function BenefitsSection() {
                         {BENEFITS.description}
                     </p>
                 </div>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {/* Flex rather than grid so an incomplete last row is centred instead of hugging the start. */}
+                <div className="flex flex-wrap justify-center gap-6">
                     {BENEFITS.items.map((item, index) => (
                         <article
                             key={item.title}
                             style={staggerStyle(index)}
                             className={cn(
-                                "ml-reveal flex flex-col rounded-3xl border p-6 transition-transform hover:-translate-y-1 lg:min-h-78 lg:p-7",
+                                "ml-reveal relative flex w-full flex-col rounded-3xl border p-6 transition-transform hover:-translate-y-1 sm:w-[calc((100%_-_1.5rem)/2)] lg:min-h-78 lg:w-[calc((100%_-_3rem)/3)] lg:p-7",
                                 index % 2 === 0
                                     ? "border-c2-blue-50 bg-c2-blue-50"
                                     : "border-c2-neutral-200 bg-white",
                             )}
                         >
+                            {item.soon ? (
+                                <Badge className="absolute end-5 top-5 rounded-full border-0 bg-c2-neutral-420 px-6 py-1 text-base font-bold text-white">
+                                    {SOON_LABEL}
+                                </Badge>
+                            ) : null}
                             <LandingImage asset={item.image} className="mb-4 size-15 object-contain" />
                             <h3 className="mb-3 text-[20px] font-bold leading-snug text-c2-navy-975 md:text-xl">
                                 {item.title}

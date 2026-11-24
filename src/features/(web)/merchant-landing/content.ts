@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { CalendarCheck2, Link, Palette, Sparkles, Zap } from "lucide-react";
+import { CalendarCheck2, FolderMinus, Link, PackagePlus, Palette, PencilLine, Sparkles, Zap } from "lucide-react";
 
 /** Files live in `public/merchant-landing/`; a missing file renders a labelled placeholder. */
 export type LandingAsset = {
@@ -50,6 +50,13 @@ export const TRUST_POINTS = [
     "بدون عمولة على المبيعات",
 ];
 
+export type BenefitItem = {
+    title: string;
+    description: string;
+    image: LandingAsset;
+    soon?: boolean;
+};
+
 export const BENEFITS = {
     /** The title is split so the brand name can take the brand color. */
     title: { before: "شو رح تستفيد لما تفتح متجرك على ", brand: "أعطيني", after: "؟" },
@@ -80,7 +87,14 @@ export const BENEFITS = {
                 "خلي الزبائن يتعرفوا على مشروعك من خلال صور المنتجات، والمعلومات الواضحة، والتقييمات المتاحة، حتى يقدروا يختاروا اللي يناسبهم بثقة أكبر.",
             image: asset("benefit-organized.png", "", 61, 61),
         },
-    ],
+        {
+            title: "استقبل حجوزات خدماتك بسهولة",
+            description:
+                "حدد مواعيد خدماتك، وخلي الزبائن يحجزوا مباشرة من متجرك، وتابع كل حجوزاتك بمكان واحد.",
+            image: asset("benefit-bookings.png", "", 61, 61),
+            soon: true,
+        },
+    ] satisfies BenefitItem[],
 };
 
 export const SHOWCASE = {
@@ -156,10 +170,66 @@ export const COMING_SOON = {
             image: asset("soon-content-generator.webp", "", 640, 548),
             soon: true,
         },
+        {
+            title: "خلّي وصف منتجك أكثر احترافية",
+            description: "حوّل معلومات منتجاتك وخدماتك إلى وصف احترافي واضح وجاهز للنشر.",
+            icon: PencilLine,
+            image: asset("soon-product-description.webp", "", 640, 548),
+            soon: true,
+        },
+        {
+            title: "أضف منتجاتك أو خدماتك",
+            description: "احفظ معلومات منتجاتك مرة واحدة واستخدمها دائمًا في كل منشور.",
+            icon: PackagePlus,
+            image: asset("soon-add-products.webp", "", 640, 548),
+            soon: true,
+        },
+        {
+            title: "تابع محتواك من مكان واحد",
+            description: "أنشئ محتواك، وتابع ما تم إنجازه، واعرف ما لا يزال قيد الإنشاء.",
+            icon: FolderMinus,
+            image: asset("soon-content-tracking.webp", "", 640, 548),
+            soon: true,
+        },
     ] satisfies ComingSoonCard[],
     creativeTools: [
         {
-            title: "مونتاج احترافي",
+            title: "تصميم إبداعي سريالي",
+            description: "مشهد إبداعي لافت لمنتجك بأسلوب سريالي أو CGI.",
+            image: asset("tool-surreal-design.webp", "", 614, 768),
+            gradient: "linear-gradient(180deg, transparent 53.9%, var(--c2-neutral-100) 108.4%)",
+            soon: true,
+        },
+        {
+            title: "حملة كاملة",
+            description: "أنشئ حملة متكاملة لمنتجاتك وخدماتك في دقائق وبسهولة.",
+            image: asset("tool-full-campaign.webp", "", 960, 960),
+            gradient: "linear-gradient(180.55deg, transparent 50%, var(--c2-periwinkle-300) 76.8%)",
+            soon: true,
+        },
+        {
+            title: "تحويل النص إلى صورة",
+            description: "حوّل أفكارك وكلماتك إلى صور مميزة.",
+            image: asset("tool-text-to-image.webp", "", 960, 960),
+            gradient: "linear-gradient(180.56deg, transparent 50%, var(--c2-sky-320) 76.3%)",
+            soon: true,
+        },
+        {
+            title: "إزالة الخلفية",
+            description: "أزل الخلفية من صورك في ثوانٍ.",
+            image: asset("tool-background-removal.webp", "", 960, 960),
+            gradient: "linear-gradient(180.53deg, transparent 50%, var(--c2-cyan-200) 78.1%)",
+            soon: true,
+        },
+        {
+            title: "كتابة سيناريو",
+            description: "اكتب سيناريوهات جذابة لمحتواك وفيديوهاتك.",
+            image: asset("tool-script-writing.webp", "", 960, 960),
+            gradient: "linear-gradient(180.55deg, transparent 50%, var(--c2-sky-250) 76.7%)",
+            soon: true,
+        },
+        {
+            title: "فيديوهات UGC",
             description: "حوّل لقطاتك إلى فيديوهات جذابة باحترافية.",
             image: asset("tool-video-editing.webp", "", 960, 960),
             gradient: "linear-gradient(180deg, transparent 61.5%, var(--c2-sand-200) 84%)",
@@ -226,6 +296,6 @@ export const FINAL_CTA = {
     cta: "أنشئ متجرك الآن",
 };
 
-/** TODO: replace with the real support number (international format, digits only). */
-export const WHATSAPP_NUMBER = "";
+export const WHATSAPP_URL = "https://wa.me/message/LBM5FKHA3MKLI1";
 export const WHATSAPP_LABEL = "تواصل معنا عبر واتساب";
+export const SOON_LABEL = "قريبًا";

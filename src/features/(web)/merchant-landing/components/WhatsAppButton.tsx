@@ -1,11 +1,16 @@
-import { WHATSAPP_LABEL, WHATSAPP_NUMBER } from "../content";
+"use client";
 
+import { useSession } from "@/src/auth/session";
+import { WHATSAPP_LABEL, WHATSAPP_URL } from "../content";
+
+/** Guests only. Waits for the session so signed-in users never see it flash in. */
 export default function WhatsAppButton() {
-    if (!WHATSAPP_NUMBER) return null;
+    const { user, isReady } = useSession();
+    if (!isReady || user) return null;
 
     return (
         <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}`}
+            href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={WHATSAPP_LABEL}
