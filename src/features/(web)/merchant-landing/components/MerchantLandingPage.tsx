@@ -4,7 +4,7 @@ import BenefitsSection from "./BenefitsSection";
 import ComingSoonSection from "./ComingSoonSection";
 import FinalCtaSection from "./FinalCtaSection";
 import FloatingActions from "./FloatingActions";
-import LandingHero, { LandingHeader } from "./LandingHero";
+import LandingHero from "./LandingHero";
 import OutcomesSection from "./OutcomesSection";
 import ShowcaseSection from "./ShowcaseSection";
 import TrustStrip from "./TrustStrip";
@@ -20,7 +20,6 @@ export default function MerchantLandingPage() {
             <style href="merchant-landing-motion" precedence="default">
                 {LANDING_MOTION_CSS}
             </style>
-            <LandingHeader />
             <LandingHero />
             <TrustStrip />
             <BenefitsSection />

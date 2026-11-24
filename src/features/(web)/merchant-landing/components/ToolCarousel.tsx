@@ -5,8 +5,10 @@ import { Badge } from "@/src/components/ui/badge";
 import HomeCarouselNav from "@/src/features/(web)/home/components/HomeCarouselNav";
 import { scrollCarouselByItem } from "@/src/lib/scroll-carousel";
 import { cn } from "@/src/lib/utils";
-import { COMING_SOON, SOON_LABEL, type ComingSoonCard, type CreativeToolCard } from "../content";
+import { COMING_SOON, type ComingSoonCard, type CreativeToolCard } from "../content";
 import LandingImage from "./LandingImage";
+
+const SOON_LABEL = "قريبًا";
 
 /** Takes a key rather than the cards: their lucide icons can't cross the server/client boundary. */
 export default function ToolCarousel({ group }: { group: "contentTools" | "creativeTools" }) {
@@ -32,20 +34,10 @@ export default function ToolCarousel({ group }: { group: "contentTools" | "creat
     );
 }
 
-/**
- * Each breakpoint leaves 3rem of the next card in view, so it reads as swipeable: basis =
- * (100% - N gaps - 3rem) / N. From lg the row holds 4, so that peek only applies when a
- * group has more cards than fit; with exactly 4 they fill the row instead.
- */
 const CARD_CLASS =
-    "flex shrink-0 basis-[72%] snap-start flex-col overflow-hidden rounded-3xl sm:basis-[calc((100%_-_4.5rem)/2)] md:basis-[calc((100%_-_7.5rem)/3)]";
-const LG_FIT_CLASS = "lg:basis-[calc((100%_-_4.5rem)/4)]";
-const LG_PEEK_CLASS = "lg:basis-[calc((100%_-_9rem)/4)]";
-const LG_VISIBLE = 4;
+    "flex shrink-0 basis-[72%] snap-start flex-col overflow-hidden rounded-3xl sm:basis-[calc((100%_-_0.75rem)/2)] md:basis-[calc((100%_-_3rem)/3)] lg:basis-[calc((100%_-_4.5rem)/4)]";
 
-const cardClass = (count: number) => cn(CARD_CLASS, count > LG_VISIBLE ? LG_PEEK_CLASS : LG_FIT_CLASS);
-
-const IMAGE_SIZES = "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 45vw, 72vw";
+const IMAGE_SIZES = "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 72vw";
 
 function SoonBadge() {
     return (
@@ -58,7 +50,7 @@ function SoonBadge() {
 function ContentToolItem({ card }: { card: ComingSoonCard }) {
     const Icon = card.icon;
     return (
-        <article className={cn(cardClass(COMING_SOON.contentTools.length), "border border-c2-neutral-200 bg-white")}>
+        <article className={cn(CARD_CLASS, "border border-c2-neutral-200 bg-white")}>
             <div className="relative bg-c2-navy-50">
                 <LandingImage asset={card.image} sizes={IMAGE_SIZES} className="w-full rounded-none border-0" />
                 {card.soon ? <SoonBadge /> : null}
@@ -79,7 +71,7 @@ function ContentToolItem({ card }: { card: ComingSoonCard }) {
 /** The square image covers the whole 4:5 card, which crops its sides; the gradient spans it all. */
 function CreativeToolItem({ card }: { card: CreativeToolCard }) {
     return (
-        <article className={cn(cardClass(COMING_SOON.creativeTools.length), "relative aspect-[4/5]")}>
+        <article className={cn(CARD_CLASS, "relative aspect-[4/5]")}>
             <LandingImage
                 asset={card.image}
                 sizes={IMAGE_SIZES}
