@@ -17,6 +17,8 @@ import {
 } from "@/src/components/ui/popover";
 import { Badge } from "@/src/components/ui/badge";
 import { Separator } from "@/src/components/ui/separator";
+import type { DashboardNotification } from "@/src/features/(web)/notifications/api";
+import { getTryOnNotificationHref } from "@/src/features/(web)/virtual-try-on/notification-links";
 
 export function NotificationDropdown({
   triggerClassName,
@@ -76,7 +78,7 @@ export function NotificationDropdown({
         <Separator className="bg-c2-neutral-200" />
         <NotificationList
           notifications={notifications}
-          onItemClick={handleNotificationsClick}
+          onItemClick={(notification: DashboardNotification) => { setOpen(false); router.push(getTryOnNotificationHref(notification, lang) || `/${lang}/notifications`); }}
           onViewAllClick={handleNotificationsClick}
         />
       </PopoverContent>

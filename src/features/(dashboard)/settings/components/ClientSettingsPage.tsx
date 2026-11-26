@@ -17,6 +17,7 @@ import { PrivacyPolicySection } from "./PrivacyPolicySection";
 import { SocialMediaSection } from "./SocialMediaSection";
 import { CaseManagement, type CaseManagementData } from "./CaseManagement";
 import { ChatBotSection, type ChatBotData } from "./ChatBotSection";
+import { TryOnSection, type TryOnSectionData } from "./TryOnSection";
 import { useGetSettings, useUpdateSettings } from "../hooks";
 import { isSettingFlagEnabled } from "@/src/stores/settings-store";
 import { toast } from "sonner";
@@ -63,6 +64,7 @@ interface SettingsFormData {
   terms: PolicyParagraph[];
   caseManagement: CaseManagementData;
   chatBot: ChatBotData;
+  tryOn: TryOnSectionData;
 }
 
 const settingsItems = [
@@ -94,6 +96,11 @@ const settingsItems = [
   {
     id: "chat-bot",
     title: "المساعد الذكي",
+    isCompleted: true,
+  },
+  {
+    id: "virtual-try-on",
+    title: "إعداد نظام التلبيس",
     isCompleted: true,
   },
 ];
@@ -150,6 +157,10 @@ export function ClientSettingsPage() {
     },
     chatBot: {
       isChatBotAllowed: true,
+    },
+    tryOn: {
+      isTryOnActive: false,
+      coinsPerGeneration: "",
     },
   });
 
@@ -212,6 +223,10 @@ export function ClientSettingsPage() {
           // missing flag) keeps the bot enabled.
           isChatBotAllowed: isSettingFlagEnabled(settings.is_chat_bot_allowed, true),
         },
+        tryOn: {
+          isTryOnActive: isSettingFlagEnabled(settings.is_try_on_active, false),
+          coinsPerGeneration: settings.try_on_coins_per_generation === undefined ? "" : String(settings.try_on_coins_per_generation),
+        },
       });
     }
   }, [settingsData]);
@@ -262,8 +277,21 @@ export function ClientSettingsPage() {
     }));
   };
 
+  const handleTryOnChange = (data: Partial<TryOnSectionData>) => {
+    setFormData((prev) => ({ ...prev, tryOn: { ...prev.tryOn, ...data } }));
+  };
+
   const handleSaveAll = async () => {
     try {
+      const previousTryOn = settingsData?.settings;
+      const activeChanged = formData.tryOn.isTryOnActive !== isSettingFlagEnabled(previousTryOn?.is_try_on_active, false);
+      const previousCost = previousTryOn?.try_on_coins_per_generation === undefined ? "" : String(previousTryOn.try_on_coins_per_generation);
+      const costChanged = formData.tryOn.coinsPerGeneration !== previousCost;
+      const tryOnCost = Number(formData.tryOn.coinsPerGeneration);
+      if (costChanged && (!/^\d+$/.test(formData.tryOn.coinsPerGeneration) || !Number.isSafeInteger(tryOnCost))) {
+        toast.error("أدخل عددًا صحيحًا من العملات يساوي صفرًا أو أكثر لتكلفة توليد الصورة.");
+        return;
+      }
       if (!formData.basicInfo.phone) {
         toast.error("يرجى إدخال رقم رقم الهاتف");
         return;
@@ -331,9 +359,11 @@ export function ClientSettingsPage() {
         is_app_under_construction: formData.caseManagement.isAppUnderConstruction,
         is_app_needs_update: formData.caseManagement.isAppNeedsUpdate,
         is_chat_bot_allowed: formData.chatBot.isChatBotAllowed,
+        ...(activeChanged ? { is_try_on_active: formData.tryOn.isTryOnActive } : {}),
+        ...(costChanged ? { try_on_coins_per_generation: tryOnCost } : {}),
       });
-    } catch (error) {
-
+    } catch {
+      // The API interceptor displays the save error.
     }
   };
 
@@ -433,6 +463,9 @@ export function ClientSettingsPage() {
                     data={formData.chatBot}
                     onChange={handleChatBotChange}
                   />
+                )}
+                {item.id === "virtual-try-on" && (
+                  <TryOnSection data={formData.tryOn} onChange={handleTryOnChange} disabled={updateSettingsMutation.isPending} />
                 )}
               </AccordionContent>
             </AccordionItem>

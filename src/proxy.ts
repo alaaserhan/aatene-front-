@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createI18nMiddleware } from "next-international/middleware";
 import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from "@/src/config/role-permissions";
+import { COINS_SEGMENTS, isCoinsEnabled } from "@/src/config/features";
 import { loginUrl, postLoginRedirect } from "@/src/auth/links";
 import { normalizeSearchType } from "@/src/features/(web)/search/types";
 
@@ -31,6 +32,7 @@ const MERCHANT_BLOCKED_SEGMENTS = new Set([
   'categories',
   'permissions',
   'settings',
+  'virtual-try-on',
   'contacts',
 ]);
 
@@ -129,6 +131,7 @@ export default function proxy(request: NextRequest) {
     '/requested-services/create',
     '/requested-services/edit',
     '/settings',
+    '/virtual-try-on',
   ];
 
   const isProtectedWebRoute = protectedWebRoutes.some((route) => {
@@ -178,6 +181,11 @@ export default function proxy(request: NextRequest) {
         isForbidden = true;
       }
 
+      // Coins pages act on the merchant's current store; admins have no store context there.
+      if (COINS_SEGMENTS.has(segment) && (role === 'admin' || !isCoinsEnabled())) {
+        isForbidden = true;
+      }
+
       if (role === 'merchant' && segment === 'home' && segments[adminIndex + 2] === 'reports') {
         isForbidden = true;
       }
@@ -224,12 +232,10 @@ export default function proxy(request: NextRequest) {
   // return I18nMiddleware(request);
   const i18nResponse = I18nMiddleware(request);
 
-  // Cache-Control: private, no-cache يسمح بـ bfcache (عكس no-store الذي يمنعه)
   i18nResponse.headers.set("Cache-Control", "private, no-cache");
 
   i18nResponse.headers.set("x-pathname", stripLocalePrefix(pathname));
 
-  // منع الـ redirect loop على iOS
   if (
     i18nResponse.status === 301 ||
     i18nResponse.status === 302 ||

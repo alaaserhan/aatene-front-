@@ -5,6 +5,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronLeft, Menu, X, Search } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { TryOnNavEntry } from "@/src/features/(web)/virtual-try-on/components/TryOnNavEntry";
 import { usePathname } from "next/navigation";
 import { SearchBar } from "./SearchBar";
 import UserMenu from "./UserMenu";
@@ -97,8 +98,9 @@ export default function MobileNav() {
 
         <Link href={`/${lang}`} className="flex min-w-0 max-w-[45%] shrink-0 justify-center overflow-hidden">
           {showRemoteMobileLogo && mobileLogoUrl ? (
-            <img
+            <Image
               src={mobileLogoUrl}
+              unoptimized
               className="mx-auto h-8 max-h-8 max-w-full object-contain"
               alt={settings?.name || "logo"}
               width={150}
@@ -107,11 +109,12 @@ export default function MobileNav() {
               onError={() => setFailedMobileLogoUrl(mobileLogoUrl)}
             />
           ) : (
-            <img src="/black.svg" className="mx-auto h-8 max-w-full object-contain" alt="logo" width={120} height={32} style={{ width: "auto", height: "2rem" }} />
+            <Image src="/black.svg" className="mx-auto h-8 max-w-full object-contain" alt="logo" width={120} height={32} style={{ width: "auto", height: "2rem" }} />
           )}
         </Link>
 
         <div className="flex shrink-0 items-center gap-0.5">
+          {isLoggedIn && <TryOnNavEntry />}
 
           <button
             className="p-2 hover:bg-gray-100 rounded-md cursor-pointer text-c2-primary"
