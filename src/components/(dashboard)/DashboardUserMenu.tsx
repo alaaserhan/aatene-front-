@@ -11,6 +11,7 @@ import { useLogout } from "@/src/auth";
 import { useGetStores } from "@/src/features/(dashboard)/stores/hooks";
 import { useLanguage } from "@/src/hooks/use-language";
 import { isSegmentAllowedForRole, MerchantRole } from "@/src/config/role-permissions";
+import { isCoinsEnabled } from "@/src/config/features";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -225,14 +226,12 @@ export function DashboardUserMenu() {
                 {isMerchant && (
                     <div className="bg-white">
                         <div className=" space-y-1 p-2">
-                            {/* Coins purchase link: temporarily disabled */}
-                            {/* {isSegmentAllowedForRole(storeRole || undefined, "coins") && (
+                            {isCoinsEnabled() && isSegmentAllowedForRole(storeRole || undefined, "coins") && (
                                 <MenuItem href={`/${lang}/admin/coins/buy`} icon={Coins} label="النقاط" onClick={() => setIsOpen(false)} />
-                            )} */}
-                            {/* Financial record depends on the coins system: temporarily disabled */}
-                            {/* {isSegmentAllowedForRole(storeRole || undefined, "financial-record") && (
+                            )}
+                            {isCoinsEnabled() && isSegmentAllowedForRole(storeRole || undefined, "financial-record") && (
                                 <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label="السجل المالي" onClick={() => setIsOpen(false)} />
-                            )} */}
+                            )}
                             {activeStore && (
                                 <MenuItem href={`/${lang}/admin/stores/${activeStore.id}`} icon={Store} label="الذهاب للمتجر" onClick={() => setIsOpen(false)} />
                             )}

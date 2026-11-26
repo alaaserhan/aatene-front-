@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createI18nMiddleware } from "next-international/middleware";
 import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from "@/src/config/role-permissions";
+import { COINS_SEGMENTS, isCoinsEnabled } from "@/src/config/features";
 import { loginUrl, postLoginRedirect } from "@/src/auth/links";
 import { normalizeSearchType } from "@/src/features/(web)/search/types";
 
@@ -177,6 +178,11 @@ export default function proxy(request: NextRequest) {
       let isForbidden = false;
 
       if (role === 'merchant' && MERCHANT_BLOCKED_SEGMENTS.has(segment)) {
+        isForbidden = true;
+      }
+
+      // Coins pages act on the merchant's current store; admins have no store context there.
+      if (COINS_SEGMENTS.has(segment) && (role === 'admin' || !isCoinsEnabled())) {
         isForbidden = true;
       }
 

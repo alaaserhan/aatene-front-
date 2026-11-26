@@ -5,6 +5,68 @@ import * as api from "./api";
 import { useAuth } from "@/src/auth";
 import { useLanguage } from "@/src/hooks/use-language";
 import { toast } from "sonner";
+import Cookies from "js-cookie";
+import { isCoinsEnabled } from "@/src/config/features";
+
+/** The store the dashboard is acting for: an explicit id wins over the cookie. */
+function useStoreId(storeId?: number | string) {
+    return storeId ?? Cookies.get("current_store_id");
+}
+
+export function useGetStoreBalance(params?: URLSearchParams, storeId?: number | string) {
+    const { isLoggedIn } = useAuth();
+    const currentStoreId = useStoreId(storeId);
+    return useQuery({
+        queryKey: ["coins", "balance", params?.toString(), currentStoreId],
+        queryFn: () => api.getStoreBalance(params, currentStoreId),
+        staleTime: 30_000,
+        enabled: isCoinsEnabled() && isLoggedIn && !!currentStoreId,
+    });
+}
+
+export function useGetCoinsTransactions(params?: URLSearchParams, storeId?: number | string) {
+    const { isLoggedIn } = useAuth();
+    const currentStoreId = useStoreId(storeId);
+    return useQuery({
+        queryKey: ["coins", "transactions", params?.toString(), currentStoreId],
+        queryFn: () => api.getCoinsTransactions(params, currentStoreId),
+        placeholderData: (previousData) => previousData,
+        enabled: isCoinsEnabled() && isLoggedIn && !!currentStoreId,
+    });
+}
+
+/** Store coins purchase. Errors are shown by the caller, next to the buy button. */
+export function usePurchaseCoinsPackage() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ body, storeId }: { body: api.PurchasePackageRequest; storeId?: number | string }) => api.purchaseCoinsPackage(body, storeId),
+        retry: false,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["coins", "balance"] });
+            queryClient.invalidateQueries({ queryKey: ["coins", "transactions"] });
+        },
+    });
+}
+
+export function useGetCoinsGrowth(period = "all_time", storeId?: number | string) {
+    const { isLoggedIn } = useAuth();
+    const currentStoreId = useStoreId(storeId);
+    return useQuery({
+        queryKey: ["coins", "growth", period, currentStoreId],
+        queryFn: () => api.getCoinsGrowth(period, currentStoreId),
+        enabled: isCoinsEnabled() && isLoggedIn && !!currentStoreId,
+    });
+}
+
+export function useGetCoinsGeneral(storeId?: number | string) {
+    const { isLoggedIn } = useAuth();
+    const currentStoreId = useStoreId(storeId);
+    return useQuery({
+        queryKey: ["coins", "general", currentStoreId],
+        queryFn: () => api.getCoinsGeneral(currentStoreId),
+        enabled: isCoinsEnabled() && isLoggedIn && !!currentStoreId,
+    });
+}
 
 export function useGetMyBalance() {
     const { isLoggedIn } = useAuth();
@@ -33,7 +95,7 @@ export function useGetCoinsPackages(enabled = true) {
     return useQuery({
         queryKey: ["coins", "packages", locale],
         queryFn: ({ signal }) => api.getCoinsPackages(signal),
-        enabled: enabled && isLoggedIn,
+        enabled: enabled && isLoggedIn && isCoinsEnabled(),
         staleTime: 60_000,
         retry: false,
     });

@@ -13,6 +13,7 @@ import { useAddToTryOnList, useTryOnInfo, useTryOnProductIndex, useTryOnList } f
 import { TryOnIcon } from "./TryOnIcon";
 import { productImageActionClassName } from "../../product/components/productImageAction";
 import { TryOnRechargeDialog } from "./TryOnRechargeDialog";
+import { isCoinsEnabled } from "@/src/config/features";
 
 export function TryOnProductEntry({ productId, className, variant = "default" }: { productId: number; className?: string; variant?: "default" | "card" }) {
   const [open, setOpen] = useState(false);
@@ -30,6 +31,10 @@ export function TryOnProductEntry({ productId, className, variant = "default" }:
 
   async function select(goToRoom: boolean) {
     if (goToRoom && insufficientBalance) {
+      if (!isCoinsEnabled()) {
+        toast.error("رصيدك غير كافٍ لتجربة جديدة حاليًا.");
+        return;
+      }
       setOpen(false);
       setRechargeOpen(true);
       return;

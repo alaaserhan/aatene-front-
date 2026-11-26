@@ -11,6 +11,7 @@ import { useGetCoinsPackages, usePurchaseForMe } from "@/src/features/(dashboard
 import { cn } from "@/src/lib/utils";
 import { getTryOnError } from "../errors";
 import { TryOnIcon } from "./TryOnIcon";
+import { isCoinsEnabled } from "@/src/config/features";
 
 function formatPackagePrice(price: string, currency = "USD") {
   try {
@@ -20,7 +21,14 @@ function formatPackagePrice(price: string, currency = "USD") {
   }
 }
 
-export function TryOnRechargeDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+type RechargeDialogProps = { open: boolean; onOpenChange: (open: boolean) => void };
+
+/** Renders nothing while the coins system is switched off (NEXT_PUBLIC_COINS_ENABLED). */
+export function TryOnRechargeDialog(props: RechargeDialogProps) {
+  return isCoinsEnabled() ? <RechargeDialog {...props} /> : null;
+}
+
+function RechargeDialog({ open, onOpenChange }: RechargeDialogProps) {
   const purchaseLockRef = useRef(false);
   return (
     <Dialog open={open} onOpenChange={(next) => { if (!purchaseLockRef.current) onOpenChange(next); }}>

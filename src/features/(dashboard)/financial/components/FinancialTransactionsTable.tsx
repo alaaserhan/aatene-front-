@@ -1,7 +1,5 @@
-import { Loader2, ArrowDownLeft, Plus, CirclePlus, CircleMinus } from "lucide-react";
-// import { CoinTransaction } from "../../coins/api"; // COINS_DISABLED
-// نوع محلي مؤقت بديل عن CoinTransaction من coins/api
-type CoinTransaction = { id: number; type: string; description: string; coins_amount: string; created_at: string; };
+import { Loader2, Plus, CirclePlus, CircleMinus } from "lucide-react";
+import type { CoinTransaction } from "../../coins/api";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { cn } from "@/src/lib/utils";
 
@@ -41,7 +39,7 @@ export function FinancialTransactionsTable({
     const getTypeConfig = (type: string) => {
         switch (type) {
             case "purchase":
-            case "deposit": // Assuming 'deposit' might be a type for "Added by admin"
+            case "deposit":
                 return {
                     label: "شراء عملات",
                     valueClass: "text-emerald-500",
@@ -101,7 +99,7 @@ export function FinancialTransactionsTable({
                                     </td>
 
                                     <td className="px-6 py-4 text-sm text-gray-2 font-medium">
-                                        {/* Assuming description might contain campaign ID or it's a separate field not yet in interface, using placeholder logic */}
+                                        {/* The API has no campaign field yet; pull "#XX - 123" out of the description when present. */}
                                         {tx.description.includes("#") ? tx.description.match(/#\s?\w+\s?-\s?\d+/)?.[0] || "--" : "--"}
                                     </td>
 

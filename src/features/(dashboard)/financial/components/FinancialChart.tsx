@@ -1,7 +1,4 @@
-// ⚠️ COINS_DISABLED: معطّل مؤقتاً - يعتمد على نظام العملات الذهبية (coins)
-// لإعادة تفعيله: أعد تفعيل coins/hooks.ts واحذف كتلة التعليق
-
-/* COINS_DISABLED_START
+"use client";
 
 import { useState } from "react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
@@ -89,12 +86,4 @@ export function FinancialChart({ storeId, className }: FinancialChartProps) {
             </div>
         </div>
     );
-}
-
-COINS_DISABLED_END */
-
-// مكوّن فارغ مؤقت
-export function FinancialChart({ storeId, className }: { storeId?: number | string; className?: string }) {
-    void storeId; void className;
-    return null;
 }

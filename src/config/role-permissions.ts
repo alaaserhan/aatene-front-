@@ -5,7 +5,7 @@ const ALWAYS_ALLOWED = new Set(["home", "stores", "403"]);
 const ROLE_ALLOWED_SEGMENTS: Record<MerchantRole, Set<string> | "all"> = {
     general: "all",
     owner: "all",
-    social: new Set(["chat", "stories", "following", /* "coins", */]),
+    social: new Set(["chat", "stories", "following", "coins"]),
     sales: new Set([
         "products",
         "serviceProviders",
@@ -13,7 +13,8 @@ const ROLE_ALLOWED_SEGMENTS: Record<MerchantRole, Set<string> | "all"> = {
         "categories",
         "coupons",
         "related-products",
-        // Coin purchasing and financial records are currently disabled.
+        "coins",
+        "financial-record",
     ]),
 };
 

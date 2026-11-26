@@ -41,6 +41,7 @@ Order for safety: `lint` → `typecheck` → `build`. No test framework exists i
 - **Media URLs** from backend may contain `http://localhost` — use `fixMediaUrl()` to replace with real API origin.
 - **`NEXT_PUBLIC_API_BASE_URL`** env var must be set (in `.env` for dev). See `.env` for all required vars (Firebase, Google Maps, etc.).
 - **Coming Soon mode** controlled by `COMING_SOON_ENABLED` env var + `COMING_SOON_PREVIEW_SECRET` cookie bypass.
+- **Coins switch** `NEXT_PUBLIC_COINS_ENABLED` (`src/config/features.ts` → `isCoinsEnabled()`): `"false"` hides the whole coins system — the merchant buy and financial-record pages (proxy serves 403), the navbar balance, the user-menu links, the overview points card and the try-on "recharge" entry points. Anything else counts as on. It is inlined at build time, so flipping it needs a redeploy. Gate any new coins entry point with it.
 
 ## Shared feature components
 
